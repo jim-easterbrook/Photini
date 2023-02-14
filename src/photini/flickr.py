@@ -115,19 +115,7 @@ class FlickrSession(UploaderSession):
         status = rsp.attrib['stat']
         if status != 'ok':
             return 'Flickr upload: ' + status, None
-        ticket_id = rsp.find('ticketid').text
-        # wait for processing to finish
-        while True:
-            rsp = self.api_call('flickr.photos.upload.checkTickets',
-                                tickets=ticket_id)
-            if not rsp:
-                return 'Wait for processing failed', None
-            complete = rsp['uploader']['ticket'][0]['complete']
-            if complete == 1:
-                return '', rsp['uploader']['ticket'][0]['photoid']
-            elif complete != 0:
-                return 'Flickr file conversion failed', None
-            time.sleep(1)
+        return '', rsp.find('ticketid').text
 
     metadata_set_func = {
         'privacy':      'flickr.photos.setPerms',
@@ -143,6 +131,18 @@ class FlickrSession(UploaderSession):
         }
 
     def set_metadata(self, params, photo_id):
+        if 'hidden' in params:
+            # flickr.photos.setSafetyLevel has different 'hidden' values
+            # than upload function
+            params['hidden']['hidden'] = str(
+                int(params['hidden']['hidden']) - 1)
+            if 'safety_level' in params:
+                params['safety_level'].update(params['hidden'])
+                del params['hidden']
+        if 'privacy' in params and 'permissions' in params:
+            del params['privacy']
+        if 'keywords' in params:
+            params['keywords'] = {'tags': params['keywords']['keywords']}
         for key in list(params):
             if params[key] and key in self.metadata_set_func:
                 rsp = self.api_call(self.metadata_set_func[key], post=True,
@@ -202,65 +202,86 @@ class FlickrSession(UploaderSession):
 
     def upload_files(self, upload_list):
         upload_count = 0
-        for image, convert, params in upload_list:
-            upload_count += 1
-            self.upload_progress.emit({
-                'label': '{} ({}/{})'.format(os.path.basename(image.path),
-                                             upload_count, len(upload_list)),
-                'busy': True})
-            photo_id = params['photo_id']
-            if params['function']:
-                # upload or replace photo
-                data = {'async': '1'}
-                if params['function'] == 'upload':
-                    # set some metadata with upload function
-                    for key in ('privacy', 'content_type', 'hidden',
-                                'safety_level', 'meta'):
-                        data.update(params[key])
-                        del params[key]
+        uploads = list(upload_list)
+        tickets = {}
+        metadata = []
+        ticket_poll = 0.0
+        while uploads or tickets or metadata:
+            if uploads:
+                # upload an image
+                image, convert, params = uploads.pop(0)
+                upload_count += 1
+                self.upload_progress.emit({
+                    'label': '{} ({}/{})'.format(
+                        os.path.basename(image.path),
+                        upload_count, len(upload_list)),
+                    'busy': True})
+                if params['function']:
+                    # upload or replace photo
+                    data = {'async': '1'}
+                    if params['function'] == 'upload':
+                        # set some metadata with upload function
+                        for key in ('privacy', 'content_type', 'hidden',
+                                    'safety_level', 'meta'):
+                            data.update(params[key])
+                            del params[key]
+                    else:
+                        # replace existing photo
+                        data['photo_id'] = params['photo_id']
+                    url = 'https://up.flickr.com/services/{}/'.format(
+                        params['function'])
+                    with self.open_file(image, convert) as (image_type, fileobj):
+                        error, ticket_id = self.upload_image(
+                            url, data, fileobj, image_type)
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
+                        continue
+                    if image_type.startswith('video'):
+                        # can't set permissions or privacy while video is
+                        # being processed
+                        if 'privacy' in params:
+                            del params['privacy']
+                        if 'permissions' in params:
+                            del params['permissions']
+                    # add ticket and details to ticket queue
+                    tickets[ticket_id] = image, params
                 else:
-                    # replace existing photo
-                    data['photo_id'] = photo_id
-                url = 'https://up.flickr.com/services/{}/'.format(
-                    params['function'])
-                with self.open_file(image, convert) as (image_type, fileobj):
-                    error, photo_id = self.upload_image(
-                        url, data, fileobj, image_type)
+                    # add details to metadata queue
+                    metadata.append((image, params))
+            if tickets:
+                # check images currently being processed
+                pause = ticket_poll - time.time()
+                if pause > 0:
+                    time.sleep(pause)
+                ticket_poll = time.time() + 1.0
+                rsp = self.api_call('flickr.photos.upload.checkTickets',
+                                    tickets=','.join(tickets.keys()))
+                if not rsp:
+                    self.upload_progress.emit({
+                        'error': (image, 'Wait for processing failed')})
+                for ticket in rsp['uploader']['ticket']:
+                    if ticket['complete'] != 1:
+                        continue
+                    image, params = tickets[ticket['id']]
+                    params['photo_id'] = ticket['photoid']
+                    del tickets[ticket['id']]
+                    # add details to metadata queue
+                    metadata.append((image, params))
+                    # store photo id in image keywords, in main thread
+                    self.upload_progress.emit({
+                        'keyword': (image, 'flickr:id=' + params['photo_id'])})
+            while metadata:
+                # set remaining metadata after uploading image(s)
+                image, params = metadata.pop(0)
+                error = self.set_metadata(params, params['photo_id'])
                 if error:
                     self.upload_progress.emit({'error': (image, error)})
                     continue
-                # store photo id in image keywords, in main thread
-                self.upload_progress.emit({
-                    'keyword': (image, 'flickr:id=' + photo_id)})
-                if image_type.startswith('video'):
-                    # can't set permissions or privacy while video is
-                    # being processed
-                    if 'privacy' in params:
-                        del params['privacy']
-                    if 'permissions' in params:
-                        del params['permissions']
-            # set metadata after uploading image
-            if 'hidden' in params:
-                # flickr.photos.setSafetyLevel has different 'hidden' values
-                # than upload function
-                params['hidden']['hidden'] = str(
-                    int(params['hidden']['hidden']) - 1)
-                if 'safety_level' in params:
-                    params['safety_level'].update(params['hidden'])
-                    del params['hidden']
-            if 'privacy' in params and 'permissions' in params:
-                del params['privacy']
-            if 'keywords' in params:
-                params['keywords'] = {'tags': params['keywords']['keywords']}
-            error = self.set_metadata(params, photo_id)
-            if error:
-                self.upload_progress.emit({'error': (image, error)})
-                continue
-            # add to or remove from albums
-            if 'albums' in params:
-                error = self.set_albums(params, photo_id)
-                if error:
-                    self.upload_progress.emit({'error': (image, error)})
+                # add to or remove from albums
+                if 'albums' in params:
+                    error = self.set_albums(params, params['photo_id'])
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
 
 
 class HiddenWidget(QtWidgets.QCheckBox):
