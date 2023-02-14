@@ -228,40 +228,36 @@ class FlickrSession(UploaderSession):
                 del params['privacy']
             if 'keywords' in params:
                 params['keywords'] = {'tags': params['keywords']['keywords']}
-            retry = True
-            while retry:
-                error = ''
-                if not upload_data:
-                    # no image conversion required
-                    convert = None
-                # UploadWorker converts image to fileobj
-                fileobj, image_type = yield image, convert
-                if upload_data:
-                    # upload or replace photo
-                    url = 'https://up.flickr.com/services/{}/'.format(
-                        params['function'])
-                    error, photo_id = self.upload_image(
-                        url, upload_data, fileobj, image_type)
-                    if not error:
-                        # don't retry
-                        upload_data = {}
-                        # store photo id in image keywords, in main thread
-                        self.upload_progress.emit({
-                            'keyword': (image, 'flickr:id=' + photo_id)})
-                # set metadata after uploading image
+            error = ''
+            if not upload_data:
+                # no image conversion required
+                convert = None
+            # UploadWorker converts image to fileobj
+            fileobj, image_type = yield image, convert
+            if upload_data:
+                # upload or replace photo
+                url = 'https://up.flickr.com/services/{}/'.format(
+                    params['function'])
+                error, photo_id = self.upload_image(
+                    url, upload_data, fileobj, image_type)
                 if not error:
-                    if image_type.startswith('video'):
-                        # can't set permissions or privacy while video
-                        # is being processed
-                        if 'privacy' in params:
-                            del params['privacy']
-                        if 'permissions' in params:
-                            del params['permissions']
-                    error = self.set_metadata(params, photo_id)
-                # add to or remove from albums
-                if 'albums' in params and not error:
-                    error = self.set_albums(params, photo_id)
-                retry = yield error
+                    # store photo id in image keywords, in main thread
+                    self.upload_progress.emit({
+                        'keyword': (image, 'flickr:id=' + photo_id)})
+            # set metadata after uploading image
+            if not error:
+                if image_type.startswith('video'):
+                    # can't set permissions or privacy while video
+                    # is being processed
+                    if 'privacy' in params:
+                        del params['privacy']
+                    if 'permissions' in params:
+                        del params['permissions']
+                error = self.set_metadata(params, photo_id)
+            # add to or remove from albums
+            if 'albums' in params and not error:
+                error = self.set_albums(params, photo_id)
+            yield error
 
 
 class HiddenWidget(QtWidgets.QCheckBox):

@@ -90,12 +90,10 @@ class UploaderSession(QtCore.QObject):
 
     def upload_files(self, upload_list):
         for image, convert, params in upload_list:
-            retry = True
-            while retry:
-                # UploadWorker converts image to fileobj
-                fileobj, image_type = yield image, convert
-                # UploadWorker decides if to retry after error
-                retry = yield self.do_upload(fileobj, image_type, image, params)
+            # UploadWorker converts image to fileobj
+            fileobj, image_type = yield image, convert
+            # UploadWorker forwards errors to user
+            yield self.do_upload(fileobj, image_type, image, params)
 
 
 class AbortableFileReader(QtCore.QObject):
@@ -137,7 +135,6 @@ class UploadWorker(QtCore.QObject):
         super(UploadWorker, self).__init__(*args, **kwds)
         self.session = session
         self.upload_list = upload_list
-        self.retry = None
 
     @contextmanager
     def open_file(self, image, convert):
@@ -171,7 +168,7 @@ class UploadWorker(QtCore.QObject):
             upload_count = 1
             while True:
                 try:
-                    image, convert = uploader.send(self.retry)
+                    image, convert = uploader.send(None)
                 except StopIteration:
                     break
                 name = os.path.basename(image.path)
@@ -195,23 +192,14 @@ class UploadWorker(QtCore.QObject):
                     error = '{}: {}'.format(type(ex), str(ex))
                 self.upload_progress.emit({'busy': False})
                 if error:
-                    self.retry = None
                     self.upload_error.emit(name, error)
-                    # wait for response from user dialog
-                    while self.retry is None:
-                        QtWidgets.QApplication.processEvents()
-                    if not self.retry:
-                        break
-                else:
-                    upload_count += 1
-                self.retry = False
+                upload_count += 1
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
         self.finished.emit()
 
-    @QtSlot(bool)
+    @QtSlot()
     @catch_all
-    def abort_upload(self, retry):
-        self.retry = retry
+    def abort_upload(self):
         self._abort_upload.emit()
 
 
@@ -476,7 +464,7 @@ class AlbumList(QtWidgets.QWidget):
 
 
 class PhotiniUploader(QtWidgets.QWidget):
-    abort_upload = QtSignal(bool)
+    abort_upload = QtSignal()
 
     def __init__(self, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
@@ -518,7 +506,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             translate('UploaderTabsAll', 'Stop upload'))
         self.buttons['upload'].setEnabled(False)
         self.buttons['upload'].click_start.connect(self.start_upload)
-        self.buttons['upload'].click_stop.connect(self.stop_upload)
+        self.buttons['upload'].click_stop.connect(self.abort_upload)
         layout.addWidget(self.buttons['upload'], 0, 2)
         # initialise as not connected
         self.connection_changed(False)
@@ -545,7 +533,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @catch_all
     def shutdown(self):
         if self.upload_worker:
-            self.stop_upload()
+            self.abort_upload.emit()
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
 
@@ -828,11 +816,6 @@ class PhotiniUploader(QtWidgets.QWidget):
             return self.copy_file_and_metadata
         return None
 
-    @QtSlot()
-    @catch_all
-    def stop_upload(self):
-        self.abort_upload.emit(False)
-
     def get_selected_images(self):
         return self.app.image_list.get_selected_images()
 
@@ -914,9 +897,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setInformativeText(error)
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Abort |
-                                  dialog.StandardButton.Retry)
-        dialog.setDefaultButton(dialog.StandardButton.Retry)
-        self.abort_upload.emit(execute(dialog) == dialog.StandardButton.Retry)
+                                  dialog.StandardButton.Ignore)
+        dialog.setDefaultButton(dialog.StandardButton.Ignore)
+        if execute(dialog) == dialog.StandardButton.Abort:
+            self.abort_upload.emit()
 
     @QtSlot()
     @catch_all

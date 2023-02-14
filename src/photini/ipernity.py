@@ -198,31 +198,27 @@ class IpernitySession(UploaderSession):
             if 'visibility' in params and 'permissions' in params:
                 params['permissions'].update(params['visibility'])
                 del params['visibility']
-            retry = True
-            while retry:
-                error = ''
-                if not upload_data:
-                    # no image conversion required
-                    convert = None
-                # UploadWorker converts image to fileobj
-                fileobj, image_type = yield image, convert
-                if upload_data:
-                    # upload or replace photo
-                    error, doc_id = self.upload_image(
-                        params, upload_data, fileobj, image_type)
-                    if not error:
-                        # don't retry
-                        upload_data = {}
-                        # store photo id in image keywords, in main thread
-                        self.upload_progress.emit({
-                            'keyword': (image, 'ipernity:id=' + doc_id)})
-                # set remaining metadata after uploading image
+            error = ''
+            if not upload_data:
+                # no image conversion required
+                convert = None
+            # UploadWorker converts image to fileobj
+            fileobj, image_type = yield image, convert
+            if upload_data:
+                # upload or replace photo
+                error, doc_id = self.upload_image(
+                    params, upload_data, fileobj, image_type)
                 if not error:
-                    error = self.set_metadata(params, doc_id)
-                # add to or remove from albums
-                if 'albums' in params and not error:
-                    error = self.set_albums(params, doc_id)
-                retry = yield error
+                    # store photo id in image keywords, in main thread
+                    self.upload_progress.emit({
+                        'keyword': (image, 'ipernity:id=' + doc_id)})
+            # set remaining metadata after uploading image
+            if not error:
+                error = self.set_metadata(params, doc_id)
+            # add to or remove from albums
+            if 'albums' in params and not error:
+                error = self.set_albums(params, doc_id)
+            yield error
 
 
 class PermissionWidget(DropDownSelector):
