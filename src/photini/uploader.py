@@ -82,7 +82,7 @@ class UploaderSession(QtCore.QObject):
             raise
         except Exception as ex:
             logger.error(str(ex))
-            return {}
+            return None
         return rsp
 
     def progress(self, monitor):

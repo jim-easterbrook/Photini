@@ -109,7 +109,7 @@ class GooglePhotosSession(UploaderSession):
             body['albumId'] = params['albums'][0]
         rsp = self.api_call(self.photos_url + 'v1/mediaItems:batchCreate',
                             json=body, post=True)
-        if 'newMediaItemResults' not in rsp:
+        if not (rsp and 'newMediaItemResults' in rsp):
             return 'failed to create media item'
         rsp = rsp['newMediaItemResults'][0]
         if 'status' in rsp:
@@ -152,7 +152,7 @@ class GooglePhotosUser(UploaderUser):
             while True:
                 rsp = session.api_call(
                     session.photos_url + 'v1/albums', params=params)
-                if 'albums' not in rsp:
+                if not (rsp and 'albums' in rsp):
                     break
                 for album in rsp['albums']:
                     if 'id' not in album:

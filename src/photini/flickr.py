@@ -64,12 +64,12 @@ class FlickrSession(UploaderSession):
         else:
             rsp = self.api.get(url, params=params, **kwds)
         rsp = self.check_response(rsp)
-        if not rsp:
+        if rsp is None:
             print('close_connection', method)
             self.close_connection()
         elif rsp['stat'] != 'ok':
             logger.error('%s: %s', method, rsp['message'])
-            return {}
+            return None
         return rsp
 
     def find_photos(self, min_taken_date, max_taken_date):
@@ -82,7 +82,7 @@ class FlickrSession(UploaderSession):
                 page=page, extras='date_taken,url_t',
                 min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
                 max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
-            if not ('photos' in rsp and rsp['photos']['photo']):
+            if not (rsp and 'photos' in rsp and rsp['photos']['photo']):
                 return
             for photo in rsp['photos']['photo']:
                 date_taken = datetime.strptime(
@@ -147,17 +147,17 @@ class FlickrSession(UploaderSession):
             if params[key] and key in self.metadata_set_func:
                 rsp = self.api_call(self.metadata_set_func[key], post=True,
                                     photo_id=photo_id, **params[key])
-                if not rsp:
+                if rsp is None:
                     return 'Failed to set ' + key
                 del params[key]
         # existing photo may have a location that needs deleting
         if params['function'] != 'upload' and (
                 'location' in params and not params['location']):
             rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
-            if 'photo' in rsp and 'location' in rsp['photo']:
+            if rsp and 'photo' in rsp and 'location' in rsp['photo']:
                 rsp = self.api_call('flickr.photos.geo.removeLocation',
                                     post=True, photo_id=photo_id)
-                if not rsp:
+                if rsp is None:
                     return 'Failed to clear location'
             del params['location']
         return ''
@@ -168,7 +168,7 @@ class FlickrSession(UploaderSession):
             # get albums existing photo is in
             rsp = self.api_call(
                 'flickr.photos.getAllContexts', photo_id=photo_id)
-            if 'set' in rsp:
+            if rsp and 'set' in rsp:
                 for album in rsp['set']:
                     current_albums.append(album['id'])
         for widget in params['albums']:
@@ -180,7 +180,7 @@ class FlickrSession(UploaderSession):
                     primary_photo_id=photo_id,
                     title=widget.property('title'),
                     description=widget.property('description'))
-                if not rsp:
+                if rsp is None:
                     return 'Failed to create album'
                 widget.setProperty('id', rsp['photoset']['id'])
             elif album_id in current_albums:
@@ -190,13 +190,13 @@ class FlickrSession(UploaderSession):
                 # add to existing set
                 rsp = self.api_call('flickr.photosets.addPhoto', post=True,
                                     photo_id=photo_id, photoset_id=album_id)
-                if not rsp:
+                if rsp is None:
                     return 'Failed to add to album'
         # remove from any other albums
         for album_id in current_albums:
             rsp = self.api_call('flickr.photosets.removePhoto', post=True,
                                 photo_id=photo_id, photoset_id=album_id)
-            if not rsp:
+            if rsp is None:
                 return 'Failed to remove from album'
         return ''
 
@@ -256,7 +256,7 @@ class FlickrSession(UploaderSession):
                 ticket_poll = time.time() + 1.0
                 rsp = self.api_call('flickr.photos.upload.checkTickets',
                                     tickets=','.join(tickets.keys()))
-                if not rsp:
+                if rsp is None:
                     self.upload_progress.emit({
                         'error': (image, 'Wait for processing failed')})
                 for ticket in rsp['uploader']['ticket']:
@@ -304,13 +304,13 @@ class FlickrUser(UploaderUser):
             # check auth
             connected = False
             rsp = session.api_call('flickr.auth.oauth.checkToken')
-            if rsp:
-                self.user_data['user_nsid'] = rsp['oauth']['user']['nsid']
-                self.user_data['fullname'] = rsp['oauth']['user']['fullname']
-                self.user_data['username'] = rsp['oauth']['user']['username']
-                self.user_data['lang'] = None
-                connected = rsp['oauth']['perms']['_content'] == 'write'
-            yield 'connected', connected
+            if rsp is None:
+                yield 'connected', False
+            self.user_data['user_nsid'] = rsp['oauth']['user']['nsid']
+            self.user_data['fullname'] = rsp['oauth']['user']['fullname']
+            self.user_data['username'] = rsp['oauth']['user']['username']
+            self.user_data['lang'] = None
+            yield 'connected', rsp['oauth']['perms']['_content'] == 'write'
             # get user icon
             rsp = session.api_call(
                 'flickr.people.getInfo', user_id=self.user_data['user_nsid'])
@@ -320,7 +320,7 @@ class FlickrUser(UploaderUser):
                     '{iconserver}/buddyicons/{id}.jpg').format(**rsp['person'])
             else:
                 icon_url = 'https://www.flickr.com/images/buddyicon.gif'
-            rsp = FlickrSession.check_response(
+            rsp = session.check_response(
                 session.api.get(icon_url), decode=False)
             picture = rsp and rsp.content
             yield 'user', (self.user_data['fullname'], picture)
@@ -330,8 +330,8 @@ class FlickrUser(UploaderUser):
             while True:
                 params['page'] = str(page)
                 rsp = session.api_call('flickr.photosets.getList', **params)
-                if not rsp:
-                    break
+                if rsp is None:
+                    yield 'connected', False
                 for album in rsp['photosets']['photoset']:
                     yield 'album', {
                         'title': album['title']['_content'],
@@ -344,8 +344,8 @@ class FlickrUser(UploaderUser):
                 page += 1
             # get licences
             rsp = session.api_call('flickr.photos.licenses.getInfo')
-            if not rsp:
-                return
+            if rsp is None:
+                yield 'connected', False
             values = []
             for licence in rsp['licenses']['license']:
                 licence['id'] = str(licence['id'])
@@ -363,8 +363,8 @@ class FlickrUser(UploaderUser):
                     ('content_type', 'flickr.prefs.getContentType'),
                     ):
                 rsp = session.api_call(function)
-                if not rsp:
-                    return
+                if rsp is None:
+                    yield 'connected', False
                 widgets[key].set_value(str(rsp['person'][key]))
                 yield None, None
 

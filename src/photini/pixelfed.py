@@ -72,26 +72,26 @@ class PixelfedSession(UploaderSession):
             # some wrong api calls return the instance home page
             if rsp.headers['Content-Type'].startswith('text/html'):
                 logger.error('Response is HTML')
-                return {}
+                return None
             if decode:
                 rsp = rsp.json()
         except UploadAborted:
             raise
         except Exception as ex:
             logger.error(str(ex))
-            return {}
+            return None
         return rsp
 
     def api_call(self, endpoint, method='GET', **params):
         self.open_connection()
         url = self.client_data['api_base_url'] + endpoint
         rsp = self.check_response(self.api.request(method, url, **params))
-        if not rsp:
+        if rsp is None:
             print('close_connection', endpoint)
             self.close_connection()
         elif 'error' in rsp:
             logger.error('%s: %s', endpoint, rsp['error'])
-            return {}
+            return None
         return rsp
 
     def upload_files(self, upload_list):
@@ -129,7 +129,7 @@ class PixelfedSession(UploaderSession):
                     endpoint, method='POST', data=data,
                     headers={'Content-Type': data.content_type})
             self.upload_progress.emit({'busy': True})
-            if not rsp:
+            if rsp is None:
                 self.upload_progress.emit({
                     'error': (image, 'Image upload failed')})
                 return
@@ -147,7 +147,7 @@ class PixelfedSession(UploaderSession):
         data = dict(params['status'])
         data['media_ids[]'] = media_ids
         rsp = self.api_call('/api/v1/statuses', method='POST', data=data)
-        if not rsp:
+        if rsp is None:
             self.upload_progress.emit({'error': (image, 'Post status failed')})
 
 
@@ -287,16 +287,19 @@ class PixelfedUser(UploaderUser):
             yield None, None
             # get user preferences
             prefs = session.api_call('/api/v1/preferences')
-            if prefs:
-                if prefs['posting:default:language']:
-                    self.user_data['lang'] = prefs['posting:default:language']
-                widgets['sensitive'].setChecked(
-                    prefs['posting:default:sensitive'])
-                widgets['visibility'].set_value(
-                    prefs['posting:default:visibility'])
+            if prefs is None:
+                yield 'connected', False
+            if prefs['posting:default:language']:
+                self.user_data['lang'] = prefs['posting:default:language']
+            widgets['sensitive'].setChecked(
+                prefs['posting:default:sensitive'])
+            widgets['visibility'].set_value(
+                prefs['posting:default:visibility'])
             if self.client_data['version']['pixelfed']:
                 self.compose_settings = session.api_call(
                     '/api/v1.1/compose/settings')
+                if self.compose_settings is None:
+                    yield 'connected', False
                 if 'default_license' in self.compose_settings:
                     widgets['license'].set_value(
                         int(self.compose_settings['default_license']))
@@ -315,7 +318,7 @@ class PixelfedUser(UploaderUser):
                 return
             for collection in session.api_call(
                     '/api/v1.1/collections/accounts/{}'.format(
-                        self.user_data['id'])):
+                        self.user_data['id'])) or []:
                 if collection:
                     yield 'album', {
                         'title': collection['title'] or 'Untitled',

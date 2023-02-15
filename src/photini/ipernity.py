@@ -64,12 +64,12 @@ class IpernitySession(UploaderSession):
         else:
             rsp = self.api.get(url, timeout=20, params=params)
         rsp = self.check_response(rsp)
-        if not rsp:
+        if rsp is None:
             print('close_connection', method)
             self.close_connection()
         elif rsp['api']['status'] != 'ok':
             logger.error('API error %s: %s', method, str(rsp['api']))
-            return {}
+            return None
         return rsp
 
     def get_auth_url(self, frob):
@@ -139,7 +139,7 @@ class IpernitySession(UploaderSession):
             if params[key] and key in self.metadata_set_func:
                 rsp = self.api_call(self.metadata_set_func[key], post=True,
                                     doc_id=doc_id, **params[key])
-                if not rsp:
+                if rsp is None:
                     return 'Failed to set ' + key
                 del params[key]
         return ''
@@ -161,13 +161,13 @@ class IpernitySession(UploaderSession):
                 # add to existing album
                 rsp = self.api_call('album.docs.add', post=True,
                                     album_id=album_id, doc_id=doc_id)
-                if not rsp:
+                if rsp is None:
                     return 'Failed to add to album'
         # remove from any other albums
         for album_id in current_albums:
             rsp = self.api_call('album.docs.remove', post=True,
                                 album_id=album_id, doc_id=doc_id)
-            if not rsp:
+            if rsp is None:
                 return 'Failed to remove from album'
         return ''
 
@@ -288,26 +288,23 @@ class IpernityUser(UploaderUser):
         with self.session(parent=self) as session:
             # check auth
             rsp = session.api_call('auth.checkToken')
-            if rsp:
-                self.user_data['user_id'] = rsp['auth']['user']['user_id']
-                self.user_data['realname'] = rsp['auth']['user']['realname']
-                self.user_data['lang'] = rsp['auth']['user']['lg']
-                if rsp['auth']['user']['is_pro'] == '0':
-                    # guest user can upload 2.5 MB photos and no videos
-                    self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
-                                     'video': {'bytes': 0}}
-                connected = rsp['auth']['permissions']['doc'] == 'write'
-            else:
-                connected = False
-            yield 'connected', connected
+            if not rsp:
+                yield 'connected', False
+            self.user_data['user_id'] = rsp['auth']['user']['user_id']
+            self.user_data['realname'] = rsp['auth']['user']['realname']
+            self.user_data['lang'] = rsp['auth']['user']['lg']
+            if rsp['auth']['user']['is_pro'] == '0':
+                # guest user can upload 2.5 MB photos and no videos
+                self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
+                                 'video': {'bytes': 0}}
+            yield 'connected', rsp['auth']['permissions']['doc'] == 'write'
             # get user icon
             rsp = session.api_call(
                 'user.get', user_id=self.user_data['user_id'])
-            picture = None
-            if rsp:
-                rsp = IpernitySession.check_response(
-                    session.api.get(rsp['user']['icon']),
-                    decode=False)
+            if not rsp:
+                yield 'connected', False
+            rsp = session.check_response(
+                session.api.get(rsp['user']['icon']), decode=False)
             picture = rsp and rsp.content
             yield 'user', (self.user_data['realname'], picture)
             # get albums
@@ -318,14 +315,14 @@ class IpernityUser(UploaderUser):
                 # get list of album ids
                 rsp = session.api_call('album.getList', **params)
                 if not rsp:
-                    break
+                    yield 'connected', False
                 albums = rsp['albums']
                 # get details of each album
                 for album in albums['album']:
                     rsp = session.api_call(
                         'album.get', album_id=album['album_id'])
                     if not rsp:
-                        continue
+                        yield 'connected', False
                     yield 'album', {
                         'title': rsp['album']['title'],
                         'description': rsp['album']['description'],
