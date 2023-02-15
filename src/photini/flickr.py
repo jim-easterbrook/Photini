@@ -546,10 +546,11 @@ class TabWidget(PhotiniUploader):
             params['privacy'] = privacy
         # permissions
         if upload_prefs['new_photo'] or replace_prefs['permissions']:
-            permissions = dict(privacy)
-            permissions['perm_comment'] = self.widget['perm_comment'].get_value()
-            permissions['perm_addmeta'] = self.widget['perm_addmeta'].get_value()
-            params['permissions'] = permissions
+            params['permissions'] = {
+                'perm_comment': self.widget['perm_comment'].get_value(),
+                'perm_addmeta': self.widget['perm_addmeta'].get_value(),
+                }
+            params['permissions'].update(privacy)
         # safety level
         if upload_prefs['new_photo'] or replace_prefs['safety_level']:
             params['safety_level'] = {
@@ -564,7 +565,7 @@ class TabWidget(PhotiniUploader):
         # content type
         if upload_prefs['new_photo'] or replace_prefs['content_type']:
             params['content_type'] = {
-                'content_type':self.widget['content_type'].get_value()}
+                'content_type': self.widget['content_type'].get_value()}
         # albums
         if upload_prefs['new_photo'] or replace_prefs['albums']:
             params['albums'] = self.widget['albums'].get_checked_widgets()
