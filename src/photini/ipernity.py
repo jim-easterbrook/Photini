@@ -127,7 +127,7 @@ class IpernitySession(UploaderSession):
         'visibility' : 'doc.setPerms',
         'permissions': 'doc.setPerms',
         'licence'    : 'doc.setLicense',
-        'meta'       : 'doc.set',
+        'metadata'   : 'doc.set',
         'keywords'   : 'doc.tags.edit',
         'location'   : 'doc.setGeo',
         }
@@ -194,7 +194,7 @@ class IpernitySession(UploaderSession):
                     if params['function'] == 'upload.file':
                         # set some metadata with upload function
                         for key in ('visibility', 'permissions', 'licence',
-                                    'meta', 'dates', 'location'):
+                                    'metadata', 'dates', 'location'):
                             if key in params and params[key]:
                                 data.update(params[key])
                                 del params[key]
@@ -460,40 +460,17 @@ class TabWidget(PhotiniUploader):
     def new_value(self, key, value):
         self.app.config_store.set('ipernity', key, value)
 
-    def get_fixed_params(self):
-        visibility = {
-            '0': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
-            '1': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
-            '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
-            '3': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
-            '4': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
-            }[self.widget['visibility'].get_value()]
-        return {
-            'visibility': visibility,
-            'permissions': {
-                'perm_comment': self.widget['perm_comment'].get_value(),
-                'perm_tag'    : self.widget['perm_tag'].get_value(),
-                'perm_tagme'  : self.widget['perm_tagme'].get_value(),
-                },
-            'licence': {
-                'license': self.widget['license'].get_value(),
-                },
-            'albums': self.widget['albums'].get_checked_ids(),
-            }
-
     def accepted_image_type(self, file_type):
         # ipernity accepts most RAW formats!
         return True
 
-    def get_variable_params(self, image, upload_prefs, replace_prefs, doc_id):
-        params = {}
+    def get_params(self, image, upload_prefs, replace_prefs, doc_id):
+        params = {'doc_id': doc_id}
         # set upload function
         if upload_prefs['new_photo']:
             params['function'] = 'upload.file'
-            doc_id = None
         else:
             params['function'] = None
-        params['doc_id'] = doc_id
         # add metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # date_taken
@@ -513,6 +490,28 @@ class TabWidget(PhotiniUploader):
             else:
                 # clear any existing location
                 params['location'] = {'lat': '-999', 'lng': '-999'}
+        # visibility
+        if upload_prefs['new_photo'] or replace_prefs['visibility']:
+            params['visibility'] = {
+                '0': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
+                '1': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
+                '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
+                '3': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
+                '4': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
+                }[self.widget['visibility'].get_value()]
+        # permissions
+        if upload_prefs['new_photo'] or replace_prefs['permissions']:
+            params['permissions'] = {
+                'perm_comment': self.widget['perm_comment'].get_value(),
+                'perm_tag'    : self.widget['perm_tag'].get_value(),
+                'perm_tagme'  : self.widget['perm_tagme'].get_value(),
+                }
+        # licence
+        if upload_prefs['new_photo'] or replace_prefs['licence']:
+            params['licence'] = {'license': self.widget['license'].get_value()}
+        # albums
+        if upload_prefs['new_photo'] or replace_prefs['albums']:
+            params['albums'] = self.widget['albums'].get_checked_ids()
         return params
 
     def replace_dialog(self, image):

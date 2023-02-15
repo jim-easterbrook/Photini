@@ -913,40 +913,30 @@ class PhotiniUploader(QtWidgets.QWidget):
                 len(selection) > 0 and self.user_widget.connect_button.is_checked())
 
     def get_upload_params(self, image):
+        # only used by Flickr & Ipernity, which have a lot in common
         # get user preferences for this upload
         upload_prefs, replace_prefs, photo_id = self.replace_dialog(image)
         if not upload_prefs:
             # user cancelled dialog or chose to do nothing
             return None
-        # get config params that apply to all photos
-        fixed_params = self.get_fixed_params()
-        # set params
-        params = self.get_variable_params(
-            image, upload_prefs, replace_prefs, photo_id)
-        if upload_prefs['new_photo']:
-            # apply all "fixed" params
-            params.update(fixed_params)
-        else:
-            # only apply the "fixed" params the user wants to change
-            for key in fixed_params:
-                if replace_prefs[key]:
-                    params[key] = fixed_params[key]
-        # add metadata
-        lang = self.user_widget.user_data['lang']
+        # set service dependent params
+        params = self.get_params(image, upload_prefs, replace_prefs, photo_id)
+        # add common metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
+            lang = self.user_widget.user_data['lang']
             # title & description
-            params['meta'] = {}
+            params['metadata'] = {}
             if image.metadata.title:
-                params['meta']['title'] = image.metadata.title.best_match(lang)
+                params['metadata']['title'] = image.metadata.title.best_match(lang)
             else:
-                params['meta']['title'] = image.name
+                params['metadata']['title'] = image.name
             description = []
             if image.metadata.headline:
                 description.append(image.metadata.headline)
             if image.metadata.description:
                 description.append(image.metadata.description.best_match(lang))
             if description:
-                params['meta']['description'] = '\n\n'.join(description)
+                params['metadata']['description'] = '\n\n'.join(description)
             # keywords
             keywords = []
             if image.metadata.keywords:
@@ -1029,7 +1019,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 self.replace_prefs.values()):
             # user chose to do nothing
             return {}, {}, photo_id
-        return self.upload_prefs, self.replace_prefs, photo_id
+        return dict(self.upload_prefs), dict(self.replace_prefs), photo_id
 
     def date_range(self, image):
         precision = min(image.metadata.date_taken['precision'], 6)

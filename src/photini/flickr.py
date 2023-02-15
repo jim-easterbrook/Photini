@@ -124,7 +124,7 @@ class FlickrSession(UploaderSession):
         'safety_level': 'flickr.photos.setSafetyLevel',
         'hidden':       'flickr.photos.setSafetyLevel',
         'licence':      'flickr.photos.licenses.setLicense',
-        'meta':         'flickr.photos.setMeta',
+        'metadata':     'flickr.photos.setMeta',
         'keywords':     'flickr.photos.setTags',
         'dates':        'flickr.photos.setDates',
         'location':     'flickr.photos.geo.setLocation',
@@ -222,7 +222,7 @@ class FlickrSession(UploaderSession):
                     if params['function'] == 'upload':
                         # set some metadata with upload function
                         for key in ('privacy', 'content_type', 'hidden',
-                                    'safety_level', 'meta'):
+                                    'safety_level', 'metadata'):
                             data.update(params[key])
                             del params[key]
                     else:
@@ -499,55 +499,18 @@ class TabWidget(PhotiniUploader):
         ## last column is list of albums
         yield self.album_list(), 1
 
-    def get_fixed_params(self):
-        albums = self.widget['albums'].get_checked_widgets()
-        # is_public etc are optional parameters to
-        # https://up.flickr.com/services/upload/ but required for
-        # flickr.photos.setPerms. perm_comment and perm_addmeta are
-        # optional for flickr.photos.setPerms but not accepted by
-        # https://up.flickr.com/services/upload/
-        privacy = {
-            '1': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
-            '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
-            '3': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
-            '4': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
-            '5': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
-            }[self.widget['privacy'].get_value()]
-        permissions = dict(privacy)
-        permissions['perm_comment'] = self.widget['perm_comment'].get_value()
-        permissions['perm_addmeta'] = self.widget['perm_addmeta'].get_value()
-        return {
-            'privacy': privacy,
-            'permissions': permissions,
-            'safety_level': {
-                'safety_level': self.widget['safety_level'].get_value(),
-                },
-            'hidden': {
-                'hidden'      : self.widget['hidden'].get_value(),
-                },
-            'licence': {
-                'license_id'  : self.widget['license_id'].get_value(),
-                },
-            'content_type': {
-                'content_type': self.widget['content_type'].get_value(),
-                },
-            'albums': albums,
-            }
-
     def accepted_image_type(self, file_type):
         return file_type in ('image/gif', 'image/jpeg', 'image/png')
 
-    def get_variable_params(self, image, upload_prefs, replace_prefs, photo_id):
-        params = {}
+    def get_params(self, image, upload_prefs, replace_prefs, photo_id):
+        params = {'photo_id': photo_id}
         # set upload function
         if upload_prefs['new_photo']:
             params['function'] = 'upload'
-            photo_id = None
         elif upload_prefs['replace_image']:
             params['function'] = 'replace'
         else:
             params['function'] = None
-        params['photo_id'] = photo_id
         # add metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # date_taken
@@ -571,6 +534,40 @@ class TabWidget(PhotiniUploader):
             else:
                 # clear any existing location
                 params['location'] = None
+        # privacy
+        privacy = {
+            '1': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
+            '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
+            '3': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
+            '4': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
+            '5': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
+            }[self.widget['privacy'].get_value()]
+        if upload_prefs['new_photo'] or replace_prefs['privacy']:
+            params['privacy'] = privacy
+        # permissions
+        if upload_prefs['new_photo'] or replace_prefs['permissions']:
+            permissions = dict(privacy)
+            permissions['perm_comment'] = self.widget['perm_comment'].get_value()
+            permissions['perm_addmeta'] = self.widget['perm_addmeta'].get_value()
+            params['permissions'] = permissions
+        # safety level
+        if upload_prefs['new_photo'] or replace_prefs['safety_level']:
+            params['safety_level'] = {
+                'safety_level': self.widget['safety_level'].get_value()}
+        # hidden
+        if upload_prefs['new_photo'] or replace_prefs['hidden']:
+            params['hidden'] = {'hidden': self.widget['hidden'].get_value()}
+        # licence
+        if upload_prefs['new_photo'] or replace_prefs['licence']:
+            params['licence'] = {
+                'license_id': self.widget['license_id'].get_value()}
+        # content type
+        if upload_prefs['new_photo'] or replace_prefs['content_type']:
+            params['content_type'] = {
+                'content_type':self.widget['content_type'].get_value()}
+        # albums
+        if upload_prefs['new_photo'] or replace_prefs['albums']:
+            params['albums'] = self.widget['albums'].get_checked_widgets()
         return params
 
     def replace_dialog(self, image):
