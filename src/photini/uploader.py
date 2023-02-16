@@ -24,7 +24,6 @@ import io
 import logging
 import os
 import re
-import threading
 import time
 import urllib
 
@@ -50,7 +49,6 @@ class UploadAborted(Exception):
 
 
 class UploaderSession(QtCore.QObject):
-    abort_upload = QtSignal()
     upload_progress = QtSignal(dict)
     new_token = QtSignal(dict)
     headers = {'User-Agent': 'Photini/' + __version__}
@@ -74,6 +72,7 @@ class UploaderSession(QtCore.QObject):
 
     @staticmethod
     def check_response(rsp, decode=True):
+        UploaderSession.check_interrupt()
         try:
             rsp.raise_for_status()
             if decode:
@@ -84,6 +83,11 @@ class UploaderSession(QtCore.QObject):
             logger.error(str(ex))
             return None
         return rsp
+
+    @staticmethod
+    def check_interrupt():
+        if QtCore.QThread.currentThread().isInterruptionRequested():
+            raise UploadAborted
 
     def progress(self, monitor):
         self.upload_progress.emit(
@@ -109,9 +113,7 @@ class UploaderSession(QtCore.QObject):
             exiv_io = exiv_image.io()
             exiv_io.open()
             fileobj = AbortableFileReader(
-                io.BytesIO(exiv_io.mmap()), exiv_io.size(), parent=self)
-            self.abort_upload.connect(
-                fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
+                io.BytesIO(exiv_io.mmap()), exiv_io.size())
             try:
                 yield image_type, fileobj
             finally:
@@ -120,35 +122,24 @@ class UploaderSession(QtCore.QObject):
                 exiv_io.close()
         else:
             fileobj = AbortableFileReader(
-                open(image.path, 'rb'), os.stat(image.path).st_size,
-                parent=self)
-            self.abort_upload.connect(
-                fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
+                open(image.path, 'rb'), os.stat(image.path).st_size)
             try:
                 yield image.file_type, fileobj
             finally:
                 fileobj.close()
 
 
-class AbortableFileReader(QtCore.QObject):
-    def __init__(self, fileobj, size, *args, **kwds):
-        super(AbortableFileReader, self).__init__(*args, **kwds)
+class AbortableFileReader(object):
+    def __init__(self, fileobj, size):
+        super(AbortableFileReader, self).__init__()
         self._f = fileobj
         # requests library uses 'len' attribute instead of seeking to
         # end of file and back
         self.len = size
-        # thread safe way to abort reading large file
-        self._closing = threading.Event()
-
-    @QtSlot()
-    @catch_all
-    def abort_upload(self):
-        self._closing.set()
 
     # substitute read method
     def read(self, size):
-        if self._closing.is_set():
-            raise UploadAborted()
+        UploaderSession.check_interrupt()
         return self._f.read(size)
 
     # delegate all other attributes to file object
@@ -162,7 +153,6 @@ class AbortableFileReader(QtCore.QObject):
 class UploadWorker(QtCore.QObject):
     finished = QtSignal()
     upload_progress = QtSignal(dict)
-    abort_upload = QtSignal()
 
     def __init__(self, session, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
@@ -174,8 +164,6 @@ class UploadWorker(QtCore.QObject):
     def start(self):
         with self.session(parent=self) as session:
             session.upload_progress.connect(self.upload_progress)
-            self.abort_upload.connect(
-                session.abort_upload, Qt.ConnectionType.DirectConnection)
             try:
                 session.upload_files(self.upload_list)
             except UploadAborted:
@@ -448,8 +436,6 @@ class AlbumList(QtWidgets.QWidget):
 
 
 class PhotiniUploader(QtWidgets.QWidget):
-    abort_upload = QtSignal()
-
     def __init__(self, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
@@ -490,7 +476,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             translate('UploaderTabsAll', 'Stop upload'))
         self.buttons['upload'].setEnabled(False)
         self.buttons['upload'].click_start.connect(self.start_upload)
-        self.buttons['upload'].click_stop.connect(self.abort_upload)
+        self.buttons['upload'].click_stop.connect(self.stop_upload)
         layout.addWidget(self.buttons['upload'], 0, 2)
         # initialise as not connected
         self.connection_changed(False)
@@ -516,8 +502,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def shutdown(self):
-        if self.upload_worker:
-            self.abort_upload.emit()
+        self.stop_upload()
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
 
@@ -803,6 +788,12 @@ class PhotiniUploader(QtWidgets.QWidget):
             return self.copy_file_and_metadata
         return None
 
+    @QtSlot()
+    @catch_all
+    def stop_upload(self):
+        if self.upload_worker:
+            self.upload_worker.thread().requestInterruption()
+
     def get_selected_images(self):
         return self.app.image_list.get_selected_images()
 
@@ -835,8 +826,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker = UploadWorker(self.user_widget.session, upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
-        self.abort_upload.connect(
-            self.upload_worker.abort_upload, Qt.ConnectionType.DirectConnection)
         self.upload_worker.upload_progress.connect(self.upload_progress)
         thread.started.connect(self.upload_worker.start)
         self.upload_worker.finished.connect(self.uploader_finished)
@@ -886,7 +875,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                                   dialog.StandardButton.Ignore)
         dialog.setDefaultButton(dialog.StandardButton.Ignore)
         if execute(dialog) == dialog.StandardButton.Abort:
-            self.abort_upload.emit()
+            self.stop_upload()
 
     @QtSlot()
     @catch_all
