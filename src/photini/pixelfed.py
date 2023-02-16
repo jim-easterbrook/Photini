@@ -748,15 +748,17 @@ class TabWidget(PhotiniUploader):
     def enable_upload_button(self, selection=None):
         selection = selection or self.app.image_list.get_selected_images()
         super(TabWidget, self).enable_upload_button(selection=selection)
-        self.widget['sync_remote'].setEnabled(bool(selection))
         if (self.buttons['upload'].isEnabled()
                 and len(selection) > self.widget[
                     'thumb_list'].max_media_attachments
                 and not self.buttons['upload'].is_checked()):
             self.buttons['upload'].setEnabled(False)
-        self.widget['auto_status'].setEnabled(
-            self.buttons['upload'].isEnabled())
         self.widget['thumb_list'].new_selection(selection)
+        enabled = self.widget['status'].isEnabled()
+        self.widget['sync_remote'].setEnabled(enabled and bool(selection))
+        self.widget['auto_status'].setEnabled(
+            enabled and (len(selection) > 0 and len(selection) <=
+                         self.widget['thumb_list'].max_media_attachments))
 
     @QtSlot()
     @catch_all
