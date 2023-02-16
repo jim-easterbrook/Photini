@@ -694,6 +694,9 @@ class PhotiniUploader(QtWidgets.QWidget):
                 return {}
             max_size = max_size['pixels']
             size = pixels
+            if size > max_size and self.app.config_store.get(
+                    self.user_widget.config_section, 'resize_yes'):
+                return {'resize': True}
             text = translate(
                 'UploaderTabsAll', 'File "{file_name}" has {size} pixels and'
                 ' exceeds {service}\'s limit of {max_size} pixels.')

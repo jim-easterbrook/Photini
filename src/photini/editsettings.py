@@ -129,6 +129,14 @@ class EditSettings(QtWidgets.QDialog):
         button_group.addButton(button)
         button.setChecked(keep_time=='now')
         panel.layout().addRow('', button)
+        # Pixelfed uploader resizing
+        if self.config_store.get('tabs', 'photini.pixelfed'):
+            resize = self.config_store.get('pixelfed', 'resize_yes', False)
+            self.pixelfed_resize = QtWidgets.QCheckBox(translate(
+                'EditSettings', 'Resize without asking'))
+            self.pixelfed_resize.setChecked(resize)
+            panel.layout().addRow(translate(
+                'EditSettings', 'Pixelfed uploads'), self.pixelfed_resize)
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
@@ -172,4 +180,7 @@ class EditSettings(QtWidgets.QDialog):
         else:
             keep_time = 'now'
         self.config_store.set('files', 'preserve_timestamps', keep_time)
+        if self.config_store.get('tabs', 'photini.pixelfed'):
+            self.config_store.set(
+                'pixelfed', 'resize_yes', self.pixelfed_resize.isChecked())
         return self.accept()
