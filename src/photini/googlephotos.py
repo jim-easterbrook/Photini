@@ -33,7 +33,6 @@ translate = QtCore.QCoreApplication.translate
 # Google Photos API: https://developers.google.com/photos/library/reference/rest
 
 class GooglePhotosSession(UploaderSession):
-    name       = 'googlephotos'
     oauth_url  = 'https://www.googleapis.com/oauth2/'
     photos_url = 'https://photoslibrary.googleapis.com/'
 
@@ -128,8 +127,8 @@ class GooglePhotosSession(UploaderSession):
 
 class GooglePhotosUser(UploaderUser):
     logger = logger
-    name       = 'googlephotos'
-    scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
+    config_section = 'googlephotos'
+    scope = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
     max_size = {'image': {'bytes': 200 * (2 ** 20)},
                 'video': {'bytes': 10 * (2 ** 30)}}
 

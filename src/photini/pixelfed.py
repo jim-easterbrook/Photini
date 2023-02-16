@@ -42,8 +42,6 @@ translate = QtCore.QCoreApplication.translate
 
 
 class PixelfedSession(UploaderSession):
-    name = 'pixelfed'
-
     def open_connection(self):
         if self.api:
             return
@@ -228,8 +226,8 @@ class ChooseInstance(QtWidgets.QDialog):
 class PixelfedUser(UploaderUser):
     new_instance_config = QtSignal(dict)
     logger = logger
-    name       = 'pixelfed'
-    scopes     = ['read', 'write']
+    config_section = 'pixelfed'
+    scopes = ['read', 'write']
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:
@@ -355,11 +353,10 @@ class PixelfedUser(UploaderUser):
             self.instances.append(instance)
             self.instance_data[instance] = instance_data
         # last used instance
-        self.instance = self.config_store.get('pixelfed', 'instance')
-        if not self.instance:
+        instance = self.config_store.get('pixelfed', 'instance')
+        if not instance:
             return False
-        self.client_data = self.instance_data[self.instance]
-        self.name = self.instance
+        self.client_data = self.instance_data[instance]
         # get user access token
         token = self.get_password()
         if not token:
@@ -370,7 +367,7 @@ class PixelfedUser(UploaderUser):
     def service_name(self):
         if 'token' in self.user_data:
             # logged in to a particular server
-            return self.instance
+            return self.client_data['name']
         return translate('PixelfedTab', 'Pixelfed')
 
     def new_session(self, **kw):
@@ -381,15 +378,13 @@ class PixelfedUser(UploaderUser):
 
     def authorise(self):
         dialog = ChooseInstance(
-            parent=self.parentWidget(), default=self.instance,
+            parent=self.parentWidget(), default=self.client_data['name'],
             instances=self.instances)
         instance = dialog.execute()
         if not instance:
             return
         if not self.register_app(instance):
             return
-        self.instance = instance
-        self.name = instance
         self.config_store.set('pixelfed', 'instance', instance)
         super(PixelfedUser, self).authorise()
 
@@ -686,9 +681,9 @@ class TabWidget(PhotiniUploader):
                 continue
             for keyword, (ns, predicate,
                           value) in image.metadata.keywords.machine_tags():
-                if ns != self.user_widget.name or predicate != 'id':
-                    continue
-                image_list[value] = image
+                if (ns == self.user_widget.client_data['name']
+                        and predicate != 'id'):
+                    image_list[value] = image
         if not image_list:
             return
         with Busy():

@@ -268,10 +268,11 @@ class UploaderUser(QtWidgets.QGridLayout):
         self.connect_button.click_stop.connect(self.log_out)
         self.addWidget(self.connect_button, 1, 0)
         # other init
-        self.client_data = {}
-        if key_store.config.has_section(self.name):
-            for option in key_store.config.options(self.name):
-                self.client_data[option] = key_store.get(self.name, option)
+        self.client_data = {'name': self.config_section}
+        if key_store.config.has_section(self.config_section):
+            for option in key_store.config.options(self.config_section):
+                self.client_data[option] = key_store.get(
+                    self.config_section, option)
         self.user_data = {}
 
     @contextmanager
@@ -304,9 +305,9 @@ class UploaderUser(QtWidgets.QGridLayout):
     @QtSlot()
     @catch_all
     def log_out(self):
-        if keyring.get_password('photini', self.name):
+        if keyring.get_password('photini', self.config_section):
             self.unauthorise()
-            keyring.delete_password('photini', self.name)
+            keyring.delete_password('photini', self.config_section)
         self.user_data = {}
         self.connection_changed.emit(False)
 
@@ -382,10 +383,10 @@ class UploaderUser(QtWidgets.QGridLayout):
         return None
 
     def get_password(self):
-        return keyring.get_password('photini', self.name)
+        return keyring.get_password('photini', self.config_section)
 
     def set_password(self, password):
-        keyring.set_password('photini', self.name, password)
+        keyring.set_password('photini', self.config_section, password)
 
 
 class AlbumList(QtWidgets.QWidget):
@@ -943,7 +944,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 keywords = image.metadata.keywords.human_tags()
                 for keyword, (ns, predicate,
                               value) in image.metadata.keywords.machine_tags():
-                    if (ns != self.user_widget.name or
+                    if (ns != self.user_widget.client_data['name'] or
                             predicate not in ('photo_id', 'doc_id', 'id')):
                         keywords.append(keyword)
                 keywords = [x.replace('"', "'") for x in keywords]
@@ -1105,7 +1106,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return None
         for keyword, (ns, predicate,
                       value) in image.metadata.keywords.machine_tags():
-            if ns == self.user_widget.name and predicate in (
+            if ns == self.user_widget.client_data['name'] and predicate in (
                     'photo_id', 'doc_id', 'id'):
                 return value
         return None
@@ -1143,8 +1144,9 @@ class PhotiniUploader(QtWidgets.QWidget):
                         if match:
                             match.metadata.keywords = list(
                                 match.metadata.keywords or []) + [
-                                    '{}:id={}'.format(self.user_widget.name,
-                                                      photo_id)]
+                                    '{}:id={}'.format(
+                                        self.user_widget.client_data['name'],
+                                        photo_id)]
                             photo_ids[photo_id] = match
                             unknowns.remove(match)
                 # merge remote metadata into file

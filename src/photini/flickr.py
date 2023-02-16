@@ -41,7 +41,6 @@ translate = QtCore.QCoreApplication.translate
 # requests: https://docs.python-requests.org/
 
 class FlickrSession(UploaderSession):
-    name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
 
     def open_connection(self):
@@ -49,7 +48,8 @@ class FlickrSession(UploaderSession):
             self.auth = requests_oauthlib.OAuth1(
                 resource_owner_key=self.user_data['oauth_token'],
                 resource_owner_secret=self.user_data['oauth_token_secret'],
-                **self.client_data)
+                client_key=self.client_data['client_key'],
+                client_secret=self.client_data['client_secret'])
             super(FlickrSession, self).open_connection()
 
     def api_call(self, method, post=False, **params):
@@ -294,7 +294,7 @@ class HiddenWidget(QtWidgets.QCheckBox):
 
 class FlickrUser(UploaderUser):
     logger = logger
-    name = 'flickr'
+    config_section = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
     max_size = {'image': {'bytes': 200 * (2 ** 20)},
                 'video': {'bytes': 2 ** 30}}
@@ -387,7 +387,9 @@ class FlickrUser(UploaderUser):
 
     def auth_exchange(self, redirect_uri):
         with requests_oauthlib.OAuth1Session(
-                callback_uri=redirect_uri, **self.client_data) as session:
+                callback_uri=redirect_uri,
+                client_key=self.client_data['client_key'],
+                client_secret=self.client_data['client_secret']) as session:
             try:
                 session.fetch_request_token(
                     self.oauth_url + 'request_token', timeout=20)

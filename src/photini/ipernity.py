@@ -39,7 +39,6 @@ translate = QtCore.QCoreApplication.translate
 # requests: https://docs.python-requests.org/
 
 class IpernitySession(UploaderSession):
-    name = 'ipernity'
     api_url = 'http://api.ipernity.com/api/'
     auth_url = 'http://www.ipernity.com/apps/authorize'
 
@@ -281,7 +280,7 @@ class LicenceWidget(DropDownSelector):
 
 class IpernityUser(UploaderUser):
     logger = logger
-    name = 'ipernity'
+    config_section = 'ipernity'
     max_size = {'image': {'bytes': 2 ** 30},
                 'video': {'bytes': 2 ** 30}}
 
