@@ -1069,6 +1069,13 @@ class MD_Keywords(MD_MultiString):
     def human_tags(self):
         return [x for x in self if not self._machine_tag.match(x)]
 
+    def machine_tags(self):
+        # yield keyword, (ns, predicate, value) for each machine tag
+        for keyword in self:
+            match = self._machine_tag.match(keyword)
+            if match:
+                yield keyword, match.groups()
+
 
 class MD_Int(MD_Value, int):
     def to_exif(self):
@@ -1394,7 +1401,18 @@ class MD_Aperture(MD_Rational):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
 
 
+class MD_FrameRate(MD_Rational):
+    def contains(self, this, other):
+        # exiv2 rounds 30000/1001 to 29.97
+        return float(min(other, this)) > (float(max(other, this)) * 0.9999)
+
+
 class MD_Dimensions(MD_Collection):
-    _keys = ('width', 'height', 'frame_rate')
+    _keys = ('width', 'height', 'frames', 'frame_rate')
     _default_type = MD_Int
-    _type = {'frame_rate': MD_Float}
+    _type = {'frame_rate': MD_FrameRate}
+
+    def duration(self):
+        if self['frames'] and self['frame_rate']:
+            return float(self['frames'] / self['frame_rate'])
+        return 0.0

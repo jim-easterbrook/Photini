@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -49,7 +49,7 @@ class FFmpeg(object):
             return {}
         cmd = ['ffprobe', '-hide_banner', '-loglevel', 'warning']
         cmd += options
-        cmd += ['-print_format', 'json', path]
+        cmd += ['-select_streams', 'v', '-print_format', 'json', path]
         p = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             startupinfo=startupinfo())
@@ -60,16 +60,6 @@ class FFmpeg(object):
             raise RuntimeError('ffprobe: {}'.format(error))
         output = output.decode('utf-8')
         return json.loads(output)
-
-    @staticmethod
-    def get_dimensions(path):
-        if not ffmpeg_version:
-            return {}
-        return FFmpeg.ffprobe(
-            path, options=[
-                '-show_entries', 'stream=width,height,duration',
-                '-select_streams', 'v:0']
-            )['streams'][0]
 
     @staticmethod
     def make_thumbnail(path, w, h, skip, quality):

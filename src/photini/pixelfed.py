@@ -28,10 +28,9 @@ from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.configstore import BaseConfigStore, key_store
-from photini.pyqt import (
-    catch_all, execute, FormLayout, Qt, QtCore, QtSignal, QtSlot, QtWidgets,
-    width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
+from photini.pyqt import *
+from photini.uploader import (
+    PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
@@ -43,8 +42,6 @@ translate = QtCore.QCoreApplication.translate
 
 
 class PixelfedSession(UploaderSession):
-    name = 'pixelfed'
-
     def open_connection(self):
         if self.api:
             return
@@ -66,65 +63,99 @@ class PixelfedSession(UploaderSession):
         self.user_data['token'] = token
         self.new_token.emit(token)
 
+    @staticmethod
+    def check_response(rsp, decode=True):
+        UploaderSession.check_interrupt()
+        try:
+            rsp.raise_for_status()
+            # some wrong api calls return the instance home page
+            if rsp.headers['Content-Type'].startswith('text/html'):
+                logger.error('Response is HTML')
+                return None
+            if '/api/v1/statuses' in rsp.request.url:
+                print(rsp.request.body)
+            if decode:
+                rsp = rsp.json()
+        except UploadAborted:
+            raise
+        except Exception as ex:
+            logger.error(str(ex))
+            return None
+        return rsp
+
     def api_call(self, endpoint, method='GET', **params):
         self.open_connection()
         url = self.client_data['api_base_url'] + endpoint
         rsp = self.check_response(self.api.request(method, url, **params))
-        if not rsp:
+        if rsp is None:
             print('close_connection', endpoint)
             self.close_connection()
+        elif 'error' in rsp:
+            logger.error('%s: %s', endpoint, rsp['error'])
+            return None
         return rsp
 
     def upload_files(self, upload_list):
         media_ids = []
-        remaining = len(upload_list)
         licence = None
+        upload_count = 0
         for image, convert, params in upload_list:
+            upload_count += 1
+            self.upload_progress.emit({
+                'label': '{} ({}/{})'.format(os.path.basename(image.path),
+                                             upload_count, len(upload_list)),
+                'busy': True})
             default_licence = params['default_license']
             licence = licence or default_licence
-            remaining -= 1
-            do_media = True
-            do_status = remaining == 0
-            retry = True
-            while retry:
-                error = ''
-                # UploadWorker converts image to fileobj
-                fileobj, image_type = yield image, convert
-                if do_media:
-                    # set licence
-                    if params['license'] != licence:
-                        licence = params['license']
-                        data = {'license': licence}
-                        self.api_call('/api/v1/accounts/update_credentials',
-                                      'PATCH', data=data)
-                    # upload fileobj
-                    fields = dict(params['media'])
-                    fields['file'] = (params['file_name'], fileobj, image_type)
-                    data = MultipartEncoderMonitor(
-                        MultipartEncoder(fields=fields), self.progress)
-                    self.upload_progress.emit({'busy': False})
-                    rsp = self.api_call(
-                        '/api/v1/media', method='POST', data=data,
-                        headers={'Content-Type': data.content_type})
-                    self.upload_progress.emit({'busy': True})
-                    if rsp:
-                        media_ids.append(rsp['id'])
-                        do_media = False
-                    else:
-                        error = 'Image upload failed'
-                if do_status and not error:
-                    data = dict(params['status'])
-                    data['media_ids[]'] = media_ids
-                    rsp = self.api_call(
-                        '/api/v1/statuses', method='POST', data=data)
-                    if not rsp:
-                        error = 'Post status failed'
-                retry = yield error
+            # set licence
+            if params['license'] != licence:
+                data = {'license': params['license']}
+                rsp = self.api_call(
+                    '/api/v1/accounts/update_credentials', 'PATCH', data=data)
+                if rsp:
+                    licence = params['license']
+            # upload media
+            fields = dict(params['media'])
+            with self.open_file(image, convert) as (image_type, fileobj):
+                fields['file'] = (params['file_name'], fileobj, image_type)
+                data = MultipartEncoderMonitor(
+                    MultipartEncoder(fields=fields), self.progress)
+                self.upload_progress.emit({'busy': False})
+                endpoint = '/api/v1/media'
+                if (self.client_data['version']['mastodon'] >= (3, 1, 3) or
+                    (self.client_data['version']['pixelfed'] and
+                     self.client_data['version']['pixelfed'] >= (0, 11, 3))):
+                    endpoint = '/api/v2/media'
+                rsp = self.api_call(
+                    endpoint, method='POST', data=data,
+                    headers={'Content-Type': data.content_type})
+            self.upload_progress.emit({'busy': True})
+            if rsp is None:
+                self.upload_progress.emit({
+                    'error': (image, 'Image upload failed')})
+                return
+            print(rsp['id'], params['file_name'])
+            media_ids.append((image, rsp['id']))
         # reset licence
         if licence != default_licence:
             data = {'license': default_licence}
-            self.api_call('/api/v1/accounts/update_credentials',
-                          'PATCH', data=data)
+            rsp = self.api_call(
+                '/api/v1/accounts/update_credentials', 'PATCH', data=data)
+        # upload status
+        data = dict(params['status'])
+        data['media_ids[]'] = [x[1] for x in media_ids]
+        rsp = self.api_call(
+            '/api/v1/statuses', method='POST', data=data)
+        if rsp is None:
+            self.upload_progress.emit({'error': (image, 'Post status failed')})
+            return
+        for media in rsp['media_attachments']:
+            print(media['id'], media['blurhash'])
+        # store photo ids in image keywords, in main thread
+        for image, media_id in media_ids:
+            self.upload_progress.emit({
+                'keyword': (image, '{}:id={}'.format(
+                    self.client_data['name'], media_id))})
 
 
 class ChooseInstance(QtWidgets.QDialog):
@@ -204,8 +235,8 @@ class ChooseInstance(QtWidgets.QDialog):
 class PixelfedUser(UploaderUser):
     new_instance_config = QtSignal(dict)
     logger = logger
-    name       = 'pixelfed'
-    scopes     = ['read', 'write']
+    config_section = 'pixelfed'
+    scopes = ['read', 'write']
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:
@@ -223,7 +254,7 @@ class PixelfedUser(UploaderUser):
                 session.api.get(icon_url), decode=False)
             yield 'user', (account['display_name'], rsp and rsp.content)
             # get instance info
-            self.version = {'mastodon': None, 'pixelfed': None}
+            self.client_data['version'] = {'mastodon': None, 'pixelfed': None}
             self.instance_config = session.api_call('/api/v1/instance')
             if not self.instance_config:
                 yield 'connected', False
@@ -231,22 +262,28 @@ class PixelfedUser(UploaderUser):
             widgets['status'].highlighter.length_check = self.instance_config[
                 'configuration']['statuses']['max_characters']
             version = self.instance_config['version']
+            logger.info('server version "%s"', version)
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
             if match:
-                self.version['mastodon'] = tuple(int(x) for x in match.groups())
+                self.client_data['version']['mastodon'] = tuple(
+                    int(x) for x in match.groups())
             match = re.search(r'Pixelfed\s+(\d+)\.(\d+)\.(\d+)', version)
             if match:
-                self.version['pixelfed'] = tuple(int(x) for x in match.groups())
+                self.client_data['version']['pixelfed'] = tuple(
+                    int(x) for x in match.groups())
             self.unavailable['albums'] = not (
-                self.version['pixelfed']
-                and self.version['pixelfed'] >= (0, 11, 4))
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (0, 11, 4))
             self.unavailable['comments_disabled'] = self.unavailable['albums']
             self.unavailable['license'] = not (
-                self.version['pixelfed']
-                and self.version['pixelfed'] >= (0, 11, 1))
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (0, 11, 1))
             self.unavailable['new_album'] = not (
-                self.version['pixelfed']
-                and self.version['pixelfed'] >= (99, 0, 0))
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (99, 0, 0))
+            self.unavailable['sync_remote'] = not (
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (0, 10, 6))
             media = self.instance_config['configuration']['media_attachments']
             self.max_size = {
                 'image': {'bytes': media['image_size_limit'],
@@ -257,16 +294,19 @@ class PixelfedUser(UploaderUser):
             yield None, None
             # get user preferences
             prefs = session.api_call('/api/v1/preferences')
-            if prefs:
-                if prefs['posting:default:language']:
-                    self.user_data['lang'] = prefs['posting:default:language']
-                widgets['sensitive'].setChecked(
-                    prefs['posting:default:sensitive'])
-                widgets['visibility'].set_value(
-                    prefs['posting:default:visibility'])
-            if self.version['pixelfed']:
+            if prefs is None:
+                yield 'connected', False
+            if prefs['posting:default:language']:
+                self.user_data['lang'] = prefs['posting:default:language']
+            widgets['sensitive'].setChecked(
+                prefs['posting:default:sensitive'])
+            widgets['visibility'].set_value(
+                prefs['posting:default:visibility'])
+            if self.client_data['version']['pixelfed']:
                 self.compose_settings = session.api_call(
                     '/api/v1.1/compose/settings')
+                if self.compose_settings is None:
+                    yield 'connected', False
                 if 'default_license' in self.compose_settings:
                     widgets['license'].set_value(
                         int(self.compose_settings['default_license']))
@@ -285,7 +325,7 @@ class PixelfedUser(UploaderUser):
                 return
             for collection in session.api_call(
                     '/api/v1.1/collections/accounts/{}'.format(
-                        self.user_data['id'])):
+                        self.user_data['id'])) or []:
                 if collection:
                     yield 'album', {
                         'title': collection['title'] or 'Untitled',
@@ -304,7 +344,8 @@ class PixelfedUser(UploaderUser):
             name, sep, instance = section.partition(' ')
             if name != 'pixelfed':
                 continue
-            instance_data = {'api_base_url': 'https://' + instance}
+            instance_data = {'name': instance,
+                             'api_base_url': 'https://' + instance}
             for option in key_store.config.options(section):
                 instance_data[option] = key_store.get(section, option)
             self.instances.append(instance)
@@ -314,16 +355,17 @@ class PixelfedUser(UploaderUser):
         for instance in self.local_config.config.sections():
             if instance in self.instances:
                 continue
-            instance_data = {'api_base_url': 'https://' + instance}
+            instance_data = {'name': instance,
+                             'api_base_url': 'https://' + instance}
             for option in self.local_config.config.options(instance):
                 instance_data[option] = self.local_config.get(instance, option)
             self.instances.append(instance)
             self.instance_data[instance] = instance_data
         # last used instance
-        self.instance = self.config_store.get('pixelfed', 'instance')
-        if not self.instance:
+        instance = self.config_store.get('pixelfed', 'instance')
+        if not instance:
             return False
-        self.client_data = self.instance_data[self.instance]
+        self.client_data = self.instance_data[instance]
         # get user access token
         token = self.get_password()
         if not token:
@@ -334,7 +376,7 @@ class PixelfedUser(UploaderUser):
     def service_name(self):
         if 'token' in self.user_data:
             # logged in to a particular server
-            return self.instance
+            return self.client_data['name']
         return translate('PixelfedTab', 'Pixelfed')
 
     def new_session(self, **kw):
@@ -345,14 +387,13 @@ class PixelfedUser(UploaderUser):
 
     def authorise(self):
         dialog = ChooseInstance(
-            parent=self.parentWidget(), default=self.instance,
+            parent=self.parentWidget(), default=self.client_data['name'],
             instances=self.instances)
         instance = dialog.execute()
         if not instance:
             return
         if not self.register_app(instance):
             return
-        self.instance = instance
         self.config_store.set('pixelfed', 'instance', instance)
         super(PixelfedUser, self).authorise()
 
@@ -379,6 +420,7 @@ class PixelfedUser(UploaderUser):
         self.local_config.set(instance, 'client_secret', client_secret)
         self.local_config.save()
         self.client_data = {
+            'name': instance,
             'api_base_url': api_base_url,
             'client_id': client_id,
             'client_secret': client_secret,
@@ -408,7 +450,8 @@ class PixelfedUser(UploaderUser):
         self.connection_changed.emit(True)
 
     def unauthorise(self):
-        if self.version['pixelfed'] and self.version['pixelfed'] < (0, 12):
+        if (self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] < (0, 12)):
             return
         data = {
             'client_id': self.client_data['client_id'],
@@ -426,12 +469,12 @@ class PixelfedUser(UploaderUser):
 
 
 class ThumbList(QtWidgets.QWidget):
-    def __init__(self, *arg, **kw):
+    def __init__(self, *arg, scroll_area=None, **kw):
         super(ThumbList, self).__init__(*arg, **kw)
+        self.scroll_area = scroll_area
         self.app = QtWidgets.QApplication.instance()
-        self.setLayout(QtWidgets.QFormLayout())
-        self.layout().setSpacing(self.layout().verticalSpacing() // 2)
-        self.thumb_widgets = []
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addStretch(1)
         self.image_selection = []
         self.max_media_attachments = 4
 
@@ -442,20 +485,22 @@ class ThumbList(QtWidgets.QWidget):
             'configuration']['statuses']['max_media_attachments']
         self.new_selection(self.app.image_list.get_selected_images())
 
+    def get_selected_images(self):
+        return [x[0] for x in self.image_selection]
+
     def new_selection(self, selection):
-        selection = selection[:self.max_media_attachments]
         width = self.layout().contentsRect().width()
         n = len(self.image_selection)
         while n:
             n -= 1
-            if self.image_selection[n] not in selection:
-                self.image_selection.pop(n)
-                widget = self.thumb_widgets.pop(n)
+            if self.image_selection[n][0] not in selection:
+                image, widget = self.image_selection.pop(n)
                 self.layout().removeWidget(widget)
                 widget.setParent(None)
+        selection = selection[:self.max_media_attachments]
+        added = False
         for image in selection:
-            if image not in self.image_selection:
-                self.image_selection.append(image)
+            if image not in self.get_selected_images():
                 widget = QtWidgets.QLabel()
                 widget.setWordWrap(True)
                 widget.setFrameStyle(widget.Shape.Box)
@@ -465,8 +510,17 @@ class ThumbList(QtWidgets.QWidget):
                                     Qt.AlignmentFlag.AlignVCenter)
                 widget.setFixedSize(width, width)
                 image.load_thumbnail(label=widget)
-                self.layout().addRow(widget)
-                self.thumb_widgets.append(widget)
+                self.layout().insertWidget(self.layout().count() - 1, widget)
+                self.image_selection.append((image, widget))
+                added = True
+        if added and self.scroll_area:
+            QtCore.QTimer.singleShot(1, self.scroll_to_last_widget)
+
+    @QtSlot()
+    @catch_all
+    def scroll_to_last_widget(self):
+        scroll_bar = self.scroll_area.verticalScrollBar()
+        scroll_bar.setValue(scroll_bar.maximum())
 
 
 class ScrollArea(QtWidgets.QScrollArea):
@@ -488,12 +542,14 @@ class TabWidget(PhotiniUploader):
         return translate('PixelfedTab', '&Pixelfed upload')
 
     def config_columns(self):
+        self.replace_prefs = {'description': True}
+        self.upload_prefs = {}
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         scroll_area = ScrollArea()
         scroll_area.setMinimumWidth(width_for_text(scroll_area, 'x' * 14))
-        self.widget['thumb_list'] = ThumbList()
+        self.widget['thumb_list'] = ThumbList(scroll_area=scroll_area)
         self.user_widget.new_instance_config.connect(
             self.widget['thumb_list'].new_instance_config)
         scroll_area.setWidget(self.widget['thumb_list'])
@@ -580,6 +636,11 @@ class TabWidget(PhotiniUploader):
             translate('PixelfedTab', 'New collection'))
         self.widget['new_album'].clicked.connect(self.new_album)
         column.addWidget(self.widget['new_album'], 1, 0)
+        # update alt text
+        self.widget['sync_remote'] = QtWidgets.QPushButton(
+            translate('PixelfedTab', 'Update remote'))
+        self.widget['sync_remote'].clicked.connect(self.sync_remote)
+        column.addWidget(self.widget['sync_remote'], 2, 0)
         yield column, 0
         ## last column is list of albums
         yield self.album_list(
@@ -618,12 +679,30 @@ class TabWidget(PhotiniUploader):
         return image['data'], image['mime_type']
 
     def get_selected_images(self):
-        return self.widget['thumb_list'].image_selection
+        return self.widget['thumb_list'].get_selected_images()
 
-    def get_upload_params(self, image):
-        params = {'media': {}, 'status': {}}
-        params['file_name'] = os.path.basename(image.path)
-        # 'description' is the ALT text for an image
+    @QtSlot()
+    @catch_all
+    def sync_remote(self):
+        image_list = {}
+        for image in self.app.image_list.get_selected_images():
+            if not image.metadata.keywords:
+                continue
+            for keyword, (ns, predicate,
+                          value) in image.metadata.keywords.machine_tags():
+                if (ns == self.user_widget.client_data['name']
+                        and predicate != 'id'):
+                    image_list[value] = image
+        if not image_list:
+            return
+        with Busy():
+            with self.user_widget.session(parent=self) as session:
+                for media_id, image in image_list.items():
+                    data = {'description': self.alt_text(image)}
+                    session.api_call(
+                        '/api/v1/media/{}'.format(media_id), 'PUT', data=data)
+
+    def alt_text(self, image):
         description = []
         lang = self.user_widget.user_data['lang']
         max_len = int(self.user_widget.compose_settings['max_altext_length'])
@@ -636,16 +715,36 @@ class TabWidget(PhotiniUploader):
             if len(text) <= max_len:
                 description.append(text)
         if description:
-            params['media']['description'] = '\n\n'.join(description)
-        elif self.user_widget.compose_settings['media_descriptions']:
-            if QtWidgets.QMessageBox.warning(
-                    self,
-                    translate('PixelfedTab', 'Photini: no alt text'),
-                    translate('PixelfedTab', 'File {file_name} does not have'
-                              ' accessibility alt text.').format(**params),
-                    QtWidgets.QMessageBox.StandardButton.Ignore |
-                    QtWidgets.QMessageBox.StandardButton.Abort
-                    ) != QtWidgets.QMessageBox.StandardButton.Ignore:
+            return '\n\n'.join(description)
+        return ''
+
+    def get_upload_params(self, image, state):
+        if 'ask_alt_text' not in state:
+            state['ask_alt_text'] = self.user_widget.compose_settings[
+                                                        'media_descriptions']
+        params = {'media': {}, 'status': {}}
+        params['file_name'] = os.path.basename(image.path)
+        # 'description' is the ALT text for an image
+        params['media']['description'] = self.alt_text(image)
+        if state['ask_alt_text'] and not params['media']['description']:
+            dialog = QtWidgets.QMessageBox(parent=self)
+            dialog.setWindowTitle(
+                translate('PixelfedTab', 'Photini: alt text'))
+            dialog.setText('<h3>{}</h3>'.format(
+                translate('PixelfedTab', 'Missing alt text.')))
+            dialog.setInformativeText(translate(
+                'PixelfedTab', 'File "{file_name}" does not have any'
+                ' "alt text" for accessibility.'
+                ' Would you like to upload it anyway?').format(
+                    file_name=os.path.basename(image.path)))
+            dialog.setStandardButtons(dialog.StandardButton.Yes |
+                                      dialog.StandardButton.YesToAll |
+                                      dialog.StandardButton.Abort)
+            dialog.setIcon(dialog.Icon.Warning)
+            result = execute(dialog)
+            if result == dialog.StandardButton.YesToAll:
+                state['ask_alt_text'] = False
+            elif result == dialog.StandardButton.Abort:
                 return 'abort'
         params['license'] = self.widget['license'].get_value()
         params['default_license'] = int(
@@ -676,6 +775,11 @@ class TabWidget(PhotiniUploader):
                 and not self.buttons['upload'].is_checked()):
             self.buttons['upload'].setEnabled(False)
         self.widget['thumb_list'].new_selection(selection)
+        enabled = self.widget['status'].isEnabled()
+        self.widget['sync_remote'].setEnabled(enabled and bool(selection))
+        self.widget['auto_status'].setEnabled(
+            enabled and (len(selection) > 0 and len(selection) <=
+                         self.widget['thumb_list'].max_media_attachments))
 
     @QtSlot()
     @catch_all

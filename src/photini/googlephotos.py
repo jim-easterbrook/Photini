@@ -33,7 +33,6 @@ translate = QtCore.QCoreApplication.translate
 # Google Photos API: https://developers.google.com/photos/library/reference/rest
 
 class GooglePhotosSession(UploaderSession):
-    name       = 'googlephotos'
     oauth_url  = 'https://www.googleapis.com/oauth2/'
     photos_url = 'https://photoslibrary.googleapis.com/'
 
@@ -109,11 +108,11 @@ class GooglePhotosSession(UploaderSession):
             body['albumId'] = params['albums'][0]
         rsp = self.api_call(self.photos_url + 'v1/mediaItems:batchCreate',
                             json=body, post=True)
-        if 'newMediaItemResults' not in rsp:
+        if not (rsp and 'newMediaItemResults' in rsp):
             return 'failed to create media item'
         rsp = rsp['newMediaItemResults'][0]
         if 'status' in rsp:
-            if rsp['status']['message'] != 'Success':
+            if rsp['status']['message'] not in ('Success', 'OK'):
                 return str(rsp['status'])
         media_id = rsp['mediaItem']['id']
         # 4/ add media item to more albums
@@ -128,8 +127,8 @@ class GooglePhotosSession(UploaderSession):
 
 class GooglePhotosUser(UploaderUser):
     logger = logger
-    name       = 'googlephotos'
-    scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
+    config_section = 'googlephotos'
+    scope = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
     max_size = {'image': {'bytes': 200 * (2 ** 20)},
                 'video': {'bytes': 10 * (2 ** 30)}}
 
@@ -152,7 +151,7 @@ class GooglePhotosUser(UploaderUser):
             while True:
                 rsp = session.api_call(
                     session.photos_url + 'v1/albums', params=params)
-                if 'albums' not in rsp:
+                if not (rsp and 'albums' in rsp):
                     break
                 for album in rsp['albums']:
                     if 'id' not in album:
@@ -270,9 +269,9 @@ class TabWidget(PhotiniUploader):
                              'image/png', 'image/tiff', 'image/webp',
                              'image/x-ms-bmp')
 
-    def get_conversion_function(self, image, params):
+    def get_conversion_function(self, image, state, params):
         convert = super(
-            TabWidget, self).get_conversion_function(image, params)
+            TabWidget, self).get_conversion_function(image, state, params)
         if convert == 'omit':
             return convert
         # Google's docs say to remind user of storage limits if uploads
@@ -299,7 +298,7 @@ class TabWidget(PhotiniUploader):
             return convert
         return 'omit'
 
-    def get_upload_params(self, image):
+    def get_upload_params(self, image, state):
         lang = self.user_widget.user_data['lang']
         description = []
         if image.metadata.title:

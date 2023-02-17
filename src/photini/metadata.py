@@ -34,46 +34,64 @@ logger = logging.getLogger(__name__)
 
 
 class FFMPEGMetadata(object):
+    # some tags are always read in groups, but are represented by a
+    # single name
+    _multi_tags = {
+        'ffmpeg/streams[0]/tags/model': (
+            'ffmpeg/streams[0]/tags/make', 'ffmpeg/streams[0]/tags/model'),
+        'ffmpeg/format/tags/com.apple.quicktime.model': (
+            'ffmpeg/format/tags/com.apple.quicktime.make',
+            'ffmpeg/format/tags/com.apple.quicktime.model'),
+        'ffmpeg/streams[0]/coded_dims': (
+            'ffmpeg/streams[0]/coded_width', 'ffmpeg/streams[0]/coded_height'),
+        'ffmpeg/streams[0]/dims': (
+            'ffmpeg/streams[0]/width', 'ffmpeg/streams[0]/height',
+            'ffmpeg/streams[0]/nb_frames', 'ffmpeg/streams[0]/avg_frame_rate'),
+        }
+
     _tag_list = {
-        'camera_model':   ('model',
-                           'Model',
-                           'com.apple.quicktime.model'),
-        'copyright':      ('com.apple.quicktime.copyright',
-                           'copyright',
-                           'Copyright'),
-        'creator':        ('com.apple.quicktime.author',
-                           'artist'),
-        'date_digitised': ('DateTimeDigitized',),
-        'date_modified':  ('DateTime',),
-        'date_taken':     ('com.apple.quicktime.creationdate',
-                           'date',
-                           'creation_time',
-                           'DateTimeOriginal'),
-        'description':    ('comment',),
-        'gps_info':       ('com.apple.quicktime.location.ISO6709',
-                           'location'),
-        'orientation':    ('rotate',),
-        'rating':         ('com.apple.quicktime.rating.user',),
-        'title':          ('title',),
+        'camera_model':   ('ffmpeg/streams[0]/tags/model',
+                           'ffmpeg/format/tags/com.apple.quicktime.model'),
+        'copyright':      ('ffmpeg/format/tags/com.apple.quicktime.copyright',
+                           'ffmpeg/format/tags/copyright'),
+        'creator':        ('ffmpeg/format/tags/com.apple.quicktime.author',
+                           'ffmpeg/format/tags/artist'),
+        'date_modified':  ('ffmpeg/streams[0]/tags/datetime',),
+        'date_digitised': ('ffmpeg/streams[0]/tags/datetimedigitized',),
+        'date_taken':     ('ffmpeg/streams[0]/tags/datetimeoriginal',
+                           'ffmpeg/streams[0]/tags/creation_time',
+                           'ffmpeg/format/tags/creation_time'),
+        'description':    ('ffmpeg/format/tags/comment',),
+        'dimensions':     ('ffmpeg/streams[0]/dims',
+                           'ffmpeg/streams[0]/coded_dims'),
+        'gps_info':       ('ffmpeg/format/tags/location',),
+        'orientation':    ('ffmpeg/streams[0]/tags/rotate',),
+        'rating':         ('ffmpeg/format/tags/com.apple.quicktime.rating.user',),
+        'title':          ('ffmpeg/streams[0]/tags/title',),
         }
 
     def __init__(self, path):
         self._path = path
         self.md = {}
         raw = FFmpeg.ffprobe(path)
-        if 'format' in raw and 'tags' in raw['format']:
-            self.md.update(self.read_tags('format', raw['format']['tags']))
-        if 'streams' in raw:
-            for stream in raw['streams']:
-                if 'tags' in stream:
-                    self.md.update(self.read_tags(
-                        'stream[{}]'.format(stream['index']), stream['tags']))
+        self.md = self.read_data('ffmpeg', raw)
 
-    def read_tags(self, label, tags):
+    def read_data(self, label, value):
         result = {}
-        for key, value in tags.items():
-            result['ffmpeg/{}/{}'.format(label, key)] = value
+        for sub_label, sub_value in self.iter_over(label, value):
+            if isinstance(sub_value, (dict, list)):
+                result.update(self.read_data(sub_label, sub_value))
+            else:
+                result[sub_label] = sub_value
         return result
+
+    def iter_over(self, label, value):
+        if isinstance(value, list):
+            for idx, sub_value in enumerate(value):
+                yield '{}[{}]'.format(label, idx), sub_value
+        else:
+            for sub_key, sub_value in value.items():
+                yield label + '/' + sub_key.lower(), sub_value
 
     @classmethod
     def open_old(cls, path):
@@ -89,22 +107,38 @@ class FFMPEGMetadata(object):
         if name not in self._tag_list:
             return []
         result = []
-        for part_tag in self._tag_list[name]:
-            for tag in self.md:
-                if tag.split('/')[2] != part_tag:
-                    continue
-                try:
-                    value = type_.from_ffmpeg(self.md[tag], tag)
-                except ValueError as ex:
-                    logger.error('{}({}), {}: {}'.format(
-                        os.path.basename(self._path), name, tag, str(ex)))
-                    continue
-                except Exception as ex:
-                    logger.exception(ex)
-                    continue
-                if value:
-                    result.append((tag, value))
+        for tag in self._tag_list[name]:
+            try:
+                if tag in self._multi_tags:
+                    file_value = self.get_group(tag)
+                    if not any(file_value):
+                        continue
+                else:
+                    file_value = self.get_value(tag)
+                    if not file_value:
+                        continue
+                value = type_.from_ffmpeg(file_value, tag)
+            except ValueError as ex:
+                logger.error('{}({}), {}: {}'.format(
+                    os.path.basename(self._path), name, tag, str(ex)))
+                continue
+            except Exception as ex:
+                logger.exception(ex)
+                continue
+            if value:
+                result.append((tag, value))
         return result
+
+    def get_group(self, tag):
+        result = []
+        for sub_tag in self._multi_tags[tag]:
+            result.append(self.get_value(sub_tag))
+        return result
+
+    def get_value(self, tag):
+        if tag and tag in self.md:
+            return self.md[tag]
+        return None
 
 
 class ImageMetadata(MetadataHandler):
@@ -354,7 +388,7 @@ class ImageMetadata(MetadataHandler):
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
         'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height',
-                            'Xmp.video.FrameRate'),
+                            None, 'Xmp.video.FrameRate'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmp.Thumbnails*': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
@@ -641,11 +675,11 @@ class Metadata(object):
         for name in ['timezone'] + list(self._data_type):
             # read data values from first file that has any
             values = []
-            for handler in self._sc, self._if, video_md:
+            for handler in self._sc, video_md, self._if:
                 if not handler:
                     continue
-                values = handler.read(name, self._data_type[name])
-                if values:
+                values += handler.read(name, self._data_type[name])
+                if values and handler == self._sc:
                     break
             # merge in camera timezone
             if (name in ('date_digitised', 'date_modified', 'date_taken')

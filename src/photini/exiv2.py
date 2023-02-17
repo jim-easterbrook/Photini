@@ -83,6 +83,8 @@ class MetadataHandler(object):
             [x in (exiv2.AccessMode.Write, exiv2.AccessMode.ReadWrite)
              for x in access_mode.values()])
         self.mime_type = self._image.mimeType()
+        if self.mime_type == 'image/generic':
+            self.mime_type = None
         self.xmp_only = self.mime_type in (
             'application/rdf+xml', 'application/postscript')
         # Don't use Exiv2's converted values when accessing Xmp files

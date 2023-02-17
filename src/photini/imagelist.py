@@ -127,19 +127,12 @@ class Image(QtWidgets.QFrame):
 
     def make_thumb_ffmpeg(self):
         # get input dimensions
-        try:
-            dims = FFmpeg.get_dimensions(self.path)
-        except Exception as ex:
-            logger.error(str(ex))
-            dims = {}
+        dims = self.metadata.dimensions
         if not dims:
             return None
         width = dims['width']
         height = dims['height']
-        if 'duration' in dims:
-            duration = float(dims['duration'])
-        else:
-            duration = 0.0
+        duration = dims.duration()
         skip = int(min(duration / 2, 10.0))
         # target dimensions
         w, h = 160, 120

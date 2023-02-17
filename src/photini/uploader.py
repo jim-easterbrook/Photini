@@ -24,7 +24,6 @@ import io
 import logging
 import os
 import re
-import threading
 import time
 import urllib
 
@@ -73,50 +72,74 @@ class UploaderSession(QtCore.QObject):
 
     @staticmethod
     def check_response(rsp, decode=True):
+        UploaderSession.check_interrupt()
         try:
             rsp.raise_for_status()
             if decode:
-                return rsp.json()
-            return rsp
+                rsp = rsp.json()
         except UploadAborted:
             raise
         except Exception as ex:
             logger.error(str(ex))
-            return {}
+            return None
+        return rsp
+
+    @staticmethod
+    def check_interrupt():
+        if QtCore.QThread.currentThread().isInterruptionRequested():
+            raise UploadAborted
 
     def progress(self, monitor):
         self.upload_progress.emit(
             {'value': monitor.bytes_read * 100 // monitor.len})
 
     def upload_files(self, upload_list):
+        upload_count = 0
         for image, convert, params in upload_list:
-            retry = True
-            while retry:
-                # UploadWorker converts image to fileobj
-                fileobj, image_type = yield image, convert
-                # UploadWorker decides if to retry after error
-                retry = yield self.do_upload(fileobj, image_type, image, params)
+            upload_count += 1
+            self.upload_progress.emit({
+                'label': '{} ({}/{})'.format(os.path.basename(image.path),
+                                             upload_count, len(upload_list)),
+                'busy': True})
+            with self.open_file(image, convert) as (image_type, fileobj):
+                error = self.do_upload(fileobj, image_type, image, params)
+            if error:
+                self.upload_progress.emit({'error': (image, error)})
+
+    @contextmanager
+    def open_file(self, image, convert):
+        if convert:
+            exiv_image, image_type = convert(image)
+            exiv_io = exiv_image.io()
+            exiv_io.open()
+            fileobj = AbortableFileReader(
+                io.BytesIO(exiv_io.mmap()), exiv_io.size())
+            try:
+                yield image_type, fileobj
+            finally:
+                fileobj.close()
+                exiv_io.munmap()
+                exiv_io.close()
+        else:
+            fileobj = AbortableFileReader(
+                open(image.path, 'rb'), os.stat(image.path).st_size)
+            try:
+                yield image.file_type, fileobj
+            finally:
+                fileobj.close()
 
 
-class AbortableFileReader(QtCore.QObject):
-    def __init__(self, fileobj, size, *args, **kwds):
-        super(AbortableFileReader, self).__init__(*args, **kwds)
+class AbortableFileReader(object):
+    def __init__(self, fileobj, size):
+        super(AbortableFileReader, self).__init__()
         self._f = fileobj
         # requests library uses 'len' attribute instead of seeking to
         # end of file and back
         self.len = size
-        # thread safe way to abort reading large file
-        self._closing = threading.Event()
-
-    @QtSlot()
-    @catch_all
-    def abort_upload(self):
-        self._closing.set()
 
     # substitute read method
     def read(self, size):
-        if self._closing.is_set():
-            raise UploadAborted()
+        UploaderSession.check_interrupt()
         return self._f.read(size)
 
     # delegate all other attributes to file object
@@ -129,90 +152,26 @@ class AbortableFileReader(QtCore.QObject):
 
 class UploadWorker(QtCore.QObject):
     finished = QtSignal()
-    upload_error = QtSignal(str, str)
     upload_progress = QtSignal(dict)
-    _abort_upload = QtSignal()
 
     def __init__(self, session, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
         self.session = session
         self.upload_list = upload_list
-        self.retry = None
-
-    @contextmanager
-    def open_file(self, image, convert):
-        if convert:
-            exiv_image, image_type = convert(image)
-            exiv_io = exiv_image.io()
-            exiv_io.open()
-            fileobj = AbortableFileReader(
-                io.BytesIO(exiv_io.mmap()), exiv_io.size(), parent=self)
-            try:
-                yield image_type, fileobj
-            finally:
-                fileobj.close()
-                exiv_io.munmap()
-                exiv_io.close()
-        else:
-            fileobj = AbortableFileReader(
-                open(image.path, 'rb'), os.stat(image.path).st_size,
-                parent=self)
-            try:
-                yield image.file_type, fileobj
-            finally:
-                fileobj.close()
 
     @QtSlot()
     @catch_all
     def start(self):
         with self.session(parent=self) as session:
             session.upload_progress.connect(self.upload_progress)
-            uploader = session.upload_files(self.upload_list)
-            upload_count = 1
-            while True:
-                try:
-                    image, convert = uploader.send(self.retry)
-                except StopIteration:
-                    break
-                name = os.path.basename(image.path)
-                self.upload_progress.emit({
-                    'label': '{} ({}/{})'.format(
-                        name, upload_count, len(self.upload_list)),
-                    'busy': True})
-                try:
-                    with self.open_file(
-                            image, convert) as (image_type, fileobj):
-                        self._abort_upload.connect(
-                            fileobj.abort_upload,
-                            Qt.ConnectionType.DirectConnection)
-                        error = uploader.send((fileobj, image_type))
-                except UploadAborted:
-                    break
-                except RuntimeError as ex:
-                    error = str(ex)
-                except Exception as ex:
-                    logger.exception(ex)
-                    error = '{}: {}'.format(type(ex), str(ex))
-                self.upload_progress.emit({'busy': False})
-                if error:
-                    self.retry = None
-                    self.upload_error.emit(name, error)
-                    # wait for response from user dialog
-                    while self.retry is None:
-                        QtWidgets.QApplication.processEvents()
-                    if not self.retry:
-                        break
-                else:
-                    upload_count += 1
-            self.retry = False
+            try:
+                session.upload_files(self.upload_list)
+            except UploadAborted:
+                pass
+            except Exception as ex:
+                logger.exception(ex)
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
         self.finished.emit()
-
-    @QtSlot(bool)
-    @catch_all
-    def abort_upload(self, retry):
-        self.retry = retry
-        self._abort_upload.emit()
 
 
 class AuthRequestHandler(BaseHTTPRequestHandler):
@@ -297,10 +256,11 @@ class UploaderUser(QtWidgets.QGridLayout):
         self.connect_button.click_stop.connect(self.log_out)
         self.addWidget(self.connect_button, 1, 0)
         # other init
-        self.client_data = {}
-        if key_store.config.has_section(self.name):
-            for option in key_store.config.options(self.name):
-                self.client_data[option] = key_store.get(self.name, option)
+        self.client_data = {'name': self.config_section}
+        if key_store.config.has_section(self.config_section):
+            for option in key_store.config.options(self.config_section):
+                self.client_data[option] = key_store.get(
+                    self.config_section, option)
         self.user_data = {}
 
     @contextmanager
@@ -333,9 +293,9 @@ class UploaderUser(QtWidgets.QGridLayout):
     @QtSlot()
     @catch_all
     def log_out(self):
-        if keyring.get_password('photini', self.name):
+        if keyring.get_password('photini', self.config_section):
             self.unauthorise()
-            keyring.delete_password('photini', self.name)
+            keyring.delete_password('photini', self.config_section)
         self.user_data = {}
         self.connection_changed.emit(False)
 
@@ -411,10 +371,10 @@ class UploaderUser(QtWidgets.QGridLayout):
         return None
 
     def get_password(self):
-        return keyring.get_password('photini', self.name)
+        return keyring.get_password('photini', self.config_section)
 
     def set_password(self, password):
-        keyring.set_password('photini', self.name, password)
+        keyring.set_password('photini', self.config_section, password)
 
 
 class AlbumList(QtWidgets.QWidget):
@@ -476,8 +436,6 @@ class AlbumList(QtWidgets.QWidget):
 
 
 class PhotiniUploader(QtWidgets.QWidget):
-    abort_upload = QtSignal(bool)
-
     def __init__(self, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
@@ -544,8 +502,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def shutdown(self):
-        if self.upload_worker:
-            self.stop_upload()
+        self.stop_upload()
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
 
@@ -715,7 +672,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         return dialog.addButton(translate('UploaderTabsAll', 'Skip'),
                                 dialog.ButtonRole.AcceptRole)
 
-    def ask_resize_image(self, image, resizable=False, pixels=None):
+    def ask_resize_image(self, image, state, resizable=False, pixels=None):
+        if 'ask_resize' not in state:
+            state['ask_resize'] = True
         max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
         if pixels:
             if 'pixels' not in max_size:
@@ -733,6 +692,8 @@ class PhotiniUploader(QtWidgets.QWidget):
                 ' exceeds {service}\'s limit of {max_size} bytes.')
         if size <= max_size:
             return {}
+        if resizable and not state['ask_resize']:
+            return {'resize': True}
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: too large'))
@@ -744,11 +705,16 @@ class PhotiniUploader(QtWidgets.QWidget):
         if resizable:
             text += ' ' + translate(
                 'UploaderTabsAll', 'Would you like to resize it?')
-            dialog.setStandardButtons(dialog.StandardButton.Yes)
+            dialog.setStandardButtons(dialog.StandardButton.Yes |
+                                      dialog.StandardButton.YesToAll)
         self.add_skip_button(dialog)
         dialog.setInformativeText(text)
         dialog.setIcon(dialog.Icon.Warning)
-        if execute(dialog) == dialog.StandardButton.Yes:
+        result = execute(dialog)
+        if result == dialog.StandardButton.Yes:
+            return {'resize': True}
+        if result == dialog.StandardButton.YesToAll:
+            state['ask_resize'] = False
             return {'resize': True}
         return {'omit': True}
 
@@ -784,7 +750,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return {}
         return {'omit': True}
 
-    def get_conversion_function(self, image, params):
+    def get_conversion_function(self, image, state, params):
         convert = {
             'omit': False,
             'resize': False,
@@ -793,18 +759,17 @@ class PhotiniUploader(QtWidgets.QWidget):
         mime_type = image.file_type
         if mime_type.startswith('video'):
             dims = image.metadata.dimensions
-            if dims['width'] and dims['height']:
+            if dims and dims['width'] and dims['height']:
                 convert.update(self.ask_resize_image(
-                    image, pixels=dims['width'] * dims['height']))
+                    image, state, pixels=dims['width'] * dims['height']))
             if not any(convert.values()):
-                convert.update(self.ask_resize_image(image))
+                convert.update(self.ask_resize_image(image, state))
             if not (any(convert.values()) or self.accepted_image_type(mime_type)):
                 convert.update(self.ask_convert_image(
                     image, mime_type=mime_type, convertible=False))
             if any(convert.values()):
                 return 'omit'
             return None
-
         readable = True
         try:
             tmp = self.data_to_image(self.read_image(image))
@@ -813,13 +778,15 @@ class PhotiniUploader(QtWidgets.QWidget):
             readable = False
         if readable:
             convert.update(self.ask_resize_image(
-                image, resizable=True, pixels=tmp['width'] * tmp['height']))
+                image, state, resizable=True,
+                pixels=tmp['width'] * tmp['height']))
             mime_type = tmp['mime_type']
         if not (any(convert.values()) or self.accepted_image_type(mime_type)):
             convert.update(self.ask_convert_image(
                 image, mime_type=mime_type, convertible=readable))
         if not any(convert.values()):
-            convert.update(self.ask_resize_image(image, resizable=readable))
+            convert.update(self.ask_resize_image(
+                image, state, resizable=readable))
         if convert['omit']:
             return 'omit'
         if convert['resize'] or convert['convert']:
@@ -832,7 +799,8 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def stop_upload(self):
-        self.abort_upload.emit(False)
+        if self.upload_worker:
+            self.upload_worker.thread().requestInterruption()
 
     def get_selected_images(self):
         return self.app.image_list.get_selected_images()
@@ -844,14 +812,15 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         # make list of items to upload
         upload_list = []
+        state = {}
         for image in self.get_selected_images():
-            params = self.get_upload_params(image)
+            params = self.get_upload_params(image, state)
             if params == 'abort':
                 upload_list = []
                 break
             if not params:
                 continue
-            convert = self.get_conversion_function(image, params)
+            convert = self.get_conversion_function(image, state, params)
             if convert == 'omit':
                 continue
             upload_list.append((image, convert, params))
@@ -866,10 +835,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker = UploadWorker(self.user_widget.session, upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
-        self.upload_worker.upload_error.connect(
-            self.upload_error, Qt.ConnectionType.BlockingQueuedConnection)
-        self.abort_upload.connect(
-            self.upload_worker.abort_upload, Qt.ConnectionType.DirectConnection)
         self.upload_worker.upload_progress.connect(self.upload_progress)
         thread.started.connect(self.upload_worker.start)
         self.upload_worker.finished.connect(self.uploader_finished)
@@ -902,9 +867,10 @@ class PhotiniUploader(QtWidgets.QWidget):
             else:
                 self.progress_label.setText(
                     translate('UploaderTabsAll', 'Progress'))
+        if 'error' in update:
+            image, error = update['error']
+            self.upload_error(os.path.basename(image.path), error)
 
-    @QtSlot(str, str)
-    @catch_all
     def upload_error(self, name, error):
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(
@@ -915,9 +881,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setInformativeText(error)
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Abort |
-                                  dialog.StandardButton.Retry)
-        dialog.setDefaultButton(dialog.StandardButton.Retry)
-        self.abort_upload.emit(execute(dialog) == dialog.StandardButton.Retry)
+                                  dialog.StandardButton.Ignore)
+        dialog.setDefaultButton(dialog.StandardButton.Ignore)
+        if execute(dialog) == dialog.StandardButton.Abort:
+            self.stop_upload()
 
     @QtSlot()
     @catch_all
@@ -947,63 +914,52 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.buttons['sync'].setEnabled(
                 len(selection) > 0 and self.user_widget.connect_button.is_checked())
 
-    def get_upload_params(self, image):
+    def get_upload_params(self, image, first_time=True):
+        # only used by Flickr & Ipernity, which have a lot in common
         # get user preferences for this upload
         upload_prefs, replace_prefs, photo_id = self.replace_dialog(image)
         if not upload_prefs:
             # user cancelled dialog or chose to do nothing
             return None
-        # get config params that apply to all photos
-        fixed_params = self.get_fixed_params()
-        # set params
-        params = self.get_variable_params(
-            image, upload_prefs, replace_prefs, photo_id)
-        if upload_prefs['new_photo']:
-            # apply all "fixed" params
-            params.update(fixed_params)
-        else:
-            # only apply the "fixed" params the user wants to change
-            for key in fixed_params:
-                if replace_prefs[key]:
-                    params[key] = fixed_params[key]
-        # add metadata
-        lang = self.user_widget.user_data['lang']
+        # set service dependent params
+        params = self.get_params(image, upload_prefs, replace_prefs, photo_id)
+        # add common metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
+            lang = self.user_widget.user_data['lang']
             # title & description
-            params['meta'] = {}
+            params['metadata'] = {}
             if image.metadata.title:
-                params['meta']['title'] = image.metadata.title.best_match(lang)
+                params['metadata']['title'] = image.metadata.title.best_match(lang)
             else:
-                params['meta']['title'] = image.name
+                params['metadata']['title'] = image.name
             description = []
             if image.metadata.headline:
                 description.append(image.metadata.headline)
             if image.metadata.description:
                 description.append(image.metadata.description.best_match(lang))
             if description:
-                params['meta']['description'] = '\n\n'.join(description)
+                params['metadata']['description'] = '\n\n'.join(description)
             # keywords
-            keywords = ['uploaded:by=photini']
-            for keyword in image.metadata.keywords or []:
-                ns, predicate, value = self.machine_tag(keyword)
-                if (ns in ('flickr', 'ipernity')
-                        and predicate in ('photo_id', 'doc_id', 'id')):
-                    # Photini "internal" tag
-                    continue
-                keyword = keyword.replace('"', "'")
-                if ',' in keyword:
-                    keyword = '"' + keyword + '"'
-                keywords.append(keyword)
+            keywords = []
+            if image.metadata.keywords:
+                keywords = image.metadata.keywords.human_tags()
+                for keyword, (ns, predicate,
+                              value) in image.metadata.keywords.machine_tags():
+                    if (ns != self.user_widget.client_data['name'] or
+                            predicate not in ('photo_id', 'doc_id', 'id')):
+                        keywords.append(keyword)
+                keywords = [x.replace('"', "'") for x in keywords]
+                for n, keyword in enumerate(keywords):
+                    if ',' in keyword:
+                        keywords[n] = '"' + keyword + '"'
+            keywords.append('uploaded:by=photini')
             params['keywords'] = {'keywords': ','.join(keywords)}
         return params
 
     def replace_dialog(self, image, options, replace=True):
         # has image already been uploaded?
-        for keyword in image.metadata.keywords or []:
-            photo_id = self.uploaded_id(keyword)
-            if photo_id:
-                break
-        else:
+        photo_id = self.uploaded_id(image)
+        if not photo_id:
             # new upload
             return {'new_photo': True}, {}, None
         # get user preferences
@@ -1065,7 +1021,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 self.replace_prefs.values()):
             # user chose to do nothing
             return {}, {}, photo_id
-        return self.upload_prefs, self.replace_prefs, photo_id
+        return dict(self.upload_prefs), dict(self.replace_prefs), photo_id
 
     def date_range(self, image):
         precision = min(image.metadata.date_taken['precision'], 6)
@@ -1146,20 +1102,14 @@ class PhotiniUploader(QtWidgets.QWidget):
                         return candidate
         return None
 
-    _machine_tag = re.compile('^(.+):(.+)=(.+)$')
-
-    @classmethod
-    def machine_tag(cls, keyword):
-        match = cls._machine_tag.match(keyword)
-        if not match:
-            return None, None, None
-        return match.groups()
-
-    def uploaded_id(self, keyword):
-        ns, predicate, value = self.machine_tag(keyword)
-        if ns == self.user_widget.name and predicate in (
-                'photo_id', 'doc_id', 'id'):
-            return value
+    def uploaded_id(self, image):
+        if not image.metadata.keywords:
+            return None
+        for keyword, (ns, predicate,
+                      value) in image.metadata.keywords.machine_tags():
+            if ns == self.user_widget.client_data['name'] and predicate in (
+                    'photo_id', 'doc_id', 'id'):
+                return value
         return None
 
     @QtSlot()
@@ -1170,11 +1120,9 @@ class PhotiniUploader(QtWidgets.QWidget):
             photo_ids = {}
             unknowns = []
             for image in self.app.image_list.get_selected_images():
-                for keyword in image.metadata.keywords or []:
-                    photo_id = self.uploaded_id(keyword)
-                    if photo_id:
-                        photo_ids[photo_id] = image
-                        break
+                photo_id = self.uploaded_id(image)
+                if photo_id:
+                    photo_ids[photo_id] = image
                 else:
                     unknowns.append(image)
             with self.user_widget.session(parent=self) as session:
@@ -1197,8 +1145,9 @@ class PhotiniUploader(QtWidgets.QWidget):
                         if match:
                             match.metadata.keywords = list(
                                 match.metadata.keywords or []) + [
-                                    '{}:id={}'.format(self.user_widget.name,
-                                                      photo_id)]
+                                    '{}:id={}'.format(
+                                        self.user_widget.client_data['name'],
+                                        photo_id)]
                             photo_ids[photo_id] = match
                             unknowns.remove(match)
                 # merge remote metadata into file

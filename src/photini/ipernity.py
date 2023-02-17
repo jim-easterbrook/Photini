@@ -39,7 +39,6 @@ translate = QtCore.QCoreApplication.translate
 # requests: https://docs.python-requests.org/
 
 class IpernitySession(UploaderSession):
-    name = 'ipernity'
     api_url = 'http://api.ipernity.com/api/'
     auth_url = 'http://www.ipernity.com/apps/authorize'
 
@@ -64,12 +63,13 @@ class IpernitySession(UploaderSession):
         else:
             rsp = self.api.get(url, timeout=20, params=params)
         rsp = self.check_response(rsp)
-        if not rsp:
+        if rsp is None:
             print('close_connection', method)
             self.close_connection()
         elif rsp['api']['status'] != 'ok':
-            logger.error('API error %s: %s', method, str(rsp['api']))
-            return {}
+            logger.error('in method %s: API error %s: %s',
+                         method, rsp['api']['code'], rsp['api']['message'])
+            return None
         return rsp
 
     def get_auth_url(self, frob):
@@ -120,34 +120,26 @@ class IpernitySession(UploaderSession):
         # parse response
         if rsp['api']['status'] != 'ok':
             return params['function'] + ' ' + str(rsp['api']), None
-        ticket = rsp['ticket']
-        # wait for processing to finish
-        # upload.checkTickets returns an eta but it's very
-        # unreliable (e.g. saying 360 seconds for something that
-        # then takes 15). Easier to poll every two seconds.
-        while True:
-            time.sleep(2)
-            rsp = self.api_call('upload.checkTickets', tickets=ticket)
-            if not rsp:
-                return 'Wait for processing failed', None
-            if rsp['tickets']['done'] != '0':
-                return '', rsp['tickets']['ticket'][0]['doc_id']
+        return '', rsp['ticket']
 
     metadata_set_func = {
         'visibility' : 'doc.setPerms',
         'permissions': 'doc.setPerms',
         'licence'    : 'doc.setLicense',
-        'meta'       : 'doc.set',
+        'metadata'   : 'doc.set',
         'keywords'   : 'doc.tags.edit',
         'location'   : 'doc.setGeo',
         }
 
     def set_metadata(self, params, doc_id):
+        if 'visibility' in params and 'permissions' in params:
+            params['permissions'].update(params['visibility'])
+            del params['visibility']
         for key in list(params):
             if params[key] and key in self.metadata_set_func:
                 rsp = self.api_call(self.metadata_set_func[key], post=True,
                                     doc_id=doc_id, **params[key])
-                if not rsp:
+                if rsp is None:
                     return 'Failed to set ' + key
                 del params[key]
         return ''
@@ -169,60 +161,90 @@ class IpernitySession(UploaderSession):
                 # add to existing album
                 rsp = self.api_call('album.docs.add', post=True,
                                     album_id=album_id, doc_id=doc_id)
-                if not rsp:
+                if rsp is None:
                     return 'Failed to add to album'
         # remove from any other albums
         for album_id in current_albums:
             rsp = self.api_call('album.docs.remove', post=True,
                                 album_id=album_id, doc_id=doc_id)
-            if not rsp:
+            if rsp is None:
                 return 'Failed to remove from album'
         return ''
 
     def upload_files(self, upload_list):
-        for image, convert, params in upload_list:
-            doc_id = params['doc_id']
-            upload_data = {}
-            if params['function']:
-                # upload or replace photo
-                if params['function'] == 'upload.file':
-                    # set some metadata with upload function
-                    for key in ('visibility', 'permissions', 'licence', 'meta',
-                                'dates', 'location'):
-                        if key in params and params[key]:
-                            upload_data.update(params[key])
-                            del(params[key])
-                else:
-                    upload_data['doc_id'] = doc_id
-                upload_data['async'] = '1'
-            if 'visibility' in params and 'permissions' in params:
-                params['permissions'].update(params['visibility'])
-                del params['visibility']
-            retry = True
-            while retry:
-                error = ''
-                if not upload_data:
-                    # no image conversion required
-                    convert = None
-                # UploadWorker converts image to fileobj
-                fileobj, image_type = yield image, convert
-                if upload_data:
+        upload_count = 0
+        uploads = list(upload_list)
+        tickets = {}
+        metadata = []
+        ticket_poll = 0.0
+        while uploads or tickets or metadata:
+            if uploads:
+                # upload an image
+                image, convert, params = uploads.pop(0)
+                upload_count += 1
+                self.upload_progress.emit({
+                    'label': '{} ({}/{})'.format(
+                        os.path.basename(image.path),
+                        upload_count, len(upload_list)),
+                    'busy': True})
+                if params['function']:
                     # upload or replace photo
-                    error, doc_id = self.upload_image(
-                        params, upload_data, fileobj, image_type)
-                    if not error:
-                        # don't retry
-                        upload_data = {}
-                        # store photo id in image keywords, in main thread
-                        self.upload_progress.emit({
-                            'keyword': (image, 'ipernity:id=' + doc_id)})
-                # set remaining metadata after uploading image
-                if not error:
-                    error = self.set_metadata(params, doc_id)
+                    data = {'async': '1'}
+                    if params['function'] == 'upload.file':
+                        # set some metadata with upload function
+                        for key in ('visibility', 'permissions', 'licence',
+                                    'metadata', 'dates', 'location'):
+                            if key in params and params[key]:
+                                data.update(params[key])
+                                del params[key]
+                    else:
+                        data['doc_id'] = params['doc_id']
+                    with self.open_file(
+                            image, convert) as (image_type, fileobj):
+                        error, ticket = self.upload_image(
+                            params, data, fileobj, image_type)
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
+                        continue
+                    # add ticket and details to ticket queue
+                    tickets[ticket] = image, params
+                else:
+                    # add details to metadata queue
+                    metadata.append((image, params))
+            if tickets:
+                # check images currently being processed
+                pause = ticket_poll - time.time()
+                if pause > 0:
+                    time.sleep(pause)
+                ticket_poll = time.time() + 2.0
+                rsp = self.api_call('upload.checkTickets',
+                                    tickets=','.join(tickets.keys()))
+                if not rsp:
+                    self.upload_progress.emit({
+                        'error': (image, 'Wait for processing failed')})
+                for ticket in rsp['tickets']['ticket']:
+                    if not ('done' in ticket and ticket['done'] == '1'):
+                        continue
+                    image, params = tickets[ticket['id']]
+                    params['doc_id'] = ticket['doc_id']
+                    del tickets[ticket['id']]
+                    # add details to metadata queue
+                    metadata.append((image, params))
+                    # store photo id in image keywords, in main thread
+                    self.upload_progress.emit({
+                        'keyword': (image, 'ipernity:id=' + params['doc_id'])})
+            while metadata:
+                # set remaining metadata after uploading images
+                image, params = metadata.pop(0)
+                error = self.set_metadata(params, params['doc_id'])
+                if error:
+                    self.upload_progress.emit({'error': (image, error)})
+                    continue
                 # add to or remove from albums
-                if 'albums' in params and not error:
-                    error = self.set_albums(params, doc_id)
-                retry = yield error
+                if 'albums' in params:
+                    error = self.set_albums(params, params['doc_id'])
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
 
 
 class PermissionWidget(DropDownSelector):
@@ -258,7 +280,7 @@ class LicenceWidget(DropDownSelector):
 
 class IpernityUser(UploaderUser):
     logger = logger
-    name = 'ipernity'
+    config_section = 'ipernity'
     max_size = {'image': {'bytes': 2 ** 30},
                 'video': {'bytes': 2 ** 30}}
 
@@ -266,24 +288,23 @@ class IpernityUser(UploaderUser):
         with self.session(parent=self) as session:
             # check auth
             rsp = session.api_call('auth.checkToken')
-            if rsp:
-                self.user_data['user_id'] = rsp['auth']['user']['user_id']
-                self.user_data['realname'] = rsp['auth']['user']['realname']
-                self.user_data['lang'] = rsp['auth']['user']['lg']
-                if rsp['auth']['user']['is_pro'] == '0':
-                    # guest user can upload 2.5 MB photos and no videos
-                    self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
-                                     'video': {'bytes': 0}}
-                connected = rsp['auth']['permissions']['doc'] == 'write'
-            yield 'connected', connected
+            if not rsp:
+                yield 'connected', False
+            self.user_data['user_id'] = rsp['auth']['user']['user_id']
+            self.user_data['realname'] = rsp['auth']['user']['realname']
+            self.user_data['lang'] = rsp['auth']['user']['lg']
+            if rsp['auth']['user']['is_pro'] == '0':
+                # guest user can upload 2.5 MB photos and no videos
+                self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
+                                 'video': {'bytes': 0}}
+            yield 'connected', rsp['auth']['permissions']['doc'] == 'write'
             # get user icon
             rsp = session.api_call(
                 'user.get', user_id=self.user_data['user_id'])
-            picture = None
-            if rsp:
-                rsp = IpernitySession.check_response(
-                    session.api.get(rsp['user']['icon']),
-                    decode=False)
+            if not rsp:
+                yield 'connected', False
+            rsp = session.check_response(
+                session.api.get(rsp['user']['icon']), decode=False)
             picture = rsp and rsp.content
             yield 'user', (self.user_data['realname'], picture)
             # get albums
@@ -294,14 +315,14 @@ class IpernityUser(UploaderUser):
                 # get list of album ids
                 rsp = session.api_call('album.getList', **params)
                 if not rsp:
-                    break
+                    yield 'connected', False
                 albums = rsp['albums']
                 # get details of each album
                 for album in albums['album']:
                     rsp = session.api_call(
                         'album.get', album_id=album['album_id'])
                     if not rsp:
-                        continue
+                        yield 'connected', False
                     yield 'album', {
                         'title': rsp['album']['title'],
                         'description': rsp['album']['description'],
@@ -438,40 +459,17 @@ class TabWidget(PhotiniUploader):
     def new_value(self, key, value):
         self.app.config_store.set('ipernity', key, value)
 
-    def get_fixed_params(self):
-        visibility = {
-            '0': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
-            '1': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
-            '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
-            '3': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
-            '4': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
-            }[self.widget['visibility'].get_value()]
-        return {
-            'visibility': visibility,
-            'permissions': {
-                'perm_comment': self.widget['perm_comment'].get_value(),
-                'perm_tag'    : self.widget['perm_tag'].get_value(),
-                'perm_tagme'  : self.widget['perm_tagme'].get_value(),
-                },
-            'licence': {
-                'license': self.widget['license'].get_value(),
-                },
-            'albums': self.widget['albums'].get_checked_ids(),
-            }
-
     def accepted_image_type(self, file_type):
         # ipernity accepts most RAW formats!
         return True
 
-    def get_variable_params(self, image, upload_prefs, replace_prefs, doc_id):
-        params = {}
+    def get_params(self, image, upload_prefs, replace_prefs, doc_id):
+        params = {'doc_id': doc_id}
         # set upload function
         if upload_prefs['new_photo']:
             params['function'] = 'upload.file'
-            doc_id = None
         else:
             params['function'] = None
-        params['doc_id'] = doc_id
         # add metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # date_taken
@@ -491,6 +489,28 @@ class TabWidget(PhotiniUploader):
             else:
                 # clear any existing location
                 params['location'] = {'lat': '-999', 'lng': '-999'}
+        # visibility
+        if upload_prefs['new_photo'] or replace_prefs['visibility']:
+            params['visibility'] = {
+                '0': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
+                '1': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
+                '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
+                '3': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
+                '4': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
+                }[self.widget['visibility'].get_value()]
+        # permissions
+        if upload_prefs['new_photo'] or replace_prefs['permissions']:
+            params['permissions'] = {
+                'perm_comment': self.widget['perm_comment'].get_value(),
+                'perm_tag'    : self.widget['perm_tag'].get_value(),
+                'perm_tagme'  : self.widget['perm_tagme'].get_value(),
+                }
+        # licence
+        if upload_prefs['new_photo'] or replace_prefs['licence']:
+            params['licence'] = {'license': self.widget['license'].get_value()}
+        # albums
+        if upload_prefs['new_photo'] or replace_prefs['albums']:
+            params['albums'] = self.widget['albums'].get_checked_ids()
         return params
 
     def replace_dialog(self, image):
