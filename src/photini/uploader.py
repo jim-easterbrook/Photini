@@ -804,8 +804,9 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         # make list of items to upload
         upload_list = []
+        state = {}
         for image in self.get_selected_images():
-            params = self.get_upload_params(image)
+            params = self.get_upload_params(image, state)
             if params == 'abort':
                 upload_list = []
                 break
@@ -905,7 +906,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.buttons['sync'].setEnabled(
                 len(selection) > 0 and self.user_widget.connect_button.is_checked())
 
-    def get_upload_params(self, image):
+    def get_upload_params(self, image, first_time=True):
         # only used by Flickr & Ipernity, which have a lot in common
         # get user preferences for this upload
         upload_prefs, replace_prefs, photo_id = self.replace_dialog(image)

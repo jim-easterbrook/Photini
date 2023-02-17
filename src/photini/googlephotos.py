@@ -298,7 +298,7 @@ class TabWidget(PhotiniUploader):
             return convert
         return 'omit'
 
-    def get_upload_params(self, image):
+    def get_upload_params(self, image, state):
         lang = self.user_widget.user_data['lang']
         description = []
         if image.metadata.title:

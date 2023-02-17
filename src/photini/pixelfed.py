@@ -65,12 +65,15 @@ class PixelfedSession(UploaderSession):
 
     @staticmethod
     def check_response(rsp, decode=True):
+        UploaderSession.check_interrupt()
         try:
             rsp.raise_for_status()
             # some wrong api calls return the instance home page
             if rsp.headers['Content-Type'].startswith('text/html'):
                 logger.error('Response is HTML')
                 return None
+            if '/api/v1/statuses' in rsp.request.url:
+                print(rsp.request.body)
             if decode:
                 rsp = rsp.json()
         except UploadAborted:
@@ -131,11 +134,8 @@ class PixelfedSession(UploaderSession):
                 self.upload_progress.emit({
                     'error': (image, 'Image upload failed')})
                 return
-            media_ids.append(rsp['id'])
-            # store photo id in image keywords, in main thread
-            self.upload_progress.emit({
-                'keyword': (image, '{}:id={}'.format(
-                    self.client_data['name'], rsp['id']))})
+            print(rsp['id'], params['file_name'])
+            media_ids.append((image, rsp['id']))
         # reset licence
         if licence != default_licence:
             data = {'license': default_licence}
@@ -143,10 +143,19 @@ class PixelfedSession(UploaderSession):
                 '/api/v1/accounts/update_credentials', 'PATCH', data=data)
         # upload status
         data = dict(params['status'])
-        data['media_ids[]'] = media_ids
-        rsp = self.api_call('/api/v1/statuses', method='POST', data=data)
+        data['media_ids[]'] = [x[1] for x in media_ids]
+        rsp = self.api_call(
+            '/api/v1/statuses', method='POST', data=data)
         if rsp is None:
             self.upload_progress.emit({'error': (image, 'Post status failed')})
+            return
+        for media in rsp['media_attachments']:
+            print(media['id'], media['blurhash'])
+        # store photo ids in image keywords, in main thread
+        for image, media_id in media_ids:
+            self.upload_progress.emit({
+                'keyword': (image, '{}:id={}'.format(
+                    self.client_data['name'], media_id))})
 
 
 class ChooseInstance(QtWidgets.QDialog):
@@ -466,7 +475,6 @@ class ThumbList(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().addStretch(1)
-        self.thumb_widgets = []
         self.image_selection = []
         self.max_media_attachments = 4
 
@@ -477,21 +485,22 @@ class ThumbList(QtWidgets.QWidget):
             'configuration']['statuses']['max_media_attachments']
         self.new_selection(self.app.image_list.get_selected_images())
 
+    def get_selected_images(self):
+        return [x[0] for x in self.image_selection]
+
     def new_selection(self, selection):
-        selection = selection[:self.max_media_attachments]
         width = self.layout().contentsRect().width()
         n = len(self.image_selection)
         while n:
             n -= 1
-            if self.image_selection[n] not in selection:
-                self.image_selection.pop(n)
-                widget = self.thumb_widgets.pop(n)
+            if self.image_selection[n][0] not in selection:
+                image, widget = self.image_selection.pop(n)
                 self.layout().removeWidget(widget)
                 widget.setParent(None)
+        selection = selection[:self.max_media_attachments]
         added = False
         for image in selection:
-            if image not in self.image_selection:
-                self.image_selection.append(image)
+            if image not in self.get_selected_images():
                 widget = QtWidgets.QLabel()
                 widget.setWordWrap(True)
                 widget.setFrameStyle(widget.Shape.Box)
@@ -502,7 +511,7 @@ class ThumbList(QtWidgets.QWidget):
                 widget.setFixedSize(width, width)
                 image.load_thumbnail(label=widget)
                 self.layout().insertWidget(self.layout().count() - 1, widget)
-                self.thumb_widgets.append(widget)
+                self.image_selection.append((image, widget))
                 added = True
         if added and self.scroll_area:
             QtCore.QTimer.singleShot(1, self.scroll_to_last_widget)
@@ -670,7 +679,7 @@ class TabWidget(PhotiniUploader):
         return image['data'], image['mime_type']
 
     def get_selected_images(self):
-        return self.widget['thumb_list'].image_selection
+        return self.widget['thumb_list'].get_selected_images()
 
     @QtSlot()
     @catch_all
@@ -709,21 +718,33 @@ class TabWidget(PhotiniUploader):
             return '\n\n'.join(description)
         return ''
 
-    def get_upload_params(self, image):
+    def get_upload_params(self, image, state):
+        if not state:
+            state['media_descriptions'] = self.user_widget.compose_settings[
+                                                        'media_descriptions']
         params = {'media': {}, 'status': {}}
         params['file_name'] = os.path.basename(image.path)
         # 'description' is the ALT text for an image
         params['media']['description'] = self.alt_text(image)
-        if (self.user_widget.compose_settings['media_descriptions']
-                and not params['media']['description']):
-            if QtWidgets.QMessageBox.warning(
-                    self,
-                    translate('PixelfedTab', 'Photini: no alt text'),
-                    translate('PixelfedTab', 'File {file_name} does not have'
-                              ' accessibility alt text.').format(**params),
-                    QtWidgets.QMessageBox.StandardButton.Ignore |
-                    QtWidgets.QMessageBox.StandardButton.Abort
-                    ) != QtWidgets.QMessageBox.StandardButton.Ignore:
+        if state['media_descriptions'] and not params['media']['description']:
+            dialog = QtWidgets.QMessageBox(parent=self)
+            dialog.setWindowTitle(
+                translate('PixelfedTab', 'Photini: alt text'))
+            dialog.setText('<h3>{}</h3>'.format(
+                translate('PixelfedTab', 'Missing alt text.')))
+            dialog.setInformativeText(translate(
+                'PixelfedTab', 'File "{file_name}" does not have any'
+                ' "alt text" for accessibility.'
+                ' Would you like to upload it anyway?').format(
+                    file_name=os.path.basename(image.path)))
+            dialog.setStandardButtons(dialog.StandardButton.Yes |
+                                      dialog.StandardButton.YesToAll |
+                                      dialog.StandardButton.Abort)
+            dialog.setIcon(dialog.Icon.Warning)
+            result = execute(dialog)
+            if result == dialog.StandardButton.YesToAll:
+                state['media_descriptions'] = False
+            elif result == dialog.StandardButton.Abort:
                 return 'abort'
         params['license'] = self.widget['license'].get_value()
         params['default_license'] = int(
