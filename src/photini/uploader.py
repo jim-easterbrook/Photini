@@ -672,16 +672,15 @@ class PhotiniUploader(QtWidgets.QWidget):
         return dialog.addButton(translate('UploaderTabsAll', 'Skip'),
                                 dialog.ButtonRole.AcceptRole)
 
-    def ask_resize_image(self, image, resizable=False, pixels=None):
+    def ask_resize_image(self, image, state, resizable=False, pixels=None):
+        if 'ask_resize' not in state:
+            state['ask_resize'] = True
         max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
         if pixels:
             if 'pixels' not in max_size:
                 return {}
             max_size = max_size['pixels']
             size = pixels
-            if size > max_size and self.app.config_store.get(
-                    self.user_widget.config_section, 'resize_yes'):
-                return {'resize': True}
             text = translate(
                 'UploaderTabsAll', 'File "{file_name}" has {size} pixels and'
                 ' exceeds {service}\'s limit of {max_size} pixels.')
@@ -693,6 +692,8 @@ class PhotiniUploader(QtWidgets.QWidget):
                 ' exceeds {service}\'s limit of {max_size} bytes.')
         if size <= max_size:
             return {}
+        if resizable and not state['ask_resize']:
+            return {'resize': True}
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: too large'))
@@ -704,11 +705,16 @@ class PhotiniUploader(QtWidgets.QWidget):
         if resizable:
             text += ' ' + translate(
                 'UploaderTabsAll', 'Would you like to resize it?')
-            dialog.setStandardButtons(dialog.StandardButton.Yes)
+            dialog.setStandardButtons(dialog.StandardButton.Yes |
+                                      dialog.StandardButton.YesToAll)
         self.add_skip_button(dialog)
         dialog.setInformativeText(text)
         dialog.setIcon(dialog.Icon.Warning)
-        if execute(dialog) == dialog.StandardButton.Yes:
+        result = execute(dialog)
+        if result == dialog.StandardButton.Yes:
+            return {'resize': True}
+        if result == dialog.StandardButton.YesToAll:
+            state['ask_resize'] = False
             return {'resize': True}
         return {'omit': True}
 
@@ -744,7 +750,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return {}
         return {'omit': True}
 
-    def get_conversion_function(self, image, params):
+    def get_conversion_function(self, image, state, params):
         convert = {
             'omit': False,
             'resize': False,
@@ -755,9 +761,9 @@ class PhotiniUploader(QtWidgets.QWidget):
             dims = image.metadata.dimensions
             if dims and dims['width'] and dims['height']:
                 convert.update(self.ask_resize_image(
-                    image, pixels=dims['width'] * dims['height']))
+                    image, state, pixels=dims['width'] * dims['height']))
             if not any(convert.values()):
-                convert.update(self.ask_resize_image(image))
+                convert.update(self.ask_resize_image(image, state))
             if not (any(convert.values()) or self.accepted_image_type(mime_type)):
                 convert.update(self.ask_convert_image(
                     image, mime_type=mime_type, convertible=False))
@@ -772,13 +778,15 @@ class PhotiniUploader(QtWidgets.QWidget):
             readable = False
         if readable:
             convert.update(self.ask_resize_image(
-                image, resizable=True, pixels=tmp['width'] * tmp['height']))
+                image, state, resizable=True,
+                pixels=tmp['width'] * tmp['height']))
             mime_type = tmp['mime_type']
         if not (any(convert.values()) or self.accepted_image_type(mime_type)):
             convert.update(self.ask_convert_image(
                 image, mime_type=mime_type, convertible=readable))
         if not any(convert.values()):
-            convert.update(self.ask_resize_image(image, resizable=readable))
+            convert.update(self.ask_resize_image(
+                image, state, resizable=readable))
         if convert['omit']:
             return 'omit'
         if convert['resize'] or convert['convert']:
@@ -812,7 +820,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 break
             if not params:
                 continue
-            convert = self.get_conversion_function(image, params)
+            convert = self.get_conversion_function(image, state, params)
             if convert == 'omit':
                 continue
             upload_list.append((image, convert, params))

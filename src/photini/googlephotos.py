@@ -269,9 +269,9 @@ class TabWidget(PhotiniUploader):
                              'image/png', 'image/tiff', 'image/webp',
                              'image/x-ms-bmp')
 
-    def get_conversion_function(self, image, params):
+    def get_conversion_function(self, image, state, params):
         convert = super(
-            TabWidget, self).get_conversion_function(image, params)
+            TabWidget, self).get_conversion_function(image, state, params)
         if convert == 'omit':
             return convert
         # Google's docs say to remind user of storage limits if uploads

@@ -719,14 +719,14 @@ class TabWidget(PhotiniUploader):
         return ''
 
     def get_upload_params(self, image, state):
-        if not state:
-            state['media_descriptions'] = self.user_widget.compose_settings[
+        if 'ask_alt_text' not in state:
+            state['ask_alt_text'] = self.user_widget.compose_settings[
                                                         'media_descriptions']
         params = {'media': {}, 'status': {}}
         params['file_name'] = os.path.basename(image.path)
         # 'description' is the ALT text for an image
         params['media']['description'] = self.alt_text(image)
-        if state['media_descriptions'] and not params['media']['description']:
+        if state['ask_alt_text'] and not params['media']['description']:
             dialog = QtWidgets.QMessageBox(parent=self)
             dialog.setWindowTitle(
                 translate('PixelfedTab', 'Photini: alt text'))
@@ -743,7 +743,7 @@ class TabWidget(PhotiniUploader):
             dialog.setIcon(dialog.Icon.Warning)
             result = execute(dialog)
             if result == dialog.StandardButton.YesToAll:
-                state['media_descriptions'] = False
+                state['ask_alt_text'] = False
             elif result == dialog.StandardButton.Abort:
                 return 'abort'
         params['license'] = self.widget['license'].get_value()
