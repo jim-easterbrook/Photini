@@ -72,10 +72,6 @@ Pixelfed instances have maximum allowed image sizes, both pixel count and bytes 
 If your image is too large, and is in a format Photini can process, Photini will offer to resize it for you.
 For best picture quality Photini will use Pillow_ if it is installed.
 
-.. image:: ../images/screenshot_261.png
-
-To save having to answer yes for every picture you upload the Photini settings dialog includes an option to resize pictures without asking. 
-
 
 .. _Mastodon: https://joinmastodon.org/
 .. _Pillow:   http://pillow.readthedocs.io/
