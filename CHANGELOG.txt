@@ -1,6 +1,6 @@
 Photini - a simple photo metadata editor.
 http://github.com/jim-easterbrook/Photini
-Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -15,6 +15,13 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
+
+Changes in v2023.2.0:
+  1/ Add Pixelfed / Mastodon uploader.
+  2/ GPX importer sets altitude as well as latitude & longitude.
+  3/ Substantial rewrite of all uploaders.
+  4/ QtWebKit is no longer supported.
+  5/ Other minor improvements and bug fixes.
 
 Changes in v2022.12.0:
   1/ Accessibility "alt text" fields added to descriptive tab.
