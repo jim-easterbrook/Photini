@@ -58,7 +58,6 @@ class GooglePhotosSession(UploaderSession):
             rsp = self.api.get(url, timeout=5, **params)
         rsp = self.check_response(rsp)
         if not rsp:
-            print('close_connection', url)
             self.close_connection()
         return rsp
 

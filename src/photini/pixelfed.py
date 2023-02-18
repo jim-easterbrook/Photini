@@ -20,7 +20,6 @@ import itertools
 import logging
 import math
 import os
-from pprint import pprint
 import re
 
 import requests
@@ -58,8 +57,6 @@ class PixelfedSession(UploaderSession):
         self.api.headers.update(self.headers)
 
     def save_token(self, token):
-        print('save_token')
-        pprint(token)
         self.user_data['token'] = token
         self.new_token.emit(token)
 
@@ -72,8 +69,6 @@ class PixelfedSession(UploaderSession):
             if rsp.headers['Content-Type'].startswith('text/html'):
                 logger.error('Response is HTML')
                 return None
-            if '/api/v1/statuses' in rsp.request.url:
-                print(rsp.request.body)
             if decode:
                 rsp = rsp.json()
         except UploadAborted:
@@ -88,7 +83,6 @@ class PixelfedSession(UploaderSession):
         url = self.client_data['api_base_url'] + endpoint
         rsp = self.check_response(self.api.request(method, url, **params))
         if rsp is None:
-            print('close_connection', endpoint)
             self.close_connection()
         elif 'error' in rsp:
             logger.error('%s: %s', endpoint, rsp['error'])
@@ -134,7 +128,6 @@ class PixelfedSession(UploaderSession):
                 self.upload_progress.emit({
                     'error': (image, 'Image upload failed')})
                 return
-            print(rsp['id'], params['file_name'])
             media_ids.append((image, rsp['id']))
         # reset licence
         if licence != default_licence:
@@ -149,8 +142,6 @@ class PixelfedSession(UploaderSession):
         if rsp is None:
             self.upload_progress.emit({'error': (image, 'Post status failed')})
             return
-        for media in rsp['media_attachments']:
-            print(media['id'], media['blurhash'])
         # store photo ids in image keywords, in main thread
         for image, media_id in media_ids:
             self.upload_progress.emit({
