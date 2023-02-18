@@ -15,7 +15,6 @@ jobs:
 
       - name: weblate
         uses: mtanzi/action-automerge@v1
-        id: merge
         with:
           github_token: ${{ github.token }}
           source: 'main'
@@ -23,7 +22,6 @@ jobs:
 
       - name: transifex
         uses: mtanzi/action-automerge@v1
-        id: merge
         with:
           github_token: ${{ github.token }}
           source: 'main'
