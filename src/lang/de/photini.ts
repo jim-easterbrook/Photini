@@ -1364,7 +1364,7 @@
     </message>
     <message>
         <source>Collection visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtbarkeit der Sammlung</translation>
     </message>
     <message>
         <source>Update remote</source>
@@ -1710,7 +1710,7 @@
     </message>
     <message>
         <source>Would you like to upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie es trotzdem hochladen?</translation>
     </message>
     <message>
         <source>Replace photo</source>
