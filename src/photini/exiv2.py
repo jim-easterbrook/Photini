@@ -481,6 +481,8 @@ class MetadataHandler(object):
         return None
 
     def select_exif_thumbnail(self):
+        if self.xmp_only:
+            return
         # try normal thumbnail
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
@@ -497,7 +499,8 @@ class MetadataHandler(object):
         while idx > 0:
             idx -= 1
             if max(props[idx].width_, props[idx].height_) <= 640:
-                logger.info('%s: trying preview %d', self._name, idx)
+                logger.info('%s: trying preview %dx%d', self._name,
+                            props[idx].width_, props[idx].height_)
                 image = preview_manager.getPreviewImage(props[idx])
                 yield memoryview(image.pData()), 'preview ' + str(idx)
 
@@ -521,6 +524,10 @@ class MetadataHandler(object):
             if max(candidate['w'], candidate['h']) == 160:
                 # new thumbnail will replace this one
                 self._xmp_thumb_idx = n + 1
+                # try this one before any others
+                logger.info('%s: trying xmp thumb %dx%d', self._name,
+                            candidate['w'], candidate['h'])
+                yield memoryview(candidate['data']), 'xmp thumb ' + str(n)
             candidates.append(candidate)
         # sort by size
         candidates.sort(key=lambda x: max(x['w'], x['h']))
@@ -530,7 +537,8 @@ class MetadataHandler(object):
             idx -= 1
             candidate = candidates[idx]
             if max(candidate['w'], candidate['h']) <= 640:
-                logger.info('%s: trying xmp thumb %d', self._name, idx)
+                logger.info('%s: trying xmp thumb %dx%d', self._name,
+                            candidate['w'], candidate['h'])
                 yield memoryview(candidate['data']), 'xmp thumb ' + str(idx)
 
     def get_preview_imagedims(self):
