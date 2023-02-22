@@ -410,6 +410,7 @@ class ImageMetadata(MetadataHandler):
                             ('WX', 'Xmp.exif.FocalLengthIn35mmFilm')),
         'gps_info'       : (('WA', 'Exif.GPSInfo.GPS*'),
                             ('WX', 'Xmp.exif.GPS*'),
+                            ('WN', 'Xmp.iptcExt.LocationCreated'),
                             ('WN', 'Xmp.video.GPSCoordinates')),
         'headline'       : (('WA', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.Headline')),

@@ -1365,17 +1365,24 @@ class MD_GPSinfo(MD_Dict):
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Xmp.video'):
             return cls.from_ffmpeg(file_value, tag)
-        version_id = file_value[0]
-        method = MD_UnmergableString.from_exiv2(file_value[1], tag)
-        alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
-        if tag.startswith('Exif'):
-            lat = MD_Coordinate.from_exif(file_value[4:6])
-            lon = MD_Coordinate.from_exif(file_value[6:8])
+        if tag == 'Xmp.iptcExt.LocationCreated':
+            version_id = None
+            method = None
+            alt = file_value[0]['exif:GPSAltitude']
+            lat = MD_Coordinate.from_xmp(file_value[0]['exif:GPSLatitude'])
+            lon = MD_Coordinate.from_xmp(file_value[0]['exif:GPSLongitude'])
         else:
-            if version_id:
-                version_id = bytes([int(x) for x in version_id.split('.')])
-            lat = MD_Coordinate.from_xmp(file_value[4])
-            lon = MD_Coordinate.from_xmp(file_value[5])
+            version_id = file_value[0]
+            method = MD_UnmergableString.from_exiv2(file_value[1], tag)
+            alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
+            if tag.startswith('Exif'):
+                lat = MD_Coordinate.from_exif(file_value[4:6])
+                lon = MD_Coordinate.from_exif(file_value[6:8])
+            else:
+                if version_id:
+                    version_id = bytes([int(x) for x in version_id.split('.')])
+                lat = MD_Coordinate.from_xmp(file_value[4])
+                lon = MD_Coordinate.from_xmp(file_value[5])
         if not any((alt, lat, lon)):
             return None
         return cls((version_id, method, alt, lat, lon))
