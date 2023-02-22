@@ -39,7 +39,6 @@ class OpenCage(GeocoderBase):
 
     def query(self, params):
         params['key'] = self.api_key
-        params['abbrv'] = '1'
         params['no_annotations'] = '1'
         with Busy():
             self.rate_limit()
