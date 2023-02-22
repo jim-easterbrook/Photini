@@ -1,0 +1,30 @@
+name: Update translations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/lang/**'
+
+jobs:
+  update-weblate:
+    name: Merge main into weblate & transifex
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: weblate
+        uses: mtanzi/action-automerge@v1
+        with:
+          github_token: ${{ github.token }}
+          source: 'main'
+          target: 'weblate'
+
+      - name: transifex
+        uses: mtanzi/action-automerge@v1
+        with:
+          github_token: ${{ github.token }}
+          source: 'main'
+          target: 'transifex'

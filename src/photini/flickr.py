@@ -65,7 +65,6 @@ class FlickrSession(UploaderSession):
             rsp = self.api.get(url, params=params, **kwds)
         rsp = self.check_response(rsp)
         if rsp is None:
-            print('close_connection', method)
             self.close_connection()
         elif rsp['stat'] != 'ok':
             logger.error('%s: %s', method, rsp['message'])

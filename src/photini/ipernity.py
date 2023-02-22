@@ -64,7 +64,6 @@ class IpernitySession(UploaderSession):
             rsp = self.api.get(url, timeout=20, params=params)
         rsp = self.check_response(rsp)
         if rsp is None:
-            print('close_connection', method)
             self.close_connection()
         elif rsp['api']['status'] != 'ok':
             logger.error('in method %s: API error %s: %s',
