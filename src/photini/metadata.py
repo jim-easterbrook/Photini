@@ -156,8 +156,6 @@ class ImageMetadata(MetadataHandler):
         result = []
         for x in self._multi_tags[tag]:
             result.append(self.get_value(x))
-        if tag.startswith('Exif.Thumbnail'):
-            result = self._get_exif_thumbnail(*result)
         return result
 
     def get_value(self, tag):
@@ -170,20 +168,26 @@ class ImageMetadata(MetadataHandler):
             return self.get_iptc_value(tag)
         return self.get_xmp_value(tag)
 
-    def _get_exif_thumbnail(self, w, h, fmt):
-        for data, label in self.get_exif_thumbnails():
+    def get_exif_thumbnail(self):
+        for data, label in self.select_exif_thumbnail():
             if data:
-                fmt, image = self._decode_thumbnail(data, label)
-                if image:
-                    return w, h, fmt, data, image
+                try:
+                    fmt, image = MD_Thumbnail.image_from_data(data)
+                    return None, None, fmt, data, image
+                except Exception as ex:
+                    logger.error('%s: %s: %s', self._name, label, str(ex))
         return None, None, None, None, None
 
-    def _decode_thumbnail(self, data, label):
-        try:
-            return MD_Thumbnail.image_from_data(data)
-        except Exception as ex:
-            logger.error('%s: %s: %s', self._name, label, str(ex))
-        return None, None
+    def get_xmp_thumbnail(self, file_value):
+        for data, label in self.select_xmp_thumbnail(file_value):
+            if data:
+                try:
+                    data = codecs.decode(data, 'base64_codec')
+                    fmt, image = MD_Thumbnail.image_from_data(data)
+                    return None, None, fmt, data, image
+                except Exception as ex:
+                    logger.error('%s: %s: %s', self._name, label, str(ex))
+        return None, None, None, None, None
 
     def set_group(self, tag, value):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
@@ -455,10 +459,14 @@ class ImageMetadata(MetadataHandler):
         result = []
         for mode, tag in self._tag_list[name]:
             try:
-                if tag in self._multi_tags:
+                if tag.startswith('Exif.Thumbnail'):
+                    file_value = self.get_exif_thumbnail()
+                elif tag in self._multi_tags:
                     file_value = self.get_group(tag)
                 else:
                     file_value = self.get_value(tag)
+                if tag == 'Xmp.xmp.Thumbnails':
+                    file_value = self.get_xmp_thumbnail(file_value)
                 value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
@@ -477,12 +485,19 @@ class ImageMetadata(MetadataHandler):
                 continue
             if ((not value) or (mode == 'W0')
                     or (mode == 'WX' and not self.xmp_only)):
-                if tag in self._multi_tags:
+                if tag == 'Xmp.xmp.Thumbnails':
+                    # don't clear XMP thumbnails
+                    pass
+                elif tag in self._multi_tags:
                     self.clear_group(tag)
                 else:
                     self.clear_value(tag)
                 continue
             file_value = value.to_exiv2(tag)
+            if tag == 'Xmp.xmp.Thumbnails' and self._xmp_thumb_idx:
+                # replace or append one thumbnail of the array
+                tag = '{}[{}]'.format(tag, self._xmp_thumb_idx)
+                file_value = file_value[0]
             if tag in self._multi_tags:
                 self.set_group(tag, file_value)
             else:
@@ -690,13 +705,6 @@ class Metadata(object):
             self.dirty = False
             if self._notify:
                 self._notify(self.dirty)
-
-    def get_preview_images(self):
-        md = self._if
-        if not md:
-            return
-        for result in md.get_preview_images():
-            yield result
 
     def get_sensor_size(self):
         md = self._if or self._sc

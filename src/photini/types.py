@@ -546,38 +546,6 @@ class MD_Thumbnail(MD_Dict):
     _keys = ('w', 'h', 'fmt', 'data', 'image')
     _quiet = True
 
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not tag.startswith('Xmp'):
-            return super(MD_Thumbnail, cls).from_exiv2(file_value, tag)
-        if not file_value:
-            return None
-        # TODO: choose the best if more than one thumbnail
-        for file_value in file_value:
-            candidate = {}
-            for key in file_value:
-                sub_key = key.split(':')[1]
-                if sub_key == 'width':
-                    candidate['w'] = int(file_value[key])
-                elif sub_key == 'height':
-                    candidate['h'] = int(file_value[key])
-                elif sub_key == 'format':
-                    candidate['fmt'] = file_value[key]
-                elif sub_key == 'image':
-                    data = file_value[key]
-                    data = bytes(data, 'ascii')
-                    data = codecs.decode(data, 'base64_codec')
-                    try:
-                        fmt, image = cls.image_from_data(data)
-                    except Exception as ex:
-                        logger.error(str(ex))
-                        continue
-                    candidate['fmt'] = fmt
-                    candidate['image'] = image
-            candidate = cls(candidate)
-            return candidate
-        return None
-
     @staticmethod
     def image_from_data(data):
         # PyQt5 seems to be the only thing that can use memoryviews

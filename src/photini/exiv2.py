@@ -191,6 +191,8 @@ class MetadataHandler(object):
                     set_value(key, value[0])
                 else:
                     set_value(key, value)
+        # assume no XMP thumbnails to replace or append
+        self._xmp_thumb_idx = None
         # mapping Xmp data to type_id, initialised with some that exiv2
         # doesn't know, extended with ones read from files
         self._xmp_type_id = {
@@ -461,24 +463,24 @@ class MetadataHandler(object):
                         exiv2.XmpArrayType.xaBag: exiv2.TypeId.xmpBag,
                         exiv2.XmpArrayType.xaSeq: exiv2.TypeId.xmpSeq,
                         }[value.xmpArrayType(value)]
-                    if type_id == exiv2.TypeId.xmpText:
-                        value = str(value)
-                    else:
+                    if type_id != exiv2.TypeId.xmpText:
                         value = []
+                    elif tag == 'Xmp.xmp.Thumbnails' and ':image' in key:
+                        # don't copy large string to unicode
+                        value = value.data()
+                    else:
+                        value = str(value)
             elif type_id == exiv2.TypeId.langAlt:
                 value = dict(value)
-            elif type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
-                             exiv2.TypeId.xmpSeq):
-                value = list(value)
             else:
-                logger.error('Unhandled Xmp type %d', type_id)
+                value = list(value)
             self.set_xmp_type(key, type_id)
             result[key] = value
         if tag in result:
             return result[tag]
         return None
 
-    def get_exif_thumbnails(self):
+    def select_exif_thumbnail(self):
         # try normal thumbnail
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
@@ -499,14 +501,37 @@ class MetadataHandler(object):
                 image = preview_manager.getPreviewImage(props[idx])
                 yield memoryview(image.pData()), 'preview ' + str(idx)
 
-    def get_preview_images(self):
-        preview_manager = exiv2.PreviewManager(self._image)
-        props = preview_manager.getPreviewProperties()
-        if not props:
+    def select_xmp_thumbnail(self, file_value):
+        if not file_value:
             return
-        for prop in reversed(props):
-            image = preview_manager.getPreviewImage(prop)
-            yield memoryview(image.copy())
+        # new thumbnail will be appended
+        self._xmp_thumb_idx = len(file_value) + 1
+        # make list of all thumbnails
+        candidates = []
+        for n, value in enumerate(file_value):
+            candidate = {}
+            for key in value:
+                sub_key = key.split(':')[1]
+                if sub_key == 'width':
+                    candidate['w'] = int(value[key])
+                elif sub_key == 'height':
+                    candidate['h'] = int(value[key])
+                elif sub_key == 'image':
+                    candidate['data'] = value[key]
+            if max(candidate['w'], candidate['h']) == 160:
+                # new thumbnail will replace this one
+                self._xmp_thumb_idx = n + 1
+            candidates.append(candidate)
+        # sort by size
+        candidates.sort(key=lambda x: max(x['w'], x['h']))
+        # find largest acceptable one
+        idx = len(candidates)
+        while idx > 0:
+            idx -= 1
+            candidate = candidates[idx]
+            if max(candidate['w'], candidate['h']) <= 640:
+                logger.info('%s: trying xmp thumb %d', self._name, idx)
+                yield memoryview(candidate['data']), 'xmp thumb ' + str(idx)
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
