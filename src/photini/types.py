@@ -1366,11 +1366,16 @@ class MD_GPSinfo(MD_Dict):
         if tag.startswith('Xmp.video'):
             return cls.from_ffmpeg(file_value, tag)
         if tag == 'Xmp.iptcExt.LocationCreated':
+            if not file_value:
+                return None
             version_id = None
             method = None
-            alt = file_value[0]['exif:GPSAltitude']
-            lat = MD_Coordinate.from_xmp(file_value[0]['exif:GPSLatitude'])
-            lon = MD_Coordinate.from_xmp(file_value[0]['exif:GPSLongitude'])
+            value = file_value[0]
+            alt = 'exif:GPSAltitude' in value and value['exif:GPSAltitude']
+            lat = 'exif:GPSLatitude' in value and MD_Coordinate.from_xmp(
+                value['exif:GPSLatitude'])
+            lon = 'exif:GPSLongitude' in value and MD_Coordinate.from_xmp(
+                value['exif:GPSLongitude'])
         else:
             version_id = file_value[0]
             method = MD_UnmergableString.from_exiv2(file_value[1], tag)
