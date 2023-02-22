@@ -69,7 +69,7 @@ class OpenCage(GeocoderBase):
 
     # Map OpenCage address components to IPTC address heirarchy. There
     # are many possible components (user generated data) so any
-    # unrecognised ones are put in 'SubLocation'. See
+    # unrecognised ones are put in 'Sublocation'. See
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
     address_map = {
         'WorldRegion'   :('continent',),
@@ -84,7 +84,7 @@ class OpenCage(GeocoderBase):
                           'industrial', 'houses', 'subdivision',
                           'village', 'town', 'municipality', 'city',
                           'partial_postcode', 'postcode'),
-        'SubLocation'   :('house_number', 'street_number',
+        'Sublocation'   :('house_number', 'street_number',
                           'house', 'public_building', 'building', 'residential',
                           'water', 'road', 'pedestrian', 'path',
                           'street_name', 'street', 'cycleway', 'footway',
@@ -176,14 +176,14 @@ class LocationInfo(QtWidgets.QWidget):
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
         self.members = {}
-        for key in ('SubLocation', 'City', 'ProvinceState',
+        for key in ('Sublocation', 'City', 'ProvinceState',
                     'CountryName', 'CountryCode', 'WorldRegion'):
             self.members[key] = SingleLineEdit(
                 key, length_check=ImageMetadata.max_bytes(key))
             self.members[key].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
-        self.members['SubLocation'].setToolTip('<p>{}</p>'.format(translate(
+        self.members['Sublocation'].setToolTip('<p>{}</p>'.format(translate(
             'AddressTab', 'Enter the name of the sublocation.')))
         self.members['City'].setToolTip('<p>{}</p>'.format(translate(
             'AddressTab', 'Enter the name of the city.')))
@@ -204,7 +204,7 @@ class LocationInfo(QtWidgets.QWidget):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['SubLocation'], 0, 1, 1, 2)
+        layout.addWidget(self.members['Sublocation'], 0, 1, 1, 2)
         layout.addWidget(self.members['City'], 1, 1, 1, 2)
         layout.addWidget(self.members['ProvinceState'], 2, 1, 1, 2)
         layout.addWidget(self.members['CountryName'], 3, 1)

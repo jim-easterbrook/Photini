@@ -142,55 +142,27 @@ class FFMPEGMetadata(object):
 
 
 class ImageMetadata(MetadataHandler):
-    def clear_multi_group(self, tag, stop=0):
-        # count entries
-        idx = 1
-        while any(self.get_group(tag, idx=idx)):
-            idx += 1
-        # delete entries
-        while idx > stop + 1:
-            idx -= 1
-            self.clear_group(tag, idx=idx)
-
-    def clear_group(self, tag, idx=1):
+    def clear_group(self, tag):
         for sub_tag in self._multi_tags[tag]:
             if sub_tag:
-                self.clear_value(sub_tag.format(idx=idx))
+                self.clear_value(sub_tag)
 
     def clear_value(self, tag):
         {'Exif': self.clear_exif_tag,
          'Iptc': self.clear_iptc_tag,
          'Xmp': self.clear_xmp_tag}[tag.split('.')[0]](tag)
 
-    def get_multi_group(self, tag):
-        result = []
-        for idx in range(1, 100):
-            value = self.get_group(tag, idx=idx)
-            if not any(value):
-                break
-            result.append(value)
-        return result
-
-    def get_group(self, tag, idx=1):
+    def get_group(self, tag):
         result = []
         for x in self._multi_tags[tag]:
-            result.append(self.get_value(x, idx=idx))
+            result.append(self.get_value(x))
         if tag.startswith('Exif.Thumbnail'):
             result = self._get_exif_thumbnail(*result)
-        elif tag.startswith('Xmp.xmp.Thumbnails'):
-            w, h, fmt, data = result
-            if data:
-                data = bytes(data, 'ascii')
-                data = codecs.decode(data, 'base64_codec')
-                fmt, image = self._decode_thumbnail(data, 'thumbnail')
-                result = w, h, fmt, data, image
         return result
 
-    def get_value(self, tag, idx=1):
+    def get_value(self, tag):
         if not tag:
             return None
-        if 'idx' in tag:
-            tag = tag.format(idx=idx)
         family = tag.split('.')[0]
         if family == 'Exif':
             return self.get_exif_value(tag)
@@ -213,28 +185,16 @@ class ImageMetadata(MetadataHandler):
             logger.error('%s: %s: %s', self._name, label, str(ex))
         return None, None
 
-    def set_multi_group(self, tag, value):
-        # delete unwanted old entries
-        self.clear_multi_group(tag, stop=len(value))
-        # set new entries
-        for idx, sub_value in enumerate(value, 1):
-            if not any(sub_value):
-                # set a place holder
-                sub_value = [' ']
-            self.set_group(tag, sub_value, idx=idx)
-
-    def set_group(self, tag, value, idx=1):
+    def set_group(self, tag, value):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
             if sub_tag:
-                self.set_value(sub_tag, sub_value, idx=idx)
+                self.set_value(sub_tag, sub_value)
         if tag == 'Exif.Thumbnail.*' and value[3]:
             self.set_exif_thumbnail_from_buffer(value[3])
 
-    def set_value(self, tag, value, idx=1):
+    def set_value(self, tag, value):
         if not tag:
             return
-        if 'idx' in tag:
-            tag = tag.format(idx=idx)
         family = tag.split('.')[0]
         if family == 'Exif':
             self.set_exif_value(tag, value)
@@ -359,51 +319,16 @@ class ImageMetadata(MetadataHandler):
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
-        'Xmp.iptc.CreatorContactInfo*': (
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCity',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCtry',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiEmailWork',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiTelWork',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrPcode',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrRegion',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiUrlWork'),
         'Xmp.iptc.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.Iptc4xmpExt.LocationShown*': (
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:Sublocation',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:City',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:ProvinceState',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:CountryName',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:CountryCode',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:WorldRegion',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:LocationId'),
-        'Xmp.Iptc4xmpExt.LocationCreated*': (
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
         'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height',
                             None, 'Xmp.video.FrameRate'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
-        'Xmp.xmp.Thumbnails*': (
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:image'),
-        'Xmp.xmp.ThumbnailsXap*': (
-            'Xmp.xmp.Thumbnails[1]/xapGImg:width',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:height',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:format',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:image'),
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms',
             'Xmp.xmpRights.WebStatement',
-            'Xmp.plus.Licensor[1]/plus:LicensorURL'),
+            'Xmp.plus.Licensor'),
         }
 
     # Mapping of tags to Photini data fields Each field has a list of
@@ -426,7 +351,7 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Pentax.ModelID*'),
                             ('WN', 'Xmp.aux.SerialNumber*'),
                             ('WN', 'Xmp.video.Make*')),
-        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo*'),
+        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo'),
                             ('WA', 'Iptc.Application2.Contact*')),
         'copyright'      : (('WA', 'Xmp.dc.rights'),
                             ('WA', 'Exif.Image.Copyright'),
@@ -500,8 +425,8 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.NikonLd2.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd3.LensIDNumber*'),
                             ('W0', 'Xmp.aux.Lens*')),
-        'location_shown' : (('WA', 'Xmp.Iptc4xmpExt.LocationShown*'),),
-        'location_taken' : (('WA', 'Xmp.Iptc4xmpExt.LocationCreated*'),
+        'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
+        'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
                             ('WA', 'Xmp.iptc.Location*'),
                             ('WA', 'Iptc.Application2.Location*')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
@@ -514,12 +439,8 @@ class ImageMetadata(MetadataHandler):
         'software'       : (('WA', 'Exif.Image.Software'),
                             ('WA', 'Iptc.Application2.Program*'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
-        # Both xmpGImg and xapGImg namespaces are specified in different
-        # Adobe documents I've seen. xmpGImg appears to be more recent,
-        # so we write that but read either.
         'thumbnail'      : (('WA', 'Exif.Thumbnail.*'),
-                            ('WX', 'Xmp.xmp.Thumbnails*'),
-                            ('W0', 'Xmp.xmp.ThumbnailsXap*')),
+                            ('WX', 'Xmp.xmp.Thumbnails')),
         'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
                             ('WN', 'Exif.CanonTi.TimeZone'),
                             ('WN', 'Exif.NikonWt.Timezone'),
@@ -534,12 +455,10 @@ class ImageMetadata(MetadataHandler):
         result = []
         for mode, tag in self._tag_list[name]:
             try:
-                if tag not in self._multi_tags:
-                    file_value = self.get_value(tag)
-                elif 'idx' in self._multi_tags[tag][0]:
-                    file_value = self.get_multi_group(tag)
-                else:
+                if tag in self._multi_tags:
                     file_value = self.get_group(tag)
+                else:
+                    file_value = self.get_value(tag)
                 value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
@@ -558,26 +477,16 @@ class ImageMetadata(MetadataHandler):
                 continue
             if ((not value) or (mode == 'W0')
                     or (mode == 'WX' and not self.xmp_only)):
-                if tag not in self._multi_tags:
-                    self.clear_value(tag)
-                elif 'idx' in self._multi_tags[tag][0]:
-                    self.clear_multi_group(tag)
-                else:
+                if tag in self._multi_tags:
                     self.clear_group(tag)
+                else:
+                    self.clear_value(tag)
                 continue
-            family = tag.split('.')[0]
-            if family == 'Exif':
-                file_value = value.to_exif()
-            elif family == 'Iptc':
-                file_value = value.to_iptc()
-            else:
-                file_value = value.to_xmp()
-            if tag not in self._multi_tags:
-                self.set_value(tag, file_value)
-            elif 'idx' in self._multi_tags[tag][0]:
-                self.set_multi_group(tag, file_value)
-            else:
+            file_value = value.to_exiv2(tag)
+            if tag in self._multi_tags:
                 self.set_group(tag, file_value)
+            else:
+                self.set_value(tag, file_value)
 
 
 class SidecarMetadata(ImageMetadata):

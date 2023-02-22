@@ -72,6 +72,11 @@ class MD_Value(object):
             return None
         return cls(file_value)
 
+    def to_exiv2(self, tag):
+        return {'Exif': self.to_exif,
+                'Iptc': self.to_iptc,
+                'Xmp': self.to_xmp}[tag.split('.')[0]]()
+
     def to_exif(self):
         return str(self)
 
@@ -541,6 +546,38 @@ class MD_Thumbnail(MD_Dict):
     _keys = ('w', 'h', 'fmt', 'data', 'image')
     _quiet = True
 
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not tag.startswith('Xmp'):
+            return super(MD_Thumbnail, cls).from_exiv2(file_value, tag)
+        if not file_value:
+            return None
+        # TODO: choose the best if more than one thumbnail
+        for file_value in file_value:
+            candidate = {}
+            for key in file_value:
+                sub_key = key.split(':')[1]
+                if sub_key == 'width':
+                    candidate['w'] = int(file_value[key])
+                elif sub_key == 'height':
+                    candidate['h'] = int(file_value[key])
+                elif sub_key == 'format':
+                    candidate['fmt'] = file_value[key]
+                elif sub_key == 'image':
+                    data = file_value[key]
+                    data = bytes(data, 'ascii')
+                    data = codecs.decode(data, 'base64_codec')
+                    try:
+                        fmt, image = cls.image_from_data(data)
+                    except Exception as ex:
+                        logger.error(str(ex))
+                        continue
+                    candidate['fmt'] = fmt
+                    candidate['image'] = image
+            candidate = cls(candidate)
+            return candidate
+        return None
+
     @staticmethod
     def image_from_data(data):
         # PyQt5 seems to be the only thing that can use memoryviews
@@ -602,7 +639,12 @@ class MD_Thumbnail(MD_Dict):
             fmt = 'JPEG'
             data = self.data_from_image(self['image'], max_size=2**32)
         data = codecs.encode(data, 'base64_codec').decode('ascii')
-        return str(self['w']), str(self['h']), fmt, data
+        return [{
+            'xmpGImg:width': str(self['w']),
+            'xmpGImg:height': str(self['h']),
+            'xmpGImg:format': fmt,
+            'xmpGImg:image': data,
+            }]
 
     def __str__(self):
         result = '{fmt} thumbnail, {w}x{h}'.format(**self)
@@ -617,14 +659,17 @@ class MD_Collection(MD_Dict):
     _default_type = MD_String
 
     @classmethod
+    def get_type(cls, key):
+        if key in cls._type:
+            return cls._type[key]
+        return cls._default_type
+
+    @classmethod
     def convert(cls, value):
         for key in value:
             if not value[key]:
                 continue
-            if key in cls._type:
-                value[key] = cls._type[key](value[key])
-            else:
-                value[key] = cls._default_type(value[key])
+            value[key] = cls.get_type(key)(value[key])
         return value
 
     @classmethod
@@ -633,10 +678,7 @@ class MD_Collection(MD_Dict):
             return None
         value = dict(zip(cls._keys, file_value))
         for key in value:
-            if key in cls._type:
-                value[key] = cls._type[key].from_exiv2(value[key], tag)
-            else:
-                value[key] = cls._default_type.from_exiv2(value[key], tag)
+            value[key] = cls.get_type(key).from_exiv2(value[key], tag)
         return cls(value)
 
     def to_exif(self):
@@ -673,10 +715,33 @@ class MD_ContactInformation(MD_Collection):
     _keys = ('CiAdrExtadr', 'CiAdrCity', 'CiAdrCtry', 'CiEmailWork',
              'CiTelWork', 'CiAdrPcode', 'CiAdrRegion', 'CiUrlWork')
 
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not tag.startswith('Xmp'):
+            return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
+        if not file_value:
+            return None
+        result = {}
+        for key in cls._keys:
+            type_ = cls._default_type
+            sub_key = 'Iptc4xmpCore:' + key
+            if sub_key in file_value:
+                result[key] = type_.from_exiv2(file_value[sub_key], tag)
+        if result:
+            return cls(result)
+        return None
+
+    def to_xmp(self):
+        result = {}
+        for key in self:
+            if self[key]:
+                result['Iptc4xmpCore:' + key] = self[key]
+        return result
+
 
 class MD_Location(MD_Collection):
     # stores IPTC defined location heirarchy
-    _keys = ('SubLocation', 'City', 'ProvinceState',
+    _keys = ('Sublocation', 'City', 'ProvinceState',
              'CountryName', 'CountryCode', 'WorldRegion')
     _type = {'CountryCode': MD_UnmergableString}
 
@@ -684,6 +749,40 @@ class MD_Location(MD_Collection):
         if value['CountryCode']:
             value['CountryCode'] = value['CountryCode'].upper()
         return super(MD_Location, self).convert(value)
+
+    @classmethod
+    def from_Iptc4xmpExt(cls, file_value, tag):
+        if not file_value:
+            return None
+        result = {}
+        for key in cls._keys:
+            sub_key = 'Iptc4xmpExt:' + key
+            if sub_key in file_value:
+                result[key] = cls.get_type(key).from_exiv2(
+                    file_value[sub_key], tag)
+        if result:
+            return cls(result)
+        return None
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not tag.startswith('Xmp.iptcExt.Location'):
+            return super(MD_Location, cls).from_exiv2(file_value, tag)
+        if not file_value:
+            return None
+        for value in file_value:
+            if value:
+                return cls.from_Iptc4xmpExt(value, tag)
+        return None
+
+    def to_exiv2(self, tag):
+        if not tag.startswith('Xmp.iptcExt.Location'):
+            return super(MD_Location, self).to_exiv2(tag)
+        result = {}
+        for key in self:
+            if self[key]:
+                result['Iptc4xmpExt:' + key] = self[key]
+        return [result]
 
     @classmethod
     def from_address(cls, address, key_map):
@@ -699,13 +798,13 @@ class MD_Location(MD_Collection):
                 del(address[foreign_key])
         # only use one country code
         result['CountryCode'] = result['CountryCode'][:1]
-        # put unknown foreign keys in SubLocation
+        # put unknown foreign keys in Sublocation
         for foreign_key in address:
-            if address[foreign_key] in ' '.join(result['SubLocation']):
+            if address[foreign_key] in ' '.join(result['Sublocation']):
                 continue
-            result['SubLocation'] = [
+            result['Sublocation'] = [
                 '{}: {}'.format(foreign_key, address[foreign_key])
-                ] + result['SubLocation']
+                ] + result['Sublocation']
         for key in result:
             result[key] = ', '.join(result[key]) or None
         return cls(result)
@@ -728,15 +827,21 @@ class MD_MultiLocation(tuple):
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
-        return cls(file_value)
+        values = []
+        for value in file_value:
+            if value:
+                values.append(MD_Location.from_exiv2([value], tag))
+        if not values:
+            return None
+        return cls(values)
 
-    def to_xmp(self):
+    def to_exiv2(self, tag):
         result = []
         for location in self:
-            if location:
-                result.append(location.to_xmp())
-            else:
-                result.append([])
+            if not location:
+                # place holder needed
+                location = MD_Location({'City': '.'})
+            result += location.to_exiv2(tag)
         return result
 
     def __str__(self):
@@ -922,6 +1027,14 @@ class MD_LangAlt(LangAltDict, MD_Value):
                 result[k] = v
         return result
 
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not tag.startswith('Xmp'):
+            return super(MD_LangAlt, cls).from_exiv2(file_value, tag)
+        if not file_value:
+            return None
+        return cls(file_value)
+
     def merge(self, info, tag, other):
         other = LangAltDict(other)
         if other == self:
@@ -954,6 +1067,24 @@ class MD_Rights(MD_Collection):
     _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
     _default_type = MD_UnmergableString
     _type = {'UsageTerms': MD_LangAlt}
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not tag.startswith('Xmp'):
+            return super(MD_Rights, cls).from_exiv2(file_value, tag)
+        if not any(file_value):
+            return None
+        licensor = file_value[2]
+        if licensor and 'plus:LicensorURL' in licensor[0]:
+            file_value[2] = licensor[0]['plus:LicensorURL']
+        return cls(file_value)
+
+    def to_xmp(self):
+        file_value = super(MD_Rights, self).to_xmp()
+        licensor = file_value[2]
+        if licensor:
+            file_value[2] = [{'plus:LicensorURL': licensor}]
+        return file_value
 
 
 class MD_CameraModel(MD_Collection):
