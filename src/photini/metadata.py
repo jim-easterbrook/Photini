@@ -564,7 +564,7 @@ class Metadata(object):
         'keywords'       : MD_Keywords,
         'lens_model'     : MD_LensModel,
         'location_shown' : MD_MultiLocation,
-        'location_taken' : MD_Location,
+        'location_taken' : MD_MultiLocation,
         'orientation'    : MD_Orientation,
         'rating'         : MD_Rating,
         'rights'         : MD_Rights,

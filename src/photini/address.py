@@ -323,7 +323,7 @@ class TabWidget(QtWidgets.QWidget):
             location_list = list(image.metadata.location_shown or [])
             if idx == 0:
                 if location_list:
-                    location = location_list.pop(0)
+                    location = [location_list.pop(0)]
                 else:
                     location = None
                 image.metadata.location_taken = location
@@ -358,7 +358,9 @@ class TabWidget(QtWidgets.QWidget):
 
     def _get_location(self, image, idx):
         if idx == 0:
-            return image.metadata.location_taken
+            if image.metadata.location_taken:
+                return image.metadata.location_taken[0]
+            return None
         elif not image.metadata.location_shown:
             return None
         elif idx <= len(image.metadata.location_shown):
@@ -367,7 +369,7 @@ class TabWidget(QtWidgets.QWidget):
 
     def _set_location(self, image, idx, location):
         if idx == 0:
-            image.metadata.location_taken = location
+            image.metadata.location_taken = [location]
         else:
             location_list = list(image.metadata.location_shown or [])
             while len(location_list) < idx:

@@ -719,38 +719,16 @@ class MD_Location(MD_Collection):
         return super(MD_Location, self).convert(value)
 
     @classmethod
-    def from_Iptc4xmpExt(cls, file_value, tag):
-        if not file_value:
-            return None
-        result = {}
-        for key in cls._keys:
-            sub_key = 'Iptc4xmpExt:' + key
-            if sub_key in file_value:
-                result[key] = cls.get_type(key).from_exiv2(
-                    file_value[sub_key], tag)
-        if result:
-            return cls(result)
-        return None
+    def from_Iptc4xmpExt(cls, value):
+        value = [(k.split(':')[1], v) for (k, v) in value.items()]
+        return cls((k, v) for (k, v) in value if k in cls._keys)
 
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not tag.startswith('Xmp.iptcExt.Location'):
-            return super(MD_Location, cls).from_exiv2(file_value, tag)
-        if not file_value:
-            return None
-        for value in file_value:
-            if value:
-                return cls.from_Iptc4xmpExt(value, tag)
-        return None
-
-    def to_exiv2(self, tag):
-        if not tag.startswith('Xmp.iptcExt.Location'):
-            return super(MD_Location, self).to_exiv2(tag)
-        result = {}
-        for key in self:
-            if self[key]:
-                result['Iptc4xmpExt:' + key] = self[key]
-        return [result]
+    def to_Iptc4xmpExt(self, tag):
+        temp = dict(self)
+        if not self:
+            # need a value as a place holder
+            temp['City'] = ' '
+        return dict(('Iptc4xmpExt:' + k, v) for (k, v) in temp.items() if v)
 
     @classmethod
     def from_address(cls, address, key_map):
@@ -782,9 +760,7 @@ class MD_MultiLocation(tuple):
     def __new__(cls, value):
         temp = []
         for item in value:
-            if not item:
-                item = None
-            elif not isinstance(item, MD_Location):
+            if not isinstance(item, MD_Location):
                 item = MD_Location(item)
             temp.append(item)
         while temp and not temp[-1]:
@@ -793,32 +769,28 @@ class MD_MultiLocation(tuple):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
+        if not tag.startswith('Xmp.iptcExt.Location'):
+            return cls([MD_Location.from_exiv2(file_value, tag)])
         if not file_value:
-            return None
-        values = []
-        for value in file_value:
-            if value:
-                values.append(MD_Location.from_exiv2([value], tag))
-        if not values:
-            return None
-        return cls(values)
+            return ()
+        return cls([MD_Location.from_Iptc4xmpExt(x) for x in file_value])
 
     def to_exiv2(self, tag):
-        result = []
-        for location in self:
-            if not location:
-                # place holder needed
-                location = MD_Location({'City': '.'})
-            result += location.to_exiv2(tag)
-        return result
+        if not tag.startswith('Xmp.iptcExt.Location'):
+            return self[0].to_exiv2(tag)
+        return [x.to_Iptc4xmpExt(tag) for x in self]
+
+    def merge(self, info, tag, other):
+        result = list(self)
+        for n, item in enumerate(other):
+            if n < len(result):
+                result[n] = result[n].merge(info, tag, item)
+            else:
+                result.append(item)
+        return MD_MultiLocation(result)
 
     def __str__(self):
-        result = ''
-        for n, location in enumerate(self):
-            result += '-- subject {} --\n'.format(n + 1)
-            if location:
-                result += str(location) + '\n'
-        return result
+        return '\n\n'.join(str(x) for x in self)
 
 
 class LangAltDict(dict):

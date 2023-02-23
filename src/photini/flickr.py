@@ -622,8 +622,8 @@ class TabWidget(PhotiniUploader):
             for key in photo['location']:
                 if '_content' in photo['location'][key]:
                     address[key] = photo['location'][key]['_content']
-            data['location_taken'] = MD_Location.from_address(
-                address, self._address_map)
+            data['location_taken'] = [MD_Location.from_address(
+                address, self._address_map)]
         self.merge_metadata_items(image, data)
 
     @QtSlot()
