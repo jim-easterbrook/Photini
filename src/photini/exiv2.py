@@ -198,6 +198,9 @@ class MetadataHandler(object):
         self._xmp_type_id = {
             'Xmp.iptc.AltTextAccessibility': exiv2.TypeId.langAlt,
             'Xmp.iptc.ExtDescrAccessibility': exiv2.TypeId.langAlt,
+            'Xmp.iptcExt.ImageRegion': exiv2.TypeId.xmpBag,
+            'Iptc4xmpExt:Name': exiv2.TypeId.langAlt,
+            'Iptc4xmpExt:rRole': exiv2.TypeId.xmpBag,
             'Xmp.xmp.Thumbnails': exiv2.TypeId.xmpAlt,
             }
 
@@ -663,40 +666,41 @@ class MetadataHandler(object):
             self.clear_xmp_tag(tag)
             return
         type_id = self.get_xmp_type(tag)
-        if type_id == exiv2.TypeId.xmpText:
-            if isinstance(value, str):
-                # string value
-                self._xmpData[tag] = exiv2.XmpTextValue(value)
-            else:
-                # clear any existing struct members
-                self.clear_xmp_tag(tag, children_only=True)
-                # create struct
-                tmp = exiv2.XmpTextValue()
-                tmp.setXmpStruct()
-                self._xmpData[tag] = tmp
-                # set struct members
-                for k, v in value.items():
-                    self.set_xmp_value('{}/{}'.format(tag, k), v)
-        elif type_id == exiv2.TypeId.langAlt:
+        if type_id == exiv2.TypeId.langAlt:
+            # LangAlt is unambiguous
             self._xmpData[tag] = exiv2.LangAltValue(value)
-        elif isinstance(value[0], str):
-            # single array value
-            self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
-        else:
-            # clear any existing array elements
+        elif isinstance(value, dict):
+            # clear any existing struct members
             self.clear_xmp_tag(tag, children_only=True)
-            # create array
-            array_type = {
-                exiv2.TypeId.xmpAlt: exiv2.XmpArrayType.xaAlt,
-                exiv2.TypeId.xmpBag: exiv2.XmpArrayType.xaBag,
-                exiv2.TypeId.xmpSeq: exiv2.XmpArrayType.xaSeq,
-                }[type_id]
+            # create struct
             tmp = exiv2.XmpTextValue()
-            tmp.setXmpArrayType(array_type)
+            tmp.setXmpStruct()
             self._xmpData[tag] = tmp
-            # set array elements
-            for idx, element in enumerate(value):
-                self.set_xmp_value('{}[{}]'.format(tag, idx+1), element)
+            # set struct members
+            for k, v in value.items():
+                self.set_xmp_value('{}/{}'.format(tag, k), v)
+        elif isinstance(value, (list, tuple)):
+            if isinstance(value[0], str):
+                # simple array value
+                self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
+            else:
+                # clear any existing array elements
+                self.clear_xmp_tag(tag, children_only=True)
+                # create array
+                array_type = {
+                    exiv2.TypeId.xmpAlt: exiv2.XmpArrayType.xaAlt,
+                    exiv2.TypeId.xmpBag: exiv2.XmpArrayType.xaBag,
+                    exiv2.TypeId.xmpSeq: exiv2.XmpArrayType.xaSeq,
+                    }[type_id]
+                tmp = exiv2.XmpTextValue()
+                tmp.setXmpArrayType(array_type)
+                self._xmpData[tag] = tmp
+                # set array elements
+                for idx, element in enumerate(value):
+                    self.set_xmp_value('{}[{}]'.format(tag, idx+1), element)
+        else:
+            # simple value
+            self._xmpData[tag] = exiv2.XmpTextValue(str(value))
 
     def clear_exif_tag(self, tag):
         datum = self._exifData.findKey(exiv2.ExifKey(tag))

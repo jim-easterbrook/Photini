@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 # photini.metadata imports these classes
 __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_GPSinfo', 'MD_Int', 'MD_Keywords', 'MD_LangAlt',
-    'MD_LensModel', 'MD_Location', 'MD_MultiLocation', 'MD_MultiString',
+    'MD_Dimensions', 'MD_GPSinfo', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
+    'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
     'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software',
     'MD_String', 'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
 
@@ -1499,3 +1499,50 @@ class MD_Dimensions(MD_Collection):
         if self['frames'] and self['frame_rate']:
             return float(self['frames'] / self['frame_rate'])
         return 0.0
+
+
+class MD_ImageRegion(MD_Value, list):
+    @classmethod
+    def exif_to_region(cls, file_value):
+        # convert to IPTC image region, see
+        # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
+        if len(file_value) == 2:
+            region = {'Iptc4xmpExt:rbShape': 'polygon',
+                      'Iptc4xmpExt:rbVertices': [{
+                          'Iptc4xmpExt:rbX': file_value[0],
+                          'Iptc4xmpExt:rbY': file_value[1]}]}
+        elif len(file_value) == 3:
+            region = {'Iptc4xmpExt:rbShape': 'circle',
+                      'Iptc4xmpExt:rbX': file_value[0],
+                      'Iptc4xmpExt:rbY': file_value[1],
+                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
+        elif len(file_value) == 4:
+            region = {'Iptc4xmpExt:rbShape': 'rectangle',
+                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
+                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
+                      'Iptc4xmpExt:rbW': file_value[2],
+                      'Iptc4xmpExt:rbH': file_value[3]}
+        else:
+            return None
+        region['Iptc4xmpExt:rbUnit'] = 'pixel'
+        return region
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return None
+        if tag == 'Exif.Photo.SubjectArea':
+            region = cls.exif_to_region(file_value)
+            if not region:
+                return None
+            file_value = [{
+                'Iptc4xmpExt:RegionBoundary': region,
+                'Iptc4xmpExt:rRole': [{
+                    'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
+                    'xmp:Identifier': ['imgregrole:mainSubjectArea'],
+                    }],
+                }]
+        return cls(file_value)
+
+    def to_exiv2(self, tag):
+        return list(self)
