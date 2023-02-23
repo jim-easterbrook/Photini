@@ -515,34 +515,23 @@ class MetadataHandler(object):
         # make list of all thumbnails
         candidates = []
         for n, value in enumerate(file_value):
-            candidate = {}
-            for key in value:
-                sub_key = key.split(':')[1]
-                if sub_key == 'width':
-                    candidate['w'] = int(value[key])
-                elif sub_key == 'height':
-                    candidate['h'] = int(value[key])
-                elif sub_key == 'image':
-                    candidate['data'] = value[key]
-            if max(candidate['w'], candidate['h']) == 160:
+            candidate = dict((k.split(':')[1], v) for (k, v) in value.items())
+            candidate['width'] = int(candidate['width'])
+            candidate['height'] = int(candidate['height'])
+            if max(candidate['width'], candidate['height']) == 160:
                 # new thumbnail will replace this one
                 self._xmp_thumb_idx = n + 1
                 # try this one before any others
                 logger.info('%s: trying xmp thumb %dx%d', self._name,
-                            candidate['w'], candidate['h'])
-                yield memoryview(candidate['data']), 'xmp thumb ' + str(n)
-            candidates.append(candidate)
-        # sort by size
-        candidates.sort(key=lambda x: max(x['w'], x['h']))
-        # find largest acceptable one
-        idx = len(candidates)
-        while idx > 0:
-            idx -= 1
-            candidate = candidates[idx]
-            if max(candidate['w'], candidate['h']) <= 640:
-                logger.info('%s: trying xmp thumb %dx%d', self._name,
-                            candidate['w'], candidate['h'])
-                yield memoryview(candidate['data']), 'xmp thumb ' + str(idx)
+                            candidate['width'], candidate['height'])
+                yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
+            else:
+                candidates.append(candidate)
+        # Xmp spec says first thumbnail is default, so just try them in order
+        for n, candidate in enumerate(candidates):
+            logger.info('%s: trying xmp thumb %dx%d', self._name,
+                        candidate['width'], candidate['height'])
+            yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
