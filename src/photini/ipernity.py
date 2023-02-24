@@ -550,8 +550,9 @@ class TabWidget(PhotiniUploader):
                 if max(w, h) == 560:
                     dims = w, h
                     break
-            data['image_region'] = MD_ImageRegion.from_ipernity(
-                photo['notes']['note'], dims)
+            if dims:
+                data['image_region'] = MD_ImageRegion.from_ipernity(
+                    photo['notes']['note'], dims)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

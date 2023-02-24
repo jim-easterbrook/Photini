@@ -1575,24 +1575,53 @@ class MD_ImageRegion(MD_Tuple):
     _type = ImageRegionItem
 
     @staticmethod
-    def from_ipernity(notes, dims):
+    def rectangle_from_note(note, dims):
+        if not ('x' in note and 'y' in note and
+                'w' in note and 'h' in note):
+            return None
+        w, h = dims
+        boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
+                    'Iptc4xmpExt:rbUnit': 'relative',
+                    'Iptc4xmpExt:rbX': float(note['x']) / w,
+                    'Iptc4xmpExt:rbY': float(note['y']) / h,
+                    'Iptc4xmpExt:rbW': float(note['w']) / w,
+                    'Iptc4xmpExt:rbH': float(note['h']) / h}
+        return {'Iptc4xmpExt:rRole': [{
+                    'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
+                    'xmp:Identifier': ['imgregrole:subjectArea']}],
+                'Iptc4xmpExt:RegionBoundary': boundary}
+
+    @classmethod
+    def from_flickr(cls, notes, people, dims):
         w, h = dims
         result = []
         for note in notes:
-            boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
-                        'Iptc4xmpExt:rbUnit': 'relative',
-                        'Iptc4xmpExt:rbX': float(note['x']) / w,
-                        'Iptc4xmpExt:rbY': float(note['y']) / h,
-                        'Iptc4xmpExt:rbW': float(note['w']) / w,
-                        'Iptc4xmpExt:rbH': float(note['h']) / h}
-            region = {
-                'Iptc4xmpExt:RegionBoundary': boundary,
-                'Iptc4xmpExt:rId': 'ipernity:' + note['note_id'],
-                'Iptc4xmpExt:rRole': [{
-                    'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
-                    'xmp:Identifier': ['imgregrole:subjectArea'],
-                    }],
-                }
+            region = cls.rectangle_from_note(note, dims)
+            region['Iptc4xmpExt:rId'] = 'flickr:' + note['id']
+            if '_content' in note:
+                region['dc:description'] = {'x-default': note['_content']}
+                region['photoshop:CaptionWriter'] = note['authorrealname']
+            result.append(region)
+        for person in people:
+            region = cls.rectangle_from_note(person, dims)
+            if not region:
+                continue
+            region['Iptc4xmpExt:rId'] = 'flickr:' + person['nsid']
+            region['Iptc4xmpExt:PersonInImage'] = person['realname']
+            region['Iptc4xmpExt:rCtype'] = [{
+                    'Iptc4xmpExt:Name': {'en-GB': 'human'},
+                    'xmp:Identifier': ['imgregtype:human'],
+                    }]
+            result.append(region)
+        return result
+
+    @classmethod
+    def from_ipernity(cls, notes, dims):
+        w, h = dims
+        result = []
+        for note in notes:
+            region = cls.rectangle_from_note(note, dims)
+            region['Iptc4xmpExt:rId'] = 'ipernity:' + note['note_id']
             if 'membername' in note:
                 region['Iptc4xmpExt:PersonInImage'] = note['membername']
                 region['Iptc4xmpExt:rCtype'] = [{

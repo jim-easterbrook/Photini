@@ -30,7 +30,7 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
-from photini.types import MD_Location
+from photini.types import MD_ImageRegion, MD_Location
 from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
@@ -624,6 +624,32 @@ class TabWidget(PhotiniUploader):
                     address[key] = photo['location'][key]['_content']
             data['location_taken'] = [MD_Location.from_address(
                 address, self._address_map)]
+        # get annotated image regions
+        people = []
+        notes = []
+        dims = None
+        rsp = session.api_call(
+            'flickr.photos.people.getList', photo_id=photo_id)
+        if rsp:
+            people = rsp['people']['person']
+            w = rsp['people']['photo_width']
+            h = rsp['people']['photo_height']
+            dims = w, h
+        if 'notes' in photo:
+            notes = photo['notes']['note']
+        if not dims:
+            rsp = session.api_call('flickr.photos.getSizes', photo_id=photo_id)
+            dims = None
+            if rsp:
+                for size in rsp['sizes']['size']:
+                    w = size['width']
+                    h = size['height']
+                    if max(w, h) == 500:
+                        dims = w, h
+                        break
+        if dims and (people or notes):
+            data['image_region'] = MD_ImageRegion.from_flickr(
+                notes, people, dims)
         self.merge_metadata_items(image, data)
 
     @QtSlot()
