@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from fractions import Fraction
 import logging
 import math
+from pprint import pprint
 import re
 
 from photini.exiv2 import MetadataHandler
@@ -1532,26 +1533,29 @@ class MD_Dimensions(MD_Collection):
 
 class ImageRegionItem(MD_Value, dict):
     @classmethod
-    def from_exif(cls, value):
-        if not value:
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
             return None
+        if tag.startswith('Xmp'):
+            return file_value
+        # Convert Exif.Photo.SubjectArea to an image region. See
         # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
-        if len(value) == 2:
+        if len(file_value) == 2:
             region = {'Iptc4xmpExt:rbShape': 'polygon',
                       'Iptc4xmpExt:rbVertices': [{
-                          'Iptc4xmpExt:rbX': value[0],
-                          'Iptc4xmpExt:rbY': value[1]}]}
-        elif len(value) == 3:
+                          'Iptc4xmpExt:rbX': file_value[0],
+                          'Iptc4xmpExt:rbY': file_value[1]}]}
+        elif len(file_value) == 3:
             region = {'Iptc4xmpExt:rbShape': 'circle',
-                      'Iptc4xmpExt:rbX': value[0],
-                      'Iptc4xmpExt:rbY': value[1],
-                      'Iptc4xmpExt:rbRx': value[2] // 2}
-        elif len(value) == 4:
+                      'Iptc4xmpExt:rbX': file_value[0],
+                      'Iptc4xmpExt:rbY': file_value[1],
+                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
+        elif len(file_value) == 4:
             region = {'Iptc4xmpExt:rbShape': 'rectangle',
-                      'Iptc4xmpExt:rbX': value[0] - (value[2] // 2),
-                      'Iptc4xmpExt:rbY': value[1] - (value[3] // 2),
-                      'Iptc4xmpExt:rbW': value[2],
-                      'Iptc4xmpExt:rbH': value[3]}
+                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
+                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
+                      'Iptc4xmpExt:rbW': file_value[2],
+                      'Iptc4xmpExt:rbH': file_value[3]}
         else:
             return None
         region['Iptc4xmpExt:rbUnit'] = 'pixel'
@@ -1563,9 +1567,8 @@ class ImageRegionItem(MD_Value, dict):
                 }],
             }
 
-    @classmethod
-    def from_xmp(cls, value):
-        return value
+    def to_xmp(self):
+        return self
 
 
 class MD_ImageRegion(MD_Tuple):
