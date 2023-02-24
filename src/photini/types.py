@@ -33,8 +33,9 @@ __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
     'MD_Dimensions', 'MD_GPSinfo', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
     'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
-    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software',
-    'MD_String', 'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
+    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
+    'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
+    'MD_Timezone', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -208,11 +209,7 @@ class MD_Dict(MD_Value, dict):
         return [self[x] for x in self._keys]
 
     def __str__(self):
-        result = []
-        for key in self._keys:
-            if self[key]:
-                result.append('{}: {}'.format(key, self[key]))
-        return '\n'.join(result)
+        return '\n'.join('{}: {}'.format(k, v) for (k, v) in self.items() if v)
 
 
 class MD_DateTime(MD_Dict):
@@ -662,15 +659,15 @@ class MD_Collection(MD_Dict):
         if other == self:
             return self
         result = dict(self)
-        for key in result:
+        for key in other:
             if other[key] is None:
                 continue
-            if result[key] is None:
-                result[key] = other[key]
-                merged, ignored = True, False
-            else:
+            if key in result and result[key] is not None:
                 result[key], merged, ignored = result[key].merge_item(
                                                         result[key], other[key])
+            else:
+                result[key] = other[key]
+                merged, ignored = True, False
             if ignored:
                 self.log_ignored(info, tag, {key: str(other[key])})
             elif merged:
@@ -707,28 +704,83 @@ class MD_ContactInformation(MD_Collection):
         return result
 
 
+class MD_Tuple(MD_Value, tuple):
+    # class for structured XMP data such as locations or image regions
+    _max_length = None
+
+    def __new__(cls, value=[]):
+        temp = []
+        for item in value:
+            if not isinstance(item, cls._type):
+                item = cls._type(item)
+            temp.append(item)
+        while temp and not temp[-1]:
+            temp = temp[:-1]
+        return super(MD_Tuple, cls).__new__(cls, temp)
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        # Exif and IPTC only store one item, XMP stores any number
+        if tag.startswith('Xmp'):
+            file_value = [cls._type.from_exiv2(x, tag) for x in file_value]
+        else:
+            file_value = [cls._type.from_exiv2(file_value, tag)]
+        return cls(file_value)
+
+    def to_exif(self):
+        return self and self[0].to_exif()
+
+    def to_iptc(self):
+        return self and self[0].to_iptc()
+
+    def to_xmp(self):
+        return [x.to_xmp() for x in self]
+
+    def merge(self, info, tag, other):
+        result = list(self)
+        for item in other:
+            idx = len(result)
+            if self._max_length:
+                idx = min(idx, self._max_length - 1)
+            if idx < len(result):
+                result[idx] = result[idx].merge(info, tag, item)
+            elif item not in result:
+                self.log_merged(info, tag, item)
+                result.append(item)
+        return self.__class__(result)
+
+    def __bool__(self):
+        return len(self) > 0
+
+    def __str__(self):
+        return '\n\n'.join(str(x) for x in self)
+
+
 class MD_Location(MD_Collection):
     # stores IPTC defined location heirarchy
-    _keys = ('Sublocation', 'City', 'ProvinceState',
-             'CountryName', 'CountryCode', 'WorldRegion')
-    _type = {'CountryCode': MD_UnmergableString}
+    _keys = ('Iptc4xmpExt:Sublocation', 'Iptc4xmpExt:City',
+             'Iptc4xmpExt:ProvinceState', 'Iptc4xmpExt:CountryName',
+             'Iptc4xmpExt:CountryCode', 'Iptc4xmpExt:WorldRegion')
+    _type = {'Iptc4xmpExt:CountryCode': MD_UnmergableString}
 
     def convert(self, value):
-        if value['CountryCode']:
-            value['CountryCode'] = value['CountryCode'].upper()
+        if value['Iptc4xmpExt:CountryCode']:
+            value['Iptc4xmpExt:CountryCode'] = value[
+                'Iptc4xmpExt:CountryCode'].upper()
         return super(MD_Location, self).convert(value)
 
     @classmethod
-    def from_Iptc4xmpExt(cls, value):
-        value = [(k.split(':')[1], v) for (k, v) in value.items()]
-        return cls((k, v) for (k, v) in value if k in cls._keys)
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, list):
+            # "legacy" list of string values
+            return super(MD_Location, cls).from_exiv2(file_value, tag)
+        return cls(file_value)
 
-    def to_Iptc4xmpExt(self, tag):
-        temp = dict(self)
-        if not self:
-            # need a value as a place holder
-            temp['City'] = ' '
-        return dict(('Iptc4xmpExt:' + k, v) for (k, v) in temp.items() if v)
+    def to_xmp(self):
+        # need a place holder for empty values
+        return self or {'Iptc4xmpExt:City': ' '}
 
     @classmethod
     def from_address(cls, address, key_map):
@@ -743,54 +795,31 @@ class MD_Location(MD_Collection):
                     result[key].append(address[foreign_key])
                 del(address[foreign_key])
         # only use one country code
-        result['CountryCode'] = result['CountryCode'][:1]
+        result['Iptc4xmpExt:CountryCode'] = result[
+            'Iptc4xmpExt:CountryCode'][:1]
         # put unknown foreign keys in Sublocation
         for foreign_key in address:
-            if address[foreign_key] in ' '.join(result['Sublocation']):
+            if address[foreign_key] in ' '.join(
+                    result['Iptc4xmpExt:Sublocation']):
                 continue
-            result['Sublocation'] = [
+            result['Iptc4xmpExt:Sublocation'] = [
                 '{}: {}'.format(foreign_key, address[foreign_key])
-                ] + result['Sublocation']
+                ] + result['Iptc4xmpExt:Sublocation']
         for key in result:
             result[key] = ', '.join(result[key]) or None
         return cls(result)
 
-
-class MD_MultiLocation(tuple):
-    def __new__(cls, value):
-        temp = []
-        for item in value:
-            if not isinstance(item, MD_Location):
-                item = MD_Location(item)
-            temp.append(item)
-        while temp and not temp[-1]:
-            temp = temp[:-1]
-        return super(MD_MultiLocation, cls).__new__(cls, temp)
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not tag.startswith('Xmp.iptcExt.Location'):
-            return cls([MD_Location.from_exiv2(file_value, tag)])
-        if not file_value:
-            return ()
-        return cls([MD_Location.from_Iptc4xmpExt(x) for x in file_value])
-
-    def to_exiv2(self, tag):
-        if not tag.startswith('Xmp.iptcExt.Location'):
-            return self[0].to_exiv2(tag)
-        return [x.to_Iptc4xmpExt(tag) for x in self]
-
-    def merge(self, info, tag, other):
-        result = list(self)
-        for n, item in enumerate(other):
-            if n < len(result):
-                result[n] = result[n].merge(info, tag, item)
-            else:
-                result.append(item)
-        return MD_MultiLocation(result)
-
     def __str__(self):
-        return '\n\n'.join(str(x) for x in self)
+        return '\n'.join('{}: {}'.format(k.split(':')[1], v)
+                         for (k, v) in self.items() if v)
+
+
+class MD_MultiLocation(MD_Tuple):
+    _type = MD_Location
+
+
+class MD_SingleLocation(MD_MultiLocation):
+    _max_length = 1
 
 
 class LangAltDict(dict):
@@ -1501,48 +1530,43 @@ class MD_Dimensions(MD_Collection):
         return 0.0
 
 
-class MD_ImageRegion(MD_Value, list):
+class ImageRegionItem(MD_Value, dict):
     @classmethod
-    def exif_to_region(cls, file_value):
-        # convert to IPTC image region, see
+    def from_exif(cls, value):
+        if not value:
+            return None
         # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
-        if len(file_value) == 2:
+        if len(value) == 2:
             region = {'Iptc4xmpExt:rbShape': 'polygon',
                       'Iptc4xmpExt:rbVertices': [{
-                          'Iptc4xmpExt:rbX': file_value[0],
-                          'Iptc4xmpExt:rbY': file_value[1]}]}
-        elif len(file_value) == 3:
+                          'Iptc4xmpExt:rbX': value[0],
+                          'Iptc4xmpExt:rbY': value[1]}]}
+        elif len(value) == 3:
             region = {'Iptc4xmpExt:rbShape': 'circle',
-                      'Iptc4xmpExt:rbX': file_value[0],
-                      'Iptc4xmpExt:rbY': file_value[1],
-                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
-        elif len(file_value) == 4:
+                      'Iptc4xmpExt:rbX': value[0],
+                      'Iptc4xmpExt:rbY': value[1],
+                      'Iptc4xmpExt:rbRx': value[2] // 2}
+        elif len(value) == 4:
             region = {'Iptc4xmpExt:rbShape': 'rectangle',
-                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
-                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
-                      'Iptc4xmpExt:rbW': file_value[2],
-                      'Iptc4xmpExt:rbH': file_value[3]}
+                      'Iptc4xmpExt:rbX': value[0] - (value[2] // 2),
+                      'Iptc4xmpExt:rbY': value[1] - (value[3] // 2),
+                      'Iptc4xmpExt:rbW': value[2],
+                      'Iptc4xmpExt:rbH': value[3]}
         else:
             return None
         region['Iptc4xmpExt:rbUnit'] = 'pixel'
-        return region
+        return {
+            'Iptc4xmpExt:RegionBoundary': region,
+            'Iptc4xmpExt:rRole': [{
+                'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
+                'xmp:Identifier': ['imgregrole:mainSubjectArea'],
+                }],
+            }
 
     @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
-        if tag == 'Exif.Photo.SubjectArea':
-            region = cls.exif_to_region(file_value)
-            if not region:
-                return None
-            file_value = [{
-                'Iptc4xmpExt:RegionBoundary': region,
-                'Iptc4xmpExt:rRole': [{
-                    'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
-                    'xmp:Identifier': ['imgregrole:mainSubjectArea'],
-                    }],
-                }]
-        return cls(file_value)
+    def from_xmp(cls, value):
+        return value
 
-    def to_exiv2(self, tag):
-        return list(self)
+
+class MD_ImageRegion(MD_Tuple):
+    _type = ImageRegionItem

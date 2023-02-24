@@ -323,7 +323,7 @@ class ImageMetadata(MetadataHandler):
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
-        'Xmp.iptc.Location*': (
+        'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
         'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height',
@@ -434,7 +434,7 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.aux.Lens*')),
         'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
-                            ('WA', 'Xmp.iptc.Location*'),
+                            ('WA', 'Iptc.Legacy.Location*'),
                             ('WA', 'Iptc.Application2.Location*')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
                             ('WX', 'Xmp.tiff.Orientation')),
@@ -567,7 +567,7 @@ class Metadata(object):
         'keywords'       : MD_Keywords,
         'lens_model'     : MD_LensModel,
         'location_shown' : MD_MultiLocation,
-        'location_taken' : MD_MultiLocation,
+        'location_taken' : MD_SingleLocation,
         'orientation'    : MD_Orientation,
         'rating'         : MD_Rating,
         'rights'         : MD_Rights,

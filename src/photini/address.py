@@ -68,30 +68,30 @@ class OpenCage(GeocoderBase):
 
     # Map OpenCage address components to IPTC address heirarchy. There
     # are many possible components (user generated data) so any
-    # unrecognised ones are put in 'Sublocation'. See
+    # unrecognised ones are put in 'Iptc4xmpExt:Sublocation'. See
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
     address_map = {
-        'WorldRegion'   :('continent',),
-        'CountryCode'   :('ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2',
-                          'country_code'),
-        'CountryName'   :('country', 'country_name'),
-        'ProvinceState' :('county', 'county_code', 'local_administrative_area',
-                          'state_district', 'state', 'state_code', 'province',
-                          'region', 'island'),
-        'City'          :('neighbourhood', 'city_block', 'quarter', 'suburb',
-                          'district', 'borough', 'city_district', 'commercial',
-                          'industrial', 'houses', 'subdivision',
-                          'village', 'town', 'municipality', 'city',
-                          'partial_postcode', 'postcode'),
-        'Sublocation'   :('house_number', 'street_number',
-                          'house', 'public_building', 'building', 'residential',
-                          'water', 'road', 'pedestrian', 'path',
-                          'street_name', 'street', 'cycleway', 'footway',
-                          'place', 'square',
-                          'locality', 'hamlet', 'croft'),
-        'ignore'        :('ISO_3166-2', 'political_union', 'road_reference',
-                          'road_reference_intl', 'road_type',
-                          '_category', '_type'),
+        'Iptc4xmpExt:WorldRegion': ('continent',),
+        'Iptc4xmpExt:CountryCode': (
+            'ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2', 'country_code'),
+        'Iptc4xmpExt:CountryName': ('country', 'country_name'),
+        'Iptc4xmpExt:ProvinceState': (
+            'county', 'county_code', 'local_administrative_area',
+            'state_district', 'state', 'state_code', 'province',
+            'region', 'island'),
+        'Iptc4xmpExt:City': (
+            'neighbourhood', 'city_block', 'quarter', 'suburb', 'district',
+            'borough', 'city_district', 'commercial', 'industrial', 'houses',
+            'subdivision', 'village', 'town', 'municipality', 'city',
+            'partial_postcode', 'postcode'),
+        'Iptc4xmpExt:Sublocation': (
+            'house_number', 'street_number', 'house', 'public_building',
+            'building', 'residential', 'water', 'road', 'pedestrian', 'path',
+            'street_name', 'street', 'cycleway', 'footway', 'place', 'square',
+            'locality', 'hamlet', 'croft'),
+        'ignore': (
+            'ISO_3166-2', 'political_union', 'road_reference',
+            'road_reference_intl', 'road_type', '_category', '_type'),
         }
 
     def get_address(self, coords):
@@ -175,26 +175,26 @@ class LocationInfo(QtWidgets.QWidget):
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
         self.members = {}
-        for key in ('Sublocation', 'City', 'ProvinceState',
-                    'CountryName', 'CountryCode', 'WorldRegion'):
+        for (key, tool_tip) in (
+                ('Iptc4xmpExt:Sublocation', translate(
+                    'AddressTab', 'Enter the name of the sublocation.')),
+                ('Iptc4xmpExt:City', translate(
+                    'AddressTab', 'Enter the name of the city.')),
+                ('Iptc4xmpExt:ProvinceState', translate(
+                    'AddressTab', 'Enter the name of the province or state.')),
+                ('Iptc4xmpExt:CountryName', translate(
+                    'AddressTab', 'Enter the name of the country.')),
+                ('Iptc4xmpExt:CountryCode', translate(
+                    'AddressTab', 'Enter the 2 or 3 letter ISO 3166 country'
+                    ' code of the country.')),
+                ('Iptc4xmpExt:WorldRegion', translate(
+                    'AddressTab', 'Enter the name of the world region.'))):
             self.members[key] = SingleLineEdit(
-                key, length_check=ImageMetadata.max_bytes(key))
+                key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
+            self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
-        self.members['CountryCode'].setMaximumWidth(
-            width_for_text(self.members['CountryCode'], 'W' * 4))
-        self.members['Sublocation'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the sublocation.')))
-        self.members['City'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the city.')))
-        self.members['ProvinceState'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the province or state.')))
-        self.members['CountryName'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the country.')))
-        self.members['CountryCode'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab',
-            'Enter the 2 or 3 letter ISO 3166 country code of the country.')))
-        self.members['WorldRegion'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the world region.')))
+        self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
+            width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Street'),
                                   translate('AddressTab', 'City'),
                                   translate('AddressTab', 'Province'),
@@ -203,12 +203,12 @@ class LocationInfo(QtWidgets.QWidget):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['Sublocation'], 0, 1, 1, 2)
-        layout.addWidget(self.members['City'], 1, 1, 1, 2)
-        layout.addWidget(self.members['ProvinceState'], 2, 1, 1, 2)
-        layout.addWidget(self.members['CountryName'], 3, 1)
-        layout.addWidget(self.members['CountryCode'], 3, 2)
-        layout.addWidget(self.members['WorldRegion'], 4, 1, 1, 2)
+        layout.addWidget(self.members['Iptc4xmpExt:Sublocation'], 0, 1, 1, 2)
+        layout.addWidget(self.members['Iptc4xmpExt:City'], 1, 1, 1, 2)
+        layout.addWidget(self.members['Iptc4xmpExt:ProvinceState'], 2, 1, 1, 2)
+        layout.addWidget(self.members['Iptc4xmpExt:CountryName'], 3, 1)
+        layout.addWidget(self.members['Iptc4xmpExt:CountryCode'], 3, 2)
+        layout.addWidget(self.members['Iptc4xmpExt:WorldRegion'], 4, 1, 1, 2)
         layout.setRowStretch(5, 1)
 
     def get_value(self):

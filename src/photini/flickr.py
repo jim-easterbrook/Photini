@@ -586,9 +586,9 @@ class TabWidget(PhotiniUploader):
             ('albums', translate('FlickrTab', 'Change album membership'))))
 
     _address_map = {
-        'CountryName':   ('country',),
-        'ProvinceState': ('county', 'region'),
-        'City':          ('neighbourhood', 'locality'),
+        'Iptc4xmpExt:CountryName':   ('country',),
+        'Iptc4xmpExt:ProvinceState': ('county', 'region'),
+        'Iptc4xmpExt:City':          ('neighbourhood', 'locality'),
         }
 
     def merge_metadata(self, session, photo_id, image):
