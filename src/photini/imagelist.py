@@ -817,7 +817,7 @@ class ImageList(QtWidgets.QWidget):
                         'orientation', 'camera_model', 'lens_model',
                         'focal_length', 'focal_length_35', 'aperture',
                         'gps_info', 'location_taken', 'location_shown',
-                        'thumbnail'):
+                        'image_region', 'thumbnail'):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
                     continue

@@ -200,6 +200,7 @@ class MetadataHandler(object):
             'Xmp.iptc.ExtDescrAccessibility': exiv2.TypeId.langAlt,
             'Xmp.iptcExt.ImageRegion': exiv2.TypeId.xmpBag,
             'Iptc4xmpExt:Name': exiv2.TypeId.langAlt,
+            'Iptc4xmpExt:rCtype': exiv2.TypeId.xmpBag,
             'Iptc4xmpExt:rRole': exiv2.TypeId.xmpBag,
             'Xmp.xmp.Thumbnails': exiv2.TypeId.xmpAlt,
             }

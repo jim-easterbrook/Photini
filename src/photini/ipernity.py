@@ -28,6 +28,7 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import *
+from photini.types import MD_ImageRegion
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
@@ -523,7 +524,7 @@ class TabWidget(PhotiniUploader):
             ), replace=False)
 
     def merge_metadata(self, session, doc_id, image):
-        rsp = session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
+        rsp = session.api_call('doc.get', doc_id=doc_id, extra='tags,geo,notes')
         if not rsp:
             return
         photo = rsp['doc']
@@ -541,6 +542,16 @@ class TabWidget(PhotiniUploader):
             data['gps_info'] = {'lat': photo['geo']['lat'],
                                 'lon': photo['geo']['lng'],
                                 'method': 'MANUAL'}
+        if 'notes' in photo:
+            dims = None
+            for thumb in photo['thumbs']['thumb']:
+                w = int(thumb['w'])
+                h = int(thumb['h'])
+                if max(w, h) == 560:
+                    dims = w, h
+                    break
+            data['image_region'] = MD_ImageRegion.from_ipernity(
+                photo['notes']['note'], dims)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

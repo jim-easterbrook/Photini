@@ -1573,3 +1573,33 @@ class ImageRegionItem(MD_Value, dict):
 
 class MD_ImageRegion(MD_Tuple):
     _type = ImageRegionItem
+
+    @staticmethod
+    def from_ipernity(notes, dims):
+        w, h = dims
+        result = []
+        for note in notes:
+            boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
+                        'Iptc4xmpExt:rbUnit': 'relative',
+                        'Iptc4xmpExt:rbX': float(note['x']) / w,
+                        'Iptc4xmpExt:rbY': float(note['y']) / h,
+                        'Iptc4xmpExt:rbW': float(note['w']) / w,
+                        'Iptc4xmpExt:rbH': float(note['h']) / h}
+            region = {
+                'Iptc4xmpExt:RegionBoundary': boundary,
+                'Iptc4xmpExt:rId': 'ipernity:' + note['note_id'],
+                'Iptc4xmpExt:rRole': [{
+                    'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
+                    'xmp:Identifier': ['imgregrole:subjectArea'],
+                    }],
+                }
+            if 'membername' in note:
+                region['Iptc4xmpExt:PersonInImage'] = note['membername']
+                region['Iptc4xmpExt:rCtype'] = [{
+                    'Iptc4xmpExt:Name': {'en-GB': 'human'},
+                    'xmp:Identifier': ['imgregtype:human']}]
+            if 'content' in note:
+                region['dc:description'] = {'x-default': note['content']}
+                region['photoshop:CaptionWriter'] = note['username']
+            result.append(region)
+        return result
