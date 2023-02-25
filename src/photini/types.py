@@ -707,8 +707,6 @@ class MD_ContactInformation(MD_Collection):
 
 class MD_Tuple(MD_Value, tuple):
     # class for structured XMP data such as locations or image regions
-    _max_length = None
-
     def __new__(cls, value=[]):
         temp = []
         for item in value:
@@ -740,17 +738,17 @@ class MD_Tuple(MD_Value, tuple):
         return [x.to_xmp() for x in self]
 
     def merge(self, info, tag, other):
-        result = list(self)
+        result = self
         for item in other:
-            idx = len(result)
-            if self._max_length:
-                idx = min(idx, self._max_length - 1)
+            idx = result.index(item)
+            result = list(result)
             if idx < len(result):
                 result[idx] = result[idx].merge(info, tag, item)
-            elif item not in result:
+            else:
                 self.log_merged(info, tag, item)
                 result.append(item)
-        return self.__class__(result)
+            result = self.__class__(result)
+        return result
 
     def __bool__(self):
         return len(self) > 0
@@ -818,9 +816,16 @@ class MD_Location(MD_Collection):
 class MD_MultiLocation(MD_Tuple):
     _type = MD_Location
 
+    def index(self, other):
+        for n, value in enumerate(self):
+            if value == other:
+                return n
+        return len(self)
+
 
 class MD_SingleLocation(MD_MultiLocation):
-    _max_length = 1
+    def index(self, other):
+        return 0
 
 
 class LangAltDict(dict):
@@ -1573,6 +1578,15 @@ class ImageRegionItem(MD_Value, dict):
 
 class MD_ImageRegion(MD_Tuple):
     _type = ImageRegionItem
+
+    def index(self, other):
+        for n, value in enumerate(self):
+            if value == other:
+                return n
+            key = 'Iptc4xmpExt:rId'
+            if key in value and key in other and value[key] == other[key]:
+                return n
+        return len(self)
 
     @staticmethod
     def rectangle_from_note(note, dims):
