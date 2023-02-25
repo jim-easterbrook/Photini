@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 from fractions import Fraction
 import logging
 import math
-from pprint import pprint
+import pprint
 import re
 
 from photini.exiv2 import MetadataHandler
@@ -1213,6 +1213,7 @@ class MD_Timezone(MD_Int):
 class MD_Float(MD_Value, float):
     pass
 
+
 class MD_Rating(MD_Float):
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1575,11 +1576,37 @@ class ImageRegionItem(MD_Value, dict):
     def to_xmp(self):
         return self
 
+    def is_main_subject_area(self):
+        if 'Iptc4xmpExt:rRole' not in self:
+            return False
+        for role in self['Iptc4xmpExt:rRole']:
+            if ('xmp:Identifier' in role
+                    and 'imgregrole:mainSubjectArea' in role['xmp:Identifier']):
+                return True
+        return False
+
+    def short_keys(self, value):
+        if isinstance(value, dict):
+            return dict((k.split(':')[-1], self.short_keys(v))
+                        for (k, v) in value.items())
+        if isinstance(value, list):
+            return [self.short_keys(v) for v in value]
+        return value
+
+    def __str__(self):
+        return pprint.pformat(self.short_keys(self), compact=True)
+
 
 class MD_ImageRegion(MD_Tuple):
     _type = ImageRegionItem
 
     def index(self, other):
+        if other.is_main_subject_area():
+            # only one main subject area region allowed
+            for n, value in enumerate(self):
+                if value.is_main_subject_area():
+                    return True
+            return len(self)
         for n, value in enumerate(self):
             if value == other:
                 return n
@@ -1596,10 +1623,10 @@ class MD_ImageRegion(MD_Tuple):
         w, h = dims
         boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
                     'Iptc4xmpExt:rbUnit': 'relative',
-                    'Iptc4xmpExt:rbX': float(note['x']) / w,
-                    'Iptc4xmpExt:rbY': float(note['y']) / h,
-                    'Iptc4xmpExt:rbW': float(note['w']) / w,
-                    'Iptc4xmpExt:rbH': float(note['h']) / h}
+                    'Iptc4xmpExt:rbX': round(float(note['x']) / w, 4),
+                    'Iptc4xmpExt:rbY': round(float(note['y']) / h, 4),
+                    'Iptc4xmpExt:rbW': round(float(note['w']) / w, 4),
+                    'Iptc4xmpExt:rbH': round(float(note['h']) / h, 4)}
         return {'Iptc4xmpExt:rRole': [{
                     'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
                     'xmp:Identifier': ['imgregrole:subjectArea']}],
