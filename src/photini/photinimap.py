@@ -215,9 +215,9 @@ class PhotiniMap(QtWidgets.QWidget):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.widgets['latlon'] = LatLongDisplay()
+        self.widgets['latlon'] = LatLongDisplay('latlon')
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
-        self.widgets['latlon'].changed.connect(self.new_coords)
+        self.widgets['latlon'].new_value.connect(self.new_latlon)
         left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
         label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))
@@ -344,7 +344,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def refresh(self):
         self.app.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
         selection = self.app.image_list.get_selected_images()
-        self.widgets['latlon'].update_display(selection)
+        self.widgets['latlon'].update_display(selected_images=selection)
         self.update_altitude(selection)
         if self.map_loaded < 1:
             self.map_loaded = 1     # started loading
@@ -385,12 +385,18 @@ class PhotiniMap(QtWidgets.QWidget):
         self.dropped_images = []
         self.new_coords()
 
+    @QtSlot(str, object)
+    @catch_all
+    def new_latlon(self, key, value):
+        self.widgets['latlon'].set_image_gps()
+        self.new_coords()
+
     @QtSlot()
     @catch_all
     def new_coords(self):
         selected_images = self.app.image_list.get_selected_images()
         self.redraw_markers()
-        self.widgets['latlon'].update_display(selected_images)
+        self.widgets['latlon'].update_display(selected_images=selected_images)
         self.update_altitude(selected_images)
         self.see_selection(selected_images)
 
@@ -457,7 +463,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 bool(selection) and bool(self.app.gpx_importer.display_points))
         self.redraw_markers()
         self.redraw_gps_track(selection)
-        self.widgets['latlon'].update_display(selection)
+        self.widgets['latlon'].update_display(selected_images=selection)
         self.update_altitude(selection)
         if adjust_map:
             self.see_selection(selection)
@@ -582,7 +588,7 @@ class PhotiniMap(QtWidgets.QWidget):
             changed = True
         if changed:
             self.redraw_markers()
-            self.widgets['latlon'].update_display(selected_images)
+            self.widgets['latlon'].update_display(selected_images=selected_images)
             self.update_altitude(selected_images)
             self.see_selection(selected_images)
 

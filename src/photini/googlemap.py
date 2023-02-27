@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -58,7 +58,6 @@ class GoogleGeocoder(GeocoderBase):
         return results
 
     def get_altitude(self, coords):
-        coords = [float(x) for x in coords.split(',')]
         params = {'locations': '{:.5f},{:.5f}'.format(*coords)}
         results = self.cached_query(
             params, 'https://maps.googleapis.com/maps/api/elevation/json')

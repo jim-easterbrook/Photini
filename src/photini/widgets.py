@@ -388,40 +388,112 @@ class SingleLineEdit(MultiLineEdit):
         self.insertPlainText(source.text().replace('\n', ' '))
 
 
-class LatLongDisplay(SingleLineEdit):
-    changed = QtSignal()
+class LatLongDisplay(QtWidgets.QAbstractSpinBox):
+    new_value = QtSignal(str, object)
 
-    def __init__(self, *args, **kwds):
-        super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
+    def __init__(self, key, *args, **kwds):
+        super(self.__class__, self).__init__(*args, **kwds)
+        self.lat_validator = QtGui.QDoubleValidator(
+            -90.0, 90.0, 20, parent=self)
+        self.lng_validator = QtGui.QDoubleValidator(
+            -180.0, 180.0, 20, parent=self)
         self.app = QtWidgets.QApplication.instance()
+        self._key = key
+        self._is_multiple = False
+        self.multiple_values = multiple_values()
+        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
         self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.setFixedWidth(width_for_text(self, '8' * 23))
         self.setEnabled(False)
-        self.new_value.connect(self.editing_finished)
+        self.editingFinished.connect(self.editing_finished)
 
-    @QtSlot(str, object)
     @catch_all
-    def editing_finished(self, key, value):
-        selected_images = self.app.image_list.get_selected_images()
-        new_value = value.strip() or None
-        if new_value:
-            try:
-                new_value = [float(x) for x in new_value.split(',')]
-                lat, lng = new_value
-            except Exception:
-                # user typed in an invalid value
-                self.update_display(selected_images)
-                return
+    def focusOutEvent(self, event):
+        if not self._is_multiple:
+            self.new_value.emit(self._key, self.get_value())
+        super(self.__class__, self).focusOutEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        if self._is_multiple:
+            self._is_multiple = False
+            self.setPlaceholderText('')
+        super(self.__class__, self).keyPressEvent(event)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        menu = self.lineEdit().createStandardContextMenu()
+        suggestion_group = QtGui2.QActionGroup(menu)
+        if self._is_multiple and self.choices:
+            sep = menu.insertSeparator(menu.actions()[0])
+            for suggestion in self.choices:
+                label = str(suggestion)
+                action = QtGui2.QAction(label, suggestion_group)
+                action.setData(str(suggestion))
+                menu.insertAction(sep, action)
+        action = execute(menu, event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            if self._is_multiple:
+                self.set_value(action.data())
+                self.editing_finished()
+
+    def stepEnabled(self):
+        return self.StepEnabledFlag.StepNone
+
+    @catch_all
+    def validate(self, text, pos):
+        if not text:
+            return QtGui.QValidator.State.Acceptable, text, pos
+        parts = [x.strip() for x in text.split(',')]
+        if len(parts) > 2:
+            return QtGui.QValidator.State.Invalid, text, pos
+        result = self.lat_validator.validate(parts[0], pos)[0]
+        if len(parts) > 1:
+            result = min(result, self.lng_validator.validate(parts[1], pos)[0])
         else:
-            lat, lng = None, None
+            result = min(result, QtGui.QValidator.State.Intermediate)
+        return result, text, pos
+
+    @QtSlot()
+    @catch_all
+    def editing_finished(self):
+        if not self._is_multiple:
+            self.new_value.emit(self._key, self.get_value())
+
+    def get_value(self):
+        value = self.text()
+        if value and self.hasAcceptableInput():
+            return [float(x) for x in value.split(',')]
+        return None
+
+    def set_value(self, value):
+        if self._is_multiple:
+            self._is_multiple = False
+            self.lineEdit().setPlaceholderText('')
+        if not value:
+            self.clear()
+        else:
+            self.lineEdit().setText(str(value))
+
+    def set_multiple(self, choices=[]):
+        self._is_multiple = True
+        self.choices = list(choices)
+        self.lineEdit().setPlaceholderText(self.multiple_values)
+        self.clear()
+
+    def is_multiple(self):
+        return self._is_multiple and not bool(self.get_value())
+
+    def set_image_gps(self, selected_images=None):
+        if selected_images is None:
+            selected_images = self.app.image_list.get_selected_images()
+        value = self.get_value() or (None, None)
         for image in selected_images:
             gps = dict(image.metadata.gps_info or {})
-            gps['lat'], gps['lon'] = lat, lng
+            gps['lat'], gps['lon'] = value
             gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
-        self.update_display(selected_images)
-        self.changed.emit()
 
     def update_display(self, selected_images=None):
         if selected_images is None:
