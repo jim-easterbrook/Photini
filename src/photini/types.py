@@ -1501,7 +1501,7 @@ class MD_Location(MD_Collection):
         return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
 
     @classmethod
-    def from_address(cls, address, key_map):
+    def from_address(cls, gps, address, key_map):
         result = {}
         for key in cls._keys:
             result[key] = []
@@ -1525,6 +1525,8 @@ class MD_Location(MD_Collection):
                 ] + result['Iptc4xmpExt:Sublocation']
         for key in result:
             result[key] = ', '.join(result[key]) or None
+        result['exif:GPSLatitude'] = gps['lat']
+        result['exif:GPSLongitude'] = gps['lng']
         return cls(result)
 
     def __str__(self):

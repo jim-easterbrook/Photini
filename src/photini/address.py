@@ -143,7 +143,8 @@ class OpenCage(GeocoderBase):
                         address[key] = guess
                         del address['postcode']
                         break
-        return MD_Location.from_address(address, self.address_map)
+        gps = results[0]['geometry']
+        return MD_Location.from_address(gps, address, self.address_map)
 
     def search_terms(self):
         text = translate('AddressTab', 'Address lookup powered by OpenCage')

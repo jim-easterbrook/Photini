@@ -615,15 +615,14 @@ class TabWidget(PhotiniUploader):
                                               '%Y-%m-%d %H:%M:%S'),
                 'precision': precision, 'tz_offset': None}
         if 'location' in photo:
-            data['gps_info'] = {'lat': photo['location']['latitude'],
-                                'lon': photo['location']['longitude'],
-                                'method': 'MANUAL'}
+            gps = {'lat': photo['location']['latitude'],
+                   'lng': photo['location']['longitude']}
             address = {}
             for key in photo['location']:
                 if '_content' in photo['location'][key]:
                     address[key] = photo['location'][key]['_content']
             data['location_taken'] = [MD_Location.from_address(
-                address, self._address_map)]
+                gps, address, self._address_map)]
         # get annotated image regions
         people = []
         notes = []
