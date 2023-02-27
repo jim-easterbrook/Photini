@@ -28,7 +28,8 @@ from photini.metadata import ImageMetadata
 from photini.photinimap import GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
-from photini.widgets import CompactButton, LatLongDisplay, SingleLineEdit
+from photini.widgets import (
+    CompactButton, LatLongDisplay, LangAltWidget, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -166,15 +167,24 @@ class OpenCage(GeocoderBase):
             QtCore.QUrl('http://www.openstreetmap.org/copyright'))
 
 
-class LocationInfo(QtWidgets.QWidget):
+class LocationInfo(QtWidgets.QScrollArea):
     new_value = QtSignal(object, dict)
 
     def __init__(self, *args, **kw):
         super(LocationInfo, self).__init__(*args, **kw)
+        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
+        self.setWidgetResizable(True)
+        form = QtWidgets.QWidget()
         layout = QtWidgets.QGridLayout()
-        self.setLayout(layout)
+        form.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
         self.members = {}
+        self.members['Iptc4xmpExt:LocationName'] = LangAltWidget(
+            'Iptc4xmpExt:LocationName', multi_line=False)
+        self.members['Iptc4xmpExt:LocationName'].setToolTip('<p>{}</p>'.format(
+            translate('AddressTab', 'Enter a full name of the location.')))
+        self.members['Iptc4xmpExt:LocationName'].new_value.connect(
+            self.editing_finished)
         for (key, tool_tip) in (
                 ('Iptc4xmpExt:Sublocation', translate(
                     'AddressTab', 'Enter the name of the sublocation.')),
@@ -188,28 +198,52 @@ class LocationInfo(QtWidgets.QWidget):
                     'AddressTab', 'Enter the 2 or 3 letter ISO 3166 country'
                     ' code of the country.')),
                 ('Iptc4xmpExt:WorldRegion', translate(
-                    'AddressTab', 'Enter the name of the world region.'))):
+                    'AddressTab', 'Enter the name of the world region.')),
+                ('Iptc4xmpExt:LocationId', translate(
+                    'AddressTab', 'Enter globally unique identifier(s) of the'
+                    ' location. Separate them with ";" characters.')),
+                ('exif:GPSLatitude', translate(
+                    'AddressTab', 'Latitude of the location in degrees.')),
+                ('exif:GPSLongitude', translate(
+                    'AddressTab', 'Longitude of the location in degrees.')),
+                ('exif:GPSAltitude', translate(
+                    'AddressTab', 'Altitude of the location in metres.'))):
             self.members[key] = SingleLineEdit(
                 key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
         self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
             width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
-        for j, text in enumerate((translate('AddressTab', 'Street'),
+        for j, text in enumerate((translate('AddressTab', 'Name'),
+                                  translate('AddressTab', 'Street'),
                                   translate('AddressTab', 'City'),
                                   translate('AddressTab', 'Province'),
                                   translate('AddressTab', 'Country'),
-                                  translate('AddressTab', 'Region'))):
+                                  translate('AddressTab', 'Region'),
+                                  translate('AddressTab', 'Location ID'),
+                                  translate('AddressTab', 'Latitude'))):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['Iptc4xmpExt:Sublocation'], 0, 1, 1, 2)
-        layout.addWidget(self.members['Iptc4xmpExt:City'], 1, 1, 1, 2)
-        layout.addWidget(self.members['Iptc4xmpExt:ProvinceState'], 2, 1, 1, 2)
-        layout.addWidget(self.members['Iptc4xmpExt:CountryName'], 3, 1)
-        layout.addWidget(self.members['Iptc4xmpExt:CountryCode'], 3, 2)
-        layout.addWidget(self.members['Iptc4xmpExt:WorldRegion'], 4, 1, 1, 2)
-        layout.setRowStretch(5, 1)
+        label = QtWidgets.QLabel(translate('AddressTab', 'Longitude'))
+        label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(label, j, 2)
+        label = QtWidgets.QLabel(translate('AddressTab', 'Altitude'))
+        label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(label, j, 4)
+        layout.addWidget(self.members['Iptc4xmpExt:LocationName'], 0, 1, 1, 6)
+        layout.addWidget(self.members['Iptc4xmpExt:Sublocation'], 1, 1, 1, 6)
+        layout.addWidget(self.members['Iptc4xmpExt:City'], 2, 1, 1, 6)
+        layout.addWidget(self.members['Iptc4xmpExt:ProvinceState'], 3, 1, 1, 6)
+        layout.addWidget(self.members['Iptc4xmpExt:CountryName'], 4, 1, 1, 5)
+        layout.addWidget(self.members['Iptc4xmpExt:CountryCode'], 4, 6)
+        layout.addWidget(self.members['Iptc4xmpExt:WorldRegion'], 5, 1, 1, 6)
+        layout.addWidget(self.members['Iptc4xmpExt:LocationId'], 6, 1, 1, 6)
+        layout.addWidget(self.members['exif:GPSLatitude'], 7, 1)
+        layout.addWidget(self.members['exif:GPSLongitude'], 7, 3)
+        layout.addWidget(self.members['exif:GPSAltitude'], 7, 5, 1, 2)
+        layout.setRowStretch(8, 1)
+        self.setWidget(form)
 
     def get_value(self):
         new_value = {}

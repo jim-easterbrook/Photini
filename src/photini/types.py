@@ -740,6 +740,8 @@ class MD_Tuple(MD_Value, tuple):
     def merge(self, info, tag, other):
         result = self
         for item in other:
+            if not isinstance(item, self._type):
+                item = self._type(item)
             idx = result.index(item)
             result = list(result)
             if idx < len(result):
@@ -755,77 +757,6 @@ class MD_Tuple(MD_Value, tuple):
 
     def __str__(self):
         return '\n\n'.join(str(x) for x in self)
-
-
-class MD_Location(MD_Collection):
-    # stores IPTC defined location heirarchy
-    _keys = ('Iptc4xmpExt:Sublocation', 'Iptc4xmpExt:City',
-             'Iptc4xmpExt:ProvinceState', 'Iptc4xmpExt:CountryName',
-             'Iptc4xmpExt:CountryCode', 'Iptc4xmpExt:WorldRegion')
-    _type = {'Iptc4xmpExt:CountryCode': MD_UnmergableString}
-
-    def convert(self, value):
-        if value['Iptc4xmpExt:CountryCode']:
-            value['Iptc4xmpExt:CountryCode'] = value[
-                'Iptc4xmpExt:CountryCode'].upper()
-        return super(MD_Location, self).convert(value)
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if isinstance(file_value, list):
-            # "legacy" list of string values
-            return super(MD_Location, cls).from_exiv2(file_value, tag)
-        return cls(file_value)
-
-    def to_xmp(self):
-        # need a place holder for empty values
-        return self or {'Iptc4xmpExt:City': ' '}
-
-    @classmethod
-    def from_address(cls, address, key_map):
-        result = {}
-        for key in cls._keys:
-            result[key] = []
-        for key in key_map:
-            for foreign_key in key_map[key]:
-                if foreign_key not in address or not address[foreign_key]:
-                    continue
-                if key in result and address[foreign_key] not in result[key]:
-                    result[key].append(address[foreign_key])
-                del(address[foreign_key])
-        # only use one country code
-        result['Iptc4xmpExt:CountryCode'] = result[
-            'Iptc4xmpExt:CountryCode'][:1]
-        # put unknown foreign keys in Sublocation
-        for foreign_key in address:
-            if address[foreign_key] in ' '.join(
-                    result['Iptc4xmpExt:Sublocation']):
-                continue
-            result['Iptc4xmpExt:Sublocation'] = [
-                '{}: {}'.format(foreign_key, address[foreign_key])
-                ] + result['Iptc4xmpExt:Sublocation']
-        for key in result:
-            result[key] = ', '.join(result[key]) or None
-        return cls(result)
-
-    def __str__(self):
-        return '\n'.join('{}: {}'.format(k.split(':')[1], v)
-                         for (k, v) in self.items() if v)
-
-
-class MD_MultiLocation(MD_Tuple):
-    _type = MD_Location
-
-    def index(self, other):
-        for n, value in enumerate(self):
-            if value == other:
-                return n
-        return len(self)
-
-
-class MD_SingleLocation(MD_MultiLocation):
-    def index(self, other):
-        return 0
 
 
 class LangAltDict(dict):
@@ -950,6 +881,9 @@ class LangAltDict(dict):
                 if k.lower().startswith(lang):
                     return self[k]
         return self.default_text()
+
+    def strip(self):
+        return dict((k, v.strip()) for (k, v) in self.items())
 
     def default_text(self):
         return self[self.keys()[0]]
@@ -1275,6 +1209,12 @@ class MD_Altitude(MD_Rational):
 
 class MD_Coordinate(MD_Rational):
     @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if tag.startswith('Exif'):
+            return cls.from_exif(file_value)
+        return cls.from_xmp(file_value)
+
+    @classmethod
     def from_exif(cls, value):
         if not all(value):
             return None
@@ -1373,29 +1313,17 @@ class MD_GPSinfo(MD_Dict):
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Xmp.video'):
             return cls.from_ffmpeg(file_value, tag)
-        if tag == 'Xmp.iptcExt.LocationCreated':
-            if not file_value:
-                return None
-            version_id = None
-            method = None
-            value = file_value[0]
-            alt = 'exif:GPSAltitude' in value and value['exif:GPSAltitude']
-            lat = 'exif:GPSLatitude' in value and MD_Coordinate.from_xmp(
-                value['exif:GPSLatitude'])
-            lon = 'exif:GPSLongitude' in value and MD_Coordinate.from_xmp(
-                value['exif:GPSLongitude'])
+        version_id = file_value[0]
+        method = MD_UnmergableString.from_exiv2(file_value[1], tag)
+        alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
+        if tag.startswith('Exif'):
+            lat = MD_Coordinate.from_exif(file_value[4:6])
+            lon = MD_Coordinate.from_exif(file_value[6:8])
         else:
-            version_id = file_value[0]
-            method = MD_UnmergableString.from_exiv2(file_value[1], tag)
-            alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
-            if tag.startswith('Exif'):
-                lat = MD_Coordinate.from_exif(file_value[4:6])
-                lon = MD_Coordinate.from_exif(file_value[6:8])
-            else:
-                if version_id:
-                    version_id = bytes([int(x) for x in version_id.split('.')])
-                lat = MD_Coordinate.from_xmp(file_value[4])
-                lon = MD_Coordinate.from_xmp(file_value[5])
+            if version_id:
+                version_id = bytes([int(x) for x in version_id.split('.')])
+            lat = MD_Coordinate.from_xmp(file_value[4])
+            lon = MD_Coordinate.from_xmp(file_value[5])
         if not any((alt, lat, lon)):
             return None
         return cls((version_id, method, alt, lat, lon))
@@ -1535,6 +1463,88 @@ class MD_Dimensions(MD_Collection):
         if self['frames'] and self['frame_rate']:
             return float(self['frames'] / self['frame_rate'])
         return 0.0
+
+
+class MD_Location(MD_Collection):
+    # stores IPTC defined location heirarchy
+    _keys = ('Iptc4xmpExt:Sublocation', 'Iptc4xmpExt:City',
+             'Iptc4xmpExt:ProvinceState', 'Iptc4xmpExt:CountryName',
+             'Iptc4xmpExt:CountryCode', 'Iptc4xmpExt:WorldRegion',
+             'Iptc4xmpExt:LocationName', 'Iptc4xmpExt:LocationId',
+             'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude')
+    _type = {'Iptc4xmpExt:CountryCode': MD_UnmergableString,
+             'Iptc4xmpExt:LocationName': MD_LangAlt,
+             'Iptc4xmpExt:LocationId': MD_MultiString,
+             'exif:GPSLatitude': MD_Coordinate,
+             'exif:GPSLongitude': MD_Coordinate,
+             'exif:GPSAltitude': MD_Rational}
+
+    def convert(self, value):
+        if value['Iptc4xmpExt:CountryCode']:
+            value['Iptc4xmpExt:CountryCode'] = value[
+                'Iptc4xmpExt:CountryCode'].upper()
+        return super(MD_Location, self).convert(value)
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, list):
+            # "legacy" list of string values
+            return super(MD_Location, cls).from_exiv2(file_value, tag)
+        for key in file_value:
+            file_value[key] = cls.get_type(key).from_exiv2(file_value[key], tag)
+        return cls(file_value)
+
+    def to_xmp(self):
+        if not self:
+            # need a place holder for empty values
+            return {'Iptc4xmpExt:City': ' '}
+        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+
+    @classmethod
+    def from_address(cls, address, key_map):
+        result = {}
+        for key in cls._keys:
+            result[key] = []
+        for key in key_map:
+            for foreign_key in key_map[key]:
+                if foreign_key not in address or not address[foreign_key]:
+                    continue
+                if key in result and address[foreign_key] not in result[key]:
+                    result[key].append(address[foreign_key])
+                del(address[foreign_key])
+        # only use one country code
+        result['Iptc4xmpExt:CountryCode'] = result[
+            'Iptc4xmpExt:CountryCode'][:1]
+        # put unknown foreign keys in Sublocation
+        for foreign_key in address:
+            if address[foreign_key] in ' '.join(
+                    result['Iptc4xmpExt:Sublocation']):
+                continue
+            result['Iptc4xmpExt:Sublocation'] = [
+                '{}: {}'.format(foreign_key, address[foreign_key])
+                ] + result['Iptc4xmpExt:Sublocation']
+        for key in result:
+            result[key] = ', '.join(result[key]) or None
+        return cls(result)
+
+    def __str__(self):
+        return '\n'.join('{}: {}'.format(k.split(':')[1], v)
+                         for (k, v) in self.items() if v)
+
+
+class MD_MultiLocation(MD_Tuple):
+    _type = MD_Location
+
+    def index(self, other):
+        for n, value in enumerate(self):
+            if value == other:
+                return n
+        return len(self)
+
+
+class MD_SingleLocation(MD_MultiLocation):
+    def index(self, other):
+        return 0
 
 
 class ImageRegionItem(MD_Value, dict):
