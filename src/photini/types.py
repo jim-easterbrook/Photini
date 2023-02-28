@@ -1342,6 +1342,8 @@ class MD_GPSinfo(MD_Dict):
             lon_ref = ('W', 'E')[pstv]
         else:
             lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
+        if not any((altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref)):
+            return None, None, None, None, None, None, None, None
         if self['method']:
             method = 'charset=Ascii ' + self['method']
         else:
@@ -1362,6 +1364,8 @@ class MD_GPSinfo(MD_Dict):
             lon_string += ('W', 'E')[pstv]
         else:
             lat_string, lon_string = None, None
+        if not any((altitude, alt_ref, lat_string, lon_string)):
+            return None, None, None, None, None, None
         return (version_id, self['method'],
                 altitude, alt_ref, lat_string, lon_string)
 
