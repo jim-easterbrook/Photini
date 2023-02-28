@@ -1529,6 +1529,14 @@ class MD_Location(MD_Collection):
         result['exif:GPSLongitude'] = gps['lng']
         return cls(result)
 
+    def as_latlon(self):
+        if not ('exif:GPSLatitude' in self and 'exif:GPSLongitude' in self):
+            return None
+        if not (self['exif:GPSLatitude'] and self['exif:GPSLongitude']):
+            return None
+        return '{}, {}'.format(
+            self['exif:GPSLatitude'], self['exif:GPSLongitude'])
+
     def __str__(self):
         return '\n'.join('{}: {}'.format(k.split(':')[1], v)
                          for (k, v) in self.items() if v)

@@ -405,7 +405,6 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
         self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.setFixedWidth(width_for_text(self, '8' * 23))
-        self.setEnabled(False)
         self.editingFinished.connect(self.editing_finished)
 
     @catch_all

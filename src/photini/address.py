@@ -202,16 +202,17 @@ class LocationInfo(QtWidgets.QScrollArea):
                 ('Iptc4xmpExt:LocationId', translate(
                     'AddressTab', 'Enter globally unique identifier(s) of the'
                     ' location. Separate them with ";" characters.')),
-                ('exif:GPSLatitude', translate(
-                    'AddressTab', 'Latitude of the location in degrees.')),
-                ('exif:GPSLongitude', translate(
-                    'AddressTab', 'Longitude of the location in degrees.')),
                 ('exif:GPSAltitude', translate(
                     'AddressTab', 'Altitude of the location in metres.'))):
             self.members[key] = SingleLineEdit(
                 key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
+        self.members['latlon'] = LatLongDisplay('latlon')
+        self.members['latlon'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Latitude and longitude of the location in degrees.'
+            ' Separate the two numbers with a comma.')))
+        self.members['latlon'].new_value.connect(self.editing_finished)
         self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
             width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),
@@ -220,28 +221,27 @@ class LocationInfo(QtWidgets.QScrollArea):
                                   translate('AddressTab', 'Province'),
                                   translate('AddressTab', 'Country'),
                                   translate('AddressTab', 'Region'),
-                                  translate('AddressTab', 'Location ID'),
-                                  translate('AddressTab', 'Latitude'))):
+                                  translate('AddressTab', 'Location ID'))):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
-        label = QtWidgets.QLabel(translate('AddressTab', 'Longitude'))
-        label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        layout.addWidget(label, j, 2)
+        layout.addWidget(self.members['Iptc4xmpExt:LocationName'], 0, 1, 1, 5)
+        layout.addWidget(self.members['Iptc4xmpExt:Sublocation'], 1, 1, 1, 5)
+        layout.addWidget(self.members['Iptc4xmpExt:City'], 2, 1, 1, 5)
+        layout.addWidget(self.members['Iptc4xmpExt:ProvinceState'], 3, 1, 1, 5)
+        layout.addWidget(self.members['Iptc4xmpExt:CountryName'], 4, 1, 1, 4)
+        layout.addWidget(self.members['Iptc4xmpExt:CountryCode'], 4, 5)
+        layout.addWidget(self.members['Iptc4xmpExt:WorldRegion'], 5, 1, 1, 5)
+        layout.addWidget(self.members['Iptc4xmpExt:LocationId'], 6, 1, 1, 5)
+        layout.addWidget(self.members['latlon'].label, 7, 0)
+        layout.addWidget(self.members['latlon'], 7, 1)
         label = QtWidgets.QLabel(translate('AddressTab', 'Altitude'))
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        layout.addWidget(label, j, 4)
-        layout.addWidget(self.members['Iptc4xmpExt:LocationName'], 0, 1, 1, 6)
-        layout.addWidget(self.members['Iptc4xmpExt:Sublocation'], 1, 1, 1, 6)
-        layout.addWidget(self.members['Iptc4xmpExt:City'], 2, 1, 1, 6)
-        layout.addWidget(self.members['Iptc4xmpExt:ProvinceState'], 3, 1, 1, 6)
-        layout.addWidget(self.members['Iptc4xmpExt:CountryName'], 4, 1, 1, 5)
-        layout.addWidget(self.members['Iptc4xmpExt:CountryCode'], 4, 6)
-        layout.addWidget(self.members['Iptc4xmpExt:WorldRegion'], 5, 1, 1, 6)
-        layout.addWidget(self.members['Iptc4xmpExt:LocationId'], 6, 1, 1, 6)
-        layout.addWidget(self.members['exif:GPSLatitude'], 7, 1)
-        layout.addWidget(self.members['exif:GPSLongitude'], 7, 3)
-        layout.addWidget(self.members['exif:GPSAltitude'], 7, 5, 1, 2)
+        layout.addWidget(label, 7, 2)
+        self.members['exif:GPSAltitude'].setFixedWidth(
+            self.members['latlon'].width())
+        layout.addWidget(self.members['exif:GPSAltitude'], 7, 3)
+        layout.setColumnStretch(4, 1)
         layout.setRowStretch(8, 1)
         self.setWidget(form)
 
@@ -250,13 +250,19 @@ class LocationInfo(QtWidgets.QScrollArea):
         for key in self.members:
             if self.members[key].is_multiple():
                 continue
-            new_value[key] = self.members[key].get_value().strip() or None
+            if key == 'latlon':
+                value = self.members[key].get_value() or (None, None)
+                new_value['exif:GPSLatitude'] = value[0]
+                new_value['exif:GPSLongitude'] = value[1]
+            else:
+                new_value[key] = self.members[key].get_value().strip() or None
         return new_value
 
     @QtSlot(str, object)
     @catch_all
     def editing_finished(self, key, value):
-        self.members[key].set_value(value)
+        if key != 'latlon':
+            self.members[key].set_value(value)
         self.new_value.emit(self, self.get_value())
 
 
@@ -474,7 +480,9 @@ class TabWidget(QtWidgets.QWidget):
                     location = self._get_location(image, idx) or {}
                     for key in widget.members:
                         value = None
-                        if key in location:
+                        if location and key == 'latlon':
+                            value = location.as_latlon()
+                        elif key in location:
                             value = location[key]
                         if value not in values[key]:
                             values[key].append(value)
