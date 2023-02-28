@@ -281,8 +281,8 @@ class TabWidget(QtWidgets.QWidget):
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
         self.coords = LatLongDisplay('latlon')
+        self.coords.setReadOnly(True)
         left_side.addWidget(self.coords.label, 0, 0)
-        self.coords.new_value.connect(self.new_coords)
         left_side.addWidget(self.coords, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
@@ -315,14 +315,6 @@ class TabWidget(QtWidgets.QWidget):
 
     def do_not_close(self):
         return False
-
-    @QtSlot(str, object)
-    @catch_all
-    def new_coords(self, key, value):
-        self.auto_location.setEnabled(bool(value))
-        selected_images = self.app.image_list.get_selected_images()
-        self.coords.set_image_gps(selected_images=selected_images)
-        self.coords.update_display(selected_images=selected_images)
 
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
