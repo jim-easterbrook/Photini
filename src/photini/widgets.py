@@ -454,6 +454,16 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
             result = min(result, QtGui.QValidator.State.Intermediate)
         return result, text, pos
 
+    @catch_all
+    def fixup(self, value):
+        value = value.split(',')
+        if len(value) != 2 or not all(value):
+            return
+        value = [float(x) for x in value]
+        value[0] = min(max(value[0], -90.0), 90.0)
+        value[1] = ((value[1] + 180.0) % 360.0) - 180.0
+        self.lineEdit().setText('{:f}, {:f}'.format(*value))
+
     @QtSlot()
     @catch_all
     def editing_finished(self):
