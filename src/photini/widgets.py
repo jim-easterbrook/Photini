@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-3  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -392,7 +392,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     new_value = QtSignal(str, object)
 
     def __init__(self, key, *args, **kwds):
-        super(self.__class__, self).__init__(*args, **kwds)
+        super(LatLongDisplay, self).__init__(*args, **kwds)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
@@ -412,14 +412,14 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     def focusOutEvent(self, event):
         if not self._is_multiple:
             self.new_value.emit(self._key, self.get_value())
-        super(self.__class__, self).focusOutEvent(event)
+        super(LatLongDisplay, self).focusOutEvent(event)
 
     @catch_all
     def keyPressEvent(self, event):
         if self._is_multiple:
             self._is_multiple = False
             self.setPlaceholderText('')
-        super(self.__class__, self).keyPressEvent(event)
+        super(LatLongDisplay, self).keyPressEvent(event)
 
     @catch_all
     def contextMenuEvent(self, event):
