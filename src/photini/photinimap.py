@@ -29,8 +29,7 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (
     QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, qt_version_info)
-from photini.technical import DoubleSpinBox
-from photini.widgets import ComboBox, LatLongDisplay
+from photini.widgets import ComboBox, DoubleSpinBox, LatLongDisplay
 
 
 logger = logging.getLogger(__name__)
@@ -223,7 +222,7 @@ class PhotiniMap(QtWidgets.QWidget):
         label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 1, 0)
-        self.widgets['altitude'] = DoubleSpinBox()
+        self.widgets['altitude'] = DoubleSpinBox('altitude')
         self.widgets['altitude'].setSuffix(' m')
         self.widgets['altitude'].new_value.connect(self.new_altitude)
         left_side.addWidget(self.widgets['altitude'], 1, 1)

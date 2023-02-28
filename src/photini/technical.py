@@ -25,7 +25,8 @@ import re
 from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
-from photini.widgets import DropDownSelector, Slider
+from photini.widgets import (
+    AugmentSpinBox, DoubleSpinBox, DropDownSelector, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -152,88 +153,6 @@ class LensList(DropdownEdit):
         return lens_model.get_name()
 
 
-class AugmentSpinBox(object):
-    new_value = QtSignal(object)
-
-    def __init__(self):
-        super(AugmentSpinBox, self).__init__()
-        if self.isRightToLeft():
-            self.setAlignment(
-                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        self.set_value(None)
-        self.editingFinished.connect(self.editing_finished)
-
-    class ContextAction(QtGui2.QAction):
-        def __init__(self, value, *arg, **kw):
-            super(AugmentSpinBox.ContextAction, self).__init__(*arg, **kw)
-            self.setData(value)
-            self.triggered.connect(self.set_value)
-
-        @QtSlot()
-        @catch_all
-        def set_value(self):
-            self.parent().setValue(self.data())
-
-    def context_menu_event(self):
-        if self.specialValueText() and self.choices:
-            QtCore.QTimer.singleShot(0, self.extend_context_menu)
-
-    @QtSlot()
-    @catch_all
-    def extend_context_menu(self):
-        menu = self.findChild(QtWidgets.QMenu)
-        if not menu:
-            return
-        sep = menu.insertSeparator(menu.actions()[0])
-        for suggestion in self.choices:
-            menu.insertAction(sep, self.ContextAction(
-                suggestion, text=self.textFromValue(suggestion), parent=self))
-
-    def clear_special_value(self):
-        if self.specialValueText():
-            self.set_value(self.default_value)
-            self.selectAll()
-
-    def fix_up(self):
-        if self.cleanText():
-            return False
-        # user has deleted the value
-        self.set_value(None)
-        return True
-
-    @QtSlot()
-    @catch_all
-    def editing_finished(self):
-        if self.is_multiple():
-            return
-        self.get_value(emit=True)
-
-    def get_value(self, emit=False):
-        value = self.value()
-        if value == self.minimum() and self.specialValueText():
-            value = None
-        if emit:
-            self.new_value.emit(value)
-        return value
-
-    def set_value(self, value):
-        if value is None:
-            self.setValue(self.minimum())
-            self.setSpecialValueText(' ')
-        else:
-            self.setSpecialValueText('')
-            self.setValue(value)
-
-    def set_multiple(self, choices=[]):
-        self.choices = list(filter(None, choices))
-        self.setValue(self.minimum())
-        self.setSpecialValueText(self.multiple)
-
-    def is_multiple(self):
-        return (self.value() == self.minimum()
-                and self.specialValueText() == self.multiple)
-
-
 class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         self.default_value = 0
@@ -269,43 +188,6 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
             self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
         else:
             self.setStyleSheet('QAbstractSpinBox {font-weight:normal}')
-
-
-class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
-    def __init__(self, *arg, **kw):
-        self.default_value = 0
-        self.multiple = multiple_values()
-        super(DoubleSpinBox, self).__init__(*arg, **kw)
-        AugmentSpinBox.__init__(self)
-        self.setSingleStep(0.1)
-        self.setDecimals(4)
-        lim = (2 ** 31) - 1
-        self.setRange(-lim, lim)
-        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(DoubleSpinBox, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self.clear_special_value()
-        return super(DoubleSpinBox, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self.clear_special_value()
-        return super(DoubleSpinBox, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        return self.fix_up() or super(DoubleSpinBox, self).fixup(text)
-
-    @catch_all
-    def textFromValue(self, value):
-        # don't use QDoubleSpinBox's fixed number of decimals
-        return str(round(float(value), self.decimals()))
 
 
 class CalendarWidget(QtWidgets.QCalendarWidget):
@@ -706,7 +588,7 @@ class NewLensDialog(NewItemDialog):
                 ('max_fl_fn',
                  translate('TechnicalTab', 'Aperture at max. focal length')),
                 ):
-            self.lens_spec[key] = DoubleSpinBox()
+            self.lens_spec[key] = DoubleSpinBox(key)
             self.lens_spec[key].setMinimum(0.0)
             if key.endswith('_fn'):
                 self.lens_spec[key].setPrefix('ƒ/')
@@ -824,7 +706,7 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate('TechnicalTab', 'Lens model'),
                                     self.widgets['lens_model'])
         # focal length
-        self.widgets['focal_length'] = DoubleSpinBox()
+        self.widgets['focal_length'] = DoubleSpinBox('focal_length')
         self.widgets['focal_length'].setMinimum(0.0)
         self.widgets['focal_length'].setSuffix(' mm')
         self.widgets['focal_length'].new_value.connect(self.new_focal_length)
@@ -838,7 +720,7 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
                                     self.widgets['focal_length_35'])
         # aperture
-        self.widgets['aperture'] = DoubleSpinBox()
+        self.widgets['aperture'] = DoubleSpinBox('aperture')
         self.widgets['aperture'].setMinimum(0.0)
         self.widgets['aperture'].setPrefix('ƒ/')
         self.widgets['aperture'].new_value.connect(self.new_aperture)

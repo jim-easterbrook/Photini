@@ -29,7 +29,7 @@ from photini.photinimap import GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
-    CompactButton, LatLongDisplay, LangAltWidget, SingleLineEdit)
+    CompactButton, DoubleSpinBox, LatLongDisplay, LangAltWidget, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -201,9 +201,7 @@ class LocationInfo(QtWidgets.QScrollArea):
                     'AddressTab', 'Enter the name of the world region.')),
                 ('Iptc4xmpExt:LocationId', translate(
                     'AddressTab', 'Enter globally unique identifier(s) of the'
-                    ' location. Separate them with ";" characters.')),
-                ('exif:GPSAltitude', translate(
-                    'AddressTab', 'Altitude of the location in metres.'))):
+                    ' location. Separate them with ";" characters.'))):
             self.members[key] = SingleLineEdit(
                 key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
@@ -211,6 +209,12 @@ class LocationInfo(QtWidgets.QScrollArea):
         self.members['latlon'] = LatLongDisplay(
             'latlon', keys=('exif:GPSLatitude', 'exif:GPSLongitude'))
         self.members['latlon'].new_value.connect(self.editing_finished)
+        self.members['exif:GPSAltitude'] = DoubleSpinBox('exif:GPSAltitude')
+        self.members['exif:GPSAltitude'].setSuffix(' m')
+        self.members['exif:GPSAltitude'].setToolTip('<p>{}</p>'.format(
+            translate('AddressTab', 'Altitude of the location in metres.')))
+        self.members['exif:GPSAltitude'].new_value.connect(
+            self.editing_finished)
         self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
             width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),
@@ -251,7 +255,7 @@ class LocationInfo(QtWidgets.QScrollArea):
 
     @QtSlot(str, object)
     @catch_all
-    def editing_finished(self, key, value):
+    def editing_finished(self, key, value=None):
         self.new_value.emit(self, self.get_value())
 
 
