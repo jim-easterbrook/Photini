@@ -208,10 +208,8 @@ class LocationInfo(QtWidgets.QScrollArea):
                 key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
-        self.members['latlon'] = LatLongDisplay('latlon')
-        self.members['latlon'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Latitude and longitude of the location in degrees.'
-            ' Separate the two numbers with a comma.')))
+        self.members['latlon'] = LatLongDisplay(
+            'latlon', keys=('exif:GPSLatitude', 'exif:GPSLongitude'))
         self.members['latlon'].new_value.connect(self.editing_finished)
         self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
             width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
@@ -248,21 +246,12 @@ class LocationInfo(QtWidgets.QScrollArea):
     def get_value(self):
         new_value = {}
         for key in self.members:
-            if self.members[key].is_multiple():
-                continue
-            if key == 'latlon':
-                value = self.members[key].get_value() or (None, None)
-                new_value['exif:GPSLatitude'] = value[0]
-                new_value['exif:GPSLongitude'] = value[1]
-            else:
-                new_value[key] = self.members[key].get_value().strip() or None
+            new_value.update(self.members[key].get_value_dict())
         return new_value
 
     @QtSlot(str, object)
     @catch_all
     def editing_finished(self, key, value):
-        if key != 'latlon':
-            self.members[key].set_value(value)
         self.new_value.emit(self, self.get_value())
 
 

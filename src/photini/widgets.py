@@ -353,6 +353,11 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     def get_value(self):
         return self.toPlainText()
 
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return {self._key: self.toPlainText().strip() or None}
+
     def set_multiple(self, choices=[]):
         self._is_multiple = True
         self.choices = list(choices)
@@ -391,7 +396,7 @@ class SingleLineEdit(MultiLineEdit):
 class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     new_value = QtSignal(str, object)
 
-    def __init__(self, key, *args, **kwds):
+    def __init__(self, key, *args, keys=[], **kwds):
         super(LatLongDisplay, self).__init__(*args, **kwds)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
@@ -399,12 +404,16 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
             -180.0, 180.0, 20, parent=self)
         self.app = QtWidgets.QApplication.instance()
         self._key = key
+        self._keys = keys
         self._is_multiple = False
         self.multiple_values = multiple_values()
         self.setButtonSymbols(self.ButtonSymbols.NoButtons)
         self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.setFixedWidth(width_for_text(self, '8' * 23))
+        self.setToolTip('<p>{}</p>'.format(translate(
+            'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
+            ' decimal numbers separated by a comma.')))
         self.editingFinished.connect(self.editing_finished)
 
     @catch_all
@@ -475,6 +484,11 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
         if value and self.hasAcceptableInput():
             return [float(x) for x in value.split(',')]
         return None
+
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return dict(zip(self._keys, self.get_value() or (None, None)))
 
     def set_value(self, value):
         if self._is_multiple:
@@ -764,6 +778,11 @@ class LangAltWidget(QtWidgets.QWidget):
 
     def get_value(self):
         return self.value
+
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return {self.edit._key: self.get_value()}
 
     def set_multiple(self, choices=[]):
         self.choices = {}
