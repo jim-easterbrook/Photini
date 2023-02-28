@@ -483,7 +483,7 @@ class TabWidget(QtWidgets.QWidget):
 
     def new_selection(self, selection):
         self.location_info.setEnabled(bool(selection))
-        self.coords.update_display(selected_images=selection)
+        self.coords.update_display(selection)
         self.auto_location.setEnabled(bool(self.coords.get_value()))
         self.display_location()
 

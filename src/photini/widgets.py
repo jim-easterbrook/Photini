@@ -402,7 +402,6 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
-        self.app = QtWidgets.QApplication.instance()
         self._key = key
         self._keys = keys
         self._is_multiple = False
@@ -508,19 +507,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())
 
-    def set_image_gps(self, selected_images=None):
-        if selected_images is None:
-            selected_images = self.app.image_list.get_selected_images()
-        value = self.get_value() or (None, None)
-        for image in selected_images:
-            gps = dict(image.metadata.gps_info or {})
-            gps['lat'], gps['lon'] = value
-            gps['method'] = 'MANUAL'
-            image.metadata.gps_info = gps
-
-    def update_display(self, selected_images=None):
-        if selected_images is None:
-            selected_images = self.app.image_list.get_selected_images()
+    def update_display(self, selected_images):
         if not selected_images:
             self.set_value(None)
             self.setEnabled(False)
