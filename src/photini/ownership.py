@@ -441,10 +441,10 @@ class TabWidget(QtWidgets.QWidget):
         images = self.app.image_list.get_selected_images()
         for image in images:
             date_taken = image.metadata.date_taken
-            if date_taken is None:
-                date_taken = datetime.now()
-            else:
+            if date_taken:
                 date_taken = date_taken['datetime']
+            else:
+                date_taken = datetime.now()
             for key in template:
                 value = template[key]
                 if isinstance(value, dict):

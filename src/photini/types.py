@@ -60,14 +60,10 @@ class MD_Value(object):
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
-        if not file_value:
-            return None
         return cls(file_value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
         return cls(file_value)
 
     def to_exiv2(self, tag):
@@ -132,8 +128,6 @@ class MD_UnmergableString(MD_Value, str):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
         if isinstance(file_value, list):
             file_value = ' // '.join(file_value)
         return cls(file_value)
@@ -150,12 +144,8 @@ class MD_String(MD_UnmergableString):
 class MD_Software(MD_String):
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
         if tag.startswith('Iptc'):
-            if not all(file_value):
-                return None
-            file_value = ' v'.join(file_value)
+            file_value = ' v'.join(x for x in file_value if x)
         return cls(file_value)
 
     def to_iptc(self):
@@ -196,12 +186,6 @@ class MD_Dict(MD_Value, dict):
 
     def __bool__(self):
         return any([x is not None for x in self.values()])
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not any(file_value):
-            return None
-        return cls(file_value)
 
     def to_exif(self):
         return [self[x] for x in self._keys]
@@ -519,13 +503,13 @@ class MD_LensSpec(MD_Dict):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
-            return None
+            return cls([])
         if isinstance(file_value, str):
             file_value = file_value.split()
         if 'CanonCs' in tag:
             long_focal, short_focal, focal_units = [int(x) for x in file_value]
             if focal_units == 0:
-                return None
+                return cls([])
             file_value = [(short_focal, focal_units), (long_focal, focal_units)]
         return cls(file_value)
 
@@ -638,7 +622,7 @@ class MD_Collection(MD_Dict):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not (file_value and any(file_value)):
-            return None
+            return cls([])
         value = dict(zip(cls._keys, file_value))
         for key in value:
             value[key] = cls.get_type(key).from_exiv2(value[key], tag)
@@ -682,17 +666,14 @@ class MD_ContactInformation(MD_Collection):
     def from_exiv2(cls, file_value, tag):
         if not tag.startswith('Xmp'):
             return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
-        if not file_value:
-            return None
+        file_value = file_value or {}
         result = {}
         for key in cls._keys:
             type_ = cls._default_type
             sub_key = 'Iptc4xmpCore:' + key
             if sub_key in file_value:
                 result[key] = type_.from_exiv2(file_value[sub_key], tag)
-        if result:
-            return cls(result)
-        return None
+        return cls(result)
 
     def to_xmp(self):
         result = {}
@@ -937,14 +918,6 @@ class MD_LangAlt(LangAltDict, MD_Value):
                 result[k] = v
         return result
 
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not tag.startswith('Xmp'):
-            return super(MD_LangAlt, cls).from_exiv2(file_value, tag)
-        if not file_value:
-            return None
-        return cls(file_value)
-
     def merge(self, info, tag, other):
         other = LangAltDict(other)
         if other == self:
@@ -982,8 +955,6 @@ class MD_Rights(MD_Collection):
     def from_exiv2(cls, file_value, tag):
         if not tag.startswith('Xmp'):
             return super(MD_Rights, cls).from_exiv2(file_value, tag)
-        if not any(file_value):
-            return None
         licensor = file_value[2]
         if licensor and 'plus:LicensorURL' in licensor[0]:
             file_value[2] = licensor[0]['plus:LicensorURL']
@@ -1365,8 +1336,6 @@ class MD_GPSinfo(MD_Dict):
                 version_id = bytes([int(x) for x in version_id.split('.')])
             lat = MD_Latitude.from_xmp(file_value[4])
             lon = MD_Longitude.from_xmp(file_value[5])
-        if not any((alt, lat, lon)):
-            return None
         return cls((version_id, method, alt, lat, lon))
 
     def to_exif(self):
