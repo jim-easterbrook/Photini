@@ -668,16 +668,13 @@ class ImageList(QtWidgets.QWidget):
         self._sort_thumbnails()
 
     def _date_key(self, image):
-        result = image.metadata.date_taken
-        if result is None:
-            result = image.metadata.date_digitised
-        if result is None:
-            result = image.metadata.date_modified
-        if result is None:
+        result = (image.metadata.date_taken or image.metadata.date_digitised
+                  or image.metadata.date_modified)
+        if result:
+            result = result['datetime']
+        else:
             # use file date as last resort
             result = datetime.fromtimestamp(os.path.getmtime(image.path))
-        else:
-            result = result['datetime']
         # convert result to string and append path so photos with same
         # time stamp get sorted consistently
         result = result.strftime('%Y%m%d%H%M%S%f') + image.path

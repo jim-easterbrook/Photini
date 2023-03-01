@@ -746,7 +746,7 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def apply_offset(self, offset, tz_offset):
         for image in self.app.image_list.get_selected_images():
-            date_taken = dict(image.metadata.date_taken or {})
+            date_taken = dict(image.metadata.date_taken)
             if not date_taken:
                 continue
             date_taken['datetime'] += offset
@@ -764,7 +764,7 @@ class TabWidget(QtWidgets.QWidget):
         slave = self._master_slave[master]
         if self.link_widget[master, slave].isChecked():
             for image in self.app.image_list.get_selected_images():
-                temp = dict(getattr(image.metadata, 'date_' + master) or {})
+                temp = dict(getattr(image.metadata, 'date_' + master))
                 self._set_date_value(image, slave, temp)
             self._update_datetime()
             self._update_links()
@@ -845,7 +845,7 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def new_date_value(self, key, new_value):
         for image in self.app.image_list.get_selected_images():
-            temp = dict(getattr(image.metadata, 'date_' + key) or {})
+            temp = dict(getattr(image.metadata, 'date_' + key))
             temp.update(new_value)
             if 'datetime' not in temp:
                 continue
@@ -869,7 +869,7 @@ class TabWidget(QtWidgets.QWidget):
             widget = self.date_widget[name]
             values = defaultdict(list)
             for image in images:
-                image_datetime = getattr(image.metadata, attribute) or {}
+                image_datetime = getattr(image.metadata, attribute)
                 for key in widget.members:
                     value = None
                     if key in image_datetime:

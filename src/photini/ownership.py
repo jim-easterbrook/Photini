@@ -460,7 +460,7 @@ class TabWidget(QtWidgets.QWidget):
     def _set_value(self, image, key, value):
         if '/' in key:
             key, sep, member = key.partition('/')
-            info = dict(getattr(image.metadata, key) or {})
+            info = dict(getattr(image.metadata, key))
             info[member] = value
             setattr(image.metadata, key, info)
         else:

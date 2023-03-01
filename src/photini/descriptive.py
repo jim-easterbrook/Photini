@@ -150,7 +150,7 @@ class KeywordsEditor(QtWidgets.QWidget):
     def update_league_table(self, images):
         today = date.today().isoformat()
         for image in images:
-            keywords = image.metadata.keywords or []
+            keywords = image.metadata.keywords
             value = [x for x in keywords if ':' not in x]
             if not value:
                 continue

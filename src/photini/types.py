@@ -58,10 +58,6 @@ class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
     _quiet = False
 
-    def __bool__(self):
-        # reinterpret to mean "has a value", even if the value is zero
-        return True
-
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
         if not file_value:
@@ -128,9 +124,10 @@ class MD_Value(object):
 
 class MD_UnmergableString(MD_Value, str):
     def __new__(cls, value):
-        value = isinstance(value, str) and value.strip()
-        if not value:
-            return None
+        if value is None:
+            value = ''
+        elif isinstance(value, str):
+            value = value.strip()
         return super(MD_UnmergableString, cls).__new__(cls, value)
 
     @classmethod
@@ -221,10 +218,7 @@ class MD_DateTime(MD_Dict):
     @classmethod
     def convert(cls, value):
         value['precision'] = value['precision'] or 7
-        if not value['datetime']:
-            # use a well known 'zero'
-            value['datetime'] = datetime(1970, 1, 1)
-        else:
+        if value['datetime']:
             value['datetime'] = cls.truncate_datetime(
                 value['datetime'], value['precision'])
         if value['precision'] <= 3:
@@ -252,7 +246,7 @@ class MD_DateTime(MD_Dict):
 
         """
         if not datetime_string:
-            return None
+            return cls([])
         unparsed = datetime_string
         precision = 7
         # extract time zone
@@ -347,9 +341,9 @@ class MD_DateTime(MD_Dict):
                 time_stamp = int(file_value)
             except Exception:
                 # not an integer timestamp
-                return None
+                return cls([])
             if not time_stamp:
-                return None
+                return cls([])
             # assume date should be in range 1970 to 2034
             if time_stamp > cls._qt_offset:
                 time_stamp -= cls._qt_offset
@@ -370,7 +364,7 @@ class MD_DateTime(MD_Dict):
     def from_exif(cls, file_value):
         datetime_string, sub_sec_string = file_value
         if not datetime_string:
-            return None
+            return cls([])
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
@@ -396,14 +390,14 @@ class MD_DateTime(MD_Dict):
     def from_iptc(cls, file_value):
         date_value, time_value = file_value
         if not date_value:
-            return None
+            return cls([])
         if isinstance(date_value, str):
             # Exiv2 couldn't read malformed date, let our parser have a go
             if isinstance(time_value, str):
                 date_value += 'T' + time_value
             return cls.from_ISO_8601(date_value)
         if date_value['year'] == 0:
-            return None
+            return cls([])
         precision = 3
         if isinstance(time_value, dict):
             tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
@@ -458,6 +452,9 @@ class MD_DateTime(MD_Dict):
             precision = 5
         return self.to_ISO_8601(precision=precision)
 
+    def __bool__(self):
+        return bool(self['datetime'])
+
     def __str__(self):
         return self.to_ISO_8601()
 
@@ -467,7 +464,7 @@ class MD_DateTime(MD_Dict):
         return self['datetime']
 
     def merge(self, info, tag, other):
-        if other == self:
+        if other == self or not other:
             return self
         if other['datetime'] != self['datetime']:
             verbose = (other['datetime'] != self.truncate_datetime(
@@ -708,6 +705,7 @@ class MD_ContactInformation(MD_Collection):
 class MD_Tuple(MD_Value, tuple):
     # class for structured XMP data such as locations or image regions
     def __new__(cls, value=[]):
+        value = value or []
         temp = []
         for item in value:
             if not isinstance(item, cls._type):
@@ -751,9 +749,6 @@ class MD_Tuple(MD_Value, tuple):
                 result.append(item)
             result = self.__class__(result)
         return result
-
-    def __bool__(self):
-        return len(self) > 0
 
     def __str__(self):
         return '\n\n'.join(str(x) for x in self)
@@ -1073,6 +1068,7 @@ class MD_LensModel(MD_Collection):
 
 class MD_MultiString(MD_Value, tuple):
     def __new__(cls, value):
+        value = value or []
         if isinstance(value, str):
             value = value.split(';')
         value = filter(bool, [x.strip() for x in value])
@@ -1124,8 +1120,17 @@ class MD_Keywords(MD_MultiString):
 
 
 class MD_Int(MD_Value, int):
+    def __new__(cls, value):
+        if value is None:
+            return None
+        return super(MD_Int, cls).__new__(cls, value)
+
     def to_exif(self):
         return self
+
+    def __bool__(self):
+        # reinterpret to mean "has a value", even if the value is zero
+        return True
 
 
 class MD_Orientation(MD_Int):
@@ -1151,7 +1156,14 @@ class MD_Timezone(MD_Int):
 
 
 class MD_Float(MD_Value, float):
-    pass
+    def __new__(cls, value):
+        if value is None:
+            return None
+        return super(MD_Float, cls).__new__(cls, value)
+
+    def __bool__(self):
+        # reinterpret to mean "has a value", even if the value is zero
+        return True
 
 
 class MD_Rating(MD_Float):
@@ -1171,6 +1183,8 @@ class MD_Rating(MD_Float):
 
 class MD_Rational(MD_Value, Fraction):
     def __new__(cls, value):
+        if value is None:
+            return None
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
 
     def to_exif(self):
@@ -1178,6 +1192,10 @@ class MD_Rational(MD_Value, Fraction):
 
     def to_xmp(self):
         return '{}/{}'.format(self.numerator, self.denominator)
+
+    def __bool__(self):
+        # reinterpret to mean "has a value", even if the value is zero
+        return True
 
     def __str__(self):
         return str(float(self))
@@ -1507,7 +1525,14 @@ class MD_Location(MD_Collection):
         if not self:
             # need a place holder for empty values
             return {'Iptc4xmpExt:City': ' '}
-        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+        result = dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+        if self['exif:GPSLatitude']:
+            result['exif:GPSLatitude'] = result['exif:GPSLatitude'][0] + (
+                'S', 'N')[result['exif:GPSLatitude'][1]]
+        if self['exif:GPSLongitude']:
+            result['exif:GPSLongitude'] = result['exif:GPSLongitude'][0] + (
+                'W', 'E')[result['exif:GPSLongitude'][1]]
+        return result
 
     @classmethod
     def from_address(cls, gps, address, key_map):

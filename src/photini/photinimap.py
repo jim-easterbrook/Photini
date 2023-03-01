@@ -376,7 +376,7 @@ class PhotiniMap(QtWidgets.QWidget):
         value = {'lat': lat, 'lon': lng, 'method': 'MANUAL'}
         for path in self.dropped_images:
             image = self.app.image_list.get_image(path)
-            gps = dict(image.metadata.gps_info or {})
+            gps = dict(image.metadata.gps_info)
             gps.update(value)
             image.metadata.gps_info = gps
         self.dropped_images = []
@@ -389,7 +389,7 @@ class PhotiniMap(QtWidgets.QWidget):
         value = self.widgets['latlon'].get_value_dict()
         value['method'] = 'MANUAL'
         for image in selected_images:
-            gps = dict(image.metadata.gps_info or {})
+            gps = dict(image.metadata.gps_info)
             gps.update(value)
             image.metadata.gps_info = gps
         self.update_display()
@@ -409,7 +409,7 @@ class PhotiniMap(QtWidgets.QWidget):
         value = {'alt': value, 'method': 'MANUAL'}
         images = images or self.app.image_list.get_selected_images()
         for image in images:
-            gps = dict(image.metadata.gps_info or {})
+            gps = dict(image.metadata.gps_info)
             gps.update(value)
             image.metadata.gps_info = gps
         self.update_altitude(images)
@@ -578,7 +578,7 @@ class PhotiniMap(QtWidgets.QWidget):
             for c in candidates[1:]:
                 if abs(c.time - utc_time) < abs(nearest.time - utc_time):
                     nearest = c
-            gps = dict(image.metadata.gps_info or {})
+            gps = dict(image.metadata.gps_info)
             gps['lat'] = nearest.latitude
             gps['lon'] = nearest.longitude
             gps['alt'] = nearest.elevation
@@ -668,7 +668,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def marker_drag_end(self, lat, lng, marker_id):
         info = self.marker_info[marker_id]
         for image in info['images']:
-            gps = dict(image.metadata.gps_info or {})
+            gps = dict(image.metadata.gps_info)
             gps['lat'] = lat
             gps['lon'] = lng
             gps['method'] = 'MANUAL'

@@ -334,9 +334,9 @@ class TabWidget(QtWidgets.QWidget):
         idx = self.location_info.currentIndex()
         for image in self.app.image_list.get_selected_images():
             # duplicate data
-            location = MD_Location(self._get_location(image, idx) or {})
+            location = self._get_location(image, idx)
             # shuffle data up
-            location_list = list(image.metadata.location_shown or [])
+            location_list = list(image.metadata.location_shown)
             location_list.insert(idx, location)
             image.metadata.location_shown = location_list
         # display data
@@ -348,12 +348,12 @@ class TabWidget(QtWidgets.QWidget):
         idx = self.location_info.currentIndex()
         for image in self.app.image_list.get_selected_images():
             # shuffle data down
-            location_list = list(image.metadata.location_shown or [])
+            location_list = list(image.metadata.location_shown)
             if idx == 0:
                 if location_list:
                     location = [location_list.pop(0)]
                 else:
-                    location = None
+                    location = []
                 image.metadata.location_taken = location
             elif idx <= len(location_list):
                 del location_list[max(idx - 1, 0)]
@@ -388,18 +388,16 @@ class TabWidget(QtWidgets.QWidget):
         if idx == 0:
             if image.metadata.location_taken:
                 return image.metadata.location_taken[0]
-            return None
-        elif not image.metadata.location_shown:
-            return None
+            return {}
         elif idx <= len(image.metadata.location_shown):
             return image.metadata.location_shown[idx - 1]
-        return None
+        return {}
 
     def _set_location(self, image, idx, location):
         if idx == 0:
             image.metadata.location_taken = [location]
         else:
-            location_list = list(image.metadata.location_shown or [])
+            location_list = list(image.metadata.location_shown)
             while len(location_list) < idx:
                 location_list.append(None)
             location_list[idx - 1] = location
@@ -411,7 +409,7 @@ class TabWidget(QtWidgets.QWidget):
         images = images or self.app.image_list.get_selected_images()
         idx = self.location_info.indexOf(widget)
         for image in images:
-            temp = dict(self._get_location(image, idx) or {})
+            temp = dict(self._get_location(image, idx))
             temp.update(new_value)
             self._set_location(image, idx, temp)
         # new_location can be called when changing tab, so don't delete
@@ -462,7 +460,7 @@ class TabWidget(QtWidgets.QWidget):
             if images:
                 values = defaultdict(list)
                 for image in images:
-                    location = self._get_location(image, idx) or {}
+                    location = self._get_location(image, idx)
                     for key in widget.members:
                         value = None
                         if location and key == 'latlon':

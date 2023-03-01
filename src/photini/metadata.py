@@ -620,7 +620,7 @@ class Metadata(object):
                     values[n] = (tag, self._data_type[name](value))
                     logger.info('%s: merged camera timezone offset', tag)
             # choose result and merge in non-matching data so user can review it
-            value = None
+            value = self._data_type[name](None)
             if values:
                 info = '{}({})'.format(os.path.basename(self._path), name)
                 tag, value = values[0]
@@ -792,11 +792,8 @@ class Metadata(object):
     def __setattr__(self, name, value):
         if name not in self._data_type:
             return super(Metadata, self).__setattr__(name, value)
-        if value in (None, '', [], {}):
-            value = None
-        elif not isinstance(value, self._data_type[name]):
-            new_value = self._data_type[name](value)
-            value = self._data_type[name](value) or None
+        if not isinstance(value, self._data_type[name]):
+            value = self._data_type[name](value)
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
