@@ -658,27 +658,40 @@ class MD_Collection(MD_Dict):
 
 
 class MD_ContactInformation(MD_Collection):
-    # stores IPTC contact information
-    _keys = ('CiAdrExtadr', 'CiAdrCity', 'CiAdrCtry', 'CiEmailWork',
-             'CiTelWork', 'CiAdrPcode', 'CiAdrRegion', 'CiUrlWork')
+    _keys = ('plus:LicensorExtendedAddress', 'plus:LicensorStreetAddress',
+             'plus:LicensorCity', 'plus:LicensorPostalCode',
+             'plus:LicensorRegion', 'plus:LicensorCountry',
+             'plus:LicensorTelephone1',
+             'plus:LicensorEmail', 'plus:LicensorURL')
+
+    _ci_map = {
+        'Iptc4xmpCore:CiAdrExtadr': 'plus:LicensorStreetAddress',
+        'Iptc4xmpCore:CiAdrCity':   'plus:LicensorCity',
+        'Iptc4xmpCore:CiAdrCtry':   'plus:LicensorCountry',
+        'Iptc4xmpCore:CiEmailWork': 'plus:LicensorEmail',
+        'Iptc4xmpCore:CiTelWork':   'plus:LicensorTelephone1',
+        'Iptc4xmpCore:CiAdrPcode':  'plus:LicensorPostalCode',
+        'Iptc4xmpCore:CiAdrRegion': 'plus:LicensorRegion',
+        'Iptc4xmpCore:CiUrlWork':   'plus:LicensorURL',
+        }
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        file_value = file_value or {}
-        result = {}
-        for key in cls._keys:
-            type_ = cls._default_type
-            sub_key = 'Iptc4xmpCore:' + key
-            if sub_key in file_value:
-                result[key] = type_.from_exiv2(file_value[sub_key], tag)
-        return cls(result)
+        if tag == 'Xmp.iptc.CreatorContactInfo':
+            file_value = file_value or {}
+            file_value = {(cls._ci_map[k], v) for (k, v) in file_value.items()}
+            if 'plus:LicensorStreetAddress' in file_value:
+                line1, sep, line2 = file_value[
+                    'plus:LicensorStreetAddress'].partition('\n')
+                if line2:
+                    file_value['plus:LicensorExtendedAddress'] = line1
+                    file_value['plus:LicensorStreetAddress'] = line2
+        elif file_value:
+            file_value = file_value[0]
+        return cls(file_value)
 
     def to_xmp(self):
-        result = {}
-        for key in self:
-            if self[key]:
-                result['Iptc4xmpCore:' + key] = self[key]
-        return result
+        return [self]
 
 
 class MD_Tuple(MD_Value, tuple):
@@ -945,25 +958,9 @@ class MD_LangAlt(LangAltDict, MD_Value):
 
 class MD_Rights(MD_Collection):
     # stores IPTC rights information
-    _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
+    _keys = ('UsageTerms', 'WebStatement')
     _default_type = MD_UnmergableString
     _type = {'UsageTerms': MD_LangAlt}
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not tag.startswith('Xmp'):
-            return super(MD_Rights, cls).from_exiv2(file_value, tag)
-        licensor = file_value[2]
-        if licensor and 'plus:LicensorURL' in licensor[0]:
-            file_value[2] = licensor[0]['plus:LicensorURL']
-        return cls(file_value)
-
-    def to_xmp(self):
-        file_value = super(MD_Rights, self).to_xmp()
-        licensor = file_value[2]
-        if licensor:
-            file_value[2] = [{'plus:LicensorURL': licensor}]
-        return file_value
 
 
 class MD_CameraModel(MD_Collection):

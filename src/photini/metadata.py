@@ -329,9 +329,7 @@ class ImageMetadata(MetadataHandler):
                             None, 'Xmp.video.FrameRate'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmpRights.*': (
-            'Xmp.xmpRights.UsageTerms',
-            'Xmp.xmpRights.WebStatement',
-            'Xmp.plus.Licensor'),
+            'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
         }
 
     # Mapping of tags to Photini data fields Each field has a list of
@@ -354,7 +352,8 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Pentax.ModelID*'),
                             ('WN', 'Xmp.aux.SerialNumber*'),
                             ('WN', 'Xmp.video.Make*')),
-        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo'),),
+        'contact_info'   : (('WA', 'Xmp.plus.Licensor'),
+                            ('W0', 'Xmp.iptc.CreatorContactInfo')),
         'copyright'      : (('WA', 'Xmp.dc.rights'),
                             ('WA', 'Exif.Image.Copyright'),
                             ('W0', 'Xmp.tiff.Copyright'),
