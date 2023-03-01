@@ -206,8 +206,8 @@ class LocationInfo(QtWidgets.QScrollArea):
                 key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
-        self.members['latlon'] = LatLongDisplay(
-            'latlon', keys=('exif:GPSLatitude', 'exif:GPSLongitude'))
+        self.members['latlon'] = LatLongDisplay((
+            'exif:GPSLatitude', 'exif:GPSLongitude'))
         self.members['latlon'].new_value.connect(self.editing_finished)
         self.members['exif:GPSAltitude'] = DoubleSpinBox('exif:GPSAltitude')
         self.members['exif:GPSAltitude'].setSuffix(' m')
@@ -280,7 +280,7 @@ class TabWidget(QtWidgets.QWidget):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.coords = LatLongDisplay('latlon')
+        self.coords = LatLongDisplay(('lat', 'lon'))
         self.coords.setReadOnly(True)
         left_side.addWidget(self.coords.label, 0, 0)
         left_side.addWidget(self.coords, 0, 1)

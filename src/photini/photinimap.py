@@ -214,7 +214,7 @@ class PhotiniMap(QtWidgets.QWidget):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.widgets['latlon'] = LatLongDisplay('latlon', keys=('lat', 'lon'))
+        self.widgets['latlon'] = LatLongDisplay(('lat', 'lon'))
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
         self.widgets['latlon'].new_value.connect(self.new_latlon)
         left_side.addWidget(self.widgets['latlon'], 0, 1)

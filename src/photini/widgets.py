@@ -396,13 +396,12 @@ class SingleLineEdit(MultiLineEdit):
 class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     new_value = QtSignal(str, object)
 
-    def __init__(self, key, *args, keys=[], **kwds):
+    def __init__(self, keys, *args, **kwds):
         super(LatLongDisplay, self).__init__(*args, **kwds)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
-        self._key = key
         self._keys = keys
         self._is_multiple = False
         self.multiple_values = multiple_values()
@@ -418,7 +417,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     @catch_all
     def focusOutEvent(self, event):
         if not self._is_multiple:
-            self.new_value.emit(self._key, self.get_value())
+            self.new_value.emit(self._keys, self.get_value())
         super(LatLongDisplay, self).focusOutEvent(event)
 
     @catch_all
@@ -476,7 +475,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     @catch_all
     def editing_finished(self):
         if not self._is_multiple:
-            self.new_value.emit(self._key, self.get_value())
+            self.new_value.emit(self._keys, self.get_value())
 
     def get_value(self):
         value = self.text()
