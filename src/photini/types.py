@@ -1290,7 +1290,7 @@ class MD_Coordinate(MD_Rational):
         seconds = (minutes - i) * 60
         minutes = Fraction(i)
         seconds = seconds.limit_denominator(1000000)
-        return pstv, degrees, minutes, seconds
+        return (degrees, minutes, seconds), pstv
 
     def to_xmp(self):
         pstv, degrees, minutes, seconds = self.to_exif()
@@ -1306,6 +1306,26 @@ class MD_Coordinate(MD_Rational):
         return '{:.6f}'.format(float(self))
 
 
+class MD_Latitude(MD_Coordinate):
+    def to_exif(self):
+        numbers, pstv = super(MD_Latitude, self).to_exif()
+        return numbers, ('S', 'N')[pstv]
+
+    def to_xmp(self):
+        string, pstv = super(MD_Latitude, self).to_xmp()
+        return string + ('S', 'N')[pstv]
+
+
+class MD_Longitude(MD_Coordinate):
+    def to_exif(self):
+        numbers, pstv = super(MD_Longitude, self).to_exif()
+        return numbers, ('W', 'E')[pstv]
+
+    def to_xmp(self):
+        string, pstv = super(MD_Longitude, self).to_xmp()
+        return string + ('W', 'E')[pstv]
+
+
 class MD_GPSinfo(MD_Dict):
     # stores GPS information
     _keys = ('version_id', 'method', 'alt', 'lat', 'lon')
@@ -1313,15 +1333,12 @@ class MD_GPSinfo(MD_Dict):
     @staticmethod
     def convert(value):
         value['version_id'] = value['version_id'] or b'\x02\x00\x00\x00'
-        if value['alt'] and not isinstance(value['alt'], MD_Altitude):
+        if not isinstance(value['alt'], MD_Altitude):
             value['alt'] = MD_Altitude(value['alt'])
-        for key in 'lat', 'lon':
-            if not value[key]:
-                value['lat'] = None
-                value['lon'] = None
-                break
-            if not isinstance(value[key], MD_Coordinate):
-                value[key] = MD_Coordinate(value[key])
+        if not isinstance(value['lat'], MD_Latitude):
+            value['lat'] = MD_Latitude(value['lat'])
+        if not isinstance(value['lon'], MD_Longitude):
+            value['lon'] = MD_Longitude(value['lon'])
         return value
 
     @classmethod
@@ -1341,13 +1358,13 @@ class MD_GPSinfo(MD_Dict):
         method = MD_UnmergableString.from_exiv2(file_value[1], tag)
         alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
         if tag.startswith('Exif'):
-            lat = MD_Coordinate.from_exif(file_value[4:6])
-            lon = MD_Coordinate.from_exif(file_value[6:8])
+            lat = MD_Latitude.from_exif(file_value[4:6])
+            lon = MD_Longitude.from_exif(file_value[6:8])
         else:
             if version_id:
                 version_id = bytes([int(x) for x in version_id.split('.')])
-            lat = MD_Coordinate.from_xmp(file_value[4])
-            lon = MD_Coordinate.from_xmp(file_value[5])
+            lat = MD_Latitude.from_xmp(file_value[4])
+            lon = MD_Longitude.from_xmp(file_value[5])
         if not any((alt, lat, lon)):
             return None
         return cls((version_id, method, alt, lat, lon))
@@ -1358,12 +1375,8 @@ class MD_GPSinfo(MD_Dict):
         else:
             altitude, alt_ref = None, None
         if self['lat']:
-            pstv, degrees, minutes, seconds = self['lat'].to_exif()
-            lat_value = degrees, minutes, seconds
-            lat_ref = ('S', 'N')[pstv]
-            pstv, degrees, minutes, seconds = self['lon'].to_exif()
-            lon_value = degrees, minutes, seconds
-            lon_ref = ('W', 'E')[pstv]
+            lat_value, lat_ref = self['lat'].to_exif()
+            lon_value, lon_ref = self['lon'].to_exif()
         else:
             lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
         if self['method']:
@@ -1380,10 +1393,8 @@ class MD_GPSinfo(MD_Dict):
         else:
             altitude, alt_ref = None, None
         if self['lat']:
-            lat_string, pstv = self['lat'].to_xmp()
-            lat_string += ('S', 'N')[pstv]
-            lon_string, pstv = self['lon'].to_xmp()
-            lon_string += ('W', 'E')[pstv]
+            lat_string = self['lat'].to_xmp()
+            lon_string = self['lon'].to_xmp()
         else:
             lat_string, lon_string = None, None
         return (version_id, self['method'],
@@ -1502,8 +1513,8 @@ class MD_Location(MD_Collection):
     _type = {'Iptc4xmpExt:CountryCode': MD_UnmergableString,
              'Iptc4xmpExt:LocationName': MD_LangAlt,
              'Iptc4xmpExt:LocationId': MD_MultiString,
-             'exif:GPSLatitude': MD_Coordinate,
-             'exif:GPSLongitude': MD_Coordinate,
+             'exif:GPSLatitude': MD_Latitude,
+             'exif:GPSLongitude': MD_Longitude,
              'exif:GPSAltitude': MD_Rational}
 
     def convert(self, value):
@@ -1525,14 +1536,7 @@ class MD_Location(MD_Collection):
         if not self:
             # need a place holder for empty values
             return {'Iptc4xmpExt:City': ' '}
-        result = dict((k, v.to_xmp()) for (k, v) in self.items() if v)
-        if self['exif:GPSLatitude']:
-            result['exif:GPSLatitude'] = result['exif:GPSLatitude'][0] + (
-                'S', 'N')[result['exif:GPSLatitude'][1]]
-        if self['exif:GPSLongitude']:
-            result['exif:GPSLongitude'] = result['exif:GPSLongitude'][0] + (
-                'W', 'E')[result['exif:GPSLongitude'][1]]
-        return result
+        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
 
     @classmethod
     def from_address(cls, gps, address, key_map):
