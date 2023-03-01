@@ -765,6 +765,7 @@ class LangAltDict(dict):
 
     def __init__(self, value={}):
         super(LangAltDict, self).__init__()
+        self.compact = False    # controls format of str() representation
         self._default_lang = ''
         if isinstance(value, str):
             value = value.strip()
@@ -846,8 +847,13 @@ class LangAltDict(dict):
         result = []
         for key in self:
             if key != self.DEFAULT:
-                result.append('-- {} --'.format(key))
+                if self.compact:
+                    result.append('[{}]'.format(key))
+                else:
+                    result.append('-- {} --'.format(key))
             result.append(self[key])
+        if self.compact:
+            return ' '.join(result)
         return '\n'.join(result)
 
     def _sort_key(self, key):
@@ -1533,16 +1539,25 @@ class MD_Location(MD_Collection):
         return cls(result)
 
     def as_latlon(self):
-        if not ('exif:GPSLatitude' in self and 'exif:GPSLongitude' in self):
-            return None
         if not (self['exif:GPSLatitude'] and self['exif:GPSLongitude']):
             return None
         return '{}, {}'.format(
             self['exif:GPSLatitude'], self['exif:GPSLongitude'])
 
     def __str__(self):
-        return '\n'.join('{}: {}'.format(k.split(':')[1], v)
-                         for (k, v) in self.items() if v)
+        if self['Iptc4xmpExt:LocationName']:
+            self['Iptc4xmpExt:LocationName'].compact = True
+        result = [(k.split(':')[1], self[k]) for k in (
+            'Iptc4xmpExt:LocationName', 'Iptc4xmpExt:Sublocation',
+            'Iptc4xmpExt:City', 'Iptc4xmpExt:ProvinceState',
+            'Iptc4xmpExt:CountryName', 'Iptc4xmpExt:CountryCode',
+            'Iptc4xmpExt:WorldRegion', 'Iptc4xmpExt:LocationId') if self[k]]
+        latlon = self.as_latlon()
+        if latlon:
+            result.append(('Lat, lon', latlon))
+        if self['exif:GPSAltitude']:
+            result.append(('Altitude', '{}'.format(self['exif:GPSAltitude'])))
+        return '\n'.join('{}: {}'.format(*x) for x in result)
 
 
 class MD_MultiLocation(MD_Tuple):
