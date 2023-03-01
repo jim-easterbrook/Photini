@@ -301,7 +301,6 @@ class ImageMetadata(MetadataHandler):
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
-        'Iptc.Application2.Contact*': ('', '', '', 'Iptc.Application2.Contact'),
         'Iptc.Application2.DateCreated*': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate*': (
@@ -355,8 +354,7 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Pentax.ModelID*'),
                             ('WN', 'Xmp.aux.SerialNumber*'),
                             ('WN', 'Xmp.video.Make*')),
-        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo'),
-                            ('WA', 'Iptc.Application2.Contact*')),
+        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo'),),
         'copyright'      : (('WA', 'Xmp.dc.rights'),
                             ('WA', 'Exif.Image.Copyright'),
                             ('W0', 'Xmp.tiff.Copyright'),

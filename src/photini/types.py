@@ -664,8 +664,6 @@ class MD_ContactInformation(MD_Collection):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not tag.startswith('Xmp'):
-            return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
         file_value = file_value or {}
         result = {}
         for key in cls._keys:
