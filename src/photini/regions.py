@@ -18,6 +18,7 @@
 
 import logging
 import os
+import re
 
 from photini.pyqt import *
 from photini.types import ImageRegionItem, LangAltDict
@@ -198,41 +199,53 @@ class EntityConceptWidget(SingleLineEdit):
         self._action_toggled(True)
 
 
-class RegionForm(QtWidgets.QWidget):
+class RegionForm(QtWidgets.QScrollArea):
     name_changed = QtSignal(object, str)
 
     def __init__(self, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
-        self.setLayout(FormLayout(wrapped=True))
+        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
+        self.setWidget(QtWidgets.QWidget())
+        self.setWidgetResizable(True)
+        layout = FormLayout(wrapped=True)
+        self.widget().setLayout(layout)
         self.region = {}
         self.widgets = {}
         # name
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(key, multi_line=False)
-        self.layout().addRow(
-            translate('RegionsTab', 'Name'), self.widgets[key])
+        layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
         self.widgets[key].edit.textChanged.connect(self.new_name)
         # identifier
         key = 'Iptc4xmpExt:rId'
         self.widgets[key] = SingleLineEdit(key)
-        self.layout().addRow(
-            translate('RegionsTab', 'Identifier'), self.widgets[key])
+        layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.roles)
-        self.layout().addRow(
-            translate('RegionsTab', 'Role'), self.widgets[key])
+        layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.ctypes)
-        self.layout().addRow(
+        layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
-        # spacer
-        self.layout().addItem(QtWidgets.QSpacerItem(
-            1, 1, vPolicy=QtWidgets.QSizePolicy.Expanding))
 
     def set_value(self, region):
         self.region = region
+        # extend form if needed
+        layout = self.widget().layout()
+        for key, value in region.items():
+            if key in list(self.widgets) + ['Iptc4xmpExt:RegionBoundary']:
+                continue
+            label = key.split(':')[-1]
+            label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
+            label = label.capitalize()
+            if isinstance(value, dict):
+                self.widgets[key] = LangAltWidget(key, multi_line=False)
+            else:
+                self.widgets[key] = SingleLineEdit(key)
+            layout.addRow(label, self.widgets[key])
+        # set values
         for key in self.widgets:
             value = region
             for part in key.split('/'):
