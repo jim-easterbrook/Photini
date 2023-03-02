@@ -706,6 +706,11 @@ class Metadata(object):
             if self._notify:
                 self._notify(self.dirty)
 
+    def get_previews(self):
+        if not self._if:
+            return
+        return self._if.get_previews()
+
     def get_sensor_size(self):
         md = self._if or self._sc
         if not md:

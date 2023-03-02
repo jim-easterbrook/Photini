@@ -534,6 +534,15 @@ class MetadataHandler(object):
                         candidate['width'], candidate['height'])
             yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
 
+    def get_previews(self):
+        preview_manager = exiv2.PreviewManager(self._image)
+        props = preview_manager.getPreviewProperties()
+        idx = len(props)
+        while idx:
+            idx -= 1
+            image = preview_manager.getPreviewImage(props[idx])
+            yield memoryview(image.pData())
+
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
