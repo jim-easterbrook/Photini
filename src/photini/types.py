@@ -844,6 +844,7 @@ class LangAltDict(dict):
         return '\n'.join(result)
 
     def _sort_key(self, key):
+        key = key or ''
         key = key.lower()
         if key == self.DEFAULT:
             return ' '
@@ -1785,7 +1786,8 @@ class MD_ImageRegion(MD_Tuple):
                     'Iptc4xmpExt:rbH': round(float(note['h']) / h, 4)}
         return {'Iptc4xmpExt:rRole': [{
                     'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
-                    'xmp:Identifier': ['imgregrole:subjectArea']}],
+                    'xmp:Identifier': [
+                        'http://cv.iptc.org/newscodes/imageregionrole/subjectArea']}],
                 'Iptc4xmpExt:RegionBoundary': boundary}
 
     @classmethod
@@ -1807,7 +1809,8 @@ class MD_ImageRegion(MD_Tuple):
             region['Iptc4xmpExt:PersonInImage'] = person['realname']
             region['Iptc4xmpExt:rCtype'] = [{
                     'Iptc4xmpExt:Name': {'en-GB': 'human'},
-                    'xmp:Identifier': ['imgregtype:human'],
+                    'xmp:Identifier': [
+                        'http://cv.iptc.org/newscodes/imageregiontype/human'],
                     }]
             result.append(region)
         return result
@@ -1823,7 +1826,8 @@ class MD_ImageRegion(MD_Tuple):
                 region['Iptc4xmpExt:PersonInImage'] = note['membername']
                 region['Iptc4xmpExt:rCtype'] = [{
                     'Iptc4xmpExt:Name': {'en-GB': 'human'},
-                    'xmp:Identifier': ['imgregtype:human']}]
+                    'xmp:Identifier': [
+                        'http://cv.iptc.org/newscodes/imageregiontype/human']}]
             if 'content' in note:
                 region['dc:description'] = {'x-default': note['content']}
                 region['photoshop:CaptionWriter'] = note['username']
