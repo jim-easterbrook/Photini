@@ -22,11 +22,155 @@ import re
 
 from photini.pyqt import *
 from photini.types import ImageRegionItem, LangAltDict
-from photini.widgets import (
-    ComboBox, Label, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
+from photini.widgets import LangAltWidget, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+class ResizeHandle(QtWidgets.QGraphicsRectItem):
+    def __init__(self, idx, widget, *arg, **kw):
+        super(ResizeHandle, self).__init__(*arg, **kw)
+        self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
+        self.idx = idx
+        pen = QtGui.QPen()
+        pen.setColor(Qt.white)
+        self.setPen(pen)
+        r = width_for_text(widget, 'x') * 0.8
+        self.setRect(-r, -r, r * 2, r * 2)
+        border = QtWidgets.QGraphicsRectItem(parent=self)
+        pen.setColor(Qt.black)
+        border.setPen(pen)
+        r -= 1
+        border.setRect(-r, -r, r * 2, r * 2)
+
+    @catch_all
+    def mouseMoveEvent(self, event):
+        super(ResizeHandle, self).mouseMoveEvent(event)
+        self.parentItem().handle_moved(self.idx, self.pos())
+
+
+class RegionMixin(object):
+    def initialise(self):
+        self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
+        pen = QtGui.QPen()
+        pen.setColor(Qt.green)
+        self.setPen(pen)
+        self.setBrush(QtGui.QColor(128, 230, 128, 150))
+
+
+class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
+    def __init__(self, boundary, scale, widget, *arg, **kw):
+        super(RectangleRegion, self).__init__(*arg, **kw)
+        self.initialise()
+        self.boundary = boundary
+        self.scale = scale
+        self.handles = []
+        for idx in range(4):
+            self.handles.append(ResizeHandle(idx, widget, parent=self))
+        x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
+        y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
+        w = float(boundary['Iptc4xmpExt:rbW']) * scale['x']
+        h = float(boundary['Iptc4xmpExt:rbH']) * scale['y']
+        self.set_geometry(x, y, w, h)
+
+    def handle_moved(self, idx, pos):
+        fixed = self.handles[3-idx].pos()
+        x = pos.x()
+        y = pos.y()
+        w = x - fixed.x()
+        h = y - fixed.y()
+        if w < 0:
+            w = -w
+        else:
+            x = fixed.x()
+        if h < 0:
+            h = -h
+        else:
+            y = fixed.y()
+        self.set_geometry(x, y, w, h)
+
+    def set_geometry(self, x, y, w, h):
+        self.setRect(x, y, w, h)
+        self.handles[0].setPos(x, y)
+        self.handles[1].setPos(x+w, y)
+        self.handles[2].setPos(x, y+h)
+        self.handles[3].setPos(x+w, y+h)
+
+
+class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
+    def __init__(self, boundary, scale, widget, *arg, **kw):
+        super(CircleRegion, self).__init__(*arg, **kw)
+        self.initialise()
+        self.boundary = boundary
+        self.scale = scale
+        self.handles = []
+        for idx in range(4):
+            self.handles.append(ResizeHandle(idx, widget, parent=self))
+        r = float(boundary['Iptc4xmpExt:rbRx']) * scale['x']
+        x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
+        y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
+        self.set_geometry(x, y, r)
+
+    def handle_moved(self, idx, pos):
+        fixed = self.handles[3-idx].pos()
+        if idx in (0, 3):
+            x = (pos.x() + fixed.x()) / 2.0
+            y = fixed.y()
+            d = pos.x() - fixed.x()
+        else:
+            x = fixed.x()
+            y = (pos.y() + fixed.y()) / 2.0
+            d = pos.y() - fixed.y()
+        r = abs(d) / 2.0
+        self.set_geometry(x, y, r)
+
+    def set_geometry(self, x, y, r):
+        self.setRect(x-r, y-r, r*2, r*2)
+        self.handles[0].setPos(x-r, y)
+        self.handles[1].setPos(x, y-r)
+        self.handles[2].setPos(x, y+r)
+        self.handles[3].setPos(x+r, y)
+
+
+class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
+    def __init__(self, boundary, scale, widget, *arg, **kw):
+        super(PointRegion, self).__init__(*arg, **kw)
+        self.initialise()
+        self.boundary = boundary
+        self.scale = scale
+        # single point, draw bow tie shape
+        point = boundary['Iptc4xmpExt:rbVertices'][0]
+        x = float(point['Iptc4xmpExt:rbX']) * scale['x']
+        y = float(point['Iptc4xmpExt:rbY']) * scale['y']
+        dx = width_for_text(widget, 'x') * 4.0
+        polygon = QtGui.QPolygonF()
+        for v in ((x-dx, y-dx), (x-dx, y+dx), (x+dx, y-dx), (x+dx, y+dx)):
+            polygon.append(QtCore.QPointF(*v))
+        self.setPolygon(polygon)
+
+
+class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
+    def __init__(self, boundary, scale, widget, *arg, **kw):
+        super(PolygonRegion, self).__init__(*arg, **kw)
+        self.initialise()
+        self.boundary = boundary
+        self.scale = scale
+        vertices = [(float(v['Iptc4xmpExt:rbX']) * scale['x'],
+                     float(v['Iptc4xmpExt:rbY']) * scale['y'])
+                    for v in boundary['Iptc4xmpExt:rbVertices']]
+        polygon = QtGui.QPolygonF()
+        for v in vertices:
+            polygon.append(QtCore.QPointF(*v))
+        self.setPolygon(polygon)
+        for idx, (x, y) in enumerate(vertices):
+            handle = ResizeHandle(idx, widget, parent=self)
+            handle.setPos(x, y)
+
+    def handle_moved(self, idx, pos):
+        polygon = self.polygon()
+        polygon.replace(idx, pos)
+        self.setPolygon(polygon)
 
 
 class ImageDisplayWidget(QtWidgets.QGraphicsView):
@@ -92,41 +236,20 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         if not boundary:
             return
         rect = scene.sceneRect()
-        x_scale = rect.width()
-        y_scale = rect.height()
+        scale = {'x': rect.width(),
+                 'y': rect.height()}
         if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-            x_scale /= self.image_dims['x']
-            y_scale /= self.image_dims['y']
-        pen = QtGui.QPen()
-        pen.setColor(Qt.green)
-        brush = QtGui.QColor(128, 230, 128, 150)
+            scale['x'] /= self.image_dims['x']
+            scale['y'] /= self.image_dims['y']
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-            x = float(boundary['Iptc4xmpExt:rbX']) * x_scale
-            y = float(boundary['Iptc4xmpExt:rbY']) * y_scale
-            w = float(boundary['Iptc4xmpExt:rbW']) * x_scale
-            h = float(boundary['Iptc4xmpExt:rbH']) * y_scale
-            self.boundary = scene.addRect(x, y, w, h, pen=pen, brush=brush)
+            self.boundary = RectangleRegion(boundary, scale, self)
         elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
-            r = float(boundary['Iptc4xmpExt:rbRx']) * x_scale
-            x = (float(boundary['Iptc4xmpExt:rbX']) * x_scale) - r
-            y = (float(boundary['Iptc4xmpExt:rbY']) * y_scale) - r
-            w = r * 2
-            h = r * 2
-            self.boundary = scene.addEllipse(x, y, w, h, pen=pen, brush=brush)
+            self.boundary = CircleRegion(boundary, scale, self)
+        elif len(boundary['Iptc4xmpExt:rbVertices']) == 1:
+            self.boundary = PointRegion(boundary, scale, self)
         else:
-            vertices = [(float(v['Iptc4xmpExt:rbX']) * x_scale,
-                         float(v['Iptc4xmpExt:rbY']) * y_scale)
-                        for v in boundary['Iptc4xmpExt:rbVertices']]
-            if len(vertices) == 1:
-                # single point, draw bow tie shape
-                dx = rect.width() / 20.0
-                x, y = vertices[0]
-                vertices = [
-                    (x-dx, y-dx), (x-dx, y+dx), (x+dx, y-dx), (x+dx, y+dx)]
-            polygon = QtGui.QPolygonF()
-            for v in vertices:
-                polygon.append(QtCore.QPointF(*v))
-            self.boundary = scene.addPolygon(polygon, pen=pen, brush=brush)
+            self.boundary = PolygonRegion(boundary, scale, self)
+        scene.addItem(self.boundary)
 
 
 class EntityConceptWidget(SingleLineEdit):
