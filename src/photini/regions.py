@@ -101,18 +101,18 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         pen.setColor(Qt.green)
         brush = QtGui.QColor(128, 230, 128, 150)
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-            self.boundary = scene.addRect(
-                float(boundary['Iptc4xmpExt:rbX']) * x_scale,
-                float(boundary['Iptc4xmpExt:rbY']) * y_scale,
-                float(boundary['Iptc4xmpExt:rbW']) * x_scale,
-                float(boundary['Iptc4xmpExt:rbH']) * y_scale,
-                pen=pen, brush=brush)
+            x = float(boundary['Iptc4xmpExt:rbX']) * x_scale
+            y = float(boundary['Iptc4xmpExt:rbY']) * y_scale
+            w = float(boundary['Iptc4xmpExt:rbW']) * x_scale
+            h = float(boundary['Iptc4xmpExt:rbH']) * y_scale
+            self.boundary = scene.addRect(x, y, w, h, pen=pen, brush=brush)
         elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
-            diameter = float(boundary['Iptc4xmpExt:rbRx']) * 2 * x_scale
-            self.boundary = scene.addEllipse(
-                float(boundary['Iptc4xmpExt:rbX']) * x_scale,
-                float(boundary['Iptc4xmpExt:rbY']) * y_scale,
-                diameter, diameter, pen=pen, brush=brush)
+            r = float(boundary['Iptc4xmpExt:rbRx']) * x_scale
+            x = (float(boundary['Iptc4xmpExt:rbX']) * x_scale) - r
+            y = (float(boundary['Iptc4xmpExt:rbY']) * y_scale) - r
+            w = r * 2
+            h = r * 2
+            self.boundary = scene.addEllipse(x, y, w, h, pen=pen, brush=brush)
         else:
             vertices = [(float(v['Iptc4xmpExt:rbX']) * x_scale,
                          float(v['Iptc4xmpExt:rbY']) * y_scale)
