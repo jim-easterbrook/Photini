@@ -305,7 +305,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class ImageDisplayWidget(QtWidgets.QGraphicsView):
-    update_boundary = QtSignal(dict)
+    new_value = QtSignal(str, object)
 
     def __init__(self, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
@@ -385,7 +385,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         scene.addItem(self.boundary)
 
     def new_boundary(self, boundary):
-        self.update_boundary.emit(boundary)
+        self.new_value.emit('Iptc4xmpExt:RegionBoundary', boundary)
 
 
 class EntityConceptWidget(SingleLineEdit):
@@ -460,6 +460,7 @@ class EntityConceptWidget(SingleLineEdit):
 
 class RegionForm(QtWidgets.QScrollArea):
     name_changed = QtSignal(object, str)
+    new_value = QtSignal(str, object)
 
     def __init__(self, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
@@ -473,19 +474,23 @@ class RegionForm(QtWidgets.QScrollArea):
         # name
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(key, multi_line=False)
-        layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
+        self.widgets[key].new_value.connect(self.new_value)
         self.widgets[key].edit.textChanged.connect(self.new_name)
+        layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
         self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.roles)
+        self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.ctypes)
+        self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
 
@@ -503,6 +508,7 @@ class RegionForm(QtWidgets.QScrollArea):
                 self.widgets[key] = LangAltWidget(key, multi_line=False)
             else:
                 self.widgets[key] = SingleLineEdit(key)
+            self.widgets[key].new_value.connect(self.new_value)
             layout.addRow(label, self.widgets[key])
         # set values
         for key in self.widgets:
@@ -542,6 +548,7 @@ class RegionTabs(QtWidgets.QTabWidget):
         for region in self.regions:
             region_form = RegionForm()
             region_form.name_changed.connect(self.tab_name_changed)
+            region_form.new_value.connect(self.new_value)
             self.addTab(region_form, '')
             region_form.set_value(region)
 
@@ -560,13 +567,13 @@ class RegionTabs(QtWidgets.QTabWidget):
     def tab_name_changed(self, widget, name):
         self.setTabText(self.indexOf(widget), name)
 
-    @QtSlot(dict)
+    @QtSlot(str, object)
     @catch_all
-    def update_boundary(self, boundary):
+    def new_value(self, key, value):
         idx = self.currentIndex()
         regions = list(self.image.metadata.image_region)
         region = dict(regions[idx])
-        region['Iptc4xmpExt:RegionBoundary'] = boundary
+        region[key] = value
         regions[idx] = region
         self.image.metadata.image_region = regions
 
@@ -587,10 +594,8 @@ class TabWidget(QtWidgets.QWidget):
         self.image_display = ImageDisplayWidget()
         self.layout().addWidget(self.image_display, stretch=1)
         # connections
-        self.region_tabs.new_boundary.connect(
-            self.image_display.draw_boundary)
-        self.image_display.update_boundary.connect(
-            self.region_tabs.update_boundary)
+        self.region_tabs.new_boundary.connect(self.image_display.draw_boundary)
+        self.image_display.new_value.connect(self.region_tabs.new_value)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
