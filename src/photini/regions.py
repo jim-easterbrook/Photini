@@ -18,6 +18,7 @@
 
 import logging
 import os
+from pprint import pprint
 import re
 
 from photini.pyqt import *
@@ -32,6 +33,7 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
     def __init__(self, idx, widget, *arg, **kw):
         super(ResizeHandle, self).__init__(*arg, **kw)
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
+        self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         self.idx = idx
         pen = QtGui.QPen()
         pen.setColor(Qt.white)
@@ -45,9 +47,26 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         border.setRect(-r, -r, r * 2, r * 2)
 
     @catch_all
+    def itemChange(self, change, value):
+        scene = self.scene()
+        if scene and change == self.GraphicsItemChange.ItemPositionChange:
+            pos = self.pos()
+            bounds = scene.sceneRect()
+            if not bounds.contains(value):
+                return QtCore.QPointF(
+                    min(max(value.x(), bounds.x()), bounds.right()),
+                    min(max(value.y(), bounds.y()), bounds.bottom()))
+        return super(ResizeHandle, self).itemChange(change, value)
+
+    @catch_all
     def mouseMoveEvent(self, event):
         super(ResizeHandle, self).mouseMoveEvent(event)
-        self.parentItem().handle_moved(self.idx, self.pos())
+        self.parentItem().handle_drag(self.idx, self.pos())
+
+    @catch_all
+    def mouseReleaseEvent(self, event):
+        super(ResizeHandle, self).mouseReleaseEvent(event)
+        self.parentItem().handle_drag_end()
 
 
 class RegionMixin(object):
@@ -60,35 +79,73 @@ class RegionMixin(object):
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
-    def __init__(self, boundary, scale, widget, *arg, **kw):
+    def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
         self.initialise()
+        self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         self.boundary = boundary
         self.scale = scale
+        self.display_widget = display_widget
         self.handles = []
         for idx in range(4):
-            self.handles.append(ResizeHandle(idx, widget, parent=self))
+            self.handles.append(ResizeHandle(idx, display_widget, parent=self))
         x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
         y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
         w = float(boundary['Iptc4xmpExt:rbW']) * scale['x']
         h = float(boundary['Iptc4xmpExt:rbH']) * scale['y']
         self.set_geometry(x, y, w, h)
 
-    def handle_moved(self, idx, pos):
+    @catch_all
+    def itemChange(self, change, value):
+        scene = self.scene()
+        if scene and change == self.GraphicsItemChange.ItemPositionChange:
+            # limit move, in relative coords
+            rect = self.rect()
+            bounds = scene.sceneRect()
+            bounds.setRect(
+                bounds.x() - rect.x(), bounds.y() - rect.y(),
+                bounds.width() - rect.width(), bounds.height() - rect.height())
+            if not bounds.contains(value):
+                return QtCore.QPointF(
+                    min(max(value.x(), bounds.x()), bounds.right()),
+                    min(max(value.y(), bounds.y()), bounds.bottom()))
+        return super(RectangleRegion, self).itemChange(change, value)
+
+    @catch_all
+    def mouseReleaseEvent(self, event):
+        super(RectangleRegion, self).mouseReleaseEvent(event)
+        self.new_boundary()
+
+    def handle_drag(self, idx, pos):
+        # update rect and move handles, in relative coords
         fixed = self.handles[3-idx].pos()
-        x = pos.x()
-        y = pos.y()
-        w = x - fixed.x()
-        h = y - fixed.y()
-        if w < 0:
-            w = -w
-        else:
-            x = fixed.x()
-        if h < 0:
-            h = -h
-        else:
-            y = fixed.y()
+        x = min(pos.x(), fixed.x())
+        y = min(pos.y(), fixed.y())
+        w = abs(pos.x() - fixed.x())
+        h = abs(pos.y() - fixed.y())
         self.set_geometry(x, y, w, h)
+
+    def handle_drag_end(self):
+        self.new_boundary()
+
+    def new_boundary(self):
+        # reset position to absolute scene coords
+        pos = self.scenePos()
+        rect = self.rect()
+        x = rect.x() + pos.x()
+        y = rect.y() + pos.y()
+        w = rect.width()
+        h = rect.height()
+        self.setPos(0, 0)
+        self.set_geometry(x, y, w, h)
+        # send new IPTC boundary
+        boundary = dict(self.boundary)
+        rect = self.rect()
+        boundary['Iptc4xmpExt:rbX'] = rect.x() / self.scale['x']
+        boundary['Iptc4xmpExt:rbY'] = rect.y() / self.scale['y']
+        boundary['Iptc4xmpExt:rbW'] = rect.width() / self.scale['x']
+        boundary['Iptc4xmpExt:rbH'] = rect.height() / self.scale['y']
+        self.display_widget.new_boundary(boundary)
 
     def set_geometry(self, x, y, w, h):
         self.setRect(x, y, w, h)
@@ -99,20 +156,21 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
 
 
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
-    def __init__(self, boundary, scale, widget, *arg, **kw):
+    def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(CircleRegion, self).__init__(*arg, **kw)
         self.initialise()
         self.boundary = boundary
         self.scale = scale
+        self.display_widget = display_widget
         self.handles = []
         for idx in range(4):
-            self.handles.append(ResizeHandle(idx, widget, parent=self))
+            self.handles.append(ResizeHandle(idx, display_widget, parent=self))
         r = float(boundary['Iptc4xmpExt:rbRx']) * scale['x']
         x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
         y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
         self.set_geometry(x, y, r)
 
-    def handle_moved(self, idx, pos):
+    def handle_drag(self, idx, pos):
         fixed = self.handles[3-idx].pos()
         if idx in (0, 3):
             x = (pos.x() + fixed.x()) / 2.0
@@ -125,6 +183,9 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         r = abs(d) / 2.0
         self.set_geometry(x, y, r)
 
+    def handle_drag_end(self):
+        pass
+
     def set_geometry(self, x, y, r):
         self.setRect(x-r, y-r, r*2, r*2)
         self.handles[0].setPos(x-r, y)
@@ -134,16 +195,17 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
 
 
 class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, boundary, scale, widget, *arg, **kw):
+    def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(PointRegion, self).__init__(*arg, **kw)
         self.initialise()
         self.boundary = boundary
         self.scale = scale
+        self.display_widget = display_widget
         # single point, draw bow tie shape
         point = boundary['Iptc4xmpExt:rbVertices'][0]
         x = float(point['Iptc4xmpExt:rbX']) * scale['x']
         y = float(point['Iptc4xmpExt:rbY']) * scale['y']
-        dx = width_for_text(widget, 'x') * 4.0
+        dx = width_for_text(display_widget, 'x') * 4.0
         polygon = QtGui.QPolygonF()
         for v in ((x-dx, y-dx), (x-dx, y+dx), (x+dx, y-dx), (x+dx, y+dx)):
             polygon.append(QtCore.QPointF(*v))
@@ -151,11 +213,12 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, boundary, scale, widget, *arg, **kw):
+    def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
         self.initialise()
         self.boundary = boundary
         self.scale = scale
+        self.display_widget = display_widget
         vertices = [(float(v['Iptc4xmpExt:rbX']) * scale['x'],
                      float(v['Iptc4xmpExt:rbY']) * scale['y'])
                     for v in boundary['Iptc4xmpExt:rbVertices']]
@@ -164,13 +227,16 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
             polygon.append(QtCore.QPointF(*v))
         self.setPolygon(polygon)
         for idx, (x, y) in enumerate(vertices):
-            handle = ResizeHandle(idx, widget, parent=self)
+            handle = ResizeHandle(idx, display_widget, parent=self)
             handle.setPos(x, y)
 
-    def handle_moved(self, idx, pos):
+    def handle_drag(self, idx, pos):
         polygon = self.polygon()
         polygon.replace(idx, pos)
         self.setPolygon(polygon)
+
+    def handle_drag_end(self):
+        pass
 
 
 class ImageDisplayWidget(QtWidgets.QGraphicsView):
@@ -250,6 +316,10 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         else:
             self.boundary = PolygonRegion(boundary, scale, self)
         scene.addItem(self.boundary)
+
+    def new_boundary(self, boundary):
+        print('new_boundary')
+        pprint(boundary)
 
 
 class EntityConceptWidget(SingleLineEdit):
