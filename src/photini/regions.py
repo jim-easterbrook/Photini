@@ -383,6 +383,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         else:
             self.boundary = PolygonRegion(boundary, scale, self)
         scene.addItem(self.boundary)
+        self.ensureVisible(self.boundary.boundingRect())
 
     def new_boundary(self, boundary):
         self.new_value.emit('Iptc4xmpExt:RegionBoundary', boundary)
@@ -474,22 +475,37 @@ class RegionForm(QtWidgets.QScrollArea):
         # name
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(key, multi_line=False)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Free-text name of the region. Should be unique among'
+            ' all Region Names of an image.')))
         self.widgets[key].new_value.connect(self.new_value)
         self.widgets[key].edit.textChanged.connect(self.new_name)
         layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
         self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Identifier of the region. Must be unique among all'
+            ' Region Identifiers of an image. Does not have to be unique beyond'
+            ' the metadata of this image.')))
         self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.roles)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Role of this region among all regions of this image'
+            ' or of other images. The value SHOULD be taken from a Controlled'
+            ' Vocabulary.')))
         self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.ctypes)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'The semantic type of what is shown inside the'
+            ' region. The value SHOULD be taken from a Controlled'
+            ' Vocabulary.')))
         self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
