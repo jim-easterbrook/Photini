@@ -315,10 +315,15 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
     def set_image(self, image):
         scene = self.scene()
         scene.clear()
+        self.resetTransform()
         self.boundary = None
         if image:
             self.image_dims = image.metadata.get_sensor_size()
+            transform = image.get_transform(image.metadata.orientation)
+            if transform:
+                self.setTransform(transform)
             reader = QtGui.QImageReader(image.path)
+            reader.setAutoTransform(False)
             pixmap = QtGui.QPixmap.fromImageReader(reader)
             if pixmap.isNull():
                 w, h = 0, 0
@@ -333,7 +338,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 preview = QtGui.QPixmap.fromImageReader(reader)
                 if preview.isNull():
                     continue
-                preview = image.transform(preview, image.metadata.orientation)
                 if preview.width() > w:
                     pixmap = preview
                 break

@@ -87,9 +87,15 @@ class Image(QtWidgets.QFrame):
         self.app.image_list.emit_selection()
 
     def transform(self, pixmap, orientation):
+        transform = self.get_transform(orientation)
+        if not transform:
+            return pixmap
+        return pixmap.transformed(transform)
+
+    def get_transform(self, orientation):
         orientation = (orientation or 1) - 1
         if not orientation:
-            return pixmap
+            return None
         # need to rotate and or reflect image
         transform = QtGui.QTransform()
         if orientation & 0b001:
@@ -100,7 +106,7 @@ class Image(QtWidgets.QFrame):
         if orientation & 0b100:
             # transpose horizontal & vertical
             transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
-        return pixmap.transformed(transform)
+        return transform
 
     def regenerate_thumbnail(self):
         # DCF spec says thumbnail must be 160 x 120, so other aspect
