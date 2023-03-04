@@ -777,6 +777,7 @@ class ImageList(QtWidgets.QWidget):
         dialog.setFixedSize(min(width, self.window().width()),
                             min(width // 2, self.window().height()))
         table = QtWidgets.QTableWidget()
+        table.setVerticalScrollMode(table.ScrollMode.ScrollPerPixel)
         table.setColumnCount(3)
         table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
                                          translate('ImageList', 'undo'),
