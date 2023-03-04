@@ -25,7 +25,8 @@ import pprint
 import re
 
 from photini.exiv2 import MetadataHandler
-from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
+from photini.pyqt import *
+from photini.pyqt import using_pyside
 
 logger = logging.getLogger(__name__)
 
@@ -1744,8 +1745,25 @@ class ImageRegionItem(MD_Value, dict):
 
     def short_keys(self, value):
         if isinstance(value, dict):
-            return dict((k.split(':')[-1], self.short_keys(v))
-                        for (k, v) in value.items())
+            result = {}
+            for (k, v) in value.items():
+                v = self.short_keys(v)
+                if k == 'xmp:Identifier':
+                    fm = QtWidgets.QWidget().fontMetrics()
+                    width = fm.boundingRect('x' * 30).width()
+                    v = [fm.elidedText(
+                        x, Qt.TextElideMode.ElideLeft, width) for x in v]
+                if k == 'Iptc4xmpExt:RegionBoundary':
+                    if v['rbShape'] == 'rectangle':
+                        v = '{rbShape}({rbX}, {rbY}, {rbW}, {rbH})'.format(**v)
+                    elif v['rbShape'] == 'circle':
+                        v = '{rbShape}({rbX}, {rbY}, {rbRx})'.format(**v)
+                    else:
+                        v = self.short_keys(v['rbVertices'])
+                        v = 'polygon({})'.format(
+                            ', '.join('({rbX}, {rbY})'.format(**p) for p in v))
+                result[k.split(':')[-1]] = v
+            return result
         if isinstance(value, list):
             return [self.short_keys(v) for v in value]
         return value
