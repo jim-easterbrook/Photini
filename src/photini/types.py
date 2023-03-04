@@ -1806,7 +1806,7 @@ class MD_ImageRegion(MD_Tuple):
             if not region:
                 continue
             region['Iptc4xmpExt:rId'] = 'flickr:' + person['nsid']
-            region['Iptc4xmpExt:PersonInImage'] = person['realname']
+            region['Iptc4xmpExt:PersonInImage'] = [person['realname']]
             region['Iptc4xmpExt:rCtype'] = [{
                     'Iptc4xmpExt:Name': {'en-GB': 'human'},
                     'xmp:Identifier': [
@@ -1823,7 +1823,7 @@ class MD_ImageRegion(MD_Tuple):
             region = cls.rectangle_from_note(note, dims)
             region['Iptc4xmpExt:rId'] = 'ipernity:' + note['note_id']
             if 'membername' in note:
-                region['Iptc4xmpExt:PersonInImage'] = note['membername']
+                region['Iptc4xmpExt:PersonInImage'] = [note['membername']]
                 region['Iptc4xmpExt:rCtype'] = [{
                     'Iptc4xmpExt:Name': {'en-GB': 'human'},
                     'xmp:Identifier': [

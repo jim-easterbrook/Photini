@@ -23,7 +23,7 @@ import re
 
 from photini.pyqt import *
 from photini.types import ImageRegionItem, LangAltDict
-from photini.widgets import LangAltWidget, SingleLineEdit
+from photini.widgets import LangAltWidget, MultiStringEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -403,7 +403,9 @@ class EntityConceptWidget(SingleLineEdit):
             action = self.menu.addAction(label)
             action.setCheckable(True)
             action.setToolTip('<p>{}</p>'.format(tip))
-            action.setData(item['uri'])
+            data = {'xmp:Identifier': [item['uri']],
+                    'Iptc4xmpExt:Name': item['name']}
+            action.setData(data)
             action.toggled.connect(self._action_toggled)
             self.actions.append(action)
 
@@ -423,40 +425,56 @@ class EntityConceptWidget(SingleLineEdit):
 
     def set_value(self, value):
         value = value or []
-        # extract uris and names
-        uris = set()
-        labels = {}
-        for item in value:
-            label = None
-            if 'Iptc4xmpExt:Name' in item:
-                label = LangAltDict(item['Iptc4xmpExt:Name']).best_match()
-            if 'xmp:Identifier' in item:
-                for uri in item['xmp:Identifier']:
-                    uris.add(uri)
-                    labels[uri] = label
-        # update existing actions
         self._updating = True
         for action in self.actions:
-            uri = action.data()
-            if uri in uris:
-                action.setChecked(True)
-                if labels[uri]:
-                    action.setText(labels[uri])
-                uris.remove(uri)
-            else:
+            if action.isChecked():
                 action.setChecked(False)
-        # add new actions
-        for uri in uris:
-            action = self.menu.addAction(labels[uri] or uri)
+        for item in value:
+            found = False
+            if 'xmp:Identifier' in item:
+                for uri in item['xmp:Identifier']:
+                    for action in self.actions:
+                        if uri in action.data()['xmp:Identifier']:
+                            action.setChecked(True)
+                            found = True
+                            break
+            if found:
+                continue
+            if 'Iptc4xmpExt:Name' in item:
+                for name in item['Iptc4xmpExt:Name'].values():
+                    for action in self.actions:
+                         if name in action.data()['Iptc4xmpExt:Name'].values():
+                            action.setChecked(True)
+                            found = True
+                            break
+            if found:
+                continue
+            # add new action
+            data = {'Iptc4xmpExt:Name': {}, 'xmp:Identifier': []}
+            data.update(item)
+            label = data['Iptc4xmpExt:Name'] or {
+                'x-default': '; '.join(data['xmp:Identifier'])}
+            label = LangAltDict(label).best_match()
+            if not label:
+                continue
+            action = self.menu.addAction(label)
             action.setCheckable(True)
-            action.setToolTip('<p>{}</p>'.format(uri))
+            action.setToolTip('<p>{}</p>'.format(
+                '; '.join(data['xmp:Identifier'])))
             action.setChecked(True)
-            action.setData(uri)
+            action.setData(data)
             action.toggled.connect(self._action_toggled)
             self.actions.append(action)
         self._updating = False
         # update display
         self._action_toggled(True)
+
+    def get_value(self):
+        result = []
+        for action in self.actions:
+            if action.isChecked():
+                result.append(action.data())
+        return result
 
 
 class RegionForm(QtWidgets.QScrollArea):
@@ -481,15 +499,6 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].new_value.connect(self.new_value)
         self.widgets[key].edit.textChanged.connect(self.new_name)
         layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
-        # identifier
-        key = 'Iptc4xmpExt:rId'
-        self.widgets[key] = SingleLineEdit(key)
-        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
-            'RegionsTab', 'Identifier of the region. Must be unique among all'
-            ' Region Identifiers of an image. Does not have to be unique beyond'
-            ' the metadata of this image.')))
-        self.widgets[key].new_value.connect(self.new_value)
-        layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.roles)
@@ -509,6 +518,24 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
+        # person im image
+        key = 'Iptc4xmpExt:PersonInImage'
+        self.widgets[key] = MultiStringEdit(key)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Enter the names of people shown in this region.'
+            ' Separate multiple entries with ";" characters.')))
+        self.widgets[key].new_value.connect(self.new_value)
+        layout.addRow(
+            translate('RegionsTab', 'Person shown'), self.widgets[key])
+        # identifier
+        key = 'Iptc4xmpExt:rId'
+        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Identifier of the region. Must be unique among all'
+            ' Region Identifiers of an image. Does not have to be unique beyond'
+            ' the metadata of this image.')))
+        self.widgets[key].new_value.connect(self.new_value)
+        layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
 
     def set_value(self, region):
         self.region = region
@@ -522,8 +549,13 @@ class RegionForm(QtWidgets.QScrollArea):
             label = label.capitalize()
             if isinstance(value, dict):
                 self.widgets[key] = LangAltWidget(key, multi_line=False)
+            elif isinstance(value, list):
+                self.widgets[key] = MultiStringEdit(key)
             else:
                 self.widgets[key] = SingleLineEdit(key)
+            self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+                'RegionsTab', 'The Image Region Structure includes optionally'
+                ' any metadata property which is related to the region.')))
             self.widgets[key].new_value.connect(self.new_value)
             layout.addRow(label, self.widgets[key])
         # set values

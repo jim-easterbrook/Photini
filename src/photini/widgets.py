@@ -393,6 +393,18 @@ class SingleLineEdit(MultiLineEdit):
         self.insertPlainText(source.text().replace('\n', ' '))
 
 
+class MultiStringEdit(SingleLineEdit):
+    def set_value(self, value):
+        if isinstance(value, (list, tuple)):
+            value = '; '.join(value)
+        super(MultiStringEdit, self).set_value(value)
+
+    def get_value(self):
+        value = super(MultiStringEdit, self).get_value().split(';')
+        value = [x.strip() for x in value]
+        return [x for x in value if x]
+
+
 class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     new_value = QtSignal(str, object)
 
