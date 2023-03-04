@@ -71,8 +71,11 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
 
 
 class RegionMixin(object):
-    def initialise(self):
+    def initialise(self, boundary, scale, display_widget):
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
+        self.boundary = boundary
+        self.scale = scale
+        self.display_widget = display_widget
         pen = QtGui.QPen()
         pen.setColor(Qt.green)
         self.setPen(pen)
@@ -92,11 +95,8 @@ class RegionMixin(object):
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
     def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
-        self.initialise()
+        self.initialise(boundary, scale, display_widget)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        self.boundary = boundary
-        self.scale = scale
-        self.display_widget = display_widget
         self.handles = []
         for idx in range(4):
             self.handles.append(
@@ -167,10 +167,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
     def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(CircleRegion, self).__init__(*arg, **kw)
-        self.initialise()
-        self.boundary = boundary
-        self.scale = scale
-        self.display_widget = display_widget
+        self.initialise(boundary, scale, display_widget)
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(idx, display_widget, parent=self))
@@ -225,11 +222,8 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
 class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(PointRegion, self).__init__(*arg, **kw)
-        self.initialise()
+        self.initialise(boundary, scale, display_widget)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        self.boundary = boundary
-        self.scale = scale
-        self.display_widget = display_widget
         # single point, draw bow tie shape
         point = boundary['Iptc4xmpExt:rbVertices'][0]
         x = float(point['Iptc4xmpExt:rbX']) * scale['x']
@@ -267,10 +261,7 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
-        self.initialise()
-        self.boundary = boundary
-        self.scale = scale
-        self.display_widget = display_widget
+        self.initialise(boundary, scale, display_widget)
         vertices = [(float(v['Iptc4xmpExt:rbX']) * scale['x'],
                      float(v['Iptc4xmpExt:rbY']) * scale['y'])
                     for v in boundary['Iptc4xmpExt:rbVertices']]
@@ -314,6 +305,8 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class ImageDisplayWidget(QtWidgets.QGraphicsView):
+    update_boundary = QtSignal(dict)
+
     def __init__(self, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
         self.setScene(QtWidgets.QGraphicsScene())
@@ -392,8 +385,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         scene.addItem(self.boundary)
 
     def new_boundary(self, boundary):
-        print('new_boundary')
-        pprint(boundary)
+        self.update_boundary.emit(boundary)
 
 
 class EntityConceptWidget(SingleLineEdit):
@@ -539,6 +531,7 @@ class RegionTabs(QtWidgets.QTabWidget):
 
     def set_image(self, image):
         self.clear()
+        self.image = image
         if image:
             self.regions = image.metadata.image_region
         else:
@@ -567,6 +560,16 @@ class RegionTabs(QtWidgets.QTabWidget):
     def tab_name_changed(self, widget, name):
         self.setTabText(self.indexOf(widget), name)
 
+    @QtSlot(dict)
+    @catch_all
+    def update_boundary(self, boundary):
+        idx = self.currentIndex()
+        regions = list(self.image.metadata.image_region)
+        region = dict(regions[idx])
+        region['Iptc4xmpExt:RegionBoundary'] = boundary
+        regions[idx] = region
+        self.image.metadata.image_region = regions
+
 
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
@@ -584,7 +587,10 @@ class TabWidget(QtWidgets.QWidget):
         self.image_display = ImageDisplayWidget()
         self.layout().addWidget(self.image_display, stretch=1)
         # connections
-        self.region_tabs.new_boundary.connect(self.image_display.draw_boundary)
+        self.region_tabs.new_boundary.connect(
+            self.image_display.draw_boundary)
+        self.image_display.update_boundary.connect(
+            self.region_tabs.update_boundary)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
