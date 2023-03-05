@@ -30,12 +30,12 @@ translate = QtCore.QCoreApplication.translate
 
 
 class ResizeHandle(QtWidgets.QGraphicsRectItem):
-    def __init__(self, idx, widget, *arg, bounded=False, **kw):
+    def __init__(self, widget, *arg, bounded=False, deletable=True, **kw):
         super(ResizeHandle, self).__init__(*arg, **kw)
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         if bounded:
             self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        self.idx = idx
+        self.deletable = deletable
         pen = QtGui.QPen()
         pen.setColor(Qt.white)
         self.setPen(pen)
@@ -46,6 +46,16 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         border.setPen(pen)
         r -= 1
         border.setRect(-r, -r, r * 2, r * 2)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        if self.deletable:
+            menu = QtWidgets.QMenu()
+            delete_action = menu.addAction(
+                translate('RegionsTab', 'Delete vertex'))
+            action = execute(menu, event.screenPos())
+            if action == delete_action:
+                self.parentItem().delete_vertex(self)
 
     @catch_all
     def itemChange(self, change, value):
@@ -62,7 +72,7 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
     @catch_all
     def mouseMoveEvent(self, event):
         super(ResizeHandle, self).mouseMoveEvent(event)
-        self.parentItem().handle_drag(self.idx, self.pos())
+        self.parentItem().handle_drag(self, self.pos())
 
     @catch_all
     def mouseReleaseEvent(self, event):
@@ -100,7 +110,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.handles = []
         for idx in range(4):
             self.handles.append(
-                ResizeHandle(idx, display_widget, bounded=True, parent=self))
+                ResizeHandle(display_widget, bounded=True, parent=self))
         x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
         y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
         w = float(boundary['Iptc4xmpExt:rbW']) * scale['x']
@@ -128,8 +138,9 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         super(RectangleRegion, self).mouseReleaseEvent(event)
         self.new_boundary()
 
-    def handle_drag(self, idx, pos):
+    def handle_drag(self, handle, pos):
         # update rect and move handles, in relative coords
+        idx = self.handles.index(handle)
         fixed = self.handles[3-idx].pos()
         x = min(pos.x(), fixed.x())
         y = min(pos.y(), fixed.y())
@@ -170,7 +181,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.initialise(boundary, scale, display_widget)
         self.handles = []
         for idx in range(4):
-            self.handles.append(ResizeHandle(idx, display_widget, parent=self))
+            self.handles.append(ResizeHandle(display_widget, parent=self))
         x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
         y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
         r = float(boundary['Iptc4xmpExt:rbRx']) * scale['x']
@@ -181,7 +192,8 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         super(CircleRegion, self).mouseReleaseEvent(event)
         self.new_boundary()
 
-    def handle_drag(self, idx, pos):
+    def handle_drag(self, handle, pos):
+        idx = self.handles.index(handle)
         fixed = self.handles[3-idx].pos()
         if idx in (0, 3):
             x = (pos.x() + fixed.x()) / 2.0
@@ -267,9 +279,9 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
                     for v in boundary['Iptc4xmpExt:rbVertices']]
         polygon = QtGui.QPolygonF()
         self.handles = []
-        for idx, (x, y) in enumerate(vertices):
+        for (x, y) in vertices:
             polygon.append(QtCore.QPointF(x, y))
-            handle = ResizeHandle(idx, display_widget, parent=self)
+            handle = ResizeHandle(display_widget, deletable=True, parent=self)
             handle.setPos(x, y)
             self.handles.append(handle)
         self.setPolygon(polygon)
@@ -279,12 +291,22 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         super(PolygonRegion, self).mouseReleaseEvent(event)
         self.new_boundary()
 
-    def handle_drag(self, idx, pos):
+    def handle_drag(self, handle, pos):
+        idx = self.handles.index(handle)
         polygon = self.polygon()
         polygon.replace(idx, pos)
         self.setPolygon(polygon)
 
     def handle_drag_end(self):
+        self.new_boundary()
+
+    def delete_vertex(self, handle):
+        idx = self.handles.index(handle)
+        self.handles.remove(handle)
+        handle.setParentItem(None)
+        polygon = self.polygon()
+        polygon.remove(idx)
+        self.setPolygon(polygon)
         self.new_boundary()
 
     def new_boundary(self):
