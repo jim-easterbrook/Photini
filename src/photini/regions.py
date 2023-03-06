@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import logging
+import math
 import os
 from pprint import pprint
 import re
@@ -30,15 +31,17 @@ translate = QtCore.QCoreApplication.translate
 
 
 class ResizeHandle(QtWidgets.QGraphicsRectItem):
-    def __init__(self, widget, *arg, bounded=False, deletable=True, **kw):
+    def __init__(self, *arg, bounded=False, deletable=True, **kw):
         super(ResizeHandle, self).__init__(*arg, **kw)
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         if bounded:
             self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
+        self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
         self.deletable = deletable
         pen = QtGui.QPen()
         pen.setColor(Qt.white)
         self.setPen(pen)
+        widget = QtWidgets.QWidget()
         r = width_for_text(widget, 'x') * 0.8
         self.setRect(-r, -r, r * 2, r * 2)
         border = QtWidgets.QGraphicsRectItem(parent=self)
@@ -83,6 +86,7 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
 class RegionMixin(object):
     def initialise(self, boundary, scale, display_widget):
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
+        self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
         self.boundary = boundary
         self.scale = scale
         self.display_widget = display_widget
@@ -109,8 +113,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         self.handles = []
         for idx in range(4):
-            self.handles.append(
-                ResizeHandle(display_widget, bounded=True, parent=self))
+            self.handles.append(ResizeHandle(bounded=True, parent=self))
         x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
         y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
         w = float(boundary['Iptc4xmpExt:rbW']) * scale['x']
@@ -181,7 +184,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.initialise(boundary, scale, display_widget)
         self.handles = []
         for idx in range(4):
-            self.handles.append(ResizeHandle(display_widget, parent=self))
+            self.handles.append(ResizeHandle(parent=self))
         x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
         y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
         r = float(boundary['Iptc4xmpExt:rbRx']) * scale['x']
@@ -281,10 +284,43 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.handles = []
         for (x, y) in vertices:
             polygon.append(QtCore.QPointF(x, y))
-            handle = ResizeHandle(display_widget, deletable=True, parent=self)
+            handle = ResizeHandle(deletable=True, parent=self)
             handle.setPos(x, y)
             self.handles.append(handle)
         self.setPolygon(polygon)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        menu = QtWidgets.QMenu()
+        new_vertex_action = menu.addAction(
+            translate('RegionsTab', 'New vertex'))
+        action = execute(menu, event.screenPos())
+        if action != new_vertex_action:
+            return
+        p0 = event.pos()
+        polygon = self.polygon()
+        # find pair of points to insert between
+        angle = 0
+        insert = 0
+        idx = polygon.count() - 1
+        v2 = QtGui.QVector2D(polygon.at(idx) - p0)
+        v2.normalize()
+        for idx in range(polygon.count()):
+            v1 = v2
+            v2 = QtGui.QVector2D(polygon.at(idx) - p0)
+            v2.normalize()
+            a12 = abs(math.acos(QtGui.QVector2D.dotProduct(v2, v1)))
+            if a12 > angle:
+                angle = a12
+                insert = idx
+        polygon.insert(insert, p0)
+        self.setPolygon(polygon)
+        if len(self.handles) == 2:
+            for handle in self.handles:
+                handle.deletable = True
+        handle = ResizeHandle(deletable=True, parent=self)
+        handle.setPos(p0)
+        self.handles.insert(insert, handle)
 
     @catch_all
     def mouseReleaseEvent(self, event):
@@ -304,6 +340,9 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         idx = self.handles.index(handle)
         self.handles.remove(handle)
         handle.setParentItem(None)
+        if len(self.handles) == 2:
+            for handle in self.handles:
+                handle.deletable = False
         polygon = self.polygon()
         polygon.remove(idx)
         self.setPolygon(polygon)
