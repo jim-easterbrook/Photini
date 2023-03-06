@@ -1743,6 +1743,39 @@ class ImageRegionItem(MD_Value, dict):
                 return True
         return False
 
+    def convert_unit(self, unit, image):
+        if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
+            return self
+        result = dict(self)
+        boundary = dict(result['Iptc4xmpExt:RegionBoundary'])
+        image_dims = image.metadata.get_sensor_size()
+        if unit == 'relative':
+            scale = {'x': 1.0 / float(image_dims['x']),
+                     'y': 1.0 / float(image_dims['y'])}
+            fmt = '{:.4f}'
+        else:
+            scale = {'x': float(image_dims['x']),
+                     'y': float(image_dims['y'])}
+            fmt = '{:.0f}'
+        boundary['Iptc4xmpExt:rbUnit'] = unit
+        if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
+            boundary['Iptc4xmpExt:rbVertices'] = [
+                self.scale_dimensions(v, scale, fmt)
+                for v in boundary['Iptc4xmpExt:rbVertices']]
+        else:
+            boundary = self.scale_dimensions(boundary, scale, fmt)
+        result['Iptc4xmpExt:RegionBoundary'] = boundary
+        return result
+
+    def scale_dimensions(self, value, scale, fmt):
+        for key in value:
+            if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbW',
+                       'Iptc4xmpExt:rbRx'):
+                value[key] = fmt.format(float(value[key]) * scale['x'])
+            elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
+                value[key] = fmt.format(float(value[key]) * scale['y'])
+        return value
+
     def short_keys(self, value):
         if isinstance(value, dict):
             result = {}
@@ -1754,14 +1787,18 @@ class ImageRegionItem(MD_Value, dict):
                     v = [fm.elidedText(
                         x, Qt.TextElideMode.ElideLeft, width) for x in v]
                 if k == 'Iptc4xmpExt:RegionBoundary':
+                    new_v = {'rbUnit': v['rbUnit']}
                     if v['rbShape'] == 'rectangle':
-                        v = '{rbShape}({rbX}, {rbY}, {rbW}, {rbH})'.format(**v)
+                        new_v['rbShape'] = (
+                            'rectangle({rbX}, {rbY}, {rbW}, {rbH})'.format(**v))
                     elif v['rbShape'] == 'circle':
-                        v = '{rbShape}({rbX}, {rbY}, {rbRx})'.format(**v)
+                        new_v['rbShape'] = (
+                            'circle({rbX}, {rbY}, {rbRx})'.format(**v))
                     else:
-                        v = self.short_keys(v['rbVertices'])
-                        v = 'polygon({})'.format(
-                            ', '.join('({rbX}, {rbY})'.format(**p) for p in v))
+                        new_v['rbShape'] = 'polygon({})'.format(', '.join(
+                            '({rbX}, {rbY})'.format(**p)
+                            for p in self.short_keys(v['rbVertices'])))
+                    v = new_v
                 result[k.split(':')[-1]] = v
             return result
         if isinstance(value, list):

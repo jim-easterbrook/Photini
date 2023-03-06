@@ -544,6 +544,47 @@ class EntityConceptWidget(SingleLineEdit):
         return result
 
 
+class UnitSelector(QtWidgets.QWidget):
+    new_value = QtSignal(str, object)
+
+    def __init__(self, key, *arg, **kw):
+        super(UnitSelector, self).__init__(*arg, **kw)
+        self._key = key
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().addWidget(QtWidgets.QLabel(
+            translate('RegionsTab', 'Boundary unit')))
+        self.buttons = {}
+        self.buttons['pixel'] = QtWidgets.QRadioButton(
+            translate('RegionsTab', 'pixel'))
+        self.buttons['pixel'].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'A pixel of a digital image setting an absolute'
+            ' value.')))
+        self.buttons['pixel'].clicked.connect(self.state_changed)
+        self.layout().addWidget(self.buttons['pixel'])
+        self.buttons['relative'] = QtWidgets.QRadioButton(
+            translate('RegionsTab', 'relative'))
+        self.buttons['relative'].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Relative part of the size of an image along the'
+            ' x- or the y-axis.')))
+        self.buttons['relative'].clicked.connect(self.state_changed)
+        self.layout().addWidget(self.buttons['relative'])
+
+    @QtSlot()
+    @catch_all
+    def state_changed(self):
+        self.new_value.emit(self._key, self.get_value())
+
+    def get_value(self):
+        for key, widget in self.buttons.items():
+            if widget.isChecked():
+                return key
+        return None
+
+    def set_value(self, value):
+        for key in self.buttons:
+            self.buttons[key].setChecked(key == value)
+
+
 class RegionForm(QtWidgets.QScrollArea):
     name_changed = QtSignal(object, str)
     new_value = QtSignal(str, object)
@@ -565,6 +606,14 @@ class RegionForm(QtWidgets.QScrollArea):
             ' all Region Names of an image.')))
         self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
+        # units
+        key = 'Iptc4xmpExt:RegionBoundary/Iptc4xmpExt:rbUnit'
+        self.widgets[key] = UnitSelector(key)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Unit used for measuring dimensions of the boundary'
+            ' of a region.')))
+        self.widgets[key].new_value.connect(self.new_value)
+        layout.addRow(self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
         self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.roles)
@@ -751,8 +800,12 @@ class RegionTabs(QtWidgets.QTabWidget):
     def new_value(self, key, value):
         idx = self.currentIndex()
         regions = list(self.image.metadata.image_region)
-        region = dict(regions[idx])
-        region[key] = value
+        region = regions[idx]
+        if 'rbUnit' in key:
+            region = region.convert_unit(value, self.image)
+        else:
+            region = dict(region)
+            region[key] = value
         regions[idx] = region
         self.image.metadata.image_region = regions
 
