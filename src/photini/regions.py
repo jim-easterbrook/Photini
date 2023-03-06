@@ -564,7 +564,6 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
         self.widgets[key].new_value.connect(self.new_value)
-        self.widgets[key].edit.textChanged.connect(self.new_name)
         layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
@@ -592,7 +591,6 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
         self.widgets[key].new_value.connect(self.new_value)
-        self.widgets[key].textChanged.connect(self.new_name)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
         # identifier
@@ -636,23 +634,18 @@ class RegionForm(QtWidgets.QScrollArea):
                 value = value[part]
             self.widgets[key].set_value(value)
 
-    @QtSlot()
-    @catch_all
-    def new_name(self):
-        value = self.widgets['Iptc4xmpExt:Name'].edit.toPlainText()
-        if value:
-            self.name_changed.emit(self, value)
-            return
-        value = self.widgets['Iptc4xmpExt:PersonInImage'].get_value()
-        if value:
-            self.name_changed.emit(self, value[0])
-
 
 class QTabBar(QtWidgets.QTabBar):
     @catch_all
     def contextMenuEvent(self, event):
         self.parentWidget().context_menu(
             self.tabAt(event.pos()), event.globalPos())
+
+    @catch_all
+    def tabSizeHint(self, index):
+        size = super(QTabBar, self).tabSizeHint(index)
+        size.setWidth(width_for_text(self, 'x' * 6))
+        return size
 
 
 class RegionTabs(QtWidgets.QTabWidget):
@@ -683,34 +676,28 @@ class RegionTabs(QtWidgets.QTabWidget):
             regions.pop(idx)
             if current >= len(regions):
                 current = len(regions) - 1
-        elif action == rect_action:
+            self.image.metadata.image_region = regions
+            self.set_image(self.image)
+            self.setCurrentIndex(current)
+            return
+        if action == rect_action:
             boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
-                        'Iptc4xmpExt:rbUnit': 'relative',
                         'Iptc4xmpExt:rbX': '0.4',
                         'Iptc4xmpExt:rbY': '0.4',
                         'Iptc4xmpExt:rbW': '0.2',
                         'Iptc4xmpExt:rbH': '0.2'}
-            regions.append({'Iptc4xmpExt:RegionBoundary': boundary})
-            current = len(regions) - 1
         elif action == circ_action:
             boundary = {'Iptc4xmpExt:rbShape': 'circle',
-                        'Iptc4xmpExt:rbUnit': 'relative',
                         'Iptc4xmpExt:rbX': '0.5',
                         'Iptc4xmpExt:rbY': '0.5',
                         'Iptc4xmpExt:rbRx': '0.15'}
-            regions.append({'Iptc4xmpExt:RegionBoundary': boundary})
-            current = len(regions) - 1
         elif action == point_action:
             boundary = {'Iptc4xmpExt:rbShape': 'polygon',
-                        'Iptc4xmpExt:rbUnit': 'relative',
                         'Iptc4xmpExt:rbVertices': [{
                             'Iptc4xmpExt:rbX': '0.5',
                             'Iptc4xmpExt:rbY': '0.5'}]}
-            regions.append({'Iptc4xmpExt:RegionBoundary': boundary})
-            current = len(regions) - 1
         elif action == poly_action:
             boundary = {'Iptc4xmpExt:rbShape': 'polygon',
-                        'Iptc4xmpExt:rbUnit': 'relative',
                         'Iptc4xmpExt:rbVertices': [
                             {'Iptc4xmpExt:rbX': '0.4',
                              'Iptc4xmpExt:rbY': '0.4'},
@@ -718,10 +705,9 @@ class RegionTabs(QtWidgets.QTabWidget):
                              'Iptc4xmpExt:rbY': '0.5'},
                             {'Iptc4xmpExt:rbX': '0.5',
                              'Iptc4xmpExt:rbY': '0.6'}]}
-            regions.append({'Iptc4xmpExt:RegionBoundary': boundary})
-            current = len(regions) - 1
-        else:
-            return
+        boundary['Iptc4xmpExt:rbUnit'] = 'relative'
+        regions.append({'Iptc4xmpExt:RegionBoundary': boundary})
+        current = len(regions) - 1
         self.image.metadata.image_region = regions
         self.set_image(self.image)
         self.setCurrentIndex(current)
@@ -738,11 +724,11 @@ class RegionTabs(QtWidgets.QTabWidget):
             region_form.setEnabled(False)
             self.addTab(region_form, '')
             return
-        for region in self.regions:
+        for idx, region in enumerate(self.regions):
             region_form = RegionForm()
             region_form.name_changed.connect(self.tab_name_changed)
             region_form.new_value.connect(self.new_value)
-            self.addTab(region_form, '')
+            self.addTab(region_form, str(idx + 1))
             region_form.set_value(region)
 
     @QtSlot(int)
