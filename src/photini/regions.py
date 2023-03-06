@@ -31,13 +31,12 @@ translate = QtCore.QCoreApplication.translate
 
 
 class ResizeHandle(QtWidgets.QGraphicsRectItem):
-    def __init__(self, *arg, bounded=False, deletable=True, **kw):
+    def __init__(self, *arg, bounded=False, **kw):
         super(ResizeHandle, self).__init__(*arg, **kw)
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         if bounded:
             self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
-        self.deletable = deletable
         pen = QtGui.QPen()
         pen.setColor(Qt.white)
         self.setPen(pen)
@@ -49,16 +48,6 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         border.setPen(pen)
         r -= 1
         border.setRect(-r, -r, r * 2, r * 2)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        if self.deletable:
-            menu = QtWidgets.QMenu()
-            delete_action = menu.addAction(
-                translate('RegionsTab', 'Delete vertex'))
-            action = execute(menu, event.screenPos())
-            if action == delete_action:
-                self.parentItem().delete_vertex(self)
 
     @catch_all
     def itemChange(self, change, value):
@@ -81,6 +70,23 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
     def mouseReleaseEvent(self, event):
         super(ResizeHandle, self).mouseReleaseEvent(event)
         self.parentItem().handle_drag_end()
+
+
+class PolygonHandle(ResizeHandle):
+    deletable = True
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        menu = QtWidgets.QMenu()
+        delete_action = self.deletable and menu.addAction(
+            translate('RegionsTab', 'Delete vertex'))
+        new_vertex_action = menu.addAction(
+            translate('RegionsTab', 'New vertex'))
+        action = execute(menu, event.screenPos())
+        if action == delete_action:
+            self.parentItem().delete_vertex(self)
+        elif action == new_vertex_action:
+            self.parentItem().new_vertex(event.scenePos())
 
 
 class RegionMixin(object):
@@ -284,20 +290,16 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.handles = []
         for (x, y) in vertices:
             polygon.append(QtCore.QPointF(x, y))
-            handle = ResizeHandle(deletable=True, parent=self)
+            handle = PolygonHandle(parent=self)
             handle.setPos(x, y)
             self.handles.append(handle)
         self.setPolygon(polygon)
 
     @catch_all
     def contextMenuEvent(self, event):
-        menu = QtWidgets.QMenu()
-        new_vertex_action = menu.addAction(
-            translate('RegionsTab', 'New vertex'))
-        action = execute(menu, event.screenPos())
-        if action != new_vertex_action:
-            return
-        p0 = event.pos()
+        self.new_vertex(event.pos())
+
+    def new_vertex(self, p0):
         polygon = self.polygon()
         # find pair of points to insert between
         angle = 0
@@ -318,7 +320,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         if len(self.handles) == 2:
             for handle in self.handles:
                 handle.deletable = True
-        handle = ResizeHandle(deletable=True, parent=self)
+        handle = PolygonHandle(parent=self)
         handle.setPos(p0)
         self.handles.insert(insert, handle)
 
