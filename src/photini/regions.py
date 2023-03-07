@@ -19,7 +19,6 @@
 import logging
 import math
 import os
-from pprint import pprint
 import re
 
 from photini.pyqt import *
@@ -430,6 +429,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                     translate('RegionsTab', 'Unreadable image format'))
             else:
                 rect = self.contentsRect()
+                if transform:
+                    rect = transform.mapRect(rect)
                 w, h = pixmap.width(), pixmap.height()
                 if w * rect.height() < h * rect.width():
                     pixmap = pixmap.scaledToWidth(
@@ -444,8 +445,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 item = QtWidgets.QGraphicsPixmapItem(pixmap)
                 scene.addItem(item)
                 scene.setSceneRect(item.boundingRect())
-                print('scene', self.sceneRect())
-                print('view', self.mapFromScene(self.sceneRect()))
 
     @QtSlot(dict)
     @catch_all
