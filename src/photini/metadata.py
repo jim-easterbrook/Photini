@@ -711,29 +711,44 @@ class Metadata(object):
             return
         return self._if.get_previews()
 
-    def get_sensor_size(self):
+    def get_image_size(self):
         md = self._if or self._sc
         if not md:
             return 0, 0
-        # get largest preview
-        sensor_size = {}
-        sensor_size['x'], sensor_size['y'] = md.get_preview_imagedims()
-        # search metadata for something larger
+        # get preview sizes
+        candidates = set(md.get_preview_imagedims())
+        # search metadata for image / subimage / sensor sizes
+        widths = {}
+        heights = {}
         for key in md.get_all_tags():
             family, group, tag = key.split('.', 2)
             if tag in ('PixelXDimension', 'ImageWidth'):
-                sensor_size['x'] = max(sensor_size['x'], int(md.get_value(key)))
+                widths[key] = int(md.get_value(key))
             elif tag in ('PixelYDimension', 'ImageLength'):
-                sensor_size['y'] = max(sensor_size['y'], int(md.get_value(key)))
-        return sensor_size
+                heights[key] = int(md.get_value(key))
+        for kx in widths:
+            if 'ImageWidth' in kx:
+                ky = kx.replace('ImageWidth', 'ImageLength')
+            else:
+                ky = kx.replace('PixelXDimension', 'PixelYDimension')
+            if ky in heights:
+                candidates.add((widths[kx], heights[ky]))
+        candidates = list(candidates)
+        candidates.sort()
+        if len(candidates) > 1:
+            # some cameras report a sensor size that's slightly bigger
+            # than the actual image
+            if candidates[-1][0] < 1.03 * candidates[-2][0]:
+                candidates.pop(-1)
+        return {'x': candidates[-1][0], 'y': candidates[-1][1]}
 
     def get_crop_factor(self):
         md = self._if or self._sc
         if not md:
             return None
         # get relevant metadata
-        sensor_size = self.get_sensor_size()
-        if not sensor_size['x'] or not sensor_size['y']:
+        image_size = self.get_image_size()
+        if not image_size['x'] or not image_size['y']:
             return None
         resolution = {}
         resolution_source = None, None
@@ -757,8 +772,8 @@ class Metadata(object):
         resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # find largest image dimensions
-        w = sensor_size['x'] / resolution['x']
-        h = sensor_size['y'] / resolution['y']
+        w = image_size['x'] / resolution['x']
+        h = image_size['y'] / resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))
         if resolution['unit'] == 3:
             # unit is cm

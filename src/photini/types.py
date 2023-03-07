@@ -1749,7 +1749,7 @@ class ImageRegionItem(MD_Value, dict):
             return self
         result = dict(self)
         boundary = dict(result['Iptc4xmpExt:RegionBoundary'])
-        image_dims = image.metadata.get_sensor_size()
+        image_dims = image.metadata.get_image_size()
         if unit == 'relative':
             scale = {'x': 1.0 / float(image_dims['x']),
                      'y': 1.0 / float(image_dims['y'])}

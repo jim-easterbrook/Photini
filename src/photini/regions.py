@@ -400,7 +400,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.resetTransform()
         self.boundary = None
         if image:
-            self.image_dims = image.metadata.get_sensor_size()
+            self.image_dims = image.metadata.get_image_size()
             transform = image.get_transform(image.metadata.orientation)
             if transform:
                 self.setTransform(transform)
@@ -838,7 +838,10 @@ class RegionTabs(QtWidgets.QTabWidget):
             region = region.convert_unit(value, self.image)
         else:
             region = dict(region)
-            region[key] = value
+            if value:
+                region[key] = value
+            elif key in region:
+                del region[key]
         regions[idx] = region
         self.image.metadata.image_region = regions
         if key == 'Iptc4xmpExt:rRole':
