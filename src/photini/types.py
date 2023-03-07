@@ -1732,16 +1732,17 @@ class ImageRegionItem(MD_Value, dict):
     def to_xmp(self):
         return self
 
-    def is_main_subject_area(self):
+    def has_role(self, uid):
         if 'Iptc4xmpExt:rRole' not in self:
             return False
         for role in self['Iptc4xmpExt:rRole']:
-            if 'xmp:Identifier' not in role:
-                continue
-            if ('http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea'
-                    in role['xmp:Identifier']):
+            if 'xmp:Identifier' in role and uid in role['xmp:Identifier']:
                 return True
         return False
+
+    def is_main_subject_area(self):
+        return self.has_role(
+            'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
 
     def convert_unit(self, unit, image):
         if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
