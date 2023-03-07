@@ -105,7 +105,7 @@ class Image(QtWidgets.QFrame):
             transform = transform.rotate(180.0)
         if orientation & 0b100:
             # transpose horizontal & vertical
-            transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
+            transform = QtGui.QTransform(0, 1, 0, 1, 0, 0, 0, 0, 1) * transform
         return transform
 
     def regenerate_thumbnail(self):
