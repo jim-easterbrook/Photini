@@ -714,7 +714,7 @@ class Metadata(object):
     def get_image_size(self):
         md = self._if or self._sc
         if not md:
-            return 0, 0
+            return {}
         # get preview sizes
         candidates = set(md.get_preview_imagedims())
         # search metadata for image / subimage / sensor sizes
@@ -733,6 +733,8 @@ class Metadata(object):
                 ky = kx.replace('PixelXDimension', 'PixelYDimension')
             if ky in heights:
                 candidates.add((widths[kx], heights[ky]))
+        if not candidates:
+            return {}
         candidates = list(candidates)
         candidates.sort()
         if len(candidates) > 1:
@@ -748,7 +750,7 @@ class Metadata(object):
             return None
         # get relevant metadata
         image_size = self.get_image_size()
-        if not image_size['x'] or not image_size['y']:
+        if not image_size:
             return None
         resolution = {}
         resolution_source = None, None

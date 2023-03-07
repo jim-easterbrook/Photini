@@ -444,6 +444,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 item = QtWidgets.QGraphicsPixmapItem(pixmap)
                 scene.addItem(item)
                 scene.setSceneRect(item.boundingRect())
+                print('scene', self.sceneRect())
+                print('view', self.mapFromScene(self.sceneRect()))
 
     @QtSlot(dict)
     @catch_all
@@ -459,6 +461,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         scale = {'x': rect.width(),
                  'y': rect.height()}
         if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
+            if not self.image_dims:
+                return
             scale['x'] /= self.image_dims['x']
             scale['y'] /= self.image_dims['y']
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':

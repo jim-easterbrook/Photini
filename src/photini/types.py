@@ -1747,9 +1747,11 @@ class ImageRegionItem(MD_Value, dict):
     def convert_unit(self, unit, image):
         if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
             return self
+        image_dims = image.metadata.get_image_size()
+        if not image_dims:
+            return self
         result = dict(self)
         boundary = dict(result['Iptc4xmpExt:RegionBoundary'])
-        image_dims = image.metadata.get_image_size()
         if unit == 'relative':
             scale = {'x': 1.0 / float(image_dims['x']),
                      'y': 1.0 / float(image_dims['y'])}
@@ -1889,3 +1891,51 @@ class MD_ImageRegion(MD_Tuple):
                 region['photoshop:CaptionWriter'] = note['username']
             result.append(region)
         return result
+
+    def get_focus(self, image):
+        dims = image.metadata.get_image_size()
+        portrait_format = bool(dims) and (dims['y'] > dims['x'])
+        transform = image.get_transform(image.metadata.orientation)
+        if transform and transform.isRotating():
+            portrait_format = not portrait_format
+        if portrait_format:
+            uris = (
+                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
+                )
+        else:
+            uris = (
+                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
+                )
+        for uri in uris:
+            for region in self:
+                boundary = region['Iptc4xmpExt:RegionBoundary']
+                if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
+                    continue
+                if not region.has_role(uri):
+                    continue
+                x = float(boundary['Iptc4xmpExt:rbX'])
+                y = float(boundary['Iptc4xmpExt:rbY'])
+                w = float(boundary['Iptc4xmpExt:rbW'])
+                h = float(boundary['Iptc4xmpExt:rbH'])
+                x += w / 2.0
+                y += h / 2.0
+                if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
+                    if not dims:
+                        continue
+                    x /= dims['x']
+                    y /= dims['y']
+                x = (x * 2.0) - 1.0
+                y = (y * 2.0) - 1.0
+                if transform:
+                    x, y = transform.map(x, y)
+                y = -y
+                return x, y
+        return None
