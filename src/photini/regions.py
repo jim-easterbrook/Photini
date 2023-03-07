@@ -472,6 +472,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             elif region.has_role('http://cv.iptc.org/newscodes/imageregionrole/'
                                  'portraitCropping'):
                 aspect_ratio = 9.0 / 16.0
+            if aspect_ratio and self.transform().isRotating():
+                aspect_ratio = 1.0 / aspect_ratio
             self.boundary = RectangleRegion(
                 boundary, scale, self, aspect_ratio=aspect_ratio)
         elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
