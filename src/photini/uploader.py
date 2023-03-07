@@ -590,6 +590,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             buf = QtCore.QBuffer()
             buf.setData(bytes(data))
             reader = QtGui.QImageReader(buf)
+            reader.setAutoTransform(False)
             im = reader.read()
             if im.isNull():
                 raise RuntimeError(reader.errorString())
