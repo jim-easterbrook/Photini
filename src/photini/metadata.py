@@ -715,6 +715,11 @@ class Metadata(object):
         md = self._if or self._sc
         if not md:
             return {}
+        # try exiv2's header decoding first
+        w = md._image.pixelWidth()
+        h = md._image.pixelHeight()
+        if w and h:
+            return {'x': w, 'y': h}
         # get preview sizes
         candidates = set(md.get_preview_imagedims())
         # search metadata for image / subimage / sensor sizes
