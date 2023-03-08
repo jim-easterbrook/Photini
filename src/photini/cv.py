@@ -1,7 +1,10 @@
 # http://github.com/jim-easterbrook/Photini
 # IPTC "controlled vocabulary" data downloaded from http://cv.iptc.org/newscodes
 
-# https://cv.iptc.org/newscodes/imageregiontype/
+# ©IPTC, International Press Telecommunications Council - https://iptc.org
+# Date: 2019-12-06T12:00:00+00:00
+# Licence: http://creativecommons.org/licenses/by/4.0/
+# http://cv.iptc.org/newscodes/imageregiontype/
 image_region_types = \
 ({'definition': {'en-GB': 'A living organism different from humans or flora'},
   'name': {'en-GB': 'animal'},
@@ -73,7 +76,10 @@ image_region_types = \
                     'water'},
   'uri': 'http://cv.iptc.org/newscodes/imageregiontype/bodyOfWater'})
 
-# https://cv.iptc.org/newscodes/imageregionrole/
+# ©IPTC, International Press Telecommunications Council - https://iptc.org
+# Date: 2019-12-06T12:00:00+00:00
+# Licence: http://creativecommons.org/licenses/by/4.0/
+# http://cv.iptc.org/newscodes/imageregionrole/
 image_region_roles = \
 ({'definition': {'en-GB': 'Image region can be used for any cropping'},
   'name': {'en-GB': 'cropping'},

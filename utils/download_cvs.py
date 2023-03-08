@@ -44,6 +44,11 @@ def main(argv=None):
                 rsp = session.get(url, params=params)
                 rsp.raise_for_status()
                 rsp = rsp.json()
+                py.write('''# ©{copyrightHolder}
+# Date: {dateReleased}
+# Licence: {licenceLink}
+# {uri}
+'''.format(**rsp))
                 uris = []
                 data = {}
                 for concept in rsp['conceptSet']:
@@ -56,7 +61,6 @@ def main(argv=None):
                     if 'note' in concept:
                         data[uri]['note'].update(concept['note'])
                     data[uri]['uri'] = concept['uri']
-                py.write('# {}\n'.format(url))
                 py.write(data_name)
                 py.write(' = \\\n')
                 pprint(tuple(data[x] for x in uris), stream=py)
