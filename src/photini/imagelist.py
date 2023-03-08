@@ -97,15 +97,21 @@ class Image(QtWidgets.QFrame):
         if not orientation:
             return None
         # need to rotate and or reflect image
+        # translation is set so a unit rectangle maps to a unit rectangle
         transform = QtGui.QTransform()
         if orientation & 0b001:
             # reflect left-right
             transform = transform.scale(-1.0, 1.0)
         if orientation & 0b010:
+            # rotate 180°
             transform = transform.rotate(180.0)
         if orientation & 0b100:
             # transpose horizontal & vertical
             transform = QtGui.QTransform(0, 1, 0, 1, 0, 0, 0, 0, 1) * transform
+        if transform.m11() + transform.m12() < 0:
+            transform = transform.translate(-1, 0)
+        if transform.m21() + transform.m22() < 0:
+            transform = transform.translate(0, -1)
         return transform
 
     def regenerate_thumbnail(self):
