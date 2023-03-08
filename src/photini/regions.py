@@ -590,9 +590,10 @@ class UnitSelector(QtWidgets.QWidget):
     def __init__(self, key, *arg, **kw):
         super(UnitSelector, self).__init__(*arg, **kw)
         self._key = key
+        policy = self.sizePolicy()
+        policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
+        self.setSizePolicy(policy)
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().addWidget(QtWidgets.QLabel(
-            translate('RegionsTab', 'Boundary unit')))
         self.buttons = {}
         self.buttons['pixel'] = QtWidgets.QRadioButton(
             translate('RegionsTab', 'pixel'))
@@ -634,13 +635,14 @@ class RegionForm(QtWidgets.QScrollArea):
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self.setWidget(QtWidgets.QWidget())
         self.setWidgetResizable(True)
-        layout = FormLayout(wrapped=True)
+        layout = QtWidgets.QFormLayout()
+        layout.setRowWrapPolicy(layout.RowWrapPolicy.WrapLongRows)
         self.widget().setLayout(layout)
         self.region = {}
         self.widgets = {}
         # name
         key = 'Iptc4xmpExt:Name'
-        self.widgets[key] = LangAltWidget(key, multi_line=False)
+        self.widgets[key] = LangAltWidget(key, multi_line=False, min_width=15)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
@@ -653,7 +655,8 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Unit used for measuring dimensions of the boundary'
             ' of a region.')))
         self.widgets[key].new_value.connect(self.new_value)
-        layout.addRow(self.widgets[key])
+        layout.addRow(
+            translate('RegionsTab', 'Boundary unit'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
         self.widgets[key] = EntityConceptWidget(key, image_region_roles)
@@ -691,6 +694,8 @@ class RegionForm(QtWidgets.QScrollArea):
             ' the metadata of this image.')))
         self.widgets[key].new_value.connect(self.new_value)
         layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
+        layout.addItem(QtWidgets.QSpacerItem(
+            0, 0, vPolicy=QtWidgets.QSizePolicy.Policy.Expanding))
 
     def set_value(self, region):
         self.region = region
@@ -703,7 +708,8 @@ class RegionForm(QtWidgets.QScrollArea):
             label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
             label = label.capitalize()
             if isinstance(value, dict):
-                self.widgets[key] = LangAltWidget(key, multi_line=False)
+                self.widgets[key] = LangAltWidget(
+                    key, multi_line=False, min_width=15)
             elif isinstance(value, list):
                 self.widgets[key] = MultiStringEdit(key)
             else:
@@ -743,7 +749,7 @@ class RegionTabs(QtWidgets.QTabWidget):
     def __init__(self, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
         self.setTabBar(QTabBar())
-        self.setFixedWidth(width_for_text(self, 'x' * 40))
+        self.setFixedWidth(width_for_text(self, 'x' * 42))
         self.currentChanged.connect(self.tab_changed)
 
     def context_menu(self, idx, pos):
