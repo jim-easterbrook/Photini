@@ -627,12 +627,18 @@ class LangAltWidget(QtWidgets.QWidget):
         super(LangAltWidget, self).__init__()
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setAlignment(
+            (layout.alignment() & Qt.AlignmentFlag.AlignHorizontal_Mask)
+            | Qt.AlignmentFlag.AlignTop)
         self.setLayout(layout)
         self.value = LangAltDict()
         # text edit
         if multi_line:
             self.edit = MultiLineEdit(key, **kw)
         else:
+            policy = self.sizePolicy()
+            policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
+            self.setSizePolicy(policy)
             self.edit = SingleLineEdit(key, **kw)
         self.edit.new_value.connect(self._new_value)
         layout.addWidget(self.edit)
