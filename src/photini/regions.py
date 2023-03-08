@@ -21,6 +21,7 @@ import math
 import os
 import re
 
+from photini.cv import image_region_types, image_region_roles
 from photini.pyqt import *
 from photini.types import ImageRegionItem, LangAltDict
 from photini.widgets import LangAltWidget, MultiStringEdit, SingleLineEdit
@@ -503,6 +504,8 @@ class EntityConceptWidget(SingleLineEdit):
         for item in vocab:
             label = LangAltDict(item['name']).best_match()
             tip = LangAltDict(item['definition']).best_match()
+            if item['note']:
+                tip += ' ({})'.format(LangAltDict(item['note']).best_match())
             action = self.menu.addAction(label)
             action.setCheckable(True)
             action.setToolTip('<p>{}</p>'.format(tip))
@@ -653,7 +656,7 @@ class RegionForm(QtWidgets.QScrollArea):
         layout.addRow(self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
-        self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.roles)
+        self.widgets[key] = EntityConceptWidget(key, image_region_roles)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Role of this region among all regions of this image'
             ' or of other images. The value SHOULD be taken from a Controlled'
@@ -662,7 +665,7 @@ class RegionForm(QtWidgets.QScrollArea):
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
-        self.widgets[key] = EntityConceptWidget(key, ImageRegionItem.ctypes)
+        self.widgets[key] = EntityConceptWidget(key, image_region_types)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
