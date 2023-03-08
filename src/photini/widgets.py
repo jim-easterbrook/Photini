@@ -268,8 +268,10 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     new_value = QtSignal(str, object)
 
     def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, length_always=False, **kw):
+                 multi_string=False, length_always=False, min_width=None, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
+        if min_width:
+            self.setMinimumWidth(width_for_text(self, 'x' * min_width))
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self._key = key
