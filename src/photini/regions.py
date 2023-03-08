@@ -80,18 +80,13 @@ class RegionMixin(object):
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
         self.boundary = boundary
-        self.scale = scale
+        self.from_iptc = QtGui.QTransform().scale(scale['x'], scale['y'])
+        self.to_iptc = self.from_iptc.inverted()[0]
         self.display_widget = display_widget
         pen = QtGui.QPen()
         pen.setColor(Qt.green)
         self.setPen(pen)
         self.setBrush(QtGui.QColor(128, 230, 128, 150))
-
-    def to_iptc_x(self, x):
-        return x / self.scale['x']
-
-    def to_iptc_y(self, y):
-        return y / self.scale['y']
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
@@ -104,11 +99,11 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        x = boundary['Iptc4xmpExt:rbX'] * scale['x']
-        y = boundary['Iptc4xmpExt:rbY'] * scale['y']
-        w = boundary['Iptc4xmpExt:rbW'] * scale['x']
-        h = boundary['Iptc4xmpExt:rbH'] * scale['y']
-        self.setRect(x, y, w, h)
+        rect = QtCore.QRectF(
+            boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'],
+            boundary['Iptc4xmpExt:rbW'], boundary['Iptc4xmpExt:rbH'])
+        rect = self.from_iptc.mapRect(rect)
+        self.setRect(rect)
         self.adjust_handles()
         if self.aspect_ratio:
             self.handle_drag(self.handles[3], self.handles[3].pos())
@@ -179,16 +174,14 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         # get position in scene coords
         pos = self.scenePos()
         rect = self.rect()
-        x = rect.x() + pos.x()
-        y = rect.y() + pos.y()
-        w = rect.width()
-        h = rect.height()
+        rect.translate(pos)
+        rect = self.to_iptc.mapRect(rect)
         # send new IPTC boundary
         boundary = dict(self.boundary)
-        boundary['Iptc4xmpExt:rbX'] = self.to_iptc_x(x)
-        boundary['Iptc4xmpExt:rbY'] = self.to_iptc_y(y)
-        boundary['Iptc4xmpExt:rbW'] = self.to_iptc_x(w)
-        boundary['Iptc4xmpExt:rbH'] = self.to_iptc_y(h)
+        (boundary['Iptc4xmpExt:rbX'],
+         boundary['Iptc4xmpExt:rbY'],
+         boundary['Iptc4xmpExt:rbW'],
+         boundary['Iptc4xmpExt:rbH']) = rect.getRect()
         self.display_widget.new_boundary(boundary)
 
     def adjust_handles(self):
@@ -206,10 +199,11 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        x = boundary['Iptc4xmpExt:rbX'] * scale['x']
-        y = boundary['Iptc4xmpExt:rbY'] * scale['y']
-        r = boundary['Iptc4xmpExt:rbRx'] * scale['x']
-        self.set_geometry(x, y, r)
+        rect = QtCore.QRectF(
+            boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'],
+            boundary['Iptc4xmpExt:rbRx'], boundary['Iptc4xmpExt:rbRx'])
+        rect = self.from_iptc.mapRect(rect)
+        self.set_geometry(rect.topLeft(), rect.width())
 
     @catch_all
     def mouseReleaseEvent(self, event):
@@ -220,39 +214,37 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         idx = self.handles.index(handle)
         anchor = self.handles[3-idx].pos()
         if idx in (0, 3):
-            x = (pos.x() + anchor.x()) / 2.0
-            y = anchor.y()
-            d = pos.x() - anchor.x()
+            pos.setY(anchor.y())
         else:
-            x = anchor.x()
-            y = (pos.y() + anchor.y()) / 2.0
-            d = pos.y() - anchor.y()
-        r = abs(d) / 2.0
-        self.set_geometry(x, y, r)
+            pos.setX(anchor.x())
+        centre = (anchor + pos) / 2.0
+        r = (centre - anchor).manhattanLength()
+        self.set_geometry(centre, r)
 
     def handle_drag_end(self):
         self.new_boundary()
 
     def new_boundary(self):
         # get position in scene coords
-        pos = self.scenePos()
         rect = self.rect()
-        r = rect.width() / 2
-        x = rect.x() + r + pos.x()
-        y = rect.y() + r + pos.y()
+        rect.translate(self.scenePos())
+        rect = self.to_iptc.mapRect(rect)
+        centre = rect.center()
         # send new IPTC boundary
         boundary = dict(self.boundary)
-        boundary['Iptc4xmpExt:rbX'] = self.to_iptc_x(x)
-        boundary['Iptc4xmpExt:rbY'] = self.to_iptc_y(y)
-        boundary['Iptc4xmpExt:rbRx'] = self.to_iptc_x(r)
+        boundary['Iptc4xmpExt:rbX'] = centre.x()
+        boundary['Iptc4xmpExt:rbY'] = centre.y()
+        boundary['Iptc4xmpExt:rbRx'] = rect.width() / 2.0
         self.display_widget.new_boundary(boundary)
 
-    def set_geometry(self, x, y, r):
-        self.setRect(x-r, y-r, r*2, r*2)
-        self.handles[0].setPos(x-r, y)
-        self.handles[1].setPos(x, y-r)
-        self.handles[2].setPos(x, y+r)
-        self.handles[3].setPos(x+r, y)
+    def set_geometry(self, centre, r):
+        rx = QtCore.QPointF(r, 0)
+        ry = QtCore.QPointF(0, r)
+        self.setRect(QtCore.QRectF(centre - (rx + ry), centre + (rx + ry)))
+        self.handles[0].setPos(centre - rx)
+        self.handles[1].setPos(centre - ry)
+        self.handles[2].setPos(centre + ry)
+        self.handles[3].setPos(centre + rx)
 
 
 class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
@@ -262,9 +254,9 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw bow tie shape
         point = boundary['Iptc4xmpExt:rbVertices'][0]
-        x = point['Iptc4xmpExt:rbX'] * scale['x']
-        y = point['Iptc4xmpExt:rbY'] * scale['y']
-        self.setPos(x, y)
+        pos = QtCore.QPointF(point['Iptc4xmpExt:rbX'], point['Iptc4xmpExt:rbY'])
+        pos = self.from_iptc.map(pos)
+        self.setPos(pos)
         dx = width_for_text(display_widget, 'x') * 4.0
         polygon = QtGui.QPolygonF()
         for v in ((-dx, -dx), (-dx, dx), (dx, -dx), (dx, dx)):
@@ -286,11 +278,10 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def mouseReleaseEvent(self, event):
         super(PointRegion, self).mouseReleaseEvent(event)
         # send new IPTC boundary
-        pos = self.scenePos()
+        pos = self.to_iptc.map(self.scenePos())
         boundary = dict(self.boundary)
         boundary['Iptc4xmpExt:rbVertices'][0] = {
-            'Iptc4xmpExt:rbX': self.to_iptc_x(pos.x()),
-            'Iptc4xmpExt:rbY': self.to_iptc_y(pos.y())}
+            'Iptc4xmpExt:rbX': pos.x(), 'Iptc4xmpExt:rbY': pos.y()}
         self.display_widget.new_boundary(boundary)
 
 
@@ -298,16 +289,16 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
         self.initialise(boundary, scale, display_widget)
-        vertices = [(v['Iptc4xmpExt:rbX'] * scale['x'],
-                     v['Iptc4xmpExt:rbY'] * scale['y'])
-                    for v in boundary['Iptc4xmpExt:rbVertices']]
         polygon = QtGui.QPolygonF()
         self.handles = []
-        for (x, y) in vertices:
-            polygon.append(QtCore.QPointF(x, y))
+        for vertex in boundary['Iptc4xmpExt:rbVertices']:
+            polygon.append(QtCore.QPointF(vertex['Iptc4xmpExt:rbX'],
+                                          vertex['Iptc4xmpExt:rbY']))
             handle = PolygonHandle(parent=self)
-            handle.setPos(x, y)
             self.handles.append(handle)
+        polygon = self.from_iptc.map(polygon)
+        for idx, handle in enumerate(self.handles):
+            handle.setPos(polygon.at(idx))
         self.setPolygon(polygon)
 
     @catch_all
@@ -367,18 +358,14 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
     def new_boundary(self):
         # get vertices in scene coords
-        pos = self.scenePos()
-        dx, dy = pos.x(), pos.y()
         polygon = self.polygon()
-        vertices = []
-        for idx in range(polygon.count()):
-            v = polygon.at(idx)
-            vertices.append((v.x() + dx, v.y() + dy))
+        polygon.translate(self.scenePos())
+        polygon = self.to_iptc.map(polygon)
         # send new IPTC boundary
         boundary = dict(self.boundary)
         boundary['Iptc4xmpExt:rbVertices'] = [
-            {'Iptc4xmpExt:rbX': self.to_iptc_x(x),
-             'Iptc4xmpExt:rbY': self.to_iptc_y(y)} for (x, y) in vertices]
+            {'Iptc4xmpExt:rbX': p.x(), 'Iptc4xmpExt:rbY': p.y()}
+            for p in (polygon.value(n) for n in range(polygon.count()))]
         self.display_widget.new_boundary(boundary)
 
 
