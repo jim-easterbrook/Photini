@@ -22,6 +22,7 @@ import hashlib
 import io
 import logging
 import os
+from pprint import pprint
 import time
 
 import requests
@@ -171,6 +172,14 @@ class IpernitySession(UploaderSession):
                 return 'Failed to remove from album'
         return ''
 
+    def set_notes(self, params, doc_id):
+        for note in params['notes']:
+            rsp = self.api_call(
+                'doc.notes.add', post=True, doc_id=doc_id, **note)
+            if rsp is None:
+                return 'Failed to add note'
+        return ''
+
     def upload_files(self, upload_list):
         upload_count = 0
         uploads = list(upload_list)
@@ -237,6 +246,11 @@ class IpernitySession(UploaderSession):
                 # set remaining metadata after uploading images
                 image, params = metadata.pop(0)
                 error = self.set_metadata(params, params['doc_id'])
+                if error:
+                    self.upload_progress.emit({'error': (image, error)})
+                    continue
+                # add notes
+                error = self.set_notes(params, params['doc_id'])
                 if error:
                     self.upload_progress.emit({'error': (image, error)})
                     continue
@@ -511,6 +525,14 @@ class TabWidget(PhotiniUploader):
         # albums
         if upload_prefs['new_photo'] or replace_prefs['albums']:
             params['albums'] = self.widget['albums'].get_checked_ids()
+        # notes
+        if upload_prefs['new_photo']:
+            params['notes'] = image.metadata.image_region.to_ipernity(
+                image, 560)
+            for note in params['notes']:
+                if note['content'] == self.user_widget.user_data['realname']:
+                    note['member_id'] = self.user_widget.user_data['user_id']
+            pprint(params['notes'])
         return params
 
     def replace_dialog(self, image):

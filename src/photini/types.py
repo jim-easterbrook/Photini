@@ -1809,6 +1809,63 @@ class MD_ImageRegion(MD_Tuple):
             result.append(region)
         return result
 
+    def to_ipernity(self, image, target_size):
+        transform = image.get_transform(image.metadata.orientation)
+        image_dims = image.metadata.get_image_size()
+        if not image_dims:
+            return []
+        w = target_size
+        h = w * min(image_dims.values()) / max(image_dims.values())
+        if image_dims['y'] > image_dims['x']:
+            w, h = h, w
+        if transform and transform.isRotating():
+            w, h = h, w
+        target_dims = {'x': w, 'y': h}
+        result = []
+        for region in self:
+            boundary = region['Iptc4xmpExt:RegionBoundary']
+            if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
+                continue
+            item = {'content': ''}
+            if region.has_uid(
+                    'Iptc4xmpExt:rCtype',
+                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
+                if 'Iptc4xmpExt:PersonInImage' in region:
+                    item['content'] = ', '.join(
+                        region['Iptc4xmpExt:PersonInImage'])
+            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
+                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
+                continue
+            if 'dc:description' in region and not item['content']:
+                item['content'] = region['dc:description']
+            if 'Iptc4xmpExt:Name' in region and not item['content']:
+                item['content'] = LangAltDict(
+                    region['Iptc4xmpExt:Name']).best_match()
+            if not item['content']:
+                continue
+            x = boundary['Iptc4xmpExt:rbX']
+            y = boundary['Iptc4xmpExt:rbY']
+            w = boundary['Iptc4xmpExt:rbW']
+            h = boundary['Iptc4xmpExt:rbH']
+            if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
+                x /= image_dims['x']
+                y /= image_dims['y']
+                w /= image_dims['x']
+                h /= image_dims['y']
+            rect = QtCore.QRectF(x, y, w, h)
+            if transform:
+                rect = transform.mapRect(rect).normalized()
+            item['x'] = rect.x() * target_dims['x']
+            item['y'] = rect.y() * target_dims['y']
+            item['w'] = rect.width() * target_dims['x']
+            item['h'] = rect.height() * target_dims['y']
+            for k in ('x', 'y', 'w', 'h'):
+                item[k] = str(int(item[k] + 0.5))
+            result.append(item)
+        return result
+
     def get_focus(self, image):
         dims = image.metadata.get_image_size()
         portrait_format = bool(dims) and (dims['y'] > dims['x'])
