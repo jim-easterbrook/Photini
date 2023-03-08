@@ -1709,14 +1709,14 @@ class ImageRegionItem(MD_Value, dict):
                 if k == 'Iptc4xmpExt:RegionBoundary':
                     new_v = {'rbUnit': v['rbUnit']}
                     if v['rbShape'] == 'rectangle':
-                        new_v['rbShape'] = (
-                            'rectangle({rbX}, {rbY}, {rbW}, {rbH})'.format(**v))
+                        new_v['rbShape'] = ('rectangle({rbX:g}, {rbY:g}, '
+                                            '{rbW:g}, {rbH:g})').format(**v)
                     elif v['rbShape'] == 'circle':
-                        new_v['rbShape'] = (
-                            'circle({rbX}, {rbY}, {rbRx})'.format(**v))
+                        new_v['rbShape'] = ('circle({rbX:g}, {rbY:g}, '
+                                            '{rbRx:g})').format(**v)
                     else:
                         new_v['rbShape'] = 'polygon({})'.format(', '.join(
-                            '({rbX}, {rbY})'.format(**p)
+                            '({rbX:g}, {rbY:g})'.format(**p)
                             for p in self.short_keys(v['rbVertices'])))
                     v = new_v
                 result[k.split(':')[-1]] = v
