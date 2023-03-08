@@ -88,14 +88,10 @@ class RegionMixin(object):
         self.setBrush(QtGui.QColor(128, 230, 128, 150))
 
     def to_iptc_x(self, x):
-        if self.boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-            return '{:.0f}'.format(x / self.scale['x'])
-        return '{:.4f}'.format(x / self.scale['x'])
+        return x / self.scale['x']
 
     def to_iptc_y(self, y):
-        if self.boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-            return '{:.0f}'.format(y / self.scale['y'])
-        return '{:.4f}'.format(y / self.scale['y'])
+        return y / self.scale['y']
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
@@ -108,10 +104,10 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
-        y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
-        w = float(boundary['Iptc4xmpExt:rbW']) * scale['x']
-        h = float(boundary['Iptc4xmpExt:rbH']) * scale['y']
+        x = boundary['Iptc4xmpExt:rbX'] * scale['x']
+        y = boundary['Iptc4xmpExt:rbY'] * scale['y']
+        w = boundary['Iptc4xmpExt:rbW'] * scale['x']
+        h = boundary['Iptc4xmpExt:rbH'] * scale['y']
         self.setRect(x, y, w, h)
         self.adjust_handles()
         if self.aspect_ratio:
@@ -210,9 +206,9 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        x = float(boundary['Iptc4xmpExt:rbX']) * scale['x']
-        y = float(boundary['Iptc4xmpExt:rbY']) * scale['y']
-        r = float(boundary['Iptc4xmpExt:rbRx']) * scale['x']
+        x = boundary['Iptc4xmpExt:rbX'] * scale['x']
+        y = boundary['Iptc4xmpExt:rbY'] * scale['y']
+        r = boundary['Iptc4xmpExt:rbRx'] * scale['x']
         self.set_geometry(x, y, r)
 
     @catch_all
@@ -266,8 +262,8 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw bow tie shape
         point = boundary['Iptc4xmpExt:rbVertices'][0]
-        x = float(point['Iptc4xmpExt:rbX']) * scale['x']
-        y = float(point['Iptc4xmpExt:rbY']) * scale['y']
+        x = point['Iptc4xmpExt:rbX'] * scale['x']
+        y = point['Iptc4xmpExt:rbY'] * scale['y']
         self.setPos(x, y)
         dx = width_for_text(display_widget, 'x') * 4.0
         polygon = QtGui.QPolygonF()
@@ -302,8 +298,8 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def __init__(self, boundary, scale, display_widget, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
         self.initialise(boundary, scale, display_widget)
-        vertices = [(float(v['Iptc4xmpExt:rbX']) * scale['x'],
-                     float(v['Iptc4xmpExt:rbY']) * scale['y'])
+        vertices = [(v['Iptc4xmpExt:rbX'] * scale['x'],
+                     v['Iptc4xmpExt:rbY'] * scale['y'])
                     for v in boundary['Iptc4xmpExt:rbVertices']]
         polygon = QtGui.QPolygonF()
         self.handles = []
@@ -467,14 +463,14 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             scale['y'] /= self.image_dims['y']
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
             aspect_ratio = 0.0
-            if region.has_role('http://cv.iptc.org/newscodes/imageregionrole/'
-                               'squareCropping'):
+            if region.has_uid('Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
+                              'newscodes/imageregionrole/squareCropping'):
                 aspect_ratio = 1.0
-            elif region.has_role('http://cv.iptc.org/newscodes/imageregionrole/'
-                                 'landscapeCropping'):
+            elif region.has_uid('Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
+                                'newscodes/imageregionrole/landscapeCropping'):
                 aspect_ratio = 16.0 / 9.0
-            elif region.has_role('http://cv.iptc.org/newscodes/imageregionrole/'
-                                 'portraitCropping'):
+            elif region.has_uid('Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
+                                'newscodes/imageregionrole/portraitCropping'):
                 aspect_ratio = 9.0 / 16.0
             if aspect_ratio and self.transform().isRotating():
                 aspect_ratio = 1.0 / aspect_ratio
@@ -778,29 +774,31 @@ class RegionTabs(QtWidgets.QTabWidget):
             return
         if action == rect_action:
             boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
-                        'Iptc4xmpExt:rbX': '0.4',
-                        'Iptc4xmpExt:rbY': '0.4',
-                        'Iptc4xmpExt:rbW': '0.2',
-                        'Iptc4xmpExt:rbH': '0.2'}
+                        'Iptc4xmpExt:rbX': 0.4,
+                        'Iptc4xmpExt:rbY': 0.4,
+                        'Iptc4xmpExt:rbW': 0.2,
+                        'Iptc4xmpExt:rbH': 0.2}
         elif action == circ_action:
             boundary = {'Iptc4xmpExt:rbShape': 'circle',
-                        'Iptc4xmpExt:rbX': '0.5',
-                        'Iptc4xmpExt:rbY': '0.5',
-                        'Iptc4xmpExt:rbRx': '0.15'}
+                        'Iptc4xmpExt:rbX': 0.5,
+                        'Iptc4xmpExt:rbY': 0.5,
+                        'Iptc4xmpExt:rbRx': 0.15}
         elif action == point_action:
             boundary = {'Iptc4xmpExt:rbShape': 'polygon',
                         'Iptc4xmpExt:rbVertices': [{
-                            'Iptc4xmpExt:rbX': '0.5',
-                            'Iptc4xmpExt:rbY': '0.5'}]}
+                            'Iptc4xmpExt:rbX': 0.5,
+                            'Iptc4xmpExt:rbY': 0.5}]}
         elif action == poly_action:
             boundary = {'Iptc4xmpExt:rbShape': 'polygon',
                         'Iptc4xmpExt:rbVertices': [
-                            {'Iptc4xmpExt:rbX': '0.4',
-                             'Iptc4xmpExt:rbY': '0.4'},
-                            {'Iptc4xmpExt:rbX': '0.6',
-                             'Iptc4xmpExt:rbY': '0.5'},
-                            {'Iptc4xmpExt:rbX': '0.5',
-                             'Iptc4xmpExt:rbY': '0.6'}]}
+                            {'Iptc4xmpExt:rbX': 0.4,
+                             'Iptc4xmpExt:rbY': 0.4},
+                            {'Iptc4xmpExt:rbX': 0.6,
+                             'Iptc4xmpExt:rbY': 0.5},
+                            {'Iptc4xmpExt:rbX': 0.5,
+                             'Iptc4xmpExt:rbY': 0.6}]}
+        else:
+            return
         boundary['Iptc4xmpExt:rbUnit'] = 'relative'
         regions.append({'Iptc4xmpExt:RegionBoundary': boundary})
         current = len(regions) - 1

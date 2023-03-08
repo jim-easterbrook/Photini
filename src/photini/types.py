@@ -1574,11 +1574,35 @@ class MD_SingleLocation(MD_MultiLocation):
 
 
 class ImageRegionItem(MD_Value, dict):
+    @staticmethod
+    def from_string(value):
+        for key in value:
+            if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
+                       'Iptc4xmpExt:rbH', 'Iptc4xmpExt:rbRx'):
+                value[key] = float(value[key])
+        return value
+
+    @staticmethod
+    def to_string(value, fmt):
+        for key in value:
+            if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
+                       'Iptc4xmpExt:rbH', 'Iptc4xmpExt:rbRx'):
+                value[key] = fmt.format(value[key])
+        return value
+
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
         if tag.startswith('Xmp'):
+            boundary = file_value['Iptc4xmpExt:RegionBoundary']
+            if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
+                boundary['Iptc4xmpExt:rbVertices'] = [
+                    cls.from_string(v)
+                    for v in boundary['Iptc4xmpExt:rbVertices']]
+            else:
+                boundary = cls.from_string(boundary)
+            file_value['Iptc4xmpExt:RegionBoundary'] = boundary
             return file_value
         # Convert Exif.Photo.SubjectArea to an image region. See
         # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
@@ -1611,18 +1635,32 @@ class ImageRegionItem(MD_Value, dict):
             }
 
     def to_xmp(self):
-        return self
+        result = dict(self)
+        boundary = dict(result['Iptc4xmpExt:RegionBoundary'])
+        if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
+            fmt = '{:.0f}'
+        else:
+            fmt = '{:.4f}'
+        if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
+            boundary['Iptc4xmpExt:rbVertices'] = [
+                self.to_string(v, fmt)
+                for v in boundary['Iptc4xmpExt:rbVertices']]
+        else:
+            boundary = self.to_string(boundary, fmt)
+        result['Iptc4xmpExt:RegionBoundary'] = boundary
+        return result
 
-    def has_role(self, uid):
-        if 'Iptc4xmpExt:rRole' not in self:
+    def has_uid(self, key, uid):
+        if key not in self:
             return False
-        for role in self['Iptc4xmpExt:rRole']:
-            if 'xmp:Identifier' in role and uid in role['xmp:Identifier']:
+        for item in self[key]:
+            if 'xmp:Identifier' in item and uid in item['xmp:Identifier']:
                 return True
         return False
 
     def is_main_subject_area(self):
-        return self.has_role(
+        return self.has_uid(
+            'Iptc4xmpExt:rRole',
             'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
 
     def convert_unit(self, unit, image):
@@ -1636,28 +1674,26 @@ class ImageRegionItem(MD_Value, dict):
         if unit == 'relative':
             scale = {'x': 1.0 / float(image_dims['x']),
                      'y': 1.0 / float(image_dims['y'])}
-            fmt = '{:.4f}'
         else:
             scale = {'x': float(image_dims['x']),
                      'y': float(image_dims['y'])}
-            fmt = '{:.0f}'
         boundary['Iptc4xmpExt:rbUnit'] = unit
         if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
             boundary['Iptc4xmpExt:rbVertices'] = [
-                self.scale_dimensions(v, scale, fmt)
+                self.scale_dimensions(v, scale)
                 for v in boundary['Iptc4xmpExt:rbVertices']]
         else:
-            boundary = self.scale_dimensions(boundary, scale, fmt)
+            boundary = self.scale_dimensions(boundary, scale)
         result['Iptc4xmpExt:RegionBoundary'] = boundary
         return result
 
-    def scale_dimensions(self, value, scale, fmt):
+    def scale_dimensions(self, value, scale):
         for key in value:
             if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbW',
                        'Iptc4xmpExt:rbRx'):
-                value[key] = fmt.format(float(value[key]) * scale['x'])
+                value[key] = float(value[key]) * scale['x']
             elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
-                value[key] = fmt.format(float(value[key]) * scale['y'])
+                value[key] = float(value[key]) * scale['y']
         return value
 
     def short_keys(self, value):
@@ -1719,10 +1755,10 @@ class MD_ImageRegion(MD_Tuple):
         w, h = dims
         boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
                     'Iptc4xmpExt:rbUnit': 'relative',
-                    'Iptc4xmpExt:rbX': round(float(note['x']) / w, 4),
-                    'Iptc4xmpExt:rbY': round(float(note['y']) / h, 4),
-                    'Iptc4xmpExt:rbW': round(float(note['w']) / w, 4),
-                    'Iptc4xmpExt:rbH': round(float(note['h']) / h, 4)}
+                    'Iptc4xmpExt:rbX': float(note['x']) / w,
+                    'Iptc4xmpExt:rbY': float(note['y']) / h,
+                    'Iptc4xmpExt:rbW': float(note['w']) / w,
+                    'Iptc4xmpExt:rbH': float(note['h']) / h}
         return {'Iptc4xmpExt:rRole': [{
                     'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
                     'xmp:Identifier': [
@@ -1800,12 +1836,12 @@ class MD_ImageRegion(MD_Tuple):
                 boundary = region['Iptc4xmpExt:RegionBoundary']
                 if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
                     continue
-                if not region.has_role(uri):
+                if not region.has_uid('Iptc4xmpExt:rRole', uri):
                     continue
-                x = float(boundary['Iptc4xmpExt:rbX'])
-                y = float(boundary['Iptc4xmpExt:rbY'])
-                w = float(boundary['Iptc4xmpExt:rbW'])
-                h = float(boundary['Iptc4xmpExt:rbH'])
+                x = boundary['Iptc4xmpExt:rbX']
+                y = boundary['Iptc4xmpExt:rbY']
+                w = boundary['Iptc4xmpExt:rbW']
+                h = boundary['Iptc4xmpExt:rbH']
                 x += w / 2.0
                 y += h / 2.0
                 if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
@@ -1813,10 +1849,7 @@ class MD_ImageRegion(MD_Tuple):
                         continue
                     x /= dims['x']
                     y /= dims['y']
-                x = (x * 2.0) - 1.0
-                y = (y * 2.0) - 1.0
                 if transform:
                     x, y = transform.map(x, y)
-                y = -y
-                return x, y
+                return (x * 2.0) - 1.0, 1.0 - (y * 2.0)
         return None
