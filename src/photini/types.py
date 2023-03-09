@@ -1597,6 +1597,9 @@ class MD_SingleLocation(MD_MultiLocation):
 
 
 class ImageRegionItem(MD_Value, dict):
+    def set_image_dims(self, image_dims):
+        self.image_dims = image_dims
+
     @staticmethod
     def from_string(value):
         for key in value:
@@ -1686,7 +1689,7 @@ class ImageRegionItem(MD_Value, dict):
             'Iptc4xmpExt:rRole',
             'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
 
-    def to_Qt(self, image_dims):
+    def to_Qt(self):
         # convert the boundary to a Qt polygon defining the shape in
         # relative units
         boundary = self['Iptc4xmpExt:RegionBoundary']
@@ -1709,17 +1712,17 @@ class ImageRegionItem(MD_Value, dict):
                 for v in boundary['Iptc4xmpExt:rbVertices']])
         if boundary['Iptc4xmpExt:rbUnit'] == 'relative':
             return polygon
-        transform = QtGui.QTransform().scale(1.0 / float(image_dims['x']),
-                                             1.0 / float(image_dims['y']))
+        transform = QtGui.QTransform().scale(1.0 / float(self.image_dims['x']),
+                                             1.0 / float(self.image_dims['y']))
         return transform.map(polygon)
 
-    def from_Qt(self, polygon, image_dims):
+    def from_Qt(self, polygon):
         # convert a Qt polygon defining the shape in relative units to a
         # boundary in pixel or relative units
         boundary = dict(self['Iptc4xmpExt:RegionBoundary'])
         if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-            transform = QtGui.QTransform().scale(float(image_dims['x']),
-                                                 float(image_dims['y']))
+            transform = QtGui.QTransform().scale(float(self.image_dims['x']),
+                                                 float(self.image_dims['y']))
             polygon = transform.map(polygon)
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
             # polygon is two opposite corners of rectangle
@@ -1745,13 +1748,10 @@ class ImageRegionItem(MD_Value, dict):
     def convert_unit(self, unit, image):
         if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
             return self
-        image_dims = image.metadata.get_image_size()
-        if not image_dims:
-            return self
-        polygon = self.to_Qt(image_dims)
+        polygon = self.to_Qt()
         self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] = unit
         result = dict(self)
-        result['Iptc4xmpExt:RegionBoundary'] = self.from_Qt(polygon, image_dims)
+        result['Iptc4xmpExt:RegionBoundary'] = self.from_Qt(polygon)
         return result
 
     def short_keys(self, value):
@@ -1789,6 +1789,11 @@ class ImageRegionItem(MD_Value, dict):
 
 class MD_ImageRegion(MD_Tuple):
     _type = ImageRegionItem
+
+    def set_image_dims(self, image_dims):
+        for region in self:
+            region.set_image_dims(image_dims)
+        self.image_dims = image_dims
 
     def index(self, other):
         if other.is_main_subject_area():
@@ -1869,12 +1874,9 @@ class MD_ImageRegion(MD_Tuple):
 
     def to_ipernity(self, image, target_size):
         md = image.metadata
-        image_dims = md.get_image_size()
-        if not image_dims:
-            return []
         w = target_size
-        h = w * min(image_dims.values()) / max(image_dims.values())
-        if image_dims['y'] > image_dims['x']:
+        h = w * min(self.image_dims.values()) / max(self.image_dims.values())
+        if self.image_dims['y'] > self.image_dims['x']:
             w, h = h, w
         transform = md.orientation and md.orientation.get_transform()
         if transform and transform.isRotating():
@@ -1909,10 +1911,10 @@ class MD_ImageRegion(MD_Tuple):
             w = boundary['Iptc4xmpExt:rbW']
             h = boundary['Iptc4xmpExt:rbH']
             if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-                x /= image_dims['x']
-                y /= image_dims['y']
-                w /= image_dims['x']
-                h /= image_dims['y']
+                x /= self.image_dims['x']
+                y /= self.image_dims['y']
+                w /= self.image_dims['x']
+                h /= self.image_dims['y']
             rect = QtCore.QRectF(x, y, w, h)
             if transform:
                 rect = transform.mapRect(rect).normalized()

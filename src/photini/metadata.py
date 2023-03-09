@@ -616,6 +616,11 @@ class Metadata(object):
                     value['tz_offset'] = self.timezone
                     values[n] = (tag, self._data_type[name](value))
                     logger.info('%s: merged camera timezone offset', tag)
+            # image region needs image size
+            if name == 'image_region':
+                image_dims = self.get_image_size()
+                for (tag, value) in values:
+                    value.set_image_dims(image_dims)
             # choose result and merge in non-matching data so user can review it
             value = self._data_type[name](None)
             if values:

@@ -23,7 +23,7 @@ import re
 
 from photini.cv import image_region_types, image_region_roles
 from photini.pyqt import *
-from photini.types import ImageRegionItem, LangAltDict
+from photini.types import LangAltDict
 from photini.widgets import LangAltWidget, MultiStringEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
@@ -76,11 +76,10 @@ class PolygonHandle(ResizeHandle):
 
 
 class RegionMixin(object):
-    def initialise(self, region, image_dims, display_widget):
+    def initialise(self, region, display_widget):
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
         self.region = region
-        self.image_dims = image_dims
         rect = display_widget.scene().sceneRect()
         self.to_scene = QtGui.QTransform().scale(rect.width(), rect.height())
         self.from_scene = self.to_scene.inverted()[0]
@@ -92,16 +91,16 @@ class RegionMixin(object):
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
-    def __init__(self, region, image_dims, display_widget,
+    def __init__(self, region, display_widget,
                  aspect_ratio=0.0, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
-        self.initialise(region, image_dims, display_widget)
+        self.initialise(region, display_widget)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         self.aspect_ratio = aspect_ratio
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        corners = self.to_scene.map(region.to_Qt(image_dims))
+        corners = self.to_scene.map(region.to_Qt())
         rect = QtCore.QRectF(corners.at(0), corners.at(1))
         self.setRect(rect)
         self.adjust_handles()
@@ -175,7 +174,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         rect.translate(self.scenePos())
         rect = self.from_scene.mapRect(rect)
         polygon = QtGui.QPolygonF([rect.topLeft(), rect.bottomRight()])
-        boundary = self.region.from_Qt(polygon, self.image_dims)
+        boundary = self.region.from_Qt(polygon)
         self.display_widget.new_boundary(boundary)
 
     def adjust_handles(self):
@@ -187,13 +186,13 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
 
 
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
-    def __init__(self, region, image_dims, display_widget, *arg, **kw):
+    def __init__(self, region, display_widget, *arg, **kw):
         super(CircleRegion, self).__init__(*arg, **kw)
-        self.initialise(region, image_dims, display_widget)
+        self.initialise(region, display_widget)
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        points = self.to_scene.map(region.to_Qt(image_dims))
+        points = self.to_scene.map(region.to_Qt())
         centre = points.at(0)
         radius = (points.at(1) - centre).manhattanLength()
         self.set_geometry(centre, radius)
@@ -224,7 +223,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         centre = rect.center()
         edge = QtCore.QPointF(rect.right(), centre.y())
         polygon = QtGui.QPolygonF([centre, edge])
-        boundary = self.region.from_Qt(polygon, self.image_dims)
+        boundary = self.region.from_Qt(polygon)
         self.display_widget.new_boundary(boundary)
 
     def set_geometry(self, centre, r):
@@ -238,12 +237,12 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
 
 
 class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, region, image_dims, display_widget, *arg, **kw):
+    def __init__(self, region, display_widget, *arg, **kw):
         super(PointRegion, self).__init__(*arg, **kw)
-        self.initialise(region, image_dims, display_widget)
+        self.initialise(region, display_widget)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw bow tie shape
-        pos = self.to_scene.map(region.to_Qt(image_dims)).at(0)
+        pos = self.to_scene.map(region.to_Qt()).at(0)
         self.setPos(pos)
         dx = width_for_text(display_widget, 'x') * 4.0
         polygon = QtGui.QPolygonF()
@@ -267,15 +266,15 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         super(PointRegion, self).mouseReleaseEvent(event)
         pos = self.from_scene.map(self.scenePos())
         polygon = QtGui.QPolygonF([pos])
-        boundary = self.region.from_Qt(polygon, self.image_dims)
+        boundary = self.region.from_Qt(polygon)
         self.display_widget.new_boundary(boundary)
 
 
 class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, region, image_dims, display_widget, *arg, **kw):
+    def __init__(self, region, display_widget, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
-        self.initialise(region, image_dims, display_widget)
-        polygon = self.to_scene.map(region.to_Qt(image_dims))
+        self.initialise(region, display_widget)
+        polygon = self.to_scene.map(region.to_Qt())
         self.handles = []
         for idx in range(polygon.count()):
             handle = PolygonHandle(parent=self)
@@ -342,7 +341,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         polygon = self.polygon()
         polygon.translate(self.scenePos())
         polygon = self.from_scene.map(polygon)
-        boundary = self.region.from_Qt(polygon, self.image_dims)
+        boundary = self.region.from_Qt(polygon)
         self.display_widget.new_boundary(boundary)
 
 
@@ -361,7 +360,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.boundary = None
         if image:
             md = image.metadata
-            self.image_dims = md.get_image_size()
             reader = QtGui.QImageReader(image.path)
             reader.setAutoTransform(False)
             pixmap = QtGui.QPixmap.fromImageReader(reader)
@@ -417,8 +415,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         if not region:
             return
         boundary = region['Iptc4xmpExt:RegionBoundary']
-        if boundary['Iptc4xmpExt:rbUnit'] == 'pixel' and not self.image_dims:
-            return
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
             aspect_ratio = 0.0
             if region.has_uid('Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
@@ -433,13 +429,13 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             if aspect_ratio and self.transform().isRotating():
                 aspect_ratio = 1.0 / aspect_ratio
             self.boundary = RectangleRegion(
-                region, self.image_dims, self, aspect_ratio=aspect_ratio)
+                region, self, aspect_ratio=aspect_ratio)
         elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
-            self.boundary = CircleRegion(region, self.image_dims, self)
+            self.boundary = CircleRegion(region, self)
         elif len(boundary['Iptc4xmpExt:rbVertices']) == 1:
-            self.boundary = PointRegion(region, self.image_dims, self)
+            self.boundary = PointRegion(region, self)
         else:
-            self.boundary = PolygonRegion(region, self.image_dims, self)
+            self.boundary = PolygonRegion(region, self)
         scene.addItem(self.boundary)
         self.ensureVisible(self.boundary.boundingRect())
 
@@ -800,6 +796,7 @@ class RegionTabs(QtWidgets.QTabWidget):
     @catch_all
     def new_value(self, key, value):
         idx = self.currentIndex()
+        image_dims = self.image.metadata.image_region.image_dims
         regions = list(self.image.metadata.image_region)
         region = regions[idx]
         if 'rbUnit' in key:
@@ -812,6 +809,7 @@ class RegionTabs(QtWidgets.QTabWidget):
                 del region[key]
         regions[idx] = region
         self.image.metadata.image_region = regions
+        self.image.metadata.image_region.set_image_dims(image_dims)
         if key == 'Iptc4xmpExt:rRole':
             # aspect ratio constraint may have changed
             self.new_region.emit(self.image.metadata.image_region[idx])
