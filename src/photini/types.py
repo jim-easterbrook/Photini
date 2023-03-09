@@ -1748,32 +1748,11 @@ class ImageRegionItem(MD_Value, dict):
         image_dims = image.metadata.get_image_size()
         if not image_dims:
             return self
+        polygon = self.to_Qt(image_dims)
+        self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] = unit
         result = dict(self)
-        boundary = dict(result['Iptc4xmpExt:RegionBoundary'])
-        if unit == 'relative':
-            scale = {'x': 1.0 / float(image_dims['x']),
-                     'y': 1.0 / float(image_dims['y'])}
-        else:
-            scale = {'x': float(image_dims['x']),
-                     'y': float(image_dims['y'])}
-        boundary['Iptc4xmpExt:rbUnit'] = unit
-        if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
-            boundary['Iptc4xmpExt:rbVertices'] = [
-                self.scale_dimensions(v, scale)
-                for v in boundary['Iptc4xmpExt:rbVertices']]
-        else:
-            boundary = self.scale_dimensions(boundary, scale)
-        result['Iptc4xmpExt:RegionBoundary'] = boundary
+        result['Iptc4xmpExt:RegionBoundary'] = self.from_Qt(polygon, image_dims)
         return result
-
-    def scale_dimensions(self, value, scale):
-        for key in value:
-            if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbW',
-                       'Iptc4xmpExt:rbRx'):
-                value[key] = float(value[key]) * scale['x']
-            elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
-                value[key] = float(value[key]) * scale['y']
-        return value
 
     def short_keys(self, value):
         if isinstance(value, dict):
