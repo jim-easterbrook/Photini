@@ -202,6 +202,7 @@ class MetadataHandler(object):
             'Iptc4xmpExt:Name': exiv2.TypeId.langAlt,
             'Iptc4xmpExt:rCtype': exiv2.TypeId.xmpBag,
             'Iptc4xmpExt:rRole': exiv2.TypeId.xmpBag,
+            'Iptc4xmpExt:rbVertices': exiv2.TypeId.xmpSeq,
             'Xmp.xmp.Thumbnails': exiv2.TypeId.xmpAlt,
             }
 
