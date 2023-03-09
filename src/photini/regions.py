@@ -80,6 +80,7 @@ class RegionMixin(object):
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
         self.region = region
+        self.image = display_widget.image
         rect = display_widget.scene().sceneRect()
         self.to_scene = QtGui.QTransform().scale(rect.width(), rect.height())
         self.from_scene = self.to_scene.inverted()[0]
@@ -100,7 +101,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        corners = self.to_scene.map(region.to_Qt())
+        corners = self.to_scene.map(region.to_Qt(self.image))
         rect = QtCore.QRectF(corners.at(0), corners.at(1))
         self.setRect(rect)
         self.adjust_handles()
@@ -174,7 +175,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         rect.translate(self.scenePos())
         rect = self.from_scene.mapRect(rect)
         polygon = QtGui.QPolygonF([rect.topLeft(), rect.bottomRight()])
-        boundary = self.region.from_Qt(polygon)
+        boundary = self.region.from_Qt(polygon, self.image)
         self.display_widget.new_boundary(boundary)
 
     def adjust_handles(self):
@@ -192,7 +193,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.handles = []
         for idx in range(4):
             self.handles.append(ResizeHandle(parent=self))
-        points = self.to_scene.map(region.to_Qt())
+        points = self.to_scene.map(region.to_Qt(self.image))
         centre = points.at(0)
         radius = (points.at(1) - centre).manhattanLength()
         self.set_geometry(centre, radius)
@@ -223,7 +224,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         centre = rect.center()
         edge = QtCore.QPointF(rect.right(), centre.y())
         polygon = QtGui.QPolygonF([centre, edge])
-        boundary = self.region.from_Qt(polygon)
+        boundary = self.region.from_Qt(polygon, self.image)
         self.display_widget.new_boundary(boundary)
 
     def set_geometry(self, centre, r):
@@ -242,7 +243,7 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.initialise(region, display_widget)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw bow tie shape
-        pos = self.to_scene.map(region.to_Qt()).at(0)
+        pos = self.to_scene.map(region.to_Qt(self.image)).at(0)
         self.setPos(pos)
         dx = width_for_text(display_widget, 'x') * 4.0
         polygon = QtGui.QPolygonF()
@@ -266,7 +267,7 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         super(PointRegion, self).mouseReleaseEvent(event)
         pos = self.from_scene.map(self.scenePos())
         polygon = QtGui.QPolygonF([pos])
-        boundary = self.region.from_Qt(polygon)
+        boundary = self.region.from_Qt(polygon, self.image)
         self.display_widget.new_boundary(boundary)
 
 
@@ -274,7 +275,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def __init__(self, region, display_widget, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget)
-        polygon = self.to_scene.map(region.to_Qt())
+        polygon = self.to_scene.map(region.to_Qt(self.image))
         self.handles = []
         for idx in range(polygon.count()):
             handle = PolygonHandle(parent=self)
@@ -341,7 +342,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         polygon = self.polygon()
         polygon.translate(self.scenePos())
         polygon = self.from_scene.map(polygon)
-        boundary = self.region.from_Qt(polygon)
+        boundary = self.region.from_Qt(polygon, self.image)
         self.display_widget.new_boundary(boundary)
 
 
@@ -354,6 +355,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.boundary = None
 
     def set_image(self, image):
+        self.image = image
         scene = self.scene()
         scene.clear()
         self.resetTransform()
@@ -799,7 +801,7 @@ class RegionTabs(QtWidgets.QTabWidget):
         md = self.image.metadata
         region = md.image_region[idx]
         if 'rbUnit' in key:
-            region = region.convert_unit(value)
+            region = region.convert_unit(value, self.image)
         else:
             region = dict(region)
             if value:

@@ -1688,7 +1688,7 @@ class ImageRegionItem(MD_Value, dict):
             'Iptc4xmpExt:rRole',
             'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
 
-    def to_Qt(self):
+    def to_Qt(self, image):
         # convert the boundary to a Qt polygon defining the shape in
         # relative units
         boundary = self['Iptc4xmpExt:RegionBoundary']
@@ -1711,17 +1711,19 @@ class ImageRegionItem(MD_Value, dict):
                 for v in boundary['Iptc4xmpExt:rbVertices']])
         if boundary['Iptc4xmpExt:rbUnit'] == 'relative':
             return polygon
-        transform = QtGui.QTransform().scale(1.0 / float(self.image_dims['x']),
-                                             1.0 / float(self.image_dims['y']))
+        image_dims = image.metadata.dimensions
+        transform = QtGui.QTransform().scale(1.0 / float(image_dims['width']),
+                                             1.0 / float(image_dims['height']))
         return transform.map(polygon)
 
-    def from_Qt(self, polygon):
+    def from_Qt(self, polygon, image):
         # convert a Qt polygon defining the shape in relative units to a
         # boundary in pixel or relative units
         boundary = dict(self['Iptc4xmpExt:RegionBoundary'])
         if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-            transform = QtGui.QTransform().scale(float(self.image_dims['x']),
-                                                 float(self.image_dims['y']))
+            image_dims = image.metadata.dimensions
+            transform = QtGui.QTransform().scale(float(image_dims['width']),
+                                                 float(image_dims['height']))
             polygon = transform.map(polygon)
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
             # polygon is two opposite corners of rectangle
@@ -1744,13 +1746,13 @@ class ImageRegionItem(MD_Value, dict):
                 for p in (polygon.at(n) for n in range(polygon.count()))]
         return boundary
 
-    def convert_unit(self, unit):
+    def convert_unit(self, unit, image):
         if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
             return self
-        polygon = self.to_Qt()
+        polygon = self.to_Qt(image)
         self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] = unit
         result = dict(self)
-        result['Iptc4xmpExt:RegionBoundary'] = self.from_Qt(polygon)
+        result['Iptc4xmpExt:RegionBoundary'] = self.from_Qt(polygon, image)
         return result
 
     def short_keys(self, value):
@@ -1789,17 +1791,6 @@ class ImageRegionItem(MD_Value, dict):
 class MD_ImageRegion(MD_Tuple):
     _type = ImageRegionItem
 
-    def set_image_dims(self, image_dims):
-        for region in self:
-            region.image_dims = image_dims
-        self.image_dims = image_dims
-
-    def merge(self, info, tag, other):
-        image_dims = self.image_dims
-        result = super(MD_ImageRegion, self).merge(info, tag, other)
-        result.set_image_dims(image_dims)
-        return result
-
     def new_region(self, region, idx=None):
         if idx is None:
             idx = len(self)
@@ -1812,7 +1803,6 @@ class MD_ImageRegion(MD_Tuple):
         elif idx < len(self):
             result.pop(idx)
         result = MD_ImageRegion(result)
-        result.set_image_dims(self.image_dims)
         return result
 
     def index(self, other):
@@ -1902,8 +1892,11 @@ class MD_ImageRegion(MD_Tuple):
 
     def to_ipernity(self, image, target_size):
         w = target_size
-        h = w * min(self.image_dims.values()) / max(self.image_dims.values())
-        if self.image_dims['y'] > self.image_dims['x']:
+        image_dims = image.metadata.dimensions
+        h = float(w) * (float(min(image_dims['width'], image_dims['height'])) /
+                        float(max(image_dims['width'], image_dims['height'])))
+        h = int(h + 0.5)
+        if image_dims['height'] > image_dims['width']:
             w, h = h, w
         transform = (image.metadata.orientation
                      and image.metadata.orientation.get_transform())
@@ -1934,7 +1927,7 @@ class MD_ImageRegion(MD_Tuple):
                     region['Iptc4xmpExt:Name']).best_match()
             if not item['content']:
                 continue
-            points = region.to_Qt()
+            points = region.to_Qt(image)
             rect = QtCore.QRectF(points.at(0), points.at(1))
             if transform:
                 rect = transform.mapRect(rect).normalized()
@@ -1946,7 +1939,8 @@ class MD_ImageRegion(MD_Tuple):
         return result
 
     def get_focus(self, image):
-        portrait_format = self.image_dims['y'] > self.image_dims['x']
+        image_dims = image.metadata.dimensions
+        portrait_format = image_dims['height'] > image_dims['width']
         transform = (image.metadata.orientation
                      and image.metadata.orientation.get_transform())
         if transform and transform.isRotating():
@@ -1971,7 +1965,7 @@ class MD_ImageRegion(MD_Tuple):
             for region in self:
                 if not region.has_uid('Iptc4xmpExt:rRole', uri):
                     continue
-                points = region.to_Qt()
+                points = region.to_Qt(image)
                 boundary = region['Iptc4xmpExt:RegionBoundary']
                 if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
                     centre = (points.at(0) + points.at(1)) / 2.0

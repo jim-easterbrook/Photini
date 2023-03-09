@@ -399,7 +399,8 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.tiff.ImageDescription'),
                             ('WA', 'Iptc.Application2.Caption'),
                             ('WN', 'Xmp.video.Information')),
-        'dimensions'     : (('WN', 'Xmp.video.Dims*'),),
+        'dimensions'     : (('WN', 'Exif.Photo.Pixel*Dimension'),
+                            ('WN', 'Xmp.video.Dims*'),),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
                             ('W0', 'Exif.Image.FocalLength'),
                             ('WX', 'Xmp.exif.FocalLength')),
@@ -460,6 +461,8 @@ class ImageMetadata(MetadataHandler):
             try:
                 if tag.startswith('Exif.Thumbnail'):
                     file_value = self.get_exif_thumbnail()
+                elif tag == 'Exif.Photo.Pixel*Dimension':
+                    file_value = self.get_image_size()
                 elif tag in self._multi_tags:
                     file_value = self.get_group(tag)
                 else:
@@ -501,6 +504,41 @@ class ImageMetadata(MetadataHandler):
                 self.set_group(tag, file_value)
             else:
                 self.set_value(tag, file_value)
+
+    def get_image_size(self):
+        # try exiv2's header decoding first
+        w = self._image.pixelWidth()
+        h = self._image.pixelHeight()
+        if w and h:
+            return w, h
+        # get preview sizes
+        candidates = set(self.get_preview_imagedims())
+        # search metadata for image / subimage / sensor sizes
+        widths = {}
+        heights = {}
+        for key in self.get_all_tags():
+            family, group, tag = key.split('.', 2)
+            if tag in ('PixelXDimension', 'ImageWidth'):
+                widths[key] = int(self.get_value(key))
+            elif tag in ('PixelYDimension', 'ImageLength'):
+                heights[key] = int(self.get_value(key))
+        for kx in widths:
+            if 'ImageWidth' in kx:
+                ky = kx.replace('ImageWidth', 'ImageLength')
+            else:
+                ky = kx.replace('PixelXDimension', 'PixelYDimension')
+            if ky in heights:
+                candidates.add((widths[kx], heights[ky]))
+        if not candidates:
+            return None
+        candidates = list(candidates)
+        candidates.sort()
+        if len(candidates) > 1:
+            # some cameras report a sensor size that's slightly bigger
+            # than the actual image
+            if candidates[-1][0] < 1.03 * candidates[-2][0]:
+                return candidates[-2]
+        return candidates[-1]
 
 
 class SidecarMetadata(ImageMetadata):
@@ -616,11 +654,6 @@ class Metadata(object):
                     value['tz_offset'] = self.timezone
                     values[n] = (tag, self._data_type[name](value))
                     logger.info('%s: merged camera timezone offset', tag)
-            # image region needs image size
-            if name == 'image_region':
-                image_dims = self.get_image_size()
-                for (tag, value) in values:
-                    value.set_image_dims(image_dims)
             # choose result and merge in non-matching data so user can review it
             value = self._data_type[name](None)
             if values:
@@ -716,50 +749,12 @@ class Metadata(object):
             return
         return self._if.get_previews()
 
-    def get_image_size(self):
-        md = self._if or self._sc
-        if not md:
-            return {}
-        # try exiv2's header decoding first
-        w = md._image.pixelWidth()
-        h = md._image.pixelHeight()
-        if w and h:
-            return {'x': w, 'y': h}
-        # get preview sizes
-        candidates = set(md.get_preview_imagedims())
-        # search metadata for image / subimage / sensor sizes
-        widths = {}
-        heights = {}
-        for key in md.get_all_tags():
-            family, group, tag = key.split('.', 2)
-            if tag in ('PixelXDimension', 'ImageWidth'):
-                widths[key] = int(md.get_value(key))
-            elif tag in ('PixelYDimension', 'ImageLength'):
-                heights[key] = int(md.get_value(key))
-        for kx in widths:
-            if 'ImageWidth' in kx:
-                ky = kx.replace('ImageWidth', 'ImageLength')
-            else:
-                ky = kx.replace('PixelXDimension', 'PixelYDimension')
-            if ky in heights:
-                candidates.add((widths[kx], heights[ky]))
-        if not candidates:
-            return {}
-        candidates = list(candidates)
-        candidates.sort()
-        if len(candidates) > 1:
-            # some cameras report a sensor size that's slightly bigger
-            # than the actual image
-            if candidates[-1][0] < 1.03 * candidates[-2][0]:
-                candidates.pop(-1)
-        return {'x': candidates[-1][0], 'y': candidates[-1][1]}
-
     def get_crop_factor(self):
         md = self._if or self._sc
         if not md:
             return None
         # get relevant metadata
-        image_size = self.get_image_size()
+        image_size = md.dimensions
         if not image_size:
             return None
         resolution = {}
@@ -784,8 +779,8 @@ class Metadata(object):
         resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # find largest image dimensions
-        w = image_size['x'] / resolution['x']
-        h = image_size['y'] / resolution['y']
+        w = image_size['width'] / resolution['x']
+        h = image_size['height'] / resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))
         if resolution['unit'] == 3:
             # unit is cm
