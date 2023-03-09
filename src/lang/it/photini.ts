@@ -5,27 +5,27 @@
     <name>AddressTab</name>
     <message>
         <source>&amp;Address</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Indirizzo</translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation type="unfinished"></translation>
+        <translation>Ottenere l&apos;indirizzo da lat, long</translation>
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation type="unfinished"></translation>
+        <translation>Posizione duplicata</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina posizione</translation>
     </message>
     <message>
         <source>camera</source>
-        <translation type="unfinished"></translation>
+        <translation>camera</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserire i dettagli relativi alla località in cui è stata creata l&apos;immagine.</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
