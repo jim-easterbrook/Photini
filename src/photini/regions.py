@@ -359,7 +359,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.resetTransform()
         self.boundary = None
         if image:
-            md = image.metadata
             reader = QtGui.QImageReader(image.path)
             reader.setAutoTransform(False)
             pixmap = QtGui.QPixmap.fromImageReader(reader)
@@ -386,7 +385,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                     translate('RegionsTab', 'Unreadable image format'))
             else:
                 rect = self.contentsRect()
-                transform = md.orientation and md.orientation.get_transform()
+                orientation = image.metadata.orientation
+                transform = orientation and orientation.get_transform()
                 if transform:
                     self.setTransform(transform)
                     rect = transform.mapRect(rect)
@@ -716,13 +716,12 @@ class RegionTabs(QtWidgets.QTabWidget):
         poly_action = menu.addAction(
             translate('RegionsTab', 'New polygon'))
         action = execute(menu, pos)
-        regions = list(self.image.metadata.image_region)
-        current = self.currentIndex()
+        md = self.image.metadata
         if action == delete_action:
-            regions.pop(idx)
-            if current >= len(regions):
-                current = len(regions) - 1
-            self.image.metadata.image_region = regions
+            current = self.currentIndex()
+            md.image_region = md.image_region.new_region(None, current)
+            if current >= len(md.image_region):
+                current = max(len(md.image_region) - 1, 0)
             self.set_image(self.image)
             self.setCurrentIndex(current)
             return
@@ -754,9 +753,9 @@ class RegionTabs(QtWidgets.QTabWidget):
         else:
             return
         boundary['Iptc4xmpExt:rbUnit'] = 'relative'
-        regions.append({'Iptc4xmpExt:RegionBoundary': boundary})
-        current = len(regions) - 1
-        self.image.metadata.image_region = regions
+        region = {'Iptc4xmpExt:RegionBoundary': boundary}
+        md.image_region = md.image_region.new_region(region)
+        current = len(md.image_region) - 1
         self.set_image(self.image)
         self.setCurrentIndex(current)
 
@@ -796,23 +795,20 @@ class RegionTabs(QtWidgets.QTabWidget):
     @catch_all
     def new_value(self, key, value):
         idx = self.currentIndex()
-        image_dims = self.image.metadata.image_region.image_dims
-        regions = list(self.image.metadata.image_region)
-        region = regions[idx]
+        md = self.image.metadata
+        region = md.image_region[idx]
         if 'rbUnit' in key:
-            region = region.convert_unit(value, self.image)
+            region = region.convert_unit(value)
         else:
             region = dict(region)
             if value:
                 region[key] = value
             elif key in region:
                 del region[key]
-        regions[idx] = region
-        self.image.metadata.image_region = regions
-        self.image.metadata.image_region.set_image_dims(image_dims)
+        md.image_region = md.image_region.new_region(region, idx)
         if key == 'Iptc4xmpExt:rRole':
             # aspect ratio constraint may have changed
-            self.new_region.emit(self.image.metadata.image_region[idx])
+            self.new_region.emit(md.image_region[idx])
 
 
 class TabWidget(QtWidgets.QWidget):

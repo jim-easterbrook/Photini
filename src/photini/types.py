@@ -1745,7 +1745,7 @@ class ImageRegionItem(MD_Value, dict):
                 for p in (polygon.at(n) for n in range(polygon.count()))]
         return boundary
 
-    def convert_unit(self, unit, image):
+    def convert_unit(self, unit):
         if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
             return self
         polygon = self.to_Qt()
@@ -1794,6 +1794,21 @@ class MD_ImageRegion(MD_Tuple):
         for region in self:
             region.set_image_dims(image_dims)
         self.image_dims = image_dims
+
+    def new_region(self, region, idx=None):
+        if idx is None:
+            idx = len(self)
+        result = list(self)
+        if region:
+            if idx < len(self):
+                result[idx] = region
+            else:
+                result.append(region)
+        elif idx < len(self):
+            result.pop(idx)
+        result = MD_ImageRegion(result)
+        result.set_image_dims(self.image_dims)
+        return result
 
     def index(self, other):
         if other.is_main_subject_area():
