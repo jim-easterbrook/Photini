@@ -1112,6 +1112,29 @@ class MD_Orientation(MD_Int):
             raise ValueError('unrecognised orientation {}'.format(file_value))
         return cls(mapping[file_value])
 
+    def get_transform(self):
+        bits = self - 1
+        if not bits:
+            return None
+        # need to rotate and or reflect image
+        # translation is set so a unit rectangle maps to a unit rectangle
+        transform = QtGui.QTransform()
+        if bits & 0b001:
+            # reflect left-right
+            transform = transform.scale(-1.0, 1.0)
+        if bits & 0b010:
+            # rotate 180°
+            transform = transform.rotate(180.0)
+        if bits & 0b100:
+            # rotate 90° then reflect left-right
+            transform = transform.rotate(-90.0)
+            transform = transform.scale(-1.0, 1.0)
+        if transform.m11() + transform.m12() < 0:
+            transform = transform.translate(-1, 0)
+        if transform.m21() + transform.m22() < 0:
+            transform = transform.translate(0, -1)
+        return transform
+
 
 class MD_Timezone(MD_Int):
     _quiet = True
@@ -1810,14 +1833,15 @@ class MD_ImageRegion(MD_Tuple):
         return result
 
     def to_ipernity(self, image, target_size):
-        transform = image.get_transform(image.metadata.orientation)
-        image_dims = image.metadata.get_image_size()
+        md = image.metadata
+        image_dims = md.get_image_size()
         if not image_dims:
             return []
         w = target_size
         h = w * min(image_dims.values()) / max(image_dims.values())
         if image_dims['y'] > image_dims['x']:
             w, h = h, w
+        transform = md.orientation and md.orientation.get_transform()
         if transform and transform.isRotating():
             w, h = h, w
         target_dims = {'x': w, 'y': h}

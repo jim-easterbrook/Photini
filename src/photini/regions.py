@@ -383,10 +383,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.resetTransform()
         self.boundary = None
         if image:
-            self.image_dims = image.metadata.get_image_size()
-            transform = image.get_transform(image.metadata.orientation)
-            if transform:
-                self.setTransform(transform)
+            md = image.metadata
+            self.image_dims = md.get_image_size()
             reader = QtGui.QImageReader(image.path)
             reader.setAutoTransform(False)
             pixmap = QtGui.QPixmap.fromImageReader(reader)
@@ -409,11 +407,13 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             if pixmap.isNull():
                 logger.error('%s: %s', os.path.basename(image.path),
                              reader.errorString())
-                scene.addText(
+                item = scene.addText(
                     translate('RegionsTab', 'Unreadable image format'))
             else:
                 rect = self.contentsRect()
+                transform = md.orientation and md.orientation.get_transform()
                 if transform:
+                    self.setTransform(transform)
                     rect = transform.mapRect(rect)
                 w, h = pixmap.width(), pixmap.height()
                 if w * rect.height() < h * rect.width():
@@ -428,7 +428,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                         Qt.TransformationMode.SmoothTransformation)
                 item = QtWidgets.QGraphicsPixmapItem(pixmap)
                 scene.addItem(item)
-                scene.setSceneRect(item.boundingRect())
+            scene.setSceneRect(item.boundingRect())
 
     @QtSlot(dict)
     @catch_all
