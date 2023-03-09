@@ -648,7 +648,7 @@ class TabWidget(PhotiniUploader):
                         break
         if dims and (people or notes):
             data['image_region'] = MD_ImageRegion.from_flickr(
-                notes, people, dims)
+                notes, people, dims, image)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

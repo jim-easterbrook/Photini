@@ -532,7 +532,6 @@ class TabWidget(PhotiniUploader):
             for note in params['notes']:
                 if note['content'] == self.user_widget.user_data['realname']:
                     note['member_id'] = self.user_widget.user_data['user_id']
-            pprint(params['notes'])
         return params
 
     def replace_dialog(self, image):
@@ -574,7 +573,7 @@ class TabWidget(PhotiniUploader):
                     break
             if dims:
                 data['image_region'] = MD_ImageRegion.from_ipernity(
-                    photo['notes']['note'], dims)
+                    photo['notes']['note'], dims, image)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

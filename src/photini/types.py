@@ -1597,9 +1597,6 @@ class MD_SingleLocation(MD_MultiLocation):
 
 
 class ImageRegionItem(MD_Value, dict):
-    def set_image_dims(self, image_dims):
-        self.image_dims = image_dims
-
     @staticmethod
     def from_string(value):
         value = dict(value)
@@ -1794,8 +1791,14 @@ class MD_ImageRegion(MD_Tuple):
 
     def set_image_dims(self, image_dims):
         for region in self:
-            region.set_image_dims(image_dims)
+            region.image_dims = image_dims
         self.image_dims = image_dims
+
+    def merge(self, info, tag, other):
+        image_dims = self.image_dims
+        result = super(MD_ImageRegion, self).merge(info, tag, other)
+        result.set_image_dims(image_dims)
+        return result
 
     def new_region(self, region, idx=None):
         if idx is None:
@@ -1828,17 +1831,25 @@ class MD_ImageRegion(MD_Tuple):
         return len(self)
 
     @staticmethod
-    def rectangle_from_note(note, dims):
+    def rectangle_from_note(note, dims, image):
         if not ('x' in note and 'y' in note and
                 'w' in note and 'h' in note):
             return None
+        transform = (image.metadata.orientation
+                     and image.metadata.orientation.get_transform())
         w, h = dims
+        scale = QtGui.QTransform().scale(1.0 / float(w), 1.0 / float(h))
+        rect = QtCore.QRectF(float(note['x']), float(note['y']),
+                             float(note['w']), float(note['h']))
+        rect = scale.mapRect(rect)
+        if transform:
+            rect = transform.inverted()[0].mapRect(rect)
         boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
-                    'Iptc4xmpExt:rbUnit': 'relative',
-                    'Iptc4xmpExt:rbX': float(note['x']) / w,
-                    'Iptc4xmpExt:rbY': float(note['y']) / h,
-                    'Iptc4xmpExt:rbW': float(note['w']) / w,
-                    'Iptc4xmpExt:rbH': float(note['h']) / h}
+                    'Iptc4xmpExt:rbUnit': 'relative'}
+        (boundary['Iptc4xmpExt:rbX'],
+         boundary['Iptc4xmpExt:rbY'],
+         boundary['Iptc4xmpExt:rbW'],
+         boundary['Iptc4xmpExt:rbH']) = rect.getRect()
         return {'Iptc4xmpExt:rRole': [{
                     'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
                     'xmp:Identifier': [
@@ -1846,11 +1857,11 @@ class MD_ImageRegion(MD_Tuple):
                 'Iptc4xmpExt:RegionBoundary': boundary}
 
     @classmethod
-    def from_flickr(cls, notes, people, dims):
+    def from_flickr(cls, notes, people, dims, image):
         w, h = dims
         result = []
         for note in notes:
-            region = cls.rectangle_from_note(note, dims)
+            region = cls.rectangle_from_note(note, dims, image)
             region['Iptc4xmpExt:rId'] = 'flickr:' + note['id']
             if '_content' in note:
                 region['dc:description'] = {'x-default': note['_content']}
@@ -1871,11 +1882,11 @@ class MD_ImageRegion(MD_Tuple):
         return result
 
     @classmethod
-    def from_ipernity(cls, notes, dims):
+    def from_ipernity(cls, notes, dims, image):
         w, h = dims
         result = []
         for note in notes:
-            region = cls.rectangle_from_note(note, dims)
+            region = cls.rectangle_from_note(note, dims, image)
             region['Iptc4xmpExt:rId'] = 'ipernity:' + note['note_id']
             if 'membername' in note:
                 region['Iptc4xmpExt:PersonInImage'] = [note['membername']]
@@ -1890,15 +1901,15 @@ class MD_ImageRegion(MD_Tuple):
         return result
 
     def to_ipernity(self, image, target_size):
-        md = image.metadata
         w = target_size
         h = w * min(self.image_dims.values()) / max(self.image_dims.values())
         if self.image_dims['y'] > self.image_dims['x']:
             w, h = h, w
-        transform = md.orientation and md.orientation.get_transform()
+        transform = (image.metadata.orientation
+                     and image.metadata.orientation.get_transform())
         if transform and transform.isRotating():
             w, h = h, w
-        target_dims = {'x': w, 'y': h}
+        scale = QtGui.QTransform().scale(w, h)
         result = []
         for region in self:
             boundary = region['Iptc4xmpExt:RegionBoundary']
@@ -1923,22 +1934,12 @@ class MD_ImageRegion(MD_Tuple):
                     region['Iptc4xmpExt:Name']).best_match()
             if not item['content']:
                 continue
-            x = boundary['Iptc4xmpExt:rbX']
-            y = boundary['Iptc4xmpExt:rbY']
-            w = boundary['Iptc4xmpExt:rbW']
-            h = boundary['Iptc4xmpExt:rbH']
-            if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-                x /= self.image_dims['x']
-                y /= self.image_dims['y']
-                w /= self.image_dims['x']
-                h /= self.image_dims['y']
-            rect = QtCore.QRectF(x, y, w, h)
+            points = region.to_Qt()
+            rect = QtCore.QRectF(points.at(0), points.at(1))
             if transform:
                 rect = transform.mapRect(rect).normalized()
-            item['x'] = rect.x() * target_dims['x']
-            item['y'] = rect.y() * target_dims['y']
-            item['w'] = rect.width() * target_dims['x']
-            item['h'] = rect.height() * target_dims['y']
+            rect = scale.mapRect(rect)
+            item['x'], item['y'], item['w'], item['h'] = rect.getRect()
             for k in ('x', 'y', 'w', 'h'):
                 item[k] = str(int(item[k] + 0.5))
             result.append(item)
