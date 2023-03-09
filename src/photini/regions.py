@@ -462,15 +462,15 @@ class EntityConceptWidget(SingleLineEdit):
             data = {'xmp:Identifier': [item['uri']],
                     'Iptc4xmpExt:Name': item['name']}
             action.setData(data)
-            action.toggled.connect(self._action_toggled)
+            action.triggered.connect(self.action_triggered)
             self.actions.append(action)
 
     def mousePressEvent(self, event):
         self.menu.popup(self.mapToGlobal(event.pos()))
 
-    @QtSlot(bool)
+    @QtSlot()
     @catch_all
-    def _action_toggled(self, checked):
+    def action_triggered(self, emit=True):
         if self._updating:
             return
         selection = []
@@ -478,7 +478,8 @@ class EntityConceptWidget(SingleLineEdit):
             if action.isChecked():
                 selection.append(action.text())
         self.setPlainText(', '.join(selection))
-        self.new_value.emit(self._key, self.get_value())
+        if emit:
+            self.new_value.emit(self._key, self.get_value())
 
     def set_value(self, value):
         value = value or []
@@ -520,11 +521,11 @@ class EntityConceptWidget(SingleLineEdit):
                 '; '.join(data['xmp:Identifier'])))
             action.setChecked(True)
             action.setData(data)
-            action.toggled.connect(self._action_toggled)
+            action.triggered.connect(self.action_triggered)
             self.actions.append(action)
         self._updating = False
         # update display
-        self._action_toggled(True)
+        self.action_triggered(emit=False)
 
     def get_value(self):
         result = []
@@ -703,9 +704,10 @@ class RegionTabs(QtWidgets.QTabWidget):
         self.currentChanged.connect(self.tab_changed)
 
     def context_menu(self, idx, pos):
+        md = self.image.metadata
         menu = QtWidgets.QMenu()
         delete_action = (
-            bool(self.image.metadata.image_region)
+            bool(md.image_region)
             and menu.addAction(translate('RegionsTab', 'Delete region')))
         rect_action = menu.addAction(
             translate('RegionsTab', 'New rectangle'))
@@ -716,7 +718,6 @@ class RegionTabs(QtWidgets.QTabWidget):
         poly_action = menu.addAction(
             translate('RegionsTab', 'New polygon'))
         action = execute(menu, pos)
-        md = self.image.metadata
         if action == delete_action:
             current = self.currentIndex()
             md.image_region = md.image_region.new_region(None, current)
