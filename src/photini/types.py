@@ -1602,6 +1602,7 @@ class ImageRegionItem(MD_Value, dict):
 
     @staticmethod
     def from_string(value):
+        value = dict(value)
         for key in value:
             if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
                        'Iptc4xmpExt:rbH', 'Iptc4xmpExt:rbRx'):
@@ -1610,6 +1611,7 @@ class ImageRegionItem(MD_Value, dict):
 
     @staticmethod
     def to_string(value, fmt):
+        value = dict(value)
         for key in value:
             if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
                        'Iptc4xmpExt:rbH', 'Iptc4xmpExt:rbRx'):
@@ -1943,9 +1945,9 @@ class MD_ImageRegion(MD_Tuple):
         return result
 
     def get_focus(self, image):
-        dims = image.metadata.get_image_size()
-        portrait_format = bool(dims) and (dims['y'] > dims['x'])
-        transform = image.get_transform(image.metadata.orientation)
+        portrait_format = self.image_dims['y'] > self.image_dims['x']
+        transform = (image.metadata.orientation
+                     and image.metadata.orientation.get_transform())
         if transform and transform.isRotating():
             portrait_format = not portrait_format
         if portrait_format:
@@ -1966,23 +1968,17 @@ class MD_ImageRegion(MD_Tuple):
                 )
         for uri in uris:
             for region in self:
-                boundary = region['Iptc4xmpExt:RegionBoundary']
-                if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
-                    continue
                 if not region.has_uid('Iptc4xmpExt:rRole', uri):
                     continue
-                x = boundary['Iptc4xmpExt:rbX']
-                y = boundary['Iptc4xmpExt:rbY']
-                w = boundary['Iptc4xmpExt:rbW']
-                h = boundary['Iptc4xmpExt:rbH']
-                x += w / 2.0
-                y += h / 2.0
-                if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-                    if not dims:
-                        continue
-                    x /= dims['x']
-                    y /= dims['y']
+                points = region.to_Qt()
+                boundary = region['Iptc4xmpExt:RegionBoundary']
+                if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+                    centre = (points.at(0) + points.at(1)) / 2.0
+                elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+                    centre = points.at(0)
+                else:
+                    centre = points.boundingRect().center()
                 if transform:
-                    x, y = transform.map(x, y)
-                return (x * 2.0) - 1.0, 1.0 - (y * 2.0)
+                    centre = transform.map(centre)
+                return (centre.x() * 2.0) - 1.0, 1.0 - (centre.y() * 2.0)
         return None
