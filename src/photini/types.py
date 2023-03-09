@@ -1686,6 +1686,62 @@ class ImageRegionItem(MD_Value, dict):
             'Iptc4xmpExt:rRole',
             'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
 
+    def to_Qt(self, image_dims):
+        # convert the boundary to a Qt polygon defining the shape in
+        # relative units
+        boundary = self['Iptc4xmpExt:RegionBoundary']
+        if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+            # polygon is two opposite corners of rectangle
+            rect = QtCore.QRectF(
+                boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'],
+                boundary['Iptc4xmpExt:rbW'], boundary['Iptc4xmpExt:rbH'])
+            polygon = QtGui.QPolygonF([rect.topLeft(), rect.bottomRight()])
+        elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+            # polygon is centre and a point on the circumference
+            centre = QtCore.QPointF(
+                boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'])
+            edge = centre + QtCore.QPointF(boundary['Iptc4xmpExt:rbRx'], 0.0)
+            polygon = QtGui.QPolygonF([centre, edge])
+        else:
+            # polygon is a list of vertices
+            polygon = QtGui.QPolygonF([
+                QtCore.QPointF(v['Iptc4xmpExt:rbX'], v['Iptc4xmpExt:rbY'])
+                for v in boundary['Iptc4xmpExt:rbVertices']])
+        if boundary['Iptc4xmpExt:rbUnit'] == 'relative':
+            return polygon
+        transform = QtGui.QTransform().scale(1.0 / float(image_dims['x']),
+                                             1.0 / float(image_dims['y']))
+        return transform.map(polygon)
+
+    def from_Qt(self, polygon, image_dims):
+        # convert a Qt polygon defining the shape in relative units to a
+        # boundary in pixel or relative units
+        boundary = dict(self['Iptc4xmpExt:RegionBoundary'])
+        if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
+            transform = QtGui.QTransform().scale(float(image_dims['x']),
+                                                 float(image_dims['y']))
+            polygon = transform.map(polygon)
+        if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+            # polygon is two opposite corners of rectangle
+            rect = QtCore.QRectF(polygon.at(0), polygon.at(1))
+            boundary['Iptc4xmpExt:rbX'] = rect.x()
+            boundary['Iptc4xmpExt:rbY'] = rect.y()
+            boundary['Iptc4xmpExt:rbW'] = rect.width()
+            boundary['Iptc4xmpExt:rbH'] = rect.height()
+        elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+            # polygon is centre and a point on the circumference
+            centre = polygon.at(0)
+            radius = (polygon.at(1) - centre).manhattanLength()
+            boundary['Iptc4xmpExt:rbX'] = centre.x()
+            boundary['Iptc4xmpExt:rbY'] = centre.y()
+            boundary['Iptc4xmpExt:rbRx'] = radius
+        else:
+            # polygon is a list of vertices
+            boundary['Iptc4xmpExt:rbVertices'] = [
+                {'Iptc4xmpExt:rbX': p.x(), 'Iptc4xmpExt:rbY': p.y()}
+                for p in (polygon.at(n) for n in range(polygon.count()))]
+        return boundary
+
     def convert_unit(self, unit, image):
         if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
             return self
