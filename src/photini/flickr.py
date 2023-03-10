@@ -199,6 +199,27 @@ class FlickrSession(UploaderSession):
                 return 'Failed to remove from album'
         return ''
 
+    def set_notes(self, params, photo_id):
+        if params['function'] != 'upload':
+            # delete existing notes
+            rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
+            if not rsp:
+                return 'Failed to get notes'
+            photo = rsp['photo']
+            if 'notes' in photo:
+                for note in photo['notes']['note']:
+                    rsp = self.api_call('flickr.photos.notes.delete',
+                                        post=True, note_id=note['id'])
+                    if rsp is None:
+                        return 'Failed to delete note'
+        # add new notes
+        for note in params['notes']:
+            rsp = self.api_call(
+                'flickr.photos.notes.add', post=True, photo_id=photo_id, **note)
+            if rsp is None:
+                return 'Failed to add note'
+        return ''
+
     def upload_files(self, upload_list):
         upload_count = 0
         uploads = list(upload_list)
@@ -276,6 +297,12 @@ class FlickrSession(UploaderSession):
                 if error:
                     self.upload_progress.emit({'error': (image, error)})
                     continue
+                # add notes
+                if 'notes' in params:
+                    error = self.set_notes(params, params['photo_id'])
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
+                        continue
                 # add to or remove from albums
                 if 'albums' in params:
                     error = self.set_albums(params, params['photo_id'])
@@ -570,6 +597,10 @@ class TabWidget(PhotiniUploader):
         # albums
         if upload_prefs['new_photo'] or replace_prefs['albums']:
             params['albums'] = self.widget['albums'].get_checked_widgets()
+        # notes
+        if upload_prefs['new_photo'] or replace_prefs['notes']:
+            params['notes'] = image.metadata.image_region.to_flickr(
+                image, 500)
         return params
 
     def replace_dialog(self, image):
@@ -583,7 +614,8 @@ class TabWidget(PhotiniUploader):
             ('hidden', translate('FlickrTab', 'Change hide from search')),
             ('licence', translate('FlickrTab', 'Change licence')),
             ('content_type', translate('FlickrTab', 'Change content type')),
-            ('albums', translate('FlickrTab', 'Change album membership'))))
+            ('albums', translate('FlickrTab', 'Change album membership')),
+            ('notes', translate('FlickrTab', 'Replace image region notes'))))
 
     _address_map = {
         'Iptc4xmpExt:CountryName':   ('country',),

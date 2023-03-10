@@ -1858,7 +1858,7 @@ class MD_ImageRegion(MD_Tuple):
                 region['photoshop:CaptionWriter'] = note['authorrealname']
             result.append(region)
         for person in people:
-            region = cls.rectangle_from_note(person, dims)
+            region = cls.rectangle_from_note(person, dims, image)
             if not region:
                 continue
             region['Iptc4xmpExt:rId'] = 'flickr:' + person['nsid']
@@ -1869,6 +1869,55 @@ class MD_ImageRegion(MD_Tuple):
                         'http://cv.iptc.org/newscodes/imageregiontype/human'],
                     }]
             result.append(region)
+        return result
+
+    def to_flickr(self, image, target_size):
+        w = target_size
+        image_dims = image.metadata.dimensions
+        h = float(w) * (float(min(image_dims['width'], image_dims['height'])) /
+                        float(max(image_dims['width'], image_dims['height'])))
+        h = int(h + 0.5)
+        if image_dims['height'] > image_dims['width']:
+            w, h = h, w
+        transform = (image.metadata.orientation
+                     and image.metadata.orientation.get_transform())
+        if transform and transform.isRotating():
+            w, h = h, w
+        scale = QtGui.QTransform().scale(w, h)
+        result = []
+        for region in self:
+            boundary = region['Iptc4xmpExt:RegionBoundary']
+            if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
+                continue
+            item = {'note_text': ''}
+            if region.has_uid(
+                    'Iptc4xmpExt:rCtype',
+                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
+                if 'Iptc4xmpExt:PersonInImage' in region:
+                    item['note_text'] = ', '.join(
+                        region['Iptc4xmpExt:PersonInImage'])
+            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
+                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
+                continue
+            if 'dc:description' in region and not item['note_text']:
+                item['note_text'] = region['dc:description']
+            if 'Iptc4xmpExt:Name' in region and not item['note_text']:
+                item['note_text'] = LangAltDict(
+                    region['Iptc4xmpExt:Name']).best_match()
+            if not item['note_text']:
+                continue
+            points = region.to_Qt(image)
+            rect = QtCore.QRectF(points.at(0), points.at(1))
+            if transform:
+                rect = transform.mapRect(rect).normalized()
+            rect = scale.mapRect(rect)
+            (item['note_x'], item['note_y'],
+             item['note_w'], item['note_h']) = rect.getRect()
+            for k in ('note_x', 'note_y', 'note_w', 'note_h'):
+                item[k] = str(int(item[k] + 0.5))
+            result.append(item)
         return result
 
     @classmethod
