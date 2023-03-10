@@ -201,13 +201,21 @@ class FlickrSession(UploaderSession):
 
     def set_notes(self, params, photo_id):
         if params['function'] != 'upload':
-            # delete existing notes
+            # delete non-existent notes
             rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
             if not rsp:
                 return 'Failed to get notes'
             photo = rsp['photo']
             if 'notes' in photo:
                 for note in photo['notes']['note']:
+                    old_note = {'note_text': note['_content'],
+                                'note_x': note['x'], 'note_y': note['y'],
+                                'note_w': note['w'], 'note_h': note['h']}
+                    if old_note in params['notes']:
+                        params['notes'].remove(old_note)
+                        continue
+                    if note['author'] != self.user_data['user_nsid']:
+                        continue
                     rsp = self.api_call('flickr.photos.notes.delete',
                                         post=True, note_id=note['id'])
                     if rsp is None:
@@ -679,6 +687,19 @@ class TabWidget(PhotiniUploader):
                         dims = w, h
                         break
         if dims and (people or notes):
+            local_notes = image.metadata.image_region.to_flickr(image, 500)
+            for note in list(notes):
+                old_note = {'note_text': note['_content'],
+                            'note_x': note['x'], 'note_y': note['y'],
+                            'note_w': note['w'], 'note_h': note['h']}
+                if old_note in local_notes:
+                    notes.remove(note)
+            for note in list(people):
+                old_note = {'note_text': note['realname'],
+                            'note_x': note['x'], 'note_y': note['y'],
+                            'note_w': note['w'], 'note_h': note['h']}
+                if old_note in local_notes:
+                    people.remove(note)
             data['image_region'] = MD_ImageRegion.from_flickr(
                 notes, people, dims, image)
         self.merge_metadata_items(image, data)
