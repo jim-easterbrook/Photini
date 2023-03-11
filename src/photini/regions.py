@@ -601,12 +601,23 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets = {}
         # name
         key = 'Iptc4xmpExt:Name'
-        self.widgets[key] = LangAltWidget(key, multi_line=False, min_width=15)
+        self.widgets[key] = LangAltWidget(
+            key, multi_line=False, min_width=15,
+            label=translate('RegionsTab', 'Name'))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
         self.widgets[key].new_value.connect(self.emit_value)
-        layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
+        layout.addRow(self.widgets[key])
+        # identifier
+        key = 'Iptc4xmpExt:rId'
+        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+            'RegionsTab', 'Identifier of the region. Must be unique among all'
+            ' Region Identifiers of an image. Does not have to be unique beyond'
+            ' the metadata of this image.')))
+        self.widgets[key].new_value.connect(self.emit_value)
+        layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # units
         key = 'Iptc4xmpExt:RegionBoundary/Iptc4xmpExt:rbUnit'
         self.widgets[key] = UnitSelector(key)
@@ -644,17 +655,15 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
-        # identifier
-        key = 'Iptc4xmpExt:rId'
-        self.widgets[key] = SingleLineEdit(key)
+        # description
+        key = 'dc:description'
+        self.widgets[key] = LangAltWidget(
+            key, min_width=15, label=translate('RegionsTab', 'Description'))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
-            'RegionsTab', 'Identifier of the region. Must be unique among all'
-            ' Region Identifiers of an image. Does not have to be unique beyond'
-            ' the metadata of this image.')))
+            'RegionsTab', 'Enter a "caption" describing the who, what, and why'
+            ' of what is happening in this region.')))
         self.widgets[key].new_value.connect(self.emit_value)
-        layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
-        layout.addItem(QtWidgets.QSpacerItem(
-            0, 0, vPolicy=QtWidgets.QSizePolicy.Policy.Expanding))
+        layout.addRow(self.widgets[key])
 
     @QtSlot(str, object)
     @catch_all
@@ -673,7 +682,8 @@ class RegionForm(QtWidgets.QScrollArea):
             label = label.capitalize()
             if isinstance(value, dict):
                 self.widgets[key] = LangAltWidget(
-                    key, multi_line=False, min_width=15)
+                    key, multi_line=False, min_width=15, label=label)
+                label = None
             elif isinstance(value, list):
                 self.widgets[key] = MultiStringEdit(key)
             else:
@@ -682,7 +692,10 @@ class RegionForm(QtWidgets.QScrollArea):
                 'RegionsTab', 'The Image Region Structure includes optionally'
                 ' any metadata property which is related to the region.')))
             self.widgets[key].new_value.connect(self.emit_value)
-            layout.addRow(label, self.widgets[key])
+            if label:
+                layout.addRow(label, self.widgets[key])
+            else:
+                layout.addRow(self.widgets[key])
         # set values
         for key in self.widgets:
             value = region
