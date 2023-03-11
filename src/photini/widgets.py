@@ -625,15 +625,25 @@ class StartStopButton(QtWidgets.QPushButton):
 class LangAltWidget(QtWidgets.QWidget):
     new_value = QtSignal(str, object)
 
-    def __init__(self, key, multi_line=True, **kw):
+    def __init__(self, key, multi_line=True, label=None, **kw):
         super(LangAltWidget, self).__init__()
-        layout = QtWidgets.QHBoxLayout()
+        layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(
             (layout.alignment() & Qt.AlignmentFlag.AlignHorizontal_Mask)
             | Qt.AlignmentFlag.AlignTop)
+        layout.setColumnStretch(1, 1)
         self.setLayout(layout)
         self.value = LangAltDict()
+        # label
+        if label:
+            # put label and lang selector on line above edit box
+            layout.addWidget(QtWidgets.QLabel(label), 0, 0)
+            edit_pos = 1, 0, 1, 3
+            layout.setRowStretch(1, 1)
+        else:
+            # put lang selector to right of edit box
+            edit_pos = 0, 0, 1, 2
         # text edit
         if multi_line:
             self.edit = MultiLineEdit(key, **kw)
@@ -643,7 +653,7 @@ class LangAltWidget(QtWidgets.QWidget):
             self.setSizePolicy(policy)
             self.edit = SingleLineEdit(key, **kw)
         self.edit.new_value.connect(self._new_value)
-        layout.addWidget(self.edit)
+        layout.addWidget(self.edit, *edit_pos)
         # language drop down
         self.lang = DropDownSelector('', with_multiple=False, extendable=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
@@ -651,7 +661,7 @@ class LangAltWidget(QtWidgets.QWidget):
         self.lang.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.lang.new_value.connect(self._change_lang)
         self.lang.customContextMenuRequested.connect(self._context_menu)
-        layout.addWidget(self.lang)
+        layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
         # adopt some child methods ...
         self.is_multiple = self.edit.is_multiple
