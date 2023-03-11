@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -669,6 +669,8 @@ class NewCameraDialog(NewItemDialog):
         # fill in any values we can from existing metadata
         for image in images:
             camera = image.metadata.camera_model
+            if not camera:
+                continue
             for key in self.model_widgets:
                 if camera[key]:
                     self.model_widgets[key].setText(camera[key])

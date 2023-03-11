@@ -39,7 +39,7 @@ When you select some pictures to upload they are shown in the column to the righ
 The number of pictures you can upload in one go depends on the instance.
 Pixelfed instances usually allow twelve, but Mastodon instances only allow four.
 
-The pictures are uploaded, and displayed on Pixelfed, in the order you selected them.
+The pictures are uploaded, and should be displayed on Pixelfed, in the order you selected them.
 Using the ``Ctrl`` key while clicking in the image selector area allows you to choose them one at a time.
 
 .. image:: ../images/screenshot_256.png
