@@ -30,7 +30,7 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
-from photini.types import MD_ImageRegion, MD_Location
+from photini.types import MD_Location
 from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
@@ -199,31 +199,64 @@ class FlickrSession(UploaderSession):
                 return 'Failed to remove from album'
         return ''
 
+    def get_notes(self, photo_id, photo=[]):
+        if not photo:
+            rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
+            if rsp:
+                photo = rsp['photo']
+        if 'notes' in photo:
+            for note in photo['notes']['note']:
+                note['content'] = note['_content']
+                note['is_person'] = False
+                yield note
+        if not ('people' in photo and photo['people']['haspeople'] == 1):
+            return
+        rsp = self.api_call('flickr.photos.people.getList', photo_id=photo_id)
+        if rsp:
+            for note in rsp['people']['person']:
+                if not all(k in note for k in ('x', 'y', 'w', 'h')):
+                    continue
+                note['content'] = note['realname']
+                if note['added_by'] == self.user_data['user_nsid']:
+                    note['authorrealname'] = self.user_data['fullname']
+                else:
+                    rsp = self.api_call(
+                        'flickr.people.getInfo', user_id=note['added_by'])
+                    note['authorrealname'] = (
+                        rsp and rsp['person']['realname']) or ''
+                note['is_person'] = True
+                yield note
+
     def set_notes(self, params, photo_id):
         if params['function'] != 'upload':
             # delete non-existent notes
-            rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
-            if not rsp:
-                return 'Failed to get notes'
-            photo = rsp['photo']
-            if 'notes' in photo:
-                for note in photo['notes']['note']:
-                    old_note = {'note_text': note['_content'],
-                                'note_x': note['x'], 'note_y': note['y'],
-                                'note_w': note['w'], 'note_h': note['h']}
-                    if old_note in params['notes']:
-                        params['notes'].remove(old_note)
-                        continue
-                    if note['author'] != self.user_data['user_nsid']:
-                        continue
+            for note in self.get_notes(photo_id):
+                local_note = dict((k, note[k]) for k in (
+                    'x', 'y', 'w', 'h', 'content', 'is_person'))
+                if local_note in params['notes']:
+                    params['notes'].remove(local_note)
+                    continue
+                if note['is_person']:
+                    rsp = self.api_call(
+                        'flickr.photos.people.delete',
+                        post=True, photo_id=photo_id, user_id=note['nsid'])
+                else:
                     rsp = self.api_call('flickr.photos.notes.delete',
                                         post=True, note_id=note['id'])
-                    if rsp is None:
-                        return 'Failed to delete note'
+                if rsp is None:
+                    return 'Failed to delete note'
         # add new notes
         for note in params['notes']:
-            rsp = self.api_call(
-                'flickr.photos.notes.add', post=True, photo_id=photo_id, **note)
+            if not note['is_person']:
+                rsp = self.api_call(
+                    'flickr.photos.notes.add', post=True, photo_id=photo_id,
+                    note_x=note['x'], note_y=note['y'], note_w=note['w'],
+                    note_h=note['h'], note_text=note['content'])
+            elif note['content'] == self.user_data['fullname']:
+                rsp = self.api_call(
+                    'flickr.photos.people.add', post=True, photo_id=photo_id,
+                    person_x=note['x'], person_y=note['y'], person_w=note['w'],
+                    person_h=note['h'], user_id=self.user_data['user_nsid'])
             if rsp is None:
                 return 'Failed to add note'
         return ''
@@ -607,8 +640,14 @@ class TabWidget(PhotiniUploader):
             params['albums'] = self.widget['albums'].get_checked_widgets()
         # notes
         if upload_prefs['new_photo'] or replace_prefs['notes']:
-            params['notes'] = image.metadata.image_region.to_flickr(
-                image, 500)
+            params['notes'] = []
+            for note in image.metadata.image_region.to_notes(image, 500):
+                params['notes'].append(note)
+                if note['is_person']:
+                    # Flickr doesn't show box around person, so add one
+                    note = dict(note)
+                    note['is_person'] = False
+                    params['notes'].append(note)
         return params
 
     def replace_dialog(self, image):
@@ -664,44 +703,10 @@ class TabWidget(PhotiniUploader):
             data['location_taken'] = [MD_Location.from_address(
                 gps, address, self._address_map)]
         # get annotated image regions
-        people = []
-        notes = []
-        dims = None
-        rsp = session.api_call(
-            'flickr.photos.people.getList', photo_id=photo_id)
-        if rsp:
-            people = rsp['people']['person']
-            w = rsp['people']['photo_width']
-            h = rsp['people']['photo_height']
-            dims = w, h
-        if 'notes' in photo:
-            notes = photo['notes']['note']
-        if not dims:
-            rsp = session.api_call('flickr.photos.getSizes', photo_id=photo_id)
-            dims = None
-            if rsp:
-                for size in rsp['sizes']['size']:
-                    w = size['width']
-                    h = size['height']
-                    if max(w, h) == 500:
-                        dims = w, h
-                        break
-        if dims and (people or notes):
-            local_notes = image.metadata.image_region.to_flickr(image, 500)
-            for note in list(notes):
-                old_note = {'note_text': note['_content'],
-                            'note_x': note['x'], 'note_y': note['y'],
-                            'note_w': note['w'], 'note_h': note['h']}
-                if old_note in local_notes:
-                    notes.remove(note)
-            for note in list(people):
-                old_note = {'note_text': note['realname'],
-                            'note_x': note['x'], 'note_y': note['y'],
-                            'note_w': note['w'], 'note_h': note['h']}
-                if old_note in local_notes:
-                    people.remove(note)
-            data['image_region'] = MD_ImageRegion.from_flickr(
-                notes, people, dims, image)
+        notes = session.get_notes(photo_id, photo=photo)
+        if notes:
+            data['image_region'] = image.metadata.image_region.from_notes(
+                notes, image, 500)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

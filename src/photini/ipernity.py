@@ -22,7 +22,6 @@ import hashlib
 import io
 import logging
 import os
-from pprint import pprint
 import time
 
 import requests
@@ -172,8 +171,38 @@ class IpernitySession(UploaderSession):
                 return 'Failed to remove from album'
         return ''
 
+    def get_notes(self, doc_id, photo=[]):
+        if not photo:
+            rsp = self.api_call('doc.get', doc_id=doc_id, extra='notes')
+            if rsp:
+                photo = rsp['doc']
+        if 'notes' in photo:
+            for note in photo['notes']['note']:
+                note['is_person'] = 'member_id' in note
+                if note['is_person']:
+                    note['content'] = note['membername']
+                note['authorrealname'] = note['username']
+                yield note
+
     def set_notes(self, params, doc_id):
+        if params['function'] != 'upload.file':
+            # delete non-existent notes
+            for note in self.get_notes(doc_id):
+                local_note = dict((k, note[k]) for k in (
+                    'x', 'y', 'w', 'h', 'content', 'is_person'))
+                if local_note in params['notes']:
+                    params['notes'].remove(local_note)
+                    continue
+                rsp = self.api_call('doc.notes.delete',
+                                    post=True, note_id=note['note_id'])
+                if rsp is None:
+                    return 'Failed to delete note'
+        # add new notes
         for note in params['notes']:
+            if (note['is_person']
+                    and note['content'] == self.user_data['realname']):
+                note['member_id'] = self.user_data['user_id']
+            del note['is_person']
             rsp = self.api_call(
                 'doc.notes.add', post=True, doc_id=doc_id, **note)
             if rsp is None:
@@ -526,12 +555,9 @@ class TabWidget(PhotiniUploader):
         if upload_prefs['new_photo'] or replace_prefs['albums']:
             params['albums'] = self.widget['albums'].get_checked_ids()
         # notes
-        if upload_prefs['new_photo']:
-            params['notes'] = image.metadata.image_region.to_ipernity(
-                image, 560)
-            for note in params['notes']:
-                if note['content'] == self.user_widget.user_data['realname']:
-                    note['member_id'] = self.user_widget.user_data['user_id']
+        if upload_prefs['new_photo'] or replace_prefs['notes']:
+            params['notes'] = list(
+                image.metadata.image_region.to_notes(image, 560))
         return params
 
     def replace_dialog(self, image):
@@ -541,7 +567,8 @@ class TabWidget(PhotiniUploader):
             ('permissions',
              translate('IpernityTab', 'Change who can comment or tag')),
             ('licence', translate('IpernityTab', 'Change the licence')),
-            ('albums', translate('IpernityTab', 'Change album membership'))
+            ('albums', translate('IpernityTab', 'Change album membership')),
+            ('notes', translate('IpernityTab', 'Replace image region notes'))
             ), replace=False)
 
     def merge_metadata(self, session, doc_id, image):
@@ -563,17 +590,11 @@ class TabWidget(PhotiniUploader):
             data['gps_info'] = {'lat': photo['geo']['lat'],
                                 'lon': photo['geo']['lng'],
                                 'method': 'MANUAL'}
-        if 'notes' in photo:
-            dims = None
-            for thumb in photo['thumbs']['thumb']:
-                w = int(thumb['w'])
-                h = int(thumb['h'])
-                if max(w, h) == 560:
-                    dims = w, h
-                    break
-            if dims:
-                data['image_region'] = MD_ImageRegion.from_ipernity(
-                    photo['notes']['note'], dims, image)
+        # get annotated image regions
+        notes = session.get_notes(doc_id, photo=photo)
+        if notes:
+            data['image_region'] = image.metadata.image_region.from_notes(
+                notes, image, 560)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

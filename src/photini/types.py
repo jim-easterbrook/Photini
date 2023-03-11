@@ -1489,6 +1489,13 @@ class MD_Dimensions(MD_Collection):
     _default_type = MD_Int
     _type = {'frame_rate': MD_FrameRate}
 
+    def scaled_to(self, target_size):
+        w = float(self['width'])
+        h = float(self['height'])
+        if w > h:
+            return target_size, int((float(target_size) * h / w) + 0.5)
+        return int((float(target_size) * w / h) + 0.5), target_size
+
     def duration(self):
         if self['frames'] and self['frame_rate']:
             return float(self['frames'] / self['frame_rate'])
@@ -1597,8 +1604,32 @@ class MD_SingleLocation(MD_MultiLocation):
 
 
 class ImageRegionItem(MD_Value, dict):
+    def merge_item(self, this, other):
+        merged = False
+        ignored = False
+        result = dict(this)
+        for key in other:
+            if key not in result:
+                result[key] = other[key]
+                merged = True
+            elif result[key] == other[key]:
+                pass
+            elif isinstance(result[key], str):
+                result[key] += ' // ' + other[key]
+                merged = True
+            elif isinstance(result[key], (tuple, list)):
+                result[key] = list(result[key])
+                for item in other[key]:
+                    if item not in result[key]:
+                        result[key].append(item)
+                        merged = True
+            else:
+                logger.error('Cannot merge ImageRegionItem %s', key)
+                ignored = True
+        return result, merged, ignored
+
     @staticmethod
-    def from_string(value):
+    def _from_string(value):
         value = dict(value)
         for key in value:
             if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
@@ -1607,7 +1638,7 @@ class ImageRegionItem(MD_Value, dict):
         return value
 
     @staticmethod
-    def to_string(value, fmt):
+    def _to_string(value, fmt):
         value = dict(value)
         for key in value:
             if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
@@ -1623,10 +1654,10 @@ class ImageRegionItem(MD_Value, dict):
             boundary = file_value['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
                 boundary['Iptc4xmpExt:rbVertices'] = [
-                    cls.from_string(v)
+                    cls._from_string(v)
                     for v in boundary['Iptc4xmpExt:rbVertices']]
             else:
-                boundary = cls.from_string(boundary)
+                boundary = cls._from_string(boundary)
             file_value['Iptc4xmpExt:RegionBoundary'] = boundary
             return file_value
         # Convert Exif.Photo.SubjectArea to an image region. See
@@ -1668,10 +1699,10 @@ class ImageRegionItem(MD_Value, dict):
             fmt = '{:.4f}'
         if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
             boundary['Iptc4xmpExt:rbVertices'] = [
-                self.to_string(v, fmt)
+                self._to_string(v, fmt)
                 for v in boundary['Iptc4xmpExt:rbVertices']]
         else:
-            boundary = self.to_string(boundary, fmt)
+            boundary = self._to_string(boundary, fmt)
         result['Iptc4xmpExt:RegionBoundary'] = boundary
         return result
 
@@ -1813,21 +1844,21 @@ class MD_ImageRegion(MD_Tuple):
                     return True
             return len(self)
         for n, value in enumerate(self):
-            if value == other:
-                return n
-            key = 'Iptc4xmpExt:rId'
-            if key in value and key in other and value[key] == other[key]:
-                return n
+            for key in ('Iptc4xmpExt:RegionBoundary', 'Iptc4xmpExt:rId'):
+                if key in value and key in other and value[key] == other[key]:
+                    return n
         return len(self)
 
     @staticmethod
-    def rectangle_from_note(note, dims, image):
+    def boundary_from_note(note, dims, image):
         if not ('x' in note and 'y' in note and
                 'w' in note and 'h' in note):
             return None
         transform = (image.metadata.orientation
                      and image.metadata.orientation.get_transform())
         w, h = dims
+        if transform and transform.isRotating():
+            w, h = h, w
         scale = QtGui.QTransform().scale(1.0 / float(w), 1.0 / float(h))
         rect = QtCore.QRectF(float(note['x']), float(note['y']),
                              float(note['w']), float(note['h']))
@@ -1840,151 +1871,90 @@ class MD_ImageRegion(MD_Tuple):
          boundary['Iptc4xmpExt:rbY'],
          boundary['Iptc4xmpExt:rbW'],
          boundary['Iptc4xmpExt:rbH']) = rect.getRect()
-        return {'Iptc4xmpExt:rRole': [{
-                    'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
-                    'xmp:Identifier': [
-                        'http://cv.iptc.org/newscodes/imageregionrole/subjectArea']}],
-                'Iptc4xmpExt:RegionBoundary': boundary}
+        return boundary
 
-    @classmethod
-    def from_flickr(cls, notes, people, dims, image):
-        w, h = dims
+    def from_notes(self, notes, image, target_size):
+        # convert current regions to note boundaries for comparison
+        boundaries = {}
+        for region, note in self.to_note_boundary(image, target_size):
+            key = ','.join(note[k] for k in ('x', 'y', 'w', 'h'))
+            boundaries[key] = region['Iptc4xmpExt:RegionBoundary']
+        dims = image.metadata.dimensions.scaled_to(target_size)
         result = []
         for note in notes:
-            region = cls.rectangle_from_note(note, dims, image)
-            region['Iptc4xmpExt:rId'] = 'flickr:' + note['id']
-            if '_content' in note:
-                region['dc:description'] = {'x-default': note['_content']}
-                region['photoshop:CaptionWriter'] = note['authorrealname']
-            result.append(region)
-        for person in people:
-            region = cls.rectangle_from_note(person, dims, image)
-            if not region:
+            # use existing boundary if it matches (to cope with low
+            # resolution of Flickr / Ipernity)
+            key = ','.join(note[k] for k in ('x', 'y', 'w', 'h'))
+            if key in boundaries:
+                boundary = dict(boundaries[key])
+            else:
+                boundary = self.boundary_from_note(note, dims, image)
+            if not boundary:
                 continue
-            region['Iptc4xmpExt:rId'] = 'flickr:' + person['nsid']
-            region['Iptc4xmpExt:PersonInImage'] = [person['realname']]
-            region['Iptc4xmpExt:rCtype'] = [{
-                    'Iptc4xmpExt:Name': {'en-GB': 'human'},
-                    'xmp:Identifier': [
-                        'http://cv.iptc.org/newscodes/imageregiontype/human'],
-                    }]
-            result.append(region)
-        return result
-
-    def to_flickr(self, image, target_size):
-        w = target_size
-        image_dims = image.metadata.dimensions
-        h = float(w) * (float(min(image_dims['width'], image_dims['height'])) /
-                        float(max(image_dims['width'], image_dims['height'])))
-        h = int(h + 0.5)
-        if image_dims['height'] > image_dims['width']:
-            w, h = h, w
-        transform = (image.metadata.orientation
-                     and image.metadata.orientation.get_transform())
-        if transform and transform.isRotating():
-            w, h = h, w
-        scale = QtGui.QTransform().scale(w, h)
-        result = []
-        for region in self:
-            boundary = region['Iptc4xmpExt:RegionBoundary']
-            if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
-                continue
-            item = {'note_text': ''}
-            if region.has_uid(
-                    'Iptc4xmpExt:rCtype',
-                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
-                if 'Iptc4xmpExt:PersonInImage' in region:
-                    item['note_text'] = ', '.join(
-                        region['Iptc4xmpExt:PersonInImage'])
-            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
-                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
-                continue
-            if 'dc:description' in region and not item['note_text']:
-                item['note_text'] = region['dc:description']
-            if 'Iptc4xmpExt:Name' in region and not item['note_text']:
-                item['note_text'] = LangAltDict(
-                    region['Iptc4xmpExt:Name']).best_match()
-            if not item['note_text']:
-                continue
-            points = region.to_Qt(image)
-            rect = QtCore.QRectF(points.at(0), points.at(1))
-            if transform:
-                rect = transform.mapRect(rect).normalized()
-            rect = scale.mapRect(rect)
-            (item['note_x'], item['note_y'],
-             item['note_w'], item['note_h']) = rect.getRect()
-            for k in ('note_x', 'note_y', 'note_w', 'note_h'):
-                item[k] = str(int(item[k] + 0.5))
-            result.append(item)
-        return result
-
-    @classmethod
-    def from_ipernity(cls, notes, dims, image):
-        w, h = dims
-        result = []
-        for note in notes:
-            region = cls.rectangle_from_note(note, dims, image)
-            region['Iptc4xmpExt:rId'] = 'ipernity:' + note['note_id']
-            if 'membername' in note:
-                region['Iptc4xmpExt:PersonInImage'] = [note['membername']]
+            region = {'Iptc4xmpExt:RegionBoundary': boundary}
+            region['Iptc4xmpExt:rRole'] = [{
+                'xmp:Identifier': [
+                    'http://cv.iptc.org/newscodes/imageregionrole/subjectArea'],
+                'Iptc4xmpExt:Name': {'en-GB': 'subject area'}}]
+            if note['is_person']:
+                region['Iptc4xmpExt:PersonInImage'] = [note['content']]
                 region['Iptc4xmpExt:rCtype'] = [{
                     'Iptc4xmpExt:Name': {'en-GB': 'human'},
                     'xmp:Identifier': [
                         'http://cv.iptc.org/newscodes/imageregiontype/human']}]
-            if 'content' in note:
+            else:
                 region['dc:description'] = {'x-default': note['content']}
-                region['photoshop:CaptionWriter'] = note['username']
+            if note['authorrealname']:
+                region['photoshop:CaptionWriter'] = note['authorrealname']
             result.append(region)
         return result
 
-    def to_ipernity(self, image, target_size):
-        w = target_size
-        image_dims = image.metadata.dimensions
-        h = float(w) * (float(min(image_dims['width'], image_dims['height'])) /
-                        float(max(image_dims['width'], image_dims['height'])))
-        h = int(h + 0.5)
-        if image_dims['height'] > image_dims['width']:
-            w, h = h, w
+    def to_note_boundary(self, image, target_size):
+        w, h = image.metadata.dimensions.scaled_to(target_size)
         transform = (image.metadata.orientation
                      and image.metadata.orientation.get_transform())
         if transform and transform.isRotating():
             w, h = h, w
         scale = QtGui.QTransform().scale(w, h)
-        result = []
         for region in self:
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
-                continue
-            item = {'content': ''}
-            if region.has_uid(
-                    'Iptc4xmpExt:rCtype',
-                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
-                if 'Iptc4xmpExt:PersonInImage' in region:
-                    item['content'] = ', '.join(
-                        region['Iptc4xmpExt:PersonInImage'])
-            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
-                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
-                continue
-            if 'dc:description' in region and not item['content']:
-                item['content'] = region['dc:description']
-            if 'Iptc4xmpExt:Name' in region and not item['content']:
-                item['content'] = LangAltDict(
-                    region['Iptc4xmpExt:Name']).best_match()
-            if not item['content']:
                 continue
             points = region.to_Qt(image)
             rect = QtCore.QRectF(points.at(0), points.at(1))
             if transform:
                 rect = transform.mapRect(rect).normalized()
             rect = scale.mapRect(rect)
-            item['x'], item['y'], item['w'], item['h'] = rect.getRect()
-            for k in ('x', 'y', 'w', 'h'):
-                item[k] = str(int(item[k] + 0.5))
-            result.append(item)
+            note = dict(zip(('x', 'y', 'w', 'h'),
+                            [str(int(v + 0.5)) for v in rect.getRect()]))
+            yield region, note
+
+    def to_notes(self, image, target_size):
+        result = []
+        for region, note in self.to_note_boundary(image, target_size):
+            note['content'] = ''
+            note['is_person'] = False
+            if region.has_uid(
+                    'Iptc4xmpExt:rCtype',
+                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
+                if 'Iptc4xmpExt:PersonInImage' in region:
+                    note['content'] = ', '.join(
+                        region['Iptc4xmpExt:PersonInImage'])
+                note['is_person'] = True
+            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
+                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
+                continue
+            if 'dc:description' in region and not note['content']:
+                note['content'] = LangAltDict(
+                    region['dc:description']).best_match()
+            if 'Iptc4xmpExt:Name' in region and not note['content']:
+                note['content'] = LangAltDict(
+                    region['Iptc4xmpExt:Name']).best_match()
+            if not note['content']:
+                continue
+            result.append(note)
         return result
 
     def get_focus(self, image):
