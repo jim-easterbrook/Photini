@@ -347,7 +347,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class ImageDisplayWidget(QtWidgets.QGraphicsView):
-    new_value = QtSignal(str, object)
+    new_value = QtSignal(int, str, object)
 
     def __init__(self, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
@@ -407,9 +407,10 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 scene.addItem(item)
             scene.setSceneRect(item.boundingRect())
 
-    @QtSlot(dict)
+    @QtSlot(int, dict)
     @catch_all
-    def draw_boundary(self, region):
+    def draw_boundary(self, idx, region):
+        self.idx = idx
         scene = self.scene()
         if self.boundary:
             scene.removeItem(self.boundary)
@@ -442,7 +443,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.ensureVisible(self.boundary.boundingRect())
 
     def new_boundary(self, boundary):
-        self.new_value.emit('Iptc4xmpExt:RegionBoundary', boundary)
+        self.new_value.emit(self.idx, 'Iptc4xmpExt:RegionBoundary', boundary)
 
 
 class EntityConceptWidget(SingleLineEdit):
@@ -464,15 +465,16 @@ class EntityConceptWidget(SingleLineEdit):
             data = {'xmp:Identifier': [item['uri']],
                     'Iptc4xmpExt:Name': item['name']}
             action.setData(data)
-            action.triggered.connect(self.action_triggered)
+            action.toggled.connect(self.update_display)
+            action.triggered.connect(self.emit_value)
             self.actions.append(action)
 
     def mousePressEvent(self, event):
         self.menu.popup(self.mapToGlobal(event.pos()))
 
-    @QtSlot()
+    @QtSlot(bool)
     @catch_all
-    def action_triggered(self, emit=True):
+    def update_display(self, checked=None):
         if self._updating:
             return
         selection = []
@@ -480,8 +482,11 @@ class EntityConceptWidget(SingleLineEdit):
             if action.isChecked():
                 selection.append(action.text())
         self.setPlainText(', '.join(selection))
-        if emit:
-            self.new_value.emit(self._key, self.get_value())
+
+    @QtSlot(bool)
+    @catch_all
+    def emit_value(self, checked=None):
+        self.new_value.emit(self._key, self.get_value())
 
     def set_value(self, value):
         value = value or []
@@ -523,11 +528,11 @@ class EntityConceptWidget(SingleLineEdit):
                 '; '.join(data['xmp:Identifier'])))
             action.setChecked(True)
             action.setData(data)
-            action.triggered.connect(self.action_triggered)
+            action.toggled.connect(self.update_display)
+            action.triggered.connect(self.emit_value)
             self.actions.append(action)
         self._updating = False
-        # update display
-        self.action_triggered(emit=False)
+        self.update_display()
 
     def get_value(self):
         result = []
@@ -581,10 +586,11 @@ class UnitSelector(QtWidgets.QWidget):
 
 class RegionForm(QtWidgets.QScrollArea):
     name_changed = QtSignal(object, str)
-    new_value = QtSignal(str, object)
+    new_value = QtSignal(int, str, object)
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, idx, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
+        self.idx = idx
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self.setWidget(QtWidgets.QWidget())
         self.setWidgetResizable(True)
@@ -599,7 +605,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
-        self.widgets[key].new_value.connect(self.new_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(translate('RegionsTab', 'Name'), self.widgets[key])
         # units
         key = 'Iptc4xmpExt:RegionBoundary/Iptc4xmpExt:rbUnit'
@@ -607,7 +613,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Unit used for measuring dimensions of the boundary'
             ' of a region.')))
-        self.widgets[key].new_value.connect(self.new_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Boundary unit'), self.widgets[key])
         # roles
@@ -617,7 +623,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Role of this region among all regions of this image'
             ' or of other images. The value SHOULD be taken from a Controlled'
             ' Vocabulary.')))
-        self.widgets[key].new_value.connect(self.new_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
@@ -626,7 +632,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
             ' Vocabulary.')))
-        self.widgets[key].new_value.connect(self.new_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
@@ -635,7 +641,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
-        self.widgets[key].new_value.connect(self.new_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
         # identifier
@@ -645,10 +651,15 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Identifier of the region. Must be unique among all'
             ' Region Identifiers of an image. Does not have to be unique beyond'
             ' the metadata of this image.')))
-        self.widgets[key].new_value.connect(self.new_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         layout.addItem(QtWidgets.QSpacerItem(
             0, 0, vPolicy=QtWidgets.QSizePolicy.Policy.Expanding))
+
+    @QtSlot(str, object)
+    @catch_all
+    def emit_value(self, key, value):
+        self.new_value.emit(self.idx, key, value)
 
     def set_value(self, region):
         self.region = region
@@ -670,7 +681,7 @@ class RegionForm(QtWidgets.QScrollArea):
             self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
                 'RegionsTab', 'The Image Region Structure includes optionally'
                 ' any metadata property which is related to the region.')))
-            self.widgets[key].new_value.connect(self.new_value)
+            self.widgets[key].new_value.connect(self.emit_value)
             layout.addRow(label, self.widgets[key])
         # set values
         for key in self.widgets:
@@ -697,7 +708,7 @@ class QTabBar(QtWidgets.QTabBar):
 
 
 class RegionTabs(QtWidgets.QTabWidget):
-    new_region = QtSignal(dict)
+    new_region = QtSignal(int, dict)
 
     def __init__(self, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
@@ -767,12 +778,12 @@ class RegionTabs(QtWidgets.QTabWidget):
         self.image = image
         regions = (image and image.metadata.image_region) or []
         if not regions:
-            region_form = RegionForm()
+            region_form = RegionForm(-1)
             region_form.setEnabled(False)
             self.addTab(region_form, '')
             return
         for idx, region in enumerate(regions):
-            region_form = RegionForm()
+            region_form = RegionForm(idx)
             region_form.name_changed.connect(self.tab_name_changed)
             region_form.new_value.connect(self.new_value)
             self.addTab(region_form, str(idx + 1))
@@ -783,21 +794,20 @@ class RegionTabs(QtWidgets.QTabWidget):
     def tab_changed(self, idx):
         regions = (self.image and self.image.metadata.image_region) or []
         if idx < 0 or idx >= len(regions):
-            self.new_region.emit({})
+            self.new_region.emit(-1, {})
             return
         region_form = self.widget(idx)
         region_form.set_value(regions[idx])
-        self.new_region.emit(regions[idx])
+        self.new_region.emit(idx, regions[idx])
 
     @QtSlot(object, str)
     @catch_all
     def tab_name_changed(self, widget, name):
         self.setTabText(self.indexOf(widget), name)
 
-    @QtSlot(str, object)
+    @QtSlot(int, str, object)
     @catch_all
-    def new_value(self, key, value):
-        idx = self.currentIndex()
+    def new_value(self, idx, key, value):
         md = self.image.metadata
         region = md.image_region[idx]
         if 'rbUnit' in key:
@@ -811,7 +821,7 @@ class RegionTabs(QtWidgets.QTabWidget):
         md.image_region = md.image_region.new_region(region, idx)
         if key == 'Iptc4xmpExt:rRole':
             # aspect ratio constraint may have changed
-            self.new_region.emit(md.image_region[idx])
+            self.new_region.emit(idx, md.image_region[idx])
 
 
 class TabWidget(QtWidgets.QWidget):
