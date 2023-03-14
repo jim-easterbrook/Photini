@@ -752,51 +752,51 @@ class LangAltDict(dict):
     DEFAULT = 'x-default'
 
     def __init__(self, value={}):
-        super(LangAltDict, self).__init__()
-        self.compact = False    # controls format of str() representation
-        self._default_lang = ''
         if isinstance(value, str):
             value = value.strip()
         if not value:
-            value = {QtCore.QLocale.system().bcp47Name() or self.DEFAULT: ''}
+            value = {}
         elif isinstance(value, str):
             value = {self.DEFAULT: value}
-        for k, v in value.items():
-            self[k] = v
+        super(LangAltDict, self).__init__(value)
         if isinstance(value, LangAltDict):
             self._default_lang = value._default_lang
-        # set default_lang
-        if self._default_lang:
+            self.compact = value.compact
             return
-        # Exiv2 doesn't preserve the order of items, so we can't assume
-        # the first item is the default language. Use the locale
-        # instead.
-        lang = QtCore.QLocale.system().bcp47Name()
-        if not lang:
-            return
-        for lang in (lang, lang.split('-')[0]):
-            self._default_lang = self.find_key(lang)
-            if self._default_lang:
-                return
+        self.compact = False    # controls format of str() representation
+        keys = list(super(LangAltDict, self).keys())
+        if len(keys) == 0:
+            self._default_lang = (QtCore.QLocale.system().bcp47Name()
+                                  or self.DEFAULT)
+        elif len(keys) == 1:
+            self._default_lang = keys[0]
+        else:
+            self._default_lang = self.DEFAULT
+            if self.DEFAULT in keys:
+                # look for language with same text
+                text = super(LangAltDict, self).__getitem__(self.DEFAULT)
+                for k, v in self.items():
+                    if k != self.DEFAULT and v == text:
+                        self._default_lang = k
+                        del self[self.DEFAULT]
+                        break
 
     def find_key(self, key):
         # languages are case insensitive
-        key = key or ''
         key = key.lower()
         for k in self:
             if k.lower() == key:
                 return k
-        return ''
+        return None
 
     def __contains__(self, key):
-        return bool(self.find_key(key))
+        key = key and self.find_key(key)
+        return super(LangAltDict, self).__contains__(key)
 
     def __getitem__(self, key):
-        old_key = self.find_key(key)
-        if old_key:
-            key = old_key
-        else:
-            self[key] = ''
+        key = self.find_key(key)
+        if not key:
+            return ''
         return super(LangAltDict, self).__getitem__(key)
 
     def __setitem__(self, key, value):
@@ -807,15 +807,6 @@ class LangAltDict(dict):
                 self._default_lang = key
             del self[old_key]
         super(LangAltDict, self).__setitem__(key, value)
-        # Check for empty or duplicate 'x-default' value
-        dflt_key = self.find_key(self.DEFAULT)
-        if dflt_key == key or not dflt_key:
-            return
-        dflt_value = super(LangAltDict, self).__getitem__(dflt_key)
-        if (not dflt_value) or (dflt_value == value):
-            if self._default_lang == dflt_key:
-                self._default_lang = key
-            del self[dflt_key]
 
     def __bool__(self):
         return any(self.values())
@@ -844,64 +835,54 @@ class LangAltDict(dict):
             return ' '.join(result)
         return '\n'.join(result)
 
-    def _sort_key(self, key):
-        key = key or ''
-        key = key.lower()
-        if key == self.DEFAULT:
-            return ' '
-        if key == self._default_lang.lower():
-            return '!'
-        return key
-
-    def keys(self):
-        result = list(super(LangAltDict, self).keys())
-        result.sort(key=self._sort_key)
-        return result
-
-    def __iter__(self):
-        return iter(self.keys())
-
     def best_match(self, lang=None):
-        if len(self) == 1:
+        if len(self) < 2:
             return self.default_text()
         lang = lang or QtCore.QLocale.system().bcp47Name()
         if not lang:
             return self.default_text()
+        lang = lang.lower()
         langs = [lang]
         if '-' in lang:
             langs.append(lang.split('-')[0])
         for lang in langs:
-            k = self.find_key(lang)
-            if k:
-                return self[k]
-            lang = lang.lower()
+            for k in self:
+                if k.lower() == lang:
+                    return self[k]
             for k in self:
                 if k.lower().startswith(lang):
                     return self[k]
         return self.default_text()
 
-    def strip(self):
-        return dict((k, v.strip()) for (k, v) in self.items())
-
     def default_text(self):
-        return self[self.keys()[0]]
+        return self[self._default_lang]
 
     def get_default_lang(self):
-        return self._default_lang or self.DEFAULT
+        return self._default_lang
 
     def set_default_lang(self, lang):
+        old_value = ''
+        if self._default_lang == self.DEFAULT:
+            old_value = self[self.DEFAULT]
         self._default_lang = lang
         new_value = self[lang]
-        key = self.find_key(self.DEFAULT)
-        if not key:
-            return
-        old_value = super(LangAltDict, self).__getitem__(key)
-        del self[key]
         if new_value in old_value:
             new_value = old_value
         elif old_value not in new_value:
             new_value += ' // ' + old_value
         self[lang] = new_value
+
+    def languages(self):
+        keys = list(super(LangAltDict, self).keys())
+        if len(keys) < 2:
+            return keys
+        if self._default_lang in keys:
+            keys.remove(self._default_lang)
+            keys.sort(key=lambda x: x.lower())
+            keys.insert(0, self._default_lang)
+        else:
+            keys.sort(key=lambda x: x.lower())
+        return keys
 
 
 class MD_LangAlt(LangAltDict, MD_Value):
@@ -923,19 +904,16 @@ class MD_LangAlt(LangAltDict, MD_Value):
     def to_xmp(self):
         if not self:
             return None
-        if len(self) == 1:
+        if len(self) < 2:
             return dict(self)
-        default_lang = self.get_default_lang()
-        result = {self.DEFAULT: self[default_lang],
-                  default_lang: self[default_lang]}
-        # don't save empty values
-        for k, v in self.items():
-            if v:
-                result[k] = v
+        result = dict((k, v) for (k, v) in self.items() if v)
+        if len(result) > 1:
+            result[self.DEFAULT] = result[self.get_default_lang()]
         return result
 
     def merge(self, info, tag, other):
-        other = LangAltDict(other)
+        if not isinstance(other, LangAltDict):
+            other = LangAltDict(other)
         if other == self:
             return self
         result = LangAltDict(self)
@@ -943,7 +921,7 @@ class MD_LangAlt(LangAltDict, MD_Value):
             if key == self.DEFAULT:
                 # try to find matching value
                 for k, v in result.items():
-                    if value in v or v in value:
+                    if k != self.DEFAULT and v == value:
                         key = k
                         break
             else:

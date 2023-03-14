@@ -692,12 +692,11 @@ class LangAltWidget(QtWidgets.QWidget):
         if self.is_multiple():
             self.value = self.choices[value]
         else:
-            self.value[self.lang.get_value()] = value
+            self.value[self.lang.get_value()] = value.strip()
         self.new_value.emit(key, self.get_value())
 
     def _regularise_default(self):
-        if (LangAltDict.DEFAULT not in self.value
-                or not self.value[LangAltDict.DEFAULT]):
+        if not self.value[LangAltDict.DEFAULT]:
             return True
         prompt = QtCore.QLocale.system().bcp47Name()
         if prompt in self.value:
@@ -726,7 +725,6 @@ class LangAltWidget(QtWidgets.QWidget):
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
             return None, None
-        self.value[lang] = ''
         self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
 
@@ -789,7 +787,8 @@ class LangAltWidget(QtWidgets.QWidget):
             lang = self.value.get_default_lang()
         # set language drop down
         self.lang.set_values(
-            [self.labeled_lang(x) for x in self.value], default=lang)
+            [self.labeled_lang(x) for x in self.value.languages()],
+            default=lang)
         self._change_lang('', lang)
 
     def get_value(self):
