@@ -26,7 +26,7 @@ import re
 
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import *
-from photini.pyqt import using_pyside
+from photini.pyqt import qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 
