@@ -32,53 +32,6 @@ exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.version())
 
 
-class xmp_dict(dict):
-    # dict that converts XMP tags with '/' and '[n]' in them to separate
-    # keys and indexes for nested structs and lists
-    _re_list = re.compile(r'(.*?)\[(\d+)\]$')
-
-    def __getitem__(self, key):
-        root, sep, node = key.partition('/')
-        if sep:
-            return self[root][node]
-        match = self._re_list.match(key)
-        if match:
-            root = match.group(1)
-            idx = int(match.group(2)) - 1
-            return self[root][idx]
-        return super(xmp_dict, self).__getitem__(key)
-
-    def __setitem__(self, key, value):
-        root, sep, node = key.partition('/')
-        if sep:
-            if root not in self:
-                self[root] = xmp_dict()
-            self[root][node] = value
-            return
-        match = self._re_list.match(key)
-        if match:
-            root = match.group(1)
-            idx = int(match.group(2)) - 1
-            if root not in self:
-                self[root] = []
-            while len(self[root]) <= idx:
-                self[root].append(None)
-            self[root][idx] = value
-            return
-        super(xmp_dict, self).__setitem__(key, value)
-
-    def __contains__(self, key):
-        root, sep, node = key.partition('/')
-        if sep:
-            return root in self and node in self[root]
-        match = self._re_list.match(key)
-        if match:
-            root = match.group(1)
-            idx = int(match.group(2)) - 1
-            return root in self and len(self[root]) > idx
-        return super(xmp_dict, self).__contains__(key)
-
-
 class MetadataHandler(object):
     @classmethod
     def initialise(cls, config_store, verbosity):
@@ -447,40 +400,58 @@ class MetadataHandler(object):
                 result.append(self.decode_iptc_value(datum))
         return result
 
+    _re_key_parts = re.compile(r'(.*?)(\[(\d+)\])?(/(.*))?$')
+
+    def set_item(self, result, key, value):
+        # break exiv2 tags into component parts
+        match = self._re_key_parts.match(key)
+        root = match.group(1)
+        idx = match.group(3)
+        node = match.group(5)
+        if node:
+            if idx:
+                self.set_item(result[root][int(idx)-1], node, value)
+            else:
+                self.set_item(result[root], node, value)
+        elif idx:
+            result[root].append(value)
+        else:
+            result[root] = value
+
     def get_xmp_value(self, tag):
         # XMP has a nested structure of arbitrary depth. Exiv2 converts
         # this to "flat" tag names. This method converts back to nested
         # dicts and lists.
-        result = xmp_dict()
+        result = {}
         for datum in self._xmpData:
             key = datum.key()
             if not key.startswith(tag):
                 continue
             value = datum.value()
             type_id = value.typeId()
-            if type_id == exiv2.TypeId.xmpText:
-                if value.xmpStruct() == exiv2.XmpStruct.xsStruct:
-                    value = xmp_dict()
+            if type_id == exiv2.TypeId.langAlt:
+                value = dict(value)
+            elif type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                             exiv2.TypeId.xmpSeq):
+                value = list(value)
+            elif tag == 'Xmp.xmp.Thumbnails' and ':image' in key:
+                # don't copy large string to unicode
+                value = value.data()
+            elif value.xmpStruct() == exiv2.XmpStruct.xsStruct:
+                value = {}
+            else:
+                array_type = value.xmpArrayType(value)
+                if array_type == exiv2.XmpArrayType.xaNone:
+                    value = str(value)
                 else:
+                    value = []
                     type_id = {
-                        exiv2.XmpArrayType.xaNone: exiv2.TypeId.xmpText,
                         exiv2.XmpArrayType.xaAlt: exiv2.TypeId.xmpAlt,
                         exiv2.XmpArrayType.xaBag: exiv2.TypeId.xmpBag,
                         exiv2.XmpArrayType.xaSeq: exiv2.TypeId.xmpSeq,
-                        }[value.xmpArrayType(value)]
-                    if type_id != exiv2.TypeId.xmpText:
-                        value = []
-                    elif tag == 'Xmp.xmp.Thumbnails' and ':image' in key:
-                        # don't copy large string to unicode
-                        value = value.data()
-                    else:
-                        value = str(value)
-            elif type_id == exiv2.TypeId.langAlt:
-                value = dict(value)
-            else:
-                value = list(value)
+                        }[array_type]
             self.set_xmp_type(key, type_id)
-            result[key] = value
+            self.set_item(result, key, value)
         if tag in result:
             return result[tag]
         return None
@@ -666,7 +637,6 @@ class MetadataHandler(object):
             return
         type_id = self.get_xmp_type(tag)
         if type_id == exiv2.TypeId.langAlt:
-            # LangAlt is unambiguous
             self._xmpData[tag] = exiv2.LangAltValue(value)
         elif isinstance(value, dict):
             # clear any existing struct members
@@ -678,28 +648,27 @@ class MetadataHandler(object):
             # set struct members
             for k, v in value.items():
                 self.set_xmp_value('{}/{}'.format(tag, k), v)
-        elif isinstance(value, (list, tuple)):
-            if isinstance(value[0], str):
-                # simple array value
-                self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
-            else:
-                # clear any existing array elements
-                self.clear_xmp_tag(tag, children_only=True)
-                # create array
-                array_type = {
-                    exiv2.TypeId.xmpAlt: exiv2.XmpArrayType.xaAlt,
-                    exiv2.TypeId.xmpBag: exiv2.XmpArrayType.xaBag,
-                    exiv2.TypeId.xmpSeq: exiv2.XmpArrayType.xaSeq,
-                    }[type_id]
-                tmp = exiv2.XmpTextValue()
-                tmp.setXmpArrayType(array_type)
-                self._xmpData[tag] = tmp
-                # set array elements
-                for idx, element in enumerate(value):
-                    self.set_xmp_value('{}[{}]'.format(tag, idx+1), element)
-        else:
+        elif not isinstance(value, (list, tuple)):
             # simple value
             self._xmpData[tag] = exiv2.XmpTextValue(str(value))
+        elif not isinstance(value[0], dict):
+            # simple array value
+            self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
+        else:
+            # clear any existing array elements
+            self.clear_xmp_tag(tag, children_only=True)
+            # create array
+            array_type = {
+                exiv2.TypeId.xmpAlt: exiv2.XmpArrayType.xaAlt,
+                exiv2.TypeId.xmpBag: exiv2.XmpArrayType.xaBag,
+                exiv2.TypeId.xmpSeq: exiv2.XmpArrayType.xaSeq,
+                }[type_id]
+            tmp = exiv2.XmpTextValue()
+            tmp.setXmpArrayType(array_type)
+            self._xmpData[tag] = tmp
+            # set array elements
+            for idx, element in enumerate(value):
+                self.set_xmp_value('{}[{}]'.format(tag, idx+1), element)
 
     def clear_exif_tag(self, tag):
         datum = self._exifData.findKey(exiv2.ExifKey(tag))
