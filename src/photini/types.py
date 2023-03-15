@@ -880,6 +880,8 @@ class LangAltDict(dict):
 
     def languages(self):
         keys = list(super(LangAltDict, self).keys())
+        if len(keys) < 1:
+            return [self._default_lang]
         if len(keys) < 2:
             return keys
         if self._default_lang in keys:

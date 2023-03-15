@@ -725,6 +725,7 @@ class LangAltWidget(QtWidgets.QWidget):
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
             return None, None
+        self.value[lang] = self.value[lang]
         self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
 
@@ -782,7 +783,9 @@ class LangAltWidget(QtWidgets.QWidget):
                 for lang in self.value:
                     if lang.split('-')[0] == base_lang:
                         break
-        if lang not in self.value:
+        if lang in self.value:
+            lang = self.value.find_key(lang)
+        else:
             # use the default for this value
             lang = self.value.get_default_lang()
         # set language drop down
