@@ -1257,7 +1257,7 @@ class MD_Coordinate(MD_Rational):
             degrees = -degrees
         return cls(degrees)
 
-    def to_exif(self):
+    def to_exif_part(self):
         degrees = self
         pstv = degrees >= 0
         if not pstv:
@@ -1272,12 +1272,12 @@ class MD_Coordinate(MD_Rational):
         seconds = seconds.limit_denominator(1000000)
         return (degrees, minutes, seconds), pstv
 
-    def to_xmp(self):
-        pstv, degrees, minutes, seconds = self.to_exif()
-        numbers = degrees, minutes, seconds
+    def to_xmp_part(self):
+        numbers, pstv = self.to_exif_part()
         if all([x.denominator == 1 for x in numbers]):
             return ('{:d},{:d},{:d}'.format(*[x.numerator for x in numbers]),
                     pstv)
+        degrees, minutes, seconds = numbers
         degrees = int(degrees)
         minutes = float(minutes + (seconds / 60))
         return '{:d},{:.8f}'.format(degrees, minutes), pstv
@@ -1288,21 +1288,21 @@ class MD_Coordinate(MD_Rational):
 
 class MD_Latitude(MD_Coordinate):
     def to_exif(self):
-        numbers, pstv = super(MD_Latitude, self).to_exif()
+        numbers, pstv = self.to_exif_part()
         return numbers, ('S', 'N')[pstv]
 
     def to_xmp(self):
-        string, pstv = super(MD_Latitude, self).to_xmp()
+        string, pstv = self.to_xmp_part()
         return string + ('S', 'N')[pstv]
 
 
 class MD_Longitude(MD_Coordinate):
     def to_exif(self):
-        numbers, pstv = super(MD_Longitude, self).to_exif()
+        numbers, pstv = self.to_exif_part()
         return numbers, ('W', 'E')[pstv]
 
     def to_xmp(self):
-        string, pstv = super(MD_Longitude, self).to_xmp()
+        string, pstv = self.to_xmp_part()
         return string + ('W', 'E')[pstv]
 
 
