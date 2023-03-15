@@ -214,7 +214,7 @@ class LocationInfo(QtWidgets.QScrollArea):
         self.members['exif:GPSAltitude'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Altitude of the location in metres.')))
         self.members['exif:GPSAltitude'].new_value.connect(
-            self.editing_finished)
+            self.new_altitude)
         self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
             width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),
@@ -253,9 +253,14 @@ class LocationInfo(QtWidgets.QScrollArea):
             new_value.update(self.members[key].get_value_dict())
         return new_value
 
+    @QtSlot(object)
+    @catch_all
+    def new_altitude(self, value):
+        self.new_value.emit(self, self.get_value())
+
     @QtSlot(str, object)
     @catch_all
-    def editing_finished(self, key, value=None):
+    def editing_finished(self, key, value):
         self.new_value.emit(self, self.get_value())
 
 
