@@ -1540,6 +1540,14 @@ class MD_Structure(MD_Value, dict):
                 self.log_merged(info, '{}[{}]'.format(tag, key), other[key])
         return self.__class__(result)
 
+    def to_exif(self):
+        if not self:
+            return None
+        return [self[k] for k in self.legacy_keys]
+
+    def to_iptc(self):
+        return self.to_exif()
+
     def to_xmp(self):
         if not self:
             return None
