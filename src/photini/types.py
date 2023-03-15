@@ -1486,51 +1486,118 @@ class MD_Dimensions(MD_Collection):
         return 0.0
 
 
-class MD_Location(MD_Collection):
-    # stores IPTC defined location heirarchy
-    _keys = ('Iptc4xmpExt:Sublocation', 'Iptc4xmpExt:City',
-             'Iptc4xmpExt:ProvinceState', 'Iptc4xmpExt:CountryName',
-             'Iptc4xmpExt:CountryCode', 'Iptc4xmpExt:WorldRegion',
-             'Iptc4xmpExt:LocationName', 'Iptc4xmpExt:LocationId',
-             'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude')
-    _type = {'Iptc4xmpExt:CountryCode': MD_UnmergableString,
-             'Iptc4xmpExt:LocationName': MD_LangAlt,
-             'Iptc4xmpExt:LocationId': MD_MultiString,
-             'exif:GPSLatitude': MD_Latitude,
-             'exif:GPSLongitude': MD_Longitude,
-             'exif:GPSAltitude': MD_Rational}
+class MD_Structure(MD_Value, dict):
+    extendable = False
 
-    def convert(self, value):
-        if value['Iptc4xmpExt:CountryCode']:
-            value['Iptc4xmpExt:CountryCode'] = value[
-                'Iptc4xmpExt:CountryCode'].upper()
-        return super(MD_Location, self).convert(value)
+    def __init__(self, value):
+        value = value or {}
+        # deep copy initial values
+        for k, v in value.items():
+            value[k] = self.get_type(k, v)(v)
+        # set missing values to None
+        for k in self.item_type:
+            if k not in value:
+                value[k] = None
+        super(MD_Structure, self).__init__(value)
+
+    @classmethod
+    def get_type(cls, key, value):
+        if cls.extendable and key not in cls.item_type:
+            logger.warning('Inferring type for %s', key)
+            if isinstance(value, (list, tuple)):
+                cls.item_type[key] = MD_MultiString
+            elif isinstance(value, dict):
+                cls.item_type[key] = MD_LangAlt
+            else:
+                cls.item_type[key] = MD_String
+        return cls.item_type[key]
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if isinstance(file_value, list):
             # "legacy" list of string values
-            return super(MD_Location, cls).from_exiv2(file_value, tag)
-        for key in file_value:
-            file_value[key] = cls.get_type(key).from_exiv2(file_value[key], tag)
+            if not any(file_value):
+                return None
+            file_value = dict(zip(cls.legacy_keys, file_value))
+        for key, value in file_value.items():
+            file_value[key] = cls.get_type(key, value).from_exiv2(value, tag)
         return cls(file_value)
+
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        result = dict(self)
+        for key in other:
+            if not other[key]:
+                continue
+            if key in result and result[key]:
+                result[key] = result[key].merge(
+                    info, '{}[{}]'.format(tag, key), other[key])
+            else:
+                result[key] = other[key]
+                self.log_merged(info, '{}[{}]'.format(tag, key), other[key])
+        return self.__class__(result)
+
+    def to_xmp(self):
+        if not self:
+            return None
+        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+
+    def compact_form(self):
+        return dict((k.split(':')[1], v.compact_form())
+                    for (k, v) in self.items() if v)
+
+    def __str__(self):
+        return pprint.pformat(self.compact_form(), compact=True)
+
+    def __bool__(self):
+        return any(self.values())
+
+
+class CountryCode(MD_UnmergableString):
+    def __new__(cls, value):
+        if value:
+            value = value.upper()
+        return super(CountryCode, cls).__new__(cls, value)
+
+
+class MD_Location(MD_Structure):
+    # stores IPTC defined location heirarchy
+    item_type = {
+        'Iptc4xmpExt:City': MD_String,
+        'Iptc4xmpExt:CountryCode': CountryCode,
+        'Iptc4xmpExt:CountryName': MD_String,
+        'exif:GPSAltitude': MD_Rational,
+        'exif:GPSLatitude': MD_Latitude,
+        'exif:GPSLongitude': MD_Longitude,
+        'Iptc4xmpExt:LocationId': MD_MultiString,
+        'Iptc4xmpExt:LocationName': MD_LangAlt,
+        'Iptc4xmpExt:ProvinceState': MD_String,
+        'Iptc4xmpExt:Sublocation': MD_String,
+        'Iptc4xmpExt:WorldRegion': MD_String,
+        }
+    legacy_keys = (
+        'Iptc4xmpExt:Sublocation', 'Iptc4xmpExt:City',
+        'Iptc4xmpExt:ProvinceState', 'Iptc4xmpExt:CountryName',
+        'Iptc4xmpExt:CountryCode',
+        )
 
     def to_xmp(self):
         if not self:
             # need a place holder for empty values
             return {'Iptc4xmpExt:City': ' '}
-        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+        return super(MD_Location, self).to_xmp()
 
     @classmethod
     def from_address(cls, gps, address, key_map):
         result = {}
-        for key in cls._keys:
+        for key in cls.item_type:
             result[key] = []
         for key in key_map:
             for foreign_key in key_map[key]:
                 if foreign_key not in address or not address[foreign_key]:
                     continue
-                if key in result and address[foreign_key] not in result[key]:
+                if address[foreign_key] not in result[key]:
                     result[key].append(address[foreign_key])
                 del(address[foreign_key])
         # only use one country code
@@ -1585,41 +1652,6 @@ class MD_MultiLocation(MD_StructArray):
 class MD_SingleLocation(MD_MultiLocation):
     def index(self, other):
         return 0
-
-
-class MD_Structure(MD_Value, dict):
-    def __init__(self, value):
-        # deep copy initial values
-        for k in value:
-            value[k] = self.item_type[k](value[k])
-        super(MD_Structure, self).__init__(value)
-
-    def merge_item(self, this, other):
-        merged = False
-        ignored = False
-        result = dict(this)
-        for key in other:
-            if key in result:
-                (result[key], merged_item, ignored_item
-                 ) = result[key].merge_item(result[key], other[key])
-                merged = merged or merged_item
-                ignored = ignored or ignored_item
-            else:
-                result[key] = other[key]
-                merged = True
-        return result, merged, ignored
-
-    def to_xmp(self):
-        if not self:
-            return None
-        return dict((k, v.to_xmp()) for (k, v) in self.items())
-
-    def compact_form(self):
-        return dict((k.split(':')[1], v.compact_form())
-                    for (k, v) in self.items() if v)
-
-    def __str__(self):
-        return pprint.pformat(self.compact_form(), compact=True)
 
 
 class ConceptIndentifier(MD_MultiString):
@@ -1686,7 +1718,8 @@ class RegionBoundary(MD_Structure):
         'Iptc4xmpExt:rbVertices': RegionBoundaryPointArray,
         }
 
-    def set_decimals(self):
+    def __init__(self, value):
+        super(RegionBoundary, self).__init__(value)
         if self['Iptc4xmpExt:rbUnit'] == 'pixel':
             decimals = 0
         else:
@@ -1695,12 +1728,7 @@ class RegionBoundary(MD_Structure):
             if isinstance(v, (RegionBoundaryNumber, RegionBoundaryPointArray)):
                 v.set_decimals(decimals)
 
-    def to_xmp(self):
-        self.set_decimals()
-        return super(RegionBoundary, self).to_xmp()
-
     def compact_form(self):
-        self.set_decimals()
         result = super(RegionBoundary, self).compact_form()
         if result['rbShape'] == 'circle':
             return {'rbShape':
@@ -1771,13 +1799,13 @@ class RegionBoundary(MD_Structure):
 
 
 class ImageRegionItem(MD_Structure):
+    extendable = True
     item_type = {
         'Iptc4xmpExt:RegionBoundary': RegionBoundary,
         'Iptc4xmpExt:rId': MD_String,
         'Iptc4xmpExt:Name': MD_LangAlt,
         'Iptc4xmpExt:rCtype': EntityConceptArray,
         'Iptc4xmpExt:rRole': EntityConceptArray,
-        # allowed arbitrary "other" data - need to handle that!
         'Iptc4xmpExt:PersonInImage': MD_MultiString,
         'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
         'photoshop:CaptionWriter': MD_String,
@@ -1843,7 +1871,6 @@ class ImageRegionItem(MD_Structure):
         boundary = self['Iptc4xmpExt:RegionBoundary']
         if boundary['Iptc4xmpExt:rbUnit'] == unit:
             return self
-        boundary = RegionBoundary(boundary)
         polygon = boundary.to_Qt(image)
         boundary['Iptc4xmpExt:rbUnit'] = unit
         boundary = boundary.from_Qt(polygon, image)
