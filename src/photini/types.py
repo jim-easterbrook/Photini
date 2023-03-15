@@ -661,12 +661,106 @@ class MD_Collection(MD_Dict):
         return self.__class__(result)
 
 
-class MD_ContactInformation(MD_Collection):
-    _keys = ('plus:LicensorExtendedAddress', 'plus:LicensorStreetAddress',
-             'plus:LicensorCity', 'plus:LicensorPostalCode',
-             'plus:LicensorRegion', 'plus:LicensorCountry',
-             'plus:LicensorTelephone1',
-             'plus:LicensorEmail', 'plus:LicensorURL')
+class MD_Structure(MD_Value, dict):
+    extendable = False
+
+    def __init__(self, value):
+        value = value or {}
+        # deep copy initial values
+        value = dict((k, self.get_type(k, v)(v))
+                     for (k, v) in value.items() if v)
+        # set missing values to None
+        for k in self.item_type:
+            if k not in value:
+                value[k] = None
+        super(MD_Structure, self).__init__(value)
+
+    @classmethod
+    def get_type(cls, key, value):
+        if cls.extendable and key not in cls.item_type:
+            logger.warning('Inferring type for %s', key)
+            if isinstance(value, (list, tuple)):
+                cls.item_type[key] = MD_MultiString
+            elif isinstance(value, dict):
+                cls.item_type[key] = MD_LangAlt
+            else:
+                cls.item_type[key] = MD_String
+        return cls.item_type[key]
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, list):
+            # "legacy" list of string values
+            file_value = dict(zip(cls.legacy_keys, file_value))
+        file_value = file_value or {}
+        for key, value in file_value.items():
+            file_value[key] = cls.get_type(key, value).from_exiv2(value, tag)
+        return cls(file_value)
+
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        result = dict(self)
+        for key in other:
+            if not other[key]:
+                continue
+            if key in result and result[key]:
+                result[key] = result[key].merge(
+                    info, '{}[{}]'.format(tag, key), other[key])
+            else:
+                result[key] = other[key]
+                self.log_merged(info, '{}[{}]'.format(tag, key), other[key])
+        return self.__class__(result)
+
+    def to_exif(self):
+        if not self:
+            return None
+        return [self[k] for k in self.legacy_keys]
+
+    def to_iptc(self):
+        return self.to_exif()
+
+    def to_xmp(self):
+        if not self:
+            return None
+        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+
+    def compact_form(self):
+        return dict((k.split(':')[1], v.compact_form())
+                    for (k, v) in self.items() if v)
+
+    def __str__(self):
+        return pprint.pformat(self.compact_form(), compact=True)
+
+    def __bool__(self):
+        return any(self.values())
+
+
+class Unused(object):
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        logger.warning('%s: to be deleted when data is saved: %s',
+                       tag, file_value)
+        return None
+
+
+class MD_ContactInformation(MD_Structure):
+    item_type = {
+        'plus:LicensorID': Unused,
+        'plus:LicensorName': Unused,
+        'plus:LicensorStreetAddress': MD_String,
+        'plus:LicensorExtendedAddress': MD_String,
+        'plus:LicensorCity': MD_String,
+        'plus:LicensorRegion': MD_String,
+        'plus:LicensorPostalCode': MD_String,
+        'plus:LicensorCountry': MD_String,
+        'plus:LicensorTelephoneType1': Unused,
+        'plus:LicensorTelephone1': MD_String,
+        'plus:LicensorTelephoneType2': Unused,
+        'plus:LicensorTelephone2': Unused,
+        'plus:LicensorEmail': MD_String,
+        'plus:LicensorURL': MD_String,
+        }
 
     _ci_map = {
         'Iptc4xmpCore:CiAdrExtadr': 'plus:LicensorStreetAddress',
@@ -683,7 +777,8 @@ class MD_ContactInformation(MD_Collection):
     def from_exiv2(cls, file_value, tag):
         if tag == 'Xmp.iptc.CreatorContactInfo':
             file_value = file_value or {}
-            file_value = {(cls._ci_map[k], v) for (k, v) in file_value.items()}
+            file_value = dict((cls._ci_map[k], v)
+                              for (k, v) in file_value.items())
             if 'plus:LicensorStreetAddress' in file_value:
                 line1, sep, line2 = file_value[
                     'plus:LicensorStreetAddress'].partition('\n')
@@ -691,11 +786,15 @@ class MD_ContactInformation(MD_Collection):
                     file_value['plus:LicensorExtendedAddress'] = line1
                     file_value['plus:LicensorStreetAddress'] = line2
         elif file_value:
+            for value in file_value[1:]:
+                logger.warning(
+                    '%s: to be deleted when data is saved: %s', tag, value)
+            # Xmp.plus.Licensor is an XMP bag with up to 3 entries, use the 1st
             file_value = file_value[0]
-        return cls(file_value)
+        return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
 
     def to_xmp(self):
-        return [self]
+        return [super(MD_ContactInformation, self).to_xmp()]
 
 
 class MD_StructArray(MD_Value, tuple):
@@ -1486,82 +1585,6 @@ class MD_Dimensions(MD_Collection):
         if self['frames'] and self['frame_rate']:
             return float(self['frames'] / self['frame_rate'])
         return 0.0
-
-
-class MD_Structure(MD_Value, dict):
-    extendable = False
-
-    def __init__(self, value):
-        value = value or {}
-        # deep copy initial values
-        for k, v in value.items():
-            value[k] = self.get_type(k, v)(v)
-        # set missing values to None
-        for k in self.item_type:
-            if k not in value:
-                value[k] = None
-        super(MD_Structure, self).__init__(value)
-
-    @classmethod
-    def get_type(cls, key, value):
-        if cls.extendable and key not in cls.item_type:
-            logger.warning('Inferring type for %s', key)
-            if isinstance(value, (list, tuple)):
-                cls.item_type[key] = MD_MultiString
-            elif isinstance(value, dict):
-                cls.item_type[key] = MD_LangAlt
-            else:
-                cls.item_type[key] = MD_String
-        return cls.item_type[key]
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if isinstance(file_value, list):
-            # "legacy" list of string values
-            if not any(file_value):
-                return None
-            file_value = dict(zip(cls.legacy_keys, file_value))
-        for key, value in file_value.items():
-            file_value[key] = cls.get_type(key, value).from_exiv2(value, tag)
-        return cls(file_value)
-
-    def merge(self, info, tag, other):
-        if other == self:
-            return self
-        result = dict(self)
-        for key in other:
-            if not other[key]:
-                continue
-            if key in result and result[key]:
-                result[key] = result[key].merge(
-                    info, '{}[{}]'.format(tag, key), other[key])
-            else:
-                result[key] = other[key]
-                self.log_merged(info, '{}[{}]'.format(tag, key), other[key])
-        return self.__class__(result)
-
-    def to_exif(self):
-        if not self:
-            return None
-        return [self[k] for k in self.legacy_keys]
-
-    def to_iptc(self):
-        return self.to_exif()
-
-    def to_xmp(self):
-        if not self:
-            return None
-        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
-
-    def compact_form(self):
-        return dict((k.split(':')[1], v.compact_form())
-                    for (k, v) in self.items() if v)
-
-    def __str__(self):
-        return pprint.pformat(self.compact_form(), compact=True)
-
-    def __bool__(self):
-        return any(self.values())
 
 
 class CountryCode(MD_UnmergableString):
