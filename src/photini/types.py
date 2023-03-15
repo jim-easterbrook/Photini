@@ -81,6 +81,9 @@ class MD_Value(object):
     def to_xmp(self):
         return str(self)
 
+    def compact_form(self):
+        return self
+
     def merge(self, info, tag, other):
         result, merged, ignored = self.merge_item(self, other)
         if ignored:
@@ -695,18 +698,18 @@ class MD_ContactInformation(MD_Collection):
         return [self]
 
 
-class MD_Tuple(MD_Value, tuple):
-    # class for structured XMP data such as locations or image regions
+class MD_StructArray(MD_Value, tuple):
+    # class for arrays of XMP structures such as locations or image regions
     def __new__(cls, value=[]):
         value = value or []
         temp = []
         for item in value:
-            if not isinstance(item, cls._type):
-                item = cls._type(item)
+            if not isinstance(item, cls.item_type):
+                item = cls.item_type(item)
             temp.append(item)
         while temp and not temp[-1]:
             temp = temp[:-1]
-        return super(MD_Tuple, cls).__new__(cls, temp)
+        return super(MD_StructArray, cls).__new__(cls, temp)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -714,9 +717,9 @@ class MD_Tuple(MD_Value, tuple):
             return cls()
         # Exif and IPTC only store one item, XMP stores any number
         if tag.startswith('Xmp'):
-            file_value = [cls._type.from_exiv2(x, tag) for x in file_value]
+            file_value = [cls.item_type.from_exiv2(x, tag) for x in file_value]
         else:
-            file_value = [cls._type.from_exiv2(file_value, tag)]
+            file_value = [cls.item_type.from_exiv2(file_value, tag)]
         return cls(file_value)
 
     def to_exif(self):
@@ -731,8 +734,8 @@ class MD_Tuple(MD_Value, tuple):
     def merge(self, info, tag, other):
         result = self
         for item in other:
-            if not isinstance(item, self._type):
-                item = self._type(item)
+            if not isinstance(item, self.item_type):
+                item = self.item_type(item)
             idx = result.index(item)
             result = list(result)
             if idx < len(result):
@@ -742,6 +745,9 @@ class MD_Tuple(MD_Value, tuple):
                 result.append(item)
             result = self.__class__(result)
         return result
+
+    def compact_form(self):
+        return [v.compact_form() for v in self if v]
 
     def __str__(self):
         return '\n\n'.join(str(x) for x in self)
@@ -1566,8 +1572,8 @@ class MD_Location(MD_Collection):
         return '\n'.join('{}: {}'.format(*x) for x in result)
 
 
-class MD_MultiLocation(MD_Tuple):
-    _type = MD_Location
+class MD_MultiLocation(MD_StructArray):
+    item_type = MD_Location
 
     def index(self, other):
         for n, value in enumerate(self):
@@ -1581,144 +1587,152 @@ class MD_SingleLocation(MD_MultiLocation):
         return 0
 
 
-class ImageRegionItem(MD_Value, dict):
+class MD_Structure(MD_Value, dict):
+    def __init__(self, value):
+        # deep copy initial values
+        for k in value:
+            value[k] = self.item_type[k](value[k])
+        super(MD_Structure, self).__init__(value)
+
     def merge_item(self, this, other):
         merged = False
         ignored = False
         result = dict(this)
         for key in other:
-            if key not in result:
+            if key in result:
+                (result[key], merged_item, ignored_item
+                 ) = result[key].merge_item(result[key], other[key])
+                merged = merged or merged_item
+                ignored = ignored or ignored_item
+            else:
                 result[key] = other[key]
                 merged = True
-            elif result[key] == other[key]:
-                pass
-            elif isinstance(result[key], str):
-                result[key] += ' // ' + other[key]
-                merged = True
-            elif isinstance(result[key], (tuple, list)):
-                result[key] = list(result[key])
-                for item in other[key]:
-                    if item not in result[key]:
-                        result[key].append(item)
-                        merged = True
-            else:
-                logger.error('Cannot merge ImageRegionItem %s', key)
-                ignored = True
         return result, merged, ignored
 
-    @staticmethod
-    def _from_string(value):
-        value = dict(value)
-        for key in value:
-            if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
-                       'Iptc4xmpExt:rbH', 'Iptc4xmpExt:rbRx'):
-                value[key] = float(value[key])
-        return value
-
-    @staticmethod
-    def _to_string(value, fmt):
-        value = dict(value)
-        for key in value:
-            if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbW',
-                       'Iptc4xmpExt:rbH', 'Iptc4xmpExt:rbRx'):
-                value[key] = fmt.format(value[key])
-        return value
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not file_value:
+    def to_xmp(self):
+        if not self:
             return None
-        if tag.startswith('Xmp'):
-            boundary = file_value['Iptc4xmpExt:RegionBoundary']
-            if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
-                boundary['Iptc4xmpExt:rbVertices'] = [
-                    cls._from_string(v)
-                    for v in boundary['Iptc4xmpExt:rbVertices']]
-            else:
-                boundary = cls._from_string(boundary)
-            file_value['Iptc4xmpExt:RegionBoundary'] = boundary
-            return file_value
-        # Convert Exif.Photo.SubjectArea to an image region. See
-        # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
-        if len(file_value) == 2:
-            region = {'Iptc4xmpExt:rbShape': 'polygon',
-                      'Iptc4xmpExt:rbVertices': [{
-                          'Iptc4xmpExt:rbX': file_value[0],
-                          'Iptc4xmpExt:rbY': file_value[1]}]}
-        elif len(file_value) == 3:
-            region = {'Iptc4xmpExt:rbShape': 'circle',
-                      'Iptc4xmpExt:rbX': file_value[0],
-                      'Iptc4xmpExt:rbY': file_value[1],
-                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
-        elif len(file_value) == 4:
-            region = {'Iptc4xmpExt:rbShape': 'rectangle',
-                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
-                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
-                      'Iptc4xmpExt:rbW': file_value[2],
-                      'Iptc4xmpExt:rbH': file_value[3]}
-        else:
-            return None
-        region['Iptc4xmpExt:rbUnit'] = 'pixel'
-        return {
-            'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [{
-                'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
-                'xmp:Identifier': [
-                    'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea'],
-                }],
-            }
+        return dict((k, v.to_xmp()) for (k, v) in self.items())
+
+    def compact_form(self):
+        return dict((k.split(':')[1], v.compact_form())
+                    for (k, v) in self.items() if v)
+
+    def __str__(self):
+        return pprint.pformat(self.compact_form(), compact=True)
+
+
+class ConceptIndentifier(MD_MultiString):
+    def compact_form(self):
+        fm = QtWidgets.QWidget().fontMetrics()
+        width = fm.boundingRect('x' * 30).width()
+        return [fm.elidedText(v, Qt.TextElideMode.ElideLeft, width)
+                for v in self if v]
+
+
+class EntityConcept(MD_Structure):
+    item_type = {
+        'Iptc4xmpExt:Name': MD_LangAlt,
+        'xmp:Identifier': ConceptIndentifier,
+        }
+
+
+class EntityConceptArray(MD_StructArray):
+    item_type = EntityConcept
+
+
+class RegionBoundaryNumber(MD_Float):
+    def set_decimals(self, decimals):
+        self.decimals = decimals
 
     def to_xmp(self):
-        result = dict(self)
-        boundary = dict(result['Iptc4xmpExt:RegionBoundary'])
-        if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
-            fmt = '{:.0f}'
+        return str(self)
+
+    def compact_form(self):
+        return round(self, self.decimals)
+
+    def __str__(self):
+        return '{:g}'.format(round(self, self.decimals))
+
+
+class RegionBoundaryPoint(MD_Structure):
+    item_type = {
+        'Iptc4xmpExt:rbX': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbY': RegionBoundaryNumber,
+        }
+
+    def set_decimals(self, decimals):
+        for v in self.values():
+            v.set_decimals(decimals)
+
+
+class RegionBoundaryPointArray(MD_StructArray):
+    item_type = RegionBoundaryPoint
+
+    def set_decimals(self, decimals):
+        for v in self:
+            v.set_decimals(decimals)
+
+
+class RegionBoundary(MD_Structure):
+    item_type = {
+        'Iptc4xmpExt:rbShape': MD_String,
+        'Iptc4xmpExt:rbUnit': MD_String,
+        'Iptc4xmpExt:rbX': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbY': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbW': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbH': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbRx': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbVertices': RegionBoundaryPointArray,
+        }
+
+    def set_decimals(self):
+        if self['Iptc4xmpExt:rbUnit'] == 'pixel':
+            decimals = 0
         else:
-            fmt = '{:.4f}'
-        if boundary['Iptc4xmpExt:rbShape'] == 'polygon':
-            boundary['Iptc4xmpExt:rbVertices'] = [
-                self._to_string(v, fmt)
-                for v in boundary['Iptc4xmpExt:rbVertices']]
-        else:
-            boundary = self._to_string(boundary, fmt)
-        result['Iptc4xmpExt:RegionBoundary'] = boundary
+            decimals = 4
+        for v in self.values():
+            if isinstance(v, (RegionBoundaryNumber, RegionBoundaryPointArray)):
+                v.set_decimals(decimals)
+
+    def to_xmp(self):
+        self.set_decimals()
+        return super(RegionBoundary, self).to_xmp()
+
+    def compact_form(self):
+        self.set_decimals()
+        result = super(RegionBoundary, self).compact_form()
+        if result['rbShape'] == 'circle':
+            return {'rbShape':
+                    'circle({rbX:g}, {rbY:g}, {rbRx:g})'.format(**result),
+                    'rbUnit': result['rbUnit']}
+        if result['rbShape'] == 'rectangle':
+            return {'rbShape':
+                    'rectangle({rbX:g}, {rbY:g}, {rbW:g}, {rbH:g})'.format(**result),
+                    'rbUnit': result['rbUnit']}
         return result
-
-    def has_uid(self, key, uid):
-        if key not in self:
-            return False
-        for item in self[key]:
-            if 'xmp:Identifier' in item and uid in item['xmp:Identifier']:
-                return True
-        return False
-
-    def is_main_subject_area(self):
-        return self.has_uid(
-            'Iptc4xmpExt:rRole',
-            'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
 
     def to_Qt(self, image):
         # convert the boundary to a Qt polygon defining the shape in
         # relative units
-        boundary = self['Iptc4xmpExt:RegionBoundary']
-        if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+        if self['Iptc4xmpExt:rbShape'] == 'rectangle':
             # polygon is two opposite corners of rectangle
             rect = QtCore.QRectF(
-                boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'],
-                boundary['Iptc4xmpExt:rbW'], boundary['Iptc4xmpExt:rbH'])
+                self['Iptc4xmpExt:rbX'], self['Iptc4xmpExt:rbY'],
+                self['Iptc4xmpExt:rbW'], self['Iptc4xmpExt:rbH'])
             polygon = QtGui.QPolygonF([rect.topLeft(), rect.bottomRight()])
-        elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+        elif self['Iptc4xmpExt:rbShape'] == 'circle':
             # polygon is centre and a point on the circumference
             centre = QtCore.QPointF(
-                boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'])
-            edge = centre + QtCore.QPointF(boundary['Iptc4xmpExt:rbRx'], 0.0)
+                self['Iptc4xmpExt:rbX'], self['Iptc4xmpExt:rbY'])
+            edge = centre + QtCore.QPointF(self['Iptc4xmpExt:rbRx'], 0.0)
             polygon = QtGui.QPolygonF([centre, edge])
         else:
             # polygon is a list of vertices
             polygon = QtGui.QPolygonF([
                 QtCore.QPointF(v['Iptc4xmpExt:rbX'], v['Iptc4xmpExt:rbY'])
-                for v in boundary['Iptc4xmpExt:rbVertices']])
-        if boundary['Iptc4xmpExt:rbUnit'] == 'relative':
+                for v in self['Iptc4xmpExt:rbVertices']])
+        if self['Iptc4xmpExt:rbUnit'] == 'relative':
             return polygon
         image_dims = image.metadata.dimensions
         transform = QtGui.QTransform().scale(1.0 / float(image_dims['width']),
@@ -1728,7 +1742,7 @@ class ImageRegionItem(MD_Value, dict):
     def from_Qt(self, polygon, image):
         # convert a Qt polygon defining the shape in relative units to a
         # boundary in pixel or relative units
-        boundary = dict(self['Iptc4xmpExt:RegionBoundary'])
+        boundary = dict(self)
         if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
             image_dims = image.metadata.dimensions
             transform = QtGui.QTransform().scale(float(image_dims['width']),
@@ -1753,52 +1767,93 @@ class ImageRegionItem(MD_Value, dict):
             boundary['Iptc4xmpExt:rbVertices'] = [
                 {'Iptc4xmpExt:rbX': p.x(), 'Iptc4xmpExt:rbY': p.y()}
                 for p in (polygon.at(n) for n in range(polygon.count()))]
-        return boundary
+        return RegionBoundary(boundary)
+
+
+class ImageRegionItem(MD_Structure):
+    item_type = {
+        'Iptc4xmpExt:RegionBoundary': RegionBoundary,
+        'Iptc4xmpExt:rId': MD_String,
+        'Iptc4xmpExt:Name': MD_LangAlt,
+        'Iptc4xmpExt:rCtype': EntityConceptArray,
+        'Iptc4xmpExt:rRole': EntityConceptArray,
+        # allowed arbitrary "other" data - need to handle that!
+        'Iptc4xmpExt:PersonInImage': MD_MultiString,
+        'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
+        'photoshop:CaptionWriter': MD_String,
+        'dc:description': MD_LangAlt,
+        }
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return None
+        if tag.startswith('Xmp'):
+            return cls(file_value)
+        # Convert Exif.Photo.SubjectArea to an image region. See
+        # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
+        if len(file_value) == 2:
+            region = {'Iptc4xmpExt:rbShape': 'polygon',
+                      'Iptc4xmpExt:rbVertices': [{
+                          'Iptc4xmpExt:rbX': file_value[0],
+                          'Iptc4xmpExt:rbY': file_value[1]}]}
+        elif len(file_value) == 3:
+            region = {'Iptc4xmpExt:rbShape': 'circle',
+                      'Iptc4xmpExt:rbX': file_value[0],
+                      'Iptc4xmpExt:rbY': file_value[1],
+                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
+        elif len(file_value) == 4:
+            region = {'Iptc4xmpExt:rbShape': 'rectangle',
+                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
+                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
+                      'Iptc4xmpExt:rbW': file_value[2],
+                      'Iptc4xmpExt:rbH': file_value[3]}
+        else:
+            return None
+        region['Iptc4xmpExt:rbUnit'] = 'pixel'
+        return cls({
+            'Iptc4xmpExt:RegionBoundary': region,
+            'Iptc4xmpExt:rRole': [{
+                'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
+                'xmp:Identifier': [
+                    'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea'],
+                }],
+            })
+
+    def has_uid(self, key, uid):
+        if key not in self:
+            return False
+        for item in self[key]:
+            if 'xmp:Identifier' in item and uid in item['xmp:Identifier']:
+                return True
+        return False
+
+    def is_main_subject_area(self):
+        return self.has_uid(
+            'Iptc4xmpExt:rRole',
+            'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
+
+    def to_Qt(self, image):
+        return self['Iptc4xmpExt:RegionBoundary'].to_Qt(image)
+
+    def from_Qt(self, polygon, image):
+        return self['Iptc4xmpExt:RegionBoundary'].from_Qt(polygon, image)
 
     def convert_unit(self, unit, image):
-        if self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] == unit:
+        boundary = self['Iptc4xmpExt:RegionBoundary']
+        if boundary['Iptc4xmpExt:rbUnit'] == unit:
             return self
-        polygon = self.to_Qt(image)
-        self['Iptc4xmpExt:RegionBoundary']['Iptc4xmpExt:rbUnit'] = unit
-        result = dict(self)
-        result['Iptc4xmpExt:RegionBoundary'] = self.from_Qt(polygon, image)
+        boundary = RegionBoundary(boundary)
+        polygon = boundary.to_Qt(image)
+        boundary['Iptc4xmpExt:rbUnit'] = unit
+        boundary = boundary.from_Qt(polygon, image)
+        result = ImageRegionItem(self)
+        result['Iptc4xmpExt:RegionBoundary'] = boundary
         return result
 
-    def short_keys(self, value):
-        if isinstance(value, dict):
-            result = {}
-            for (k, v) in value.items():
-                v = self.short_keys(v)
-                if k == 'xmp:Identifier':
-                    fm = QtWidgets.QWidget().fontMetrics()
-                    width = fm.boundingRect('x' * 30).width()
-                    v = [fm.elidedText(
-                        x, Qt.TextElideMode.ElideLeft, width) for x in v]
-                if k == 'Iptc4xmpExt:RegionBoundary':
-                    new_v = {'rbUnit': v['rbUnit']}
-                    if v['rbShape'] == 'rectangle':
-                        new_v['rbShape'] = ('rectangle({rbX:g}, {rbY:g}, '
-                                            '{rbW:g}, {rbH:g})').format(**v)
-                    elif v['rbShape'] == 'circle':
-                        new_v['rbShape'] = ('circle({rbX:g}, {rbY:g}, '
-                                            '{rbRx:g})').format(**v)
-                    else:
-                        new_v['rbShape'] = 'polygon({})'.format(', '.join(
-                            '({rbX:g}, {rbY:g})'.format(**p)
-                            for p in self.short_keys(v['rbVertices'])))
-                    v = new_v
-                result[k.split(':')[-1]] = v
-            return result
-        if isinstance(value, list):
-            return [self.short_keys(v) for v in value]
-        return value
 
-    def __str__(self):
-        return pprint.pformat(self.short_keys(self), compact=True)
-
-
-class MD_ImageRegion(MD_Tuple):
-    _type = ImageRegionItem
+class MD_ImageRegion(MD_StructArray):
+    item_type = ImageRegionItem
 
     def new_region(self, region, idx=None):
         if idx is None:
