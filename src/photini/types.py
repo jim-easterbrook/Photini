@@ -689,7 +689,7 @@ class MD_Structure(MD_Value, dict):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if isinstance(file_value, list):
+        if isinstance(file_value, (list, tuple)):
             # "legacy" list of string values
             file_value = dict(zip(cls.legacy_keys, file_value))
         file_value = file_value or {}
@@ -715,10 +715,12 @@ class MD_Structure(MD_Value, dict):
     def to_exif(self):
         if not self:
             return None
-        return [self[k] for k in self.legacy_keys]
+        return [self[k] and self[k].to_exif() for k in self.legacy_keys]
 
     def to_iptc(self):
-        return self.to_exif()
+        if not self:
+            return None
+        return [self[k] and self[k].to_iptc() for k in self.legacy_keys]
 
     def to_xmp(self):
         if not self:
@@ -726,7 +728,7 @@ class MD_Structure(MD_Value, dict):
         return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
 
     def compact_form(self):
-        return dict((k.split(':')[1], v.compact_form())
+        return dict((k.split(':')[-1], v.compact_form())
                     for (k, v) in self.items() if v)
 
     def __str__(self):
@@ -862,6 +864,9 @@ class MD_LangAlt(MD_Value, dict):
     DEFAULT = 'x-default'
 
     def __init__(self, value={}, default_lang=None):
+        if isinstance(value, str):
+            value = value.strip()
+            value = value and {self.DEFAULT: value}
         value = value or {}
         if default_lang:
             self.default_lang = default_lang
@@ -888,13 +893,6 @@ class MD_LangAlt(MD_Value, dict):
             if k != cls.DEFAULT and v == text:
                 return k
         return cls.DEFAULT
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if isinstance(file_value, str):
-            file_value = file_value.strip()
-            file_value = file_value and {cls.DEFAULT: file_value}
-        return cls(file_value)
 
     def find_key(self, key):
         # languages are case insensitive
@@ -994,8 +992,10 @@ class MD_LangAlt(MD_Value, dict):
     def merge(self, info, tag, other):
         if self == other:
             return self
+        if not isinstance(other, MD_LangAlt):
+            other = MD_LangAlt(other)
         default_lang = self.default_lang
-        if default_lang == self.DEFAULT and isinstance(other, MD_LangAlt):
+        if default_lang == self.DEFAULT:
             default_lang = other.default_lang
         result = dict(self)
         for key, value in other.items():
@@ -1283,6 +1283,9 @@ class MD_Altitude(MD_Rational):
             ref = '0'
         return '{}/{}'.format(altitude.numerator, altitude.denominator), ref
 
+    def contains(self, this, other):
+        return abs(float(other) - float(this)) < 0.001
+
 
 class MD_Coordinate(MD_Rational):
     @classmethod
@@ -1355,6 +1358,9 @@ class MD_Coordinate(MD_Rational):
         minutes = float(minutes + (seconds / 60))
         return '{:d},{:.8f}'.format(degrees, minutes), pstv
 
+    def contains(self, this, other):
+        return abs(float(other) - float(this)) < 0.0000001
+
     def __str__(self):
         return '{:.6f}'.format(float(self))
 
@@ -1379,20 +1385,34 @@ class MD_Longitude(MD_Coordinate):
         return string + ('W', 'E')[pstv]
 
 
-class MD_GPSinfo(MD_Dict):
-    # stores GPS information
-    _keys = ('version_id', 'method', 'alt', 'lat', 'lon')
+class GPSVersionId(MD_Value, bytes):
+    def __new__(cls, value):
+        value = value or b'\x02\x00\x00\x00'
+        return super(GPSVersionId, cls).__new__(cls, value)
 
-    @staticmethod
-    def convert(value):
-        value['version_id'] = value['version_id'] or b'\x02\x00\x00\x00'
-        if not isinstance(value['alt'], MD_Altitude):
-            value['alt'] = MD_Altitude(value['alt'])
-        if not isinstance(value['lat'], MD_Latitude):
-            value['lat'] = MD_Latitude(value['lat'])
-        if not isinstance(value['lon'], MD_Longitude):
-            value['lon'] = MD_Longitude(value['lon'])
-        return value
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if file_value and tag.startswith('Xmp'):
+            file_value = [int(x) for x in file_value.split('.')]
+        return cls(file_value)
+
+    def to_exif(self):
+        return self
+
+    def to_xmp(self):
+        return '.'.join(str(x) for x in self)
+
+
+class MD_GPSinfo(MD_Structure):
+    item_type = {
+        'version_id': GPSVersionId,
+        'method': MD_UnmergableString,
+        'alt': MD_Altitude,
+        'lat': MD_Latitude,
+        'lon': MD_Longitude,
+        }
+    legacy_keys = (
+        'version_id', 'method', 'alt', 'lat', 'lon')
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -1400,109 +1420,55 @@ class MD_GPSinfo(MD_Dict):
             match = re.match(
                 r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)/$', file_value)
             if match:
-                return cls(zip(('lat', 'lon', 'alt'), match.groups()))
-        return None
+                file_value = dict(zip(('lat', 'lon', 'alt'), match.groups()))
+        return cls(file_value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Xmp.video'):
             return cls.from_ffmpeg(file_value, tag)
         version_id = file_value[0]
-        method = MD_UnmergableString.from_exiv2(file_value[1], tag)
-        alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
+        method = file_value[1]
+        alt = file_value[2:4]
         if tag.startswith('Exif'):
-            lat = MD_Latitude.from_exif(file_value[4:6])
-            lon = MD_Longitude.from_exif(file_value[6:8])
+            lat = file_value[4:6]
+            lon = file_value[6:8]
         else:
-            if version_id:
-                version_id = bytes([int(x) for x in version_id.split('.')])
-            lat = MD_Latitude.from_xmp(file_value[4])
-            lon = MD_Longitude.from_xmp(file_value[5])
-        return cls((version_id, method, alt, lat, lon))
+            lat = file_value[4]
+            lon = file_value[5]
+        file_value = version_id, method, alt, lat, lon
+        return super(MD_GPSinfo, cls).from_exiv2(file_value, tag)
 
     def to_exif(self):
-        if self['alt']:
-            altitude, alt_ref = self['alt'].to_exif()
-        else:
-            altitude, alt_ref = None, None
-        if self['lat']:
-            lat_value, lat_ref = self['lat'].to_exif()
-            lon_value, lon_ref = self['lon'].to_exif()
-        else:
-            lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
-        if self['method']:
-            method = 'charset=Ascii ' + self['method']
-        else:
-            method = None
-        return (self['version_id'], method,
-                altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref)
+        if not self:
+            return None
+        result = []
+        for k in self.legacy_keys:
+            if k in ('alt', 'lat', 'lon'):
+                if self[k]:
+                    result += self[k].to_exif()
+                else:
+                    result += [None, None]
+            else:
+                result.append(self[k] and self[k].to_exif())
+        return result
 
     def to_xmp(self):
-        version_id = '.'.join([str(x) for x in self['version_id']])
-        if self['alt']:
-            altitude, alt_ref = self['alt'].to_xmp()
-        else:
-            altitude, alt_ref = None, None
-        if self['lat']:
-            lat_string = self['lat'].to_xmp()
-            lon_string = self['lon'].to_xmp()
-        else:
-            lat_string, lon_string = None, None
-        return (version_id, self['method'],
-                altitude, alt_ref, lat_string, lon_string)
-
-    def merge_item(self, this, other):
-        merged = False
-        ignored = False
-        result = dict(this)
-        if not isinstance(other, MD_GPSinfo):
-            other = MD_GPSinfo(other)
-        # compare coordinates
-        if other['lat']:
-            if not result['lat']:
-                # swap entirely
-                result = dict(other)
-                other = this
-                merged = True
-            elif (abs(float(other['lat']) -
-                      float(result['lat'])) > 0.000001
-                  or abs(float(other['lon']) -
-                         float(result['lon'])) > 0.000001):
-                # lat, lon differs, keep the one with altitude
-                if other['alt'] and not result['alt']:
-                    result = dict(other)
-                    other = this
-                ignored = True
-        # now consider altitude
-        if other['alt'] and not ignored:
-            if not result['alt']:
-                result['alt'] = other['alt']
-                merged = True
-            elif abs(float(other['alt']) - float(result['alt'])) > 0.01:
-                # alt differs, can only keep one of them
-                ignored = True
-        return result, merged, ignored
+        if not self:
+            return None
+        result = []
+        for k in self.legacy_keys:
+            if k == 'alt':
+                if self[k]:
+                    result += self[k].to_xmp()
+                else:
+                    result += [None, None]
+            else:
+                result.append(self[k] and self[k].to_xmp())
+        return result
 
     def __bool__(self):
         return any(self[k] for k in ('lat', 'lon', 'alt'))
-
-    def __eq__(self, other):
-        if not isinstance(other, MD_GPSinfo):
-            return super(MD_GPSinfo, self).__eq__(other)
-        if bool(other['alt']) != bool(self['alt']):
-            return False
-        if bool(other['lat']) != bool(self['lat']):
-            return False
-        if self['alt'] and abs(float(other['alt']) -
-                               float(self['alt'])) > 0.001:
-            return False
-        if self['lat'] and abs(float(other['lat']) -
-                               float(self['lat'])) > 0.0000001:
-            return False
-        if self['lon'] and abs(float(other['lon']) -
-                               float(self['lon'])) > 0.0000001:
-            return False
-        return True
 
 
 class MD_Aperture(MD_Rational):
