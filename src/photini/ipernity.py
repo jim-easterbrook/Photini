@@ -524,10 +524,10 @@ class TabWidget(PhotiniUploader):
                     }
             # location
             gps = image.metadata.gps_info
-            if gps and gps['lat']:
+            if gps and gps['exif:GPSLatitude']:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(float(gps['lat'])),
-                    'lng': '{:.6f}'.format(float(gps['lon'])),
+                    'lat': '{:.6f}'.format(float(gps['exif:GPSLatitude'])),
+                    'lng': '{:.6f}'.format(float(gps['exif:GPSLongitude'])),
                     }
             else:
                 # clear any existing location
@@ -587,8 +587,8 @@ class TabWidget(PhotiniUploader):
                 'precision': 6, 'tz_offset': None}
             }
         if 'geo' in photo:
-            data['gps_info'] = {'lat': photo['geo']['lat'],
-                                'lon': photo['geo']['lng'],
+            data['gps_info'] = {'exif:GPSLatitude': photo['geo']['lat'],
+                                'exif:GPSLongitude': photo['geo']['lng'],
                                 'method': 'MANUAL'}
         # get annotated image regions
         notes = session.get_notes(doc_id, photo=photo)

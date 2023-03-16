@@ -206,14 +206,13 @@ class LocationInfo(QtWidgets.QScrollArea):
                 key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
-        self.members['latlon'] = LatLongDisplay((
-            'exif:GPSLatitude', 'exif:GPSLongitude'))
+        self.members['latlon'] = LatLongDisplay()
         self.members['latlon'].new_value.connect(self.editing_finished)
-        self.members['exif:GPSAltitude'] = DoubleSpinBox('exif:GPSAltitude')
-        self.members['exif:GPSAltitude'].setSuffix(' m')
-        self.members['exif:GPSAltitude'].setToolTip('<p>{}</p>'.format(
+        self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
+        self.members['alt'].setSuffix(' m')
+        self.members['alt'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Altitude of the location in metres.')))
-        self.members['exif:GPSAltitude'].new_value.connect(
+        self.members['alt'].new_value.connect(
             self.new_altitude)
         self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
             width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
@@ -240,9 +239,8 @@ class LocationInfo(QtWidgets.QScrollArea):
         label = QtWidgets.QLabel(translate('AddressTab', 'Altitude'))
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
         layout.addWidget(label, 7, 2)
-        self.members['exif:GPSAltitude'].setFixedWidth(
-            self.members['latlon'].width())
-        layout.addWidget(self.members['exif:GPSAltitude'], 7, 3)
+        self.members['alt'].setFixedWidth(self.members['latlon'].width())
+        layout.addWidget(self.members['alt'], 7, 3)
         layout.setColumnStretch(4, 1)
         layout.setRowStretch(8, 1)
         self.setWidget(form)
@@ -285,7 +283,7 @@ class TabWidget(QtWidgets.QWidget):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.coords = LatLongDisplay(('lat', 'lon'))
+        self.coords = LatLongDisplay()
         self.coords.setReadOnly(True)
         left_side.addWidget(self.coords.label, 0, 0)
         left_side.addWidget(self.coords, 0, 1)

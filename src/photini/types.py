@@ -1361,6 +1361,9 @@ class MD_Coordinate(MD_Rational):
     def contains(self, this, other):
         return abs(float(other) - float(this)) < 0.0000001
 
+    def compact_form(self):
+        return round(float(self), 6)
+
     def __str__(self):
         return '{:.6f}'.format(float(self))
 
@@ -1402,17 +1405,21 @@ class GPSVersionId(MD_Value, bytes):
     def to_xmp(self):
         return '.'.join(str(x) for x in self)
 
+    def compact_form(self):
+        return self.to_xmp()
+
 
 class MD_GPSinfo(MD_Structure):
     item_type = {
         'version_id': GPSVersionId,
         'method': MD_UnmergableString,
-        'alt': MD_Altitude,
-        'lat': MD_Latitude,
-        'lon': MD_Longitude,
+        'exif:GPSAltitude': MD_Altitude,
+        'exif:GPSLatitude': MD_Latitude,
+        'exif:GPSLongitude': MD_Longitude,
         }
     legacy_keys = (
-        'version_id', 'method', 'alt', 'lat', 'lon')
+        'version_id', 'method',
+        'exif:GPSAltitude', 'exif:GPSLatitude', 'exif:GPSLongitude')
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -1420,7 +1427,8 @@ class MD_GPSinfo(MD_Structure):
             match = re.match(
                 r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)/$', file_value)
             if match:
-                file_value = dict(zip(('lat', 'lon', 'alt'), match.groups()))
+                file_value = dict(zip(('exif:GPSLatitude', 'exif:GPSLongitude',
+                                       'exif:GPSAltitude'), match.groups()))
         return cls(file_value)
 
     @classmethod
@@ -1444,7 +1452,8 @@ class MD_GPSinfo(MD_Structure):
             return None
         result = []
         for k in self.legacy_keys:
-            if k in ('alt', 'lat', 'lon'):
+            if k in ('exif:GPSAltitude', 'exif:GPSLatitude',
+                     'exif:GPSLongitude'):
                 if self[k]:
                     result += self[k].to_exif()
                 else:
@@ -1458,7 +1467,7 @@ class MD_GPSinfo(MD_Structure):
             return None
         result = []
         for k in self.legacy_keys:
-            if k == 'alt':
+            if k == 'exif:GPSAltitude':
                 if self[k]:
                     result += self[k].to_xmp()
                 else:
@@ -1468,7 +1477,8 @@ class MD_GPSinfo(MD_Structure):
         return result
 
     def __bool__(self):
-        return any(self[k] for k in ('lat', 'lon', 'alt'))
+        return any(self[k] for k in ('exif:GPSLatitude', 'exif:GPSLongitude',
+                                     'exif:GPSAltitude'))
 
 
 class MD_Aperture(MD_Rational):
@@ -1570,7 +1580,7 @@ class MD_Location(MD_Structure):
             for foreign_key in key_map[key]:
                 if foreign_key not in address or not address[foreign_key]:
                     continue
-                if address[foreign_key] not in result[key]:
+                if key in result and address[foreign_key] not in result[key]:
                     result[key].append(address[foreign_key])
                 del(address[foreign_key])
         # only use one country code

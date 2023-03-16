@@ -214,7 +214,7 @@ class PhotiniMap(QtWidgets.QWidget):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.widgets['latlon'] = LatLongDisplay(('lat', 'lon'))
+        self.widgets['latlon'] = LatLongDisplay()
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
         self.widgets['latlon'].new_value.connect(self.new_latlon)
         left_side.addWidget(self.widgets['latlon'], 0, 1)
@@ -373,7 +373,8 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @catch_all
     def marker_drop(self, lat, lng):
-        value = {'lat': lat, 'lon': lng, 'method': 'MANUAL'}
+        value = {'exif:GPSLatitude': lat, 'exif:GPSLongitude': lng,
+                 'method': 'MANUAL'}
         for path in self.dropped_images:
             image = self.app.image_list.get_image(path)
             gps = dict(image.metadata.gps_info)
@@ -406,7 +407,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot(object)
     @catch_all
     def new_altitude(self, value, images=[]):
-        value = {'alt': value, 'method': 'MANUAL'}
+        value = {'exif:GPSAltitude': value, 'method': 'MANUAL'}
         images = images or self.app.image_list.get_selected_images()
         for image in images:
             gps = dict(image.metadata.gps_info)
@@ -424,10 +425,10 @@ class PhotiniMap(QtWidgets.QWidget):
         values = []
         for image in selected_images:
             gps = image.metadata.gps_info
-            if not (gps and gps['alt']):
+            if not gps['exif:GPSAltitude']:
                 continue
-            if gps['alt'] not in values:
-                values.append(gps['alt'])
+            if gps['exif:GPSAltitude'] not in values:
+                values.append(gps['exif:GPSAltitude'])
         if not values:
             self.widgets['alt'].set_value(None)
         elif len(values) > 1:
@@ -444,9 +445,10 @@ class PhotiniMap(QtWidgets.QWidget):
         # get locations of selected images
         for image in selected_images:
             gps = image.metadata.gps_info
-            if not (gps and gps['lat']):
+            if not gps['exif:GPSLatitude']:
                 continue
-            location = [float(gps['lat']), float(gps['lon'])]
+            location = [float(gps['exif:GPSLatitude']),
+                        float(gps['exif:GPSLongitude'])]
             if location not in locations:
                 locations.append(location)
         if not locations:
@@ -475,9 +477,10 @@ class PhotiniMap(QtWidgets.QWidget):
         # assign images to existing markers or create new markers
         for image in self.app.image_list.get_images():
             gps = image.metadata.gps_info
-            if not (gps and gps['lat']):
+            if not gps['exif:GPSLatitude']:
                 continue
-            location = [float(gps['lat']), float(gps['lon'])]
+            location = [float(gps['exif:GPSLatitude']),
+                        float(gps['exif:GPSLongitude'])]
             for info in self.marker_info.values():
                 if info['location'] == location:
                     info['images'].append(image)
@@ -579,9 +582,9 @@ class PhotiniMap(QtWidgets.QWidget):
                 if abs(c.time - utc_time) < abs(nearest.time - utc_time):
                     nearest = c
             gps = dict(image.metadata.gps_info)
-            gps['lat'] = nearest.latitude
-            gps['lon'] = nearest.longitude
-            gps['alt'] = nearest.elevation
+            gps['exif:GPSLatitude'] = nearest.latitude
+            gps['exif:GPSLongitude'] = nearest.longitude
+            gps['exif:GPSAltitude'] = nearest.elevation
             gps['method'] = 'GPS'
             image.metadata.gps_info = gps
             changed = True
@@ -669,12 +672,12 @@ class PhotiniMap(QtWidgets.QWidget):
         info = self.marker_info[marker_id]
         for image in info['images']:
             gps = dict(image.metadata.gps_info)
-            gps['lat'] = lat
-            gps['lon'] = lng
+            gps['exif:GPSLatitude'] = lat
+            gps['exif:GPSLongitude'] = lng
             gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
-        info['location'] = [float(image.metadata.gps_info['lat']),
-                            float(image.metadata.gps_info['lon'])]
+        info['location'] = [float(image.metadata.gps_info['exif:GPSLatitude']),
+                            float(image.metadata.gps_info['exif:GPSLongitude'])]
         self.widgets['latlon'].update_display(info['images'])
 
     def JavaScript(self, command):

@@ -285,7 +285,7 @@ class Image(QtWidgets.QFrame):
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if self.metadata.gps_info and self.metadata.gps_info['lat']:
+        if self.metadata.gps_info['exif:GPSLatitude']:
             status += chr(0x2690)
         # set 'unsaved' status
         if changed:

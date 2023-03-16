@@ -409,13 +409,13 @@ class MultiStringEdit(SingleLineEdit):
 class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     new_value = QtSignal(str, object)
 
-    def __init__(self, keys, *args, **kwds):
+    def __init__(self, *args, **kwds):
         super(LatLongDisplay, self).__init__(*args, **kwds)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
-        self._keys = keys
+        self._keys = ('exif:GPSLatitude', 'exif:GPSLongitude')
         self._is_multiple = False
         self.multiple_values = multiple_values()
         self.setButtonSymbols(self.ButtonSymbols.NoButtons)
@@ -527,9 +527,10 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
         values = []
         for image in selected_images:
             gps = image.metadata.gps_info
-            if not (gps and gps['lat']):
+            if not gps['exif:GPSLatitude']:
                 continue
-            value = '{lat}, {lon}'.format(**gps)
+            value = '{}, {}'.format(gps['exif:GPSLatitude'],
+                                    gps['exif:GPSLongitude'])
             if value not in values:
                 values.append(value)
         if not values:
