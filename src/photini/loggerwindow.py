@@ -19,29 +19,12 @@
 import logging
 import logging.handlers
 import os
-import sys
 
 from photini.pyqt import (
     catch_all, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
-
-
-class OutputInterceptor(object):
-    def __init__(self, name, stream):
-        self.logger = logging.getLogger(name)
-        self.stream = stream
-        self.flush = self.stream.flush
-        self.fileno = self.stream.fileno
-
-    def write(self, msg):
-        self.stream.write(msg)
-        msg = msg.strip()
-        if 'WARNING' in msg:
-            self.logger.warning(msg)
-        elif msg:
-            self.logger.info(msg)
 
 
 class StreamProxy(QtCore.QObject):
@@ -109,11 +92,6 @@ class LoggerWindow(QtWidgets.QWidget):
             datefmt='%H:%M:%S'))
         handler.addFilter(LoggerFilter(threshold))
         self.logger.addHandler(handler)
-        # intercept stdout and stderr, if they exist
-        if sys.stderr:
-            sys.stderr = OutputInterceptor('stderr', sys.stderr)
-        if sys.stdout:
-            sys.stdout = OutputInterceptor('stdout', sys.stdout)
 
     @QtSlot()
     @catch_all
