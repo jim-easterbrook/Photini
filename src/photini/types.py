@@ -852,8 +852,13 @@ class MD_StructArray(MD_Value, tuple):
         return '\n\n'.join(str(x) for x in self)
 
 
-class LangAltDict(dict):
-    # Modified dict that keeps track of a default language.
+class MD_LangAlt(MD_Value, dict):
+    # MD_LangAlt values are a sequence of RFC3066 language tag keys and
+    # text values. The sequence can have a single default value, but if
+    # it has more than one value, the default should be repeated with a
+    # language tag. See
+    # https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
+
     DEFAULT = 'x-default'
 
     def __init__(self, value={}):
@@ -863,13 +868,13 @@ class LangAltDict(dict):
             value = {}
         elif isinstance(value, str):
             value = {self.DEFAULT: value}
-        super(LangAltDict, self).__init__(value)
-        if isinstance(value, LangAltDict):
+        super(MD_LangAlt, self).__init__(value)
+        if isinstance(value, MD_LangAlt):
             self._default_lang = value._default_lang
             self.compact = value.compact
             return
         self.compact = False    # controls format of str() representation
-        keys = list(super(LangAltDict, self).keys())
+        keys = list(super(MD_LangAlt, self).keys())
         if len(keys) == 0:
             self._default_lang = (QtCore.QLocale.system().bcp47Name()
                                   or self.DEFAULT)
@@ -879,7 +884,7 @@ class LangAltDict(dict):
             self._default_lang = self.DEFAULT
             if self.DEFAULT in keys:
                 # look for language with same text
-                text = super(LangAltDict, self).__getitem__(self.DEFAULT)
+                text = super(MD_LangAlt, self).__getitem__(self.DEFAULT)
                 for k, v in self.items():
                     if k != self.DEFAULT and v == text:
                         self._default_lang = k
@@ -896,13 +901,13 @@ class LangAltDict(dict):
 
     def __contains__(self, key):
         key = key and self.find_key(key)
-        return super(LangAltDict, self).__contains__(key)
+        return super(MD_LangAlt, self).__contains__(key)
 
     def __getitem__(self, key):
         key = self.find_key(key)
         if not key:
             return ''
-        return super(LangAltDict, self).__getitem__(key)
+        return super(MD_LangAlt, self).__getitem__(key)
 
     def __setitem__(self, key, value):
         old_key = self.find_key(key)
@@ -911,21 +916,21 @@ class LangAltDict(dict):
             if self._default_lang == old_key:
                 self._default_lang = key
             del self[old_key]
-        super(LangAltDict, self).__setitem__(key, value)
+        super(MD_LangAlt, self).__setitem__(key, value)
 
     def __bool__(self):
         return any(self.values())
 
     def __eq__(self, other):
-        if isinstance(other, LangAltDict):
+        if isinstance(other, MD_LangAlt):
             return not self.__ne__(other)
-        return super(LangAltDict, self).__eq__(other)
+        return super(MD_LangAlt, self).__eq__(other)
 
     def __ne__(self, other):
-        if isinstance(other, LangAltDict):
+        if isinstance(other, MD_LangAlt):
             if self._default_lang != other._default_lang:
                 return True
-        return super(LangAltDict, self).__ne__(other)
+        return super(MD_LangAlt, self).__ne__(other)
 
     def __str__(self):
         result = []
@@ -978,7 +983,7 @@ class LangAltDict(dict):
         self[lang] = new_value
 
     def languages(self):
-        keys = list(super(LangAltDict, self).keys())
+        keys = list(super(MD_LangAlt, self).keys())
         if len(keys) < 1:
             return [self._default_lang]
         if len(keys) < 2:
@@ -990,14 +995,6 @@ class LangAltDict(dict):
         else:
             keys.sort(key=lambda x: x.lower())
         return keys
-
-
-class MD_LangAlt(LangAltDict, MD_Value):
-    # MD_LangAlt values are a sequence of RFC3066 language tag keys and
-    # text values. The sequence can have a single default value, but if
-    # it has more than one value, the default should be repeated with a
-    # language tag. See
-    # https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
@@ -1019,11 +1016,11 @@ class MD_LangAlt(LangAltDict, MD_Value):
         return result
 
     def merge(self, info, tag, other):
-        if not isinstance(other, LangAltDict):
-            other = LangAltDict(other)
+        if not isinstance(other, MD_LangAlt):
+            other = MD_LangAlt(other)
         if other == self:
             return self
-        result = LangAltDict(self)
+        result = MD_LangAlt(self)
         for key, value in other.items():
             if key == self.DEFAULT:
                 # try to find matching value
@@ -2040,10 +2037,10 @@ class MD_ImageRegion(MD_StructArray):
                 'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
                 continue
             if 'dc:description' in region and not note['content']:
-                note['content'] = LangAltDict(
+                note['content'] = MD_LangAlt(
                     region['dc:description']).best_match()
             if 'Iptc4xmpExt:Name' in region and not note['content']:
-                note['content'] = LangAltDict(
+                note['content'] = MD_LangAlt(
                     region['Iptc4xmpExt:Name']).best_match()
             if not note['content']:
                 continue

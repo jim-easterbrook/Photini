@@ -23,7 +23,7 @@ import re
 
 from photini.cv import image_region_types, image_region_roles
 from photini.pyqt import *
-from photini.types import LangAltDict
+from photini.types import MD_LangAlt
 from photini.widgets import LangAltWidget, MultiStringEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
@@ -455,10 +455,10 @@ class EntityConceptWidget(SingleLineEdit):
         self.menu.setToolTipsVisible(True)
         self.actions = []
         for item in vocab:
-            label = LangAltDict(item['name']).best_match()
-            tip = LangAltDict(item['definition']).best_match()
+            label = MD_LangAlt(item['name']).best_match()
+            tip = MD_LangAlt(item['definition']).best_match()
             if item['note']:
-                tip += ' ({})'.format(LangAltDict(item['note']).best_match())
+                tip += ' ({})'.format(MD_LangAlt(item['note']).best_match())
             action = self.menu.addAction(label)
             action.setCheckable(True)
             action.setToolTip('<p>{}</p>'.format(tip))
@@ -519,7 +519,7 @@ class EntityConceptWidget(SingleLineEdit):
             data.update(item)
             label = data['Iptc4xmpExt:Name'] or {
                 'x-default': '; '.join(data['xmp:Identifier'])}
-            label = LangAltDict(label).best_match()
+            label = MD_LangAlt(label).best_match()
             if not label:
                 continue
             action = self.menu.addAction(label)

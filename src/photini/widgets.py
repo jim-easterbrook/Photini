@@ -20,7 +20,7 @@ import logging
 import re
 
 from photini.pyqt import *
-from photini.types import LangAltDict
+from photini.types import MD_LangAlt
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -634,7 +634,7 @@ class LangAltWidget(QtWidgets.QWidget):
             | Qt.AlignmentFlag.AlignTop)
         layout.setColumnStretch(1, 1)
         self.setLayout(layout)
-        self.value = LangAltDict()
+        self.value = MD_LangAlt()
         # label
         if label:
             # put label and lang selector on line above edit box
@@ -676,7 +676,7 @@ class LangAltWidget(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def _change_lang(self, key, lang):
-        if lang == LangAltDict.DEFAULT:
+        if lang == MD_LangAlt.DEFAULT:
             direction = self.layoutDirection()
         else:
             direction = QtCore.QLocale(lang).textDirection()
@@ -696,13 +696,13 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(key, self.get_value())
 
     def _regularise_default(self):
-        if not self.value[LangAltDict.DEFAULT]:
+        if not self.value[MD_LangAlt.DEFAULT]:
             return True
         prompt = QtCore.QLocale.system().bcp47Name()
         if prompt in self.value:
             prompt = None
-        self.lang.set_value(LangAltDict.DEFAULT)
-        self.edit.set_value(self.value[LangAltDict.DEFAULT])
+        self.lang.set_value(MD_LangAlt.DEFAULT)
+        self.edit.set_value(self.value[MD_LangAlt.DEFAULT])
         lang, OK = QtWidgets.QInputDialog.getText(
             self, translate('LangAltWidget', 'New language'),
             wrap_text(self, translate(
@@ -735,7 +735,7 @@ class LangAltWidget(QtWidgets.QWidget):
         langs = []
         for n in range(self.lang.count()):
             lang = self.lang.itemData(n)
-            if lang and lang != LangAltDict.DEFAULT:
+            if lang and lang != MD_LangAlt.DEFAULT:
                 langs.append(lang)
         if not langs:
             return
@@ -760,7 +760,7 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(self.edit._key, value)
 
     def labeled_lang(self, lang):
-        if lang == LangAltDict.DEFAULT:
+        if lang == MD_LangAlt.DEFAULT:
             if len(self.value) == 1:
                 return translate('LangAltWidget', 'Language'), lang
             label = '-'
@@ -772,7 +772,7 @@ class LangAltWidget(QtWidgets.QWidget):
 
     def set_value(self, value):
         self.lang.setEnabled(True)
-        self.value = LangAltDict(value)
+        self.value = MD_LangAlt(value)
         # use current language, if available
         lang = self.lang.get_value()
         if lang not in self.value:
@@ -805,7 +805,7 @@ class LangAltWidget(QtWidgets.QWidget):
     def set_multiple(self, choices=[]):
         self.choices = {}
         for choice in choices:
-            self.choices[str(choice)] = LangAltDict(choice)
+            self.choices[str(choice)] = MD_LangAlt(choice)
         self.edit.set_multiple(choices=self.choices.keys())
         self.lang.setEnabled(False)
 
