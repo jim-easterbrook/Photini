@@ -690,9 +690,12 @@ class LangAltWidget(QtWidgets.QWidget):
     @catch_all
     def _new_value(self, key, value):
         if self.is_multiple():
-            self.value = self.choices[value]
+            self.value = MD_LangAlt(self.choices[value])
         else:
-            self.value[self.lang.get_value()] = value.strip()
+            default_lang = self.value.default_lang
+            new_value = dict(self.value)
+            new_value[self.lang.get_value()] = value.strip()
+            self.value = MD_LangAlt(new_value, default_lang=default_lang)
         self.new_value.emit(key, self.get_value())
 
     def _regularise_default(self):
@@ -725,7 +728,11 @@ class LangAltWidget(QtWidgets.QWidget):
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
             return None, None
-        self.value[lang] = self.value[lang]
+        default_lang = self.value.default_lang
+        text = self.value[lang]
+        new_value = dict(self.value)
+        new_value[lang] = text
+        self.value = MD_LangAlt(new_value, default_lang=default_lang)
         self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
 
@@ -739,7 +746,7 @@ class LangAltWidget(QtWidgets.QWidget):
                 langs.append(lang)
         if not langs:
             return
-        default_lang = self.value.get_default_lang()
+        default_lang = self.value.default_lang
         menu = QtWidgets.QMenu()
         menu.addAction(translate('LangAltWidget', 'Set default language'))
         for lang in langs:
@@ -754,10 +761,8 @@ class LangAltWidget(QtWidgets.QWidget):
         self._set_default_lang(action.text())
 
     def _set_default_lang(self, lang):
-        self.value.set_default_lang(lang)
-        value = self.get_value()
-        self.set_value(value)
-        self.new_value.emit(self.edit._key, value)
+        self.value = MD_LangAlt(self.value, default_lang=lang)
+        self.new_value.emit(self.edit._key, self.get_value())
 
     def labeled_lang(self, lang):
         if lang == MD_LangAlt.DEFAULT:
@@ -787,7 +792,7 @@ class LangAltWidget(QtWidgets.QWidget):
             lang = self.value.find_key(lang)
         else:
             # use the default for this value
-            lang = self.value.get_default_lang()
+            lang = self.value.default_lang
         # set language drop down
         self.lang.set_values(
             [self.labeled_lang(x) for x in self.value.languages()],

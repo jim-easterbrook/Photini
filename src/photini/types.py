@@ -853,7 +853,7 @@ class MD_StructArray(MD_Value, tuple):
 
 
 class MD_LangAlt(MD_Value, dict):
-    # MD_LangAlt values are a sequence of RFC3066 language tag keys and
+    # XMP LangAlt values are a sequence of RFC3066 language tag keys and
     # text values. The sequence can have a single default value, but if
     # it has more than one value, the default should be repeated with a
     # language tag. See
@@ -861,35 +861,40 @@ class MD_LangAlt(MD_Value, dict):
 
     DEFAULT = 'x-default'
 
-    def __init__(self, value={}):
-        if isinstance(value, str):
-            value = value.strip()
-        if not value:
-            value = {}
-        elif isinstance(value, str):
-            value = {self.DEFAULT: value}
-        super(MD_LangAlt, self).__init__(value)
-        if isinstance(value, MD_LangAlt):
-            self._default_lang = value._default_lang
-            self.compact = value.compact
-            return
-        self.compact = False    # controls format of str() representation
-        keys = list(super(MD_LangAlt, self).keys())
-        if len(keys) == 0:
-            self._default_lang = (QtCore.QLocale.system().bcp47Name()
-                                  or self.DEFAULT)
-        elif len(keys) == 1:
-            self._default_lang = keys[0]
+    def __init__(self, value={}, default_lang=None):
+        value = value or {}
+        if default_lang:
+            self.default_lang = default_lang
+        elif isinstance(value, MD_LangAlt):
+            self.default_lang = value.default_lang
         else:
-            self._default_lang = self.DEFAULT
-            if self.DEFAULT in keys:
-                # look for language with same text
-                text = super(MD_LangAlt, self).__getitem__(self.DEFAULT)
-                for k, v in self.items():
-                    if k != self.DEFAULT and v == text:
-                        self._default_lang = k
-                        del self[self.DEFAULT]
-                        break
+            self.default_lang = self.identify_default(value)
+        if self.default_lang != self.DEFAULT and self.DEFAULT in value:
+            del value[self.DEFAULT]
+        super(MD_LangAlt, self).__init__(value)
+
+    @classmethod
+    def identify_default(cls, value):
+        keys = list(value.keys())
+        if len(keys) == 0:
+            return QtCore.QLocale.system().bcp47Name() or cls.DEFAULT
+        if len(keys) == 1:
+            return keys[0]
+        if cls.DEFAULT not in keys:
+            return cls.DEFAULT
+        # look for language with same text as 'x-default' value
+        text = value[cls.DEFAULT]
+        for k, v in value.items():
+            if k != cls.DEFAULT and v == text:
+                return k
+        return cls.DEFAULT
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, str):
+            file_value = file_value.strip()
+            file_value = file_value and {cls.DEFAULT: file_value}
+        return cls(file_value)
 
     def find_key(self, key):
         # languages are case insensitive
@@ -910,13 +915,7 @@ class MD_LangAlt(MD_Value, dict):
         return super(MD_LangAlt, self).__getitem__(key)
 
     def __setitem__(self, key, value):
-        old_key = self.find_key(key)
-        if old_key and old_key != key:
-            # new key does not have same case as old one
-            if self._default_lang == old_key:
-                self._default_lang = key
-            del self[old_key]
-        super(MD_LangAlt, self).__setitem__(key, value)
+        raise NotImplemented()
 
     def __bool__(self):
         return any(self.values())
@@ -928,29 +927,24 @@ class MD_LangAlt(MD_Value, dict):
 
     def __ne__(self, other):
         if isinstance(other, MD_LangAlt):
-            if self._default_lang != other._default_lang:
+            if self.default_lang != other.default_lang:
                 return True
         return super(MD_LangAlt, self).__ne__(other)
 
     def __str__(self):
         result = []
-        for key in self:
+        for key in self.languages():
             if key != self.DEFAULT:
-                if self.compact:
-                    result.append('[{}]'.format(key))
-                else:
-                    result.append('-- {} --'.format(key))
+                result.append('-- {} --'.format(key))
             result.append(self[key])
-        if self.compact:
-            return ' '.join(result)
         return '\n'.join(result)
 
     def best_match(self, lang=None):
         if len(self) < 2:
-            return self.default_text()
+            return self[self.default_lang]
         lang = lang or QtCore.QLocale.system().bcp47Name()
         if not lang:
-            return self.default_text()
+            return self[self.default_lang]
         lang = lang.lower()
         langs = [lang]
         if '-' in lang:
@@ -962,36 +956,18 @@ class MD_LangAlt(MD_Value, dict):
             for k in self:
                 if k.lower().startswith(lang):
                     return self[k]
-        return self.default_text()
-
-    def default_text(self):
-        return self[self._default_lang]
-
-    def get_default_lang(self):
-        return self._default_lang
-
-    def set_default_lang(self, lang):
-        old_value = ''
-        if self._default_lang == self.DEFAULT:
-            old_value = self[self.DEFAULT]
-        self._default_lang = lang
-        new_value = self[lang]
-        if new_value in old_value:
-            new_value = old_value
-        elif old_value not in new_value:
-            new_value += ' // ' + old_value
-        self[lang] = new_value
+        return self[self.default_lang]
 
     def languages(self):
-        keys = list(super(MD_LangAlt, self).keys())
+        keys = list(self.keys())
         if len(keys) < 1:
-            return [self._default_lang]
+            return [self.default_lang]
         if len(keys) < 2:
             return keys
-        if self._default_lang in keys:
-            keys.remove(self._default_lang)
+        if self.default_lang in keys:
+            keys.remove(self.default_lang)
             keys.sort(key=lambda x: x.lower())
-            keys.insert(0, self._default_lang)
+            keys.insert(0, self.default_lang)
         else:
             keys.sort(key=lambda x: x.lower())
         return keys
@@ -1000,7 +976,7 @@ class MD_LangAlt(MD_Value, dict):
         # Xmp spec says to store only the default language in Exif
         if not self:
             return None
-        return self.default_text()
+        return self[self.default_lang]
 
     def to_iptc(self):
         return self.to_exif()
@@ -1012,15 +988,16 @@ class MD_LangAlt(MD_Value, dict):
             return dict(self)
         result = dict((k, v) for (k, v) in self.items() if v)
         if len(result) > 1:
-            result[self.DEFAULT] = result[self.get_default_lang()]
+            result[self.DEFAULT] = result[self.default_lang]
         return result
 
     def merge(self, info, tag, other):
-        if not isinstance(other, MD_LangAlt):
-            other = MD_LangAlt(other)
-        if other == self:
+        if self == other:
             return self
-        result = MD_LangAlt(self)
+        default_lang = self.default_lang
+        if default_lang == self.DEFAULT and isinstance(other, MD_LangAlt):
+            default_lang = other.default_lang
+        result = dict(self)
         for key, value in other.items():
             if key == self.DEFAULT:
                 # try to find matching value
@@ -1030,7 +1007,7 @@ class MD_LangAlt(MD_Value, dict):
                         break
             else:
                 # try to find matching language
-                key = result.find_key(key) or key
+                key = self.find_key(key) or key
             if key not in result:
                 result[key] = value
             elif value in result[key]:
@@ -1040,7 +1017,7 @@ class MD_LangAlt(MD_Value, dict):
             else:
                 result[key] += ' // ' + value
             self.log_merged(info + '[' + key + ']', tag, value)
-        return self.__class__(result)
+        return self.__class__(result, default_lang=default_lang)
 
 
 class MD_Rights(MD_Collection):
@@ -1652,21 +1629,6 @@ class MD_Location(MD_Structure):
             return None
         return '{}, {}'.format(
             self['exif:GPSLatitude'], self['exif:GPSLongitude'])
-
-    def __str__(self):
-        if self['Iptc4xmpExt:LocationName']:
-            self['Iptc4xmpExt:LocationName'].compact = True
-        result = [(k.split(':')[1], self[k]) for k in (
-            'Iptc4xmpExt:LocationName', 'Iptc4xmpExt:Sublocation',
-            'Iptc4xmpExt:City', 'Iptc4xmpExt:ProvinceState',
-            'Iptc4xmpExt:CountryName', 'Iptc4xmpExt:CountryCode',
-            'Iptc4xmpExt:WorldRegion', 'Iptc4xmpExt:LocationId') if self[k]]
-        latlon = self.as_latlon()
-        if latlon:
-            result.append(('Lat, lon', latlon))
-        if self['exif:GPSAltitude']:
-            result.append(('Altitude', '{}'.format(self['exif:GPSAltitude'])))
-        return '\n'.join('{}: {}'.format(*x) for x in result)
 
 
 class MD_MultiLocation(MD_StructArray):
