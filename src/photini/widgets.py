@@ -36,7 +36,6 @@ class ComboBox(QtWidgets.QComboBox):
         if self.hasFocus():
             return super(ComboBox, self).wheelEvent(event)
         event.ignore()
-        return True
 
     def set_dropdown_width(self):
         width = 0
