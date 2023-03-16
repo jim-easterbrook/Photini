@@ -1938,7 +1938,7 @@ class MD_ImageRegion(MD_StructArray):
             return len(self)
         for n, value in enumerate(self):
             for key in ('Iptc4xmpExt:RegionBoundary', 'Iptc4xmpExt:rId'):
-                if key in value and key in other and value[key] == other[key]:
+                if value[key] and value[key] == other[key]:
                     return n
         return len(self)
 
