@@ -166,9 +166,10 @@ class TabWidget(QtWidgets.QWidget):
         widgets = {}
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
+        scrollarea.setWidget(QtWidgets.QWidget())
         scrollarea.setWidgetResizable(True)
-        form = QtWidgets.QWidget()
-        form.setLayout(FormLayout())
+        form = FormLayout()
+        scrollarea.widget().setLayout(form)
         # creator
         widgets['creator'] = SingleLineEdit(
             'creator', spell_check=True, multi_string=True,
@@ -176,8 +177,7 @@ class TabWidget(QtWidgets.QWidget):
         widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the name of the person that created this'
             ' image.')))
-        form.layout().addRow(translate('OwnerTab', 'Creator'),
-                             widgets['creator'])
+        form.addRow(translate('OwnerTab', 'Creator'), widgets['creator'])
         # creator title
         widgets['creator_title'] = SingleLineEdit(
             'creator_title', spell_check=True, multi_string=True,
@@ -185,8 +185,8 @@ class TabWidget(QtWidgets.QWidget):
         widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the job title of the person listed in the'
             ' Creator field.')))
-        form.layout().addRow(translate('OwnerTab', "Creator's Jobtitle"),
-                             widgets['creator_title'])
+        form.addRow(translate('OwnerTab', "Creator's Jobtitle"),
+                    widgets['creator_title'])
         # credit line
         widgets['credit_line'] = SingleLineEdit(
             'credit_line', spell_check=True,
@@ -194,8 +194,8 @@ class TabWidget(QtWidgets.QWidget):
         widgets['credit_line'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter who should be credited when this image is'
             ' published.')))
-        form.layout().addRow(translate('OwnerTab', 'Credit Line'),
-                             widgets['credit_line'])
+        form.addRow(translate('OwnerTab', 'Credit Line'),
+                    widgets['credit_line'])
         # copyright
         widgets['copyright'] = LangAltWidget(
             'copyright', multi_line=False, spell_check=True,
@@ -203,8 +203,8 @@ class TabWidget(QtWidgets.QWidget):
         widgets['copyright'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
             ' copyright for this image, such as "©2008 Jane Doe".')))
-        form.layout().addRow(translate('OwnerTab', 'Copyright Notice'),
-                             widgets['copyright'])
+        form.addRow(translate('OwnerTab', 'Copyright Notice'),
+                    widgets['copyright'])
         ## usage information
         rights_group = QtWidgets.QGroupBox()
         rights_group.setLayout(FormLayout())
@@ -220,7 +220,7 @@ class TabWidget(QtWidgets.QWidget):
         widgets['rights/WebStatement'] = RightsDropDown('rights/WebStatement')
         rights_group.layout().addRow(translate('OwnerTab', 'Web Statement'),
                                      widgets['rights/WebStatement'])
-        form.layout().addRow(translate('OwnerTab', 'Rights'), rights_group)
+        form.addRow(translate('OwnerTab', 'Rights'), rights_group)
         # special instructions
         widgets['instructions'] = SingleLineEdit(
             'instructions', spell_check=True,
@@ -228,8 +228,8 @@ class TabWidget(QtWidgets.QWidget):
         widgets['instructions'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter information about embargoes, or other'
             ' restrictions not covered by the Rights Usage Terms field.')))
-        form.layout().addRow(translate('OwnerTab', 'Instructions'),
-                             widgets['instructions'])
+        form.addRow(translate('OwnerTab', 'Instructions'),
+                    widgets['instructions'])
         ## creator contact information
         contact_group = QtWidgets.QGroupBox()
         contact_group.setLayout(FormLayout())
@@ -306,10 +306,9 @@ class TabWidget(QtWidgets.QWidget):
                       ' the person that created this image.')))
         contact_group.layout().addRow(translate('OwnerTab', 'Country'),
                                       widgets['contact_info/Country'])
-        form.layout().addRow(Label(
+        form.addRow(Label(
             translate('OwnerTab', 'Creator / Licensor Contact Information'),
-            lines=3, layout=form.layout()), contact_group)
-        scrollarea.setWidget(form)
+            lines=3, layout=form), contact_group)
         return scrollarea, widgets
 
     def set_enabled(self, enabled):
