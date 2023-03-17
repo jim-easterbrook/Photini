@@ -670,10 +670,10 @@ class MD_Structure(MD_Value, dict):
         # deep copy initial values
         value = dict((k, self.get_type(k, v)(v))
                      for (k, v) in value.items() if v)
-        # set missing values to None
+        # set missing values to empty
         for k in self.item_type:
             if k not in value:
-                value[k] = None
+                value[k] = self.item_type[k]()
         super(MD_Structure, self).__init__(value)
 
     @classmethod
@@ -740,6 +740,9 @@ class MD_Structure(MD_Value, dict):
 
 
 class Unused(object):
+    def __new__(cls, value=None):
+        return None
+
     @classmethod
     def from_exiv2(cls, file_value, tag):
         logger.warning('%s: to be deleted when data is saved: %s',
