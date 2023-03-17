@@ -383,11 +383,10 @@ class PhotiniMap(QtWidgets.QWidget):
         self.dropped_images = []
         self.update_display()
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def new_latlon(self, key, value):
+    def new_latlon(self, value):
         selected_images = self.app.image_list.get_selected_images()
-        value = self.widgets['latlon'].get_value_dict()
         value['method'] = 'MANUAL'
         for image in selected_images:
             gps = dict(image.metadata.gps_info)
@@ -399,7 +398,10 @@ class PhotiniMap(QtWidgets.QWidget):
         self.redraw_markers()
         if not selected_images:
             selected_images = self.app.image_list.get_selected_images()
-        self.widgets['latlon'].update_display(selected_images)
+        values = []
+        for image in selected_images:
+            values.append(image.metadata.gps_info)
+        self.widgets['latlon'].set_value_list(values)
         self.update_altitude(selected_images)
         if adjust_map:
             self.see_selection(selected_images)
@@ -678,7 +680,8 @@ class PhotiniMap(QtWidgets.QWidget):
             image.metadata.gps_info = gps
         info['location'] = [float(image.metadata.gps_info['exif:GPSLatitude']),
                             float(image.metadata.gps_info['exif:GPSLongitude'])]
-        self.widgets['latlon'].update_display(info['images'])
+        self.widgets['latlon'].set_value_list(
+            [info['images'][0].metadata.gps_info])
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:

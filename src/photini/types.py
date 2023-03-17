@@ -1607,12 +1607,6 @@ class MD_Location(MD_Structure):
         result['exif:GPSLongitude'] = gps['lng']
         return cls(result)
 
-    def as_latlon(self):
-        if not (self['exif:GPSLatitude'] and self['exif:GPSLongitude']):
-            return None
-        return '{}, {}'.format(
-            self['exif:GPSLatitude'], self['exif:GPSLongitude'])
-
 
 class MD_MultiLocation(MD_StructArray):
     item_type = MD_Location
@@ -1651,9 +1645,6 @@ class EntityConceptArray(MD_StructArray):
 class RegionBoundaryNumber(MD_Float):
     def set_decimals(self, decimals):
         self.decimals = decimals
-
-    def to_xmp(self):
-        return str(self)
 
     def compact_form(self):
         return round(self, self.decimals)

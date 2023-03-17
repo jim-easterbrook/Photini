@@ -207,13 +207,12 @@ class LocationInfo(QtWidgets.QScrollArea):
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
         self.members['latlon'] = LatLongDisplay()
-        self.members['latlon'].new_value.connect(self.editing_finished)
+        self.members['latlon'].new_value.connect(self.new_latlon)
         self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
         self.members['alt'].setSuffix(' m')
         self.members['alt'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Altitude of the location in metres.')))
-        self.members['alt'].new_value.connect(
-            self.new_altitude)
+        self.members['alt'].new_value.connect(self.new_altitude)
         self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
             width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),
@@ -254,6 +253,11 @@ class LocationInfo(QtWidgets.QScrollArea):
     @QtSlot(object)
     @catch_all
     def new_altitude(self, value):
+        self.new_value.emit(self, self.get_value())
+
+    @QtSlot(dict)
+    @catch_all
+    def new_latlon(self, value):
         self.new_value.emit(self, self.get_value())
 
     @QtSlot(str, object)
@@ -466,14 +470,16 @@ class TabWidget(QtWidgets.QWidget):
                     location = self._get_location(image, idx)
                     for key in widget.members:
                         value = None
-                        if location and key == 'latlon':
-                            value = location.as_latlon()
+                        if key == 'latlon':
+                            value = location
                         elif key in location:
                             value = location[key]
                         if value not in values[key]:
                             values[key].append(value)
                 for key in widget.members:
-                    if len(values[key]) > 1:
+                    if key == 'latlon':
+                        widget.members[key].set_value_list(values[key])
+                    elif len(values[key]) > 1:
                         widget.members[key].set_multiple(
                             choices=filter(None, values[key]))
                     else:
@@ -484,7 +490,10 @@ class TabWidget(QtWidgets.QWidget):
 
     def new_selection(self, selection):
         self.location_info.setEnabled(bool(selection))
-        self.coords.update_display(selection)
+        values = []
+        for image in selection:
+            values.append(image.metadata.gps_info)
+        self.coords.set_value_list(values)
         self.auto_location.setEnabled(bool(self.coords.get_value()))
         self.display_location()
 

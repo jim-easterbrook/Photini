@@ -407,7 +407,7 @@ class MultiStringEdit(SingleLineEdit):
 
 
 class LatLongDisplay(QtWidgets.QAbstractSpinBox):
-    new_value = QtSignal(str, object)
+    new_value = QtSignal(dict)
 
     def __init__(self, *args, **kwds):
         super(LatLongDisplay, self).__init__(*args, **kwds)
@@ -430,7 +430,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     @catch_all
     def focusOutEvent(self, event):
         if not self._is_multiple:
-            self.new_value.emit(self._keys, self.get_value())
+            self.new_value.emit(self.get_value_dict())
         super(LatLongDisplay, self).focusOutEvent(event)
 
     @catch_all
@@ -488,7 +488,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     @catch_all
     def editing_finished(self):
         if not self._is_multiple:
-            self.new_value.emit(self._keys, self.get_value())
+            self.new_value.emit(self.get_value_dict())
 
     def get_value(self):
         value = self.text()
@@ -510,6 +510,26 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
         else:
             self.lineEdit().setText(str(value))
 
+    def set_value_list(self, values):
+        choices = set()
+        if not values:
+            self.setEnabled(False)
+            self.set_value(None)
+            return
+        self.setEnabled(True)
+        for value in values:
+            if value:
+                lat = value['exif:GPSLatitude']
+                lon = value['exif:GPSLongitude']
+                if lat and lon:
+                    choices.add('{}, {}'.format(lat, lon))
+                    continue
+            choices.add(None)
+        if len(choices) > 1:
+            self.set_multiple(choices=[x for x in choices if x])
+        else:
+            self.set_value(choices and choices.pop())
+
     def set_multiple(self, choices=[]):
         self._is_multiple = True
         self.choices = list(choices)
@@ -518,28 +538,6 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
 
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())
-
-    def update_display(self, selected_images):
-        if not selected_images:
-            self.set_value(None)
-            self.setEnabled(False)
-            return
-        values = []
-        for image in selected_images:
-            gps = image.metadata.gps_info
-            if not gps['exif:GPSLatitude']:
-                continue
-            value = '{}, {}'.format(gps['exif:GPSLatitude'],
-                                    gps['exif:GPSLongitude'])
-            if value not in values:
-                values.append(value)
-        if not values:
-            self.set_value(None)
-        elif len(values) > 1:
-            self.set_multiple(choices=values)
-        else:
-            self.set_value(values[0])
-        self.setEnabled(True)
 
 
 class Slider(QtWidgets.QSlider):
