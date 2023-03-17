@@ -216,7 +216,7 @@ class PhotiniMap(QtWidgets.QWidget):
         # latitude & longitude
         self.widgets['latlon'] = LatLongDisplay()
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
-        self.widgets['latlon'].new_value.connect(self.new_latlon)
+        self.widgets['latlon'].new_value_dict.connect(self.new_latlon)
         left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
         label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))

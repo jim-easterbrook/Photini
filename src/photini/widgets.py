@@ -26,6 +26,21 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
+class WidgetMixin(object):
+    new_value_dict = QtSignal(dict)
+
+    @QtSlot()
+    @catch_all
+    def emit_dict(self):
+        if not self._is_multiple:
+            self.new_value_dict.emit(self.get_value_dict())
+
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return {self._key: self.get_value()}
+
+
 class ComboBox(QtWidgets.QComboBox):
     def __init__(self, *args, **kwds):
         super(ComboBox, self).__init__(*args, **kwds)
@@ -406,16 +421,14 @@ class MultiStringEdit(SingleLineEdit):
         return [x for x in value if x]
 
 
-class LatLongDisplay(QtWidgets.QAbstractSpinBox):
-    new_value = QtSignal(dict)
-
+class LatLongDisplay(QtWidgets.QAbstractSpinBox, WidgetMixin):
     def __init__(self, *args, **kwds):
         super(LatLongDisplay, self).__init__(*args, **kwds)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
-        self._keys = ('exif:GPSLatitude', 'exif:GPSLongitude')
+        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
         self._is_multiple = False
         self.multiple_values = multiple_values()
         self.setButtonSymbols(self.ButtonSymbols.NoButtons)
@@ -425,12 +438,11 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
             ' decimal numbers separated by a comma.')))
-        self.editingFinished.connect(self.editing_finished)
+        self.editingFinished.connect(self.emit_dict)
 
     @catch_all
     def focusOutEvent(self, event):
-        if not self._is_multiple:
-            self.new_value.emit(self.get_value_dict())
+        self.emit_dict()
         super(LatLongDisplay, self).focusOutEvent(event)
 
     @catch_all
@@ -455,7 +467,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
                 self.set_value(action.data())
-                self.editing_finished()
+                self.emit_dict()
 
     def stepEnabled(self):
         return self.StepEnabledFlag.StepNone
@@ -484,12 +496,6 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
         value[1] = ((value[1] + 180.0) % 360.0) - 180.0
         self.lineEdit().setText('{:f}, {:f}'.format(*value))
 
-    @QtSlot()
-    @catch_all
-    def editing_finished(self):
-        if not self._is_multiple:
-            self.new_value.emit(self.get_value_dict())
-
     def get_value(self):
         value = self.text()
         if value and self.hasAcceptableInput():
@@ -499,7 +505,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox):
     def get_value_dict(self):
         if self.is_multiple():
             return {}
-        return dict(zip(self._keys, self.get_value() or (None, None)))
+        return dict(zip(self._key, self.get_value() or (None, None)))
 
     def set_value(self, value):
         if self._is_multiple:

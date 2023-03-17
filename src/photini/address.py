@@ -207,7 +207,7 @@ class LocationInfo(QtWidgets.QScrollArea):
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
         self.members['latlon'] = LatLongDisplay()
-        self.members['latlon'].new_value.connect(self.new_latlon)
+        self.members['latlon'].new_value_dict.connect(self.new_latlon)
         self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
         self.members['alt'].setSuffix(' m')
         self.members['alt'].setToolTip('<p>{}</p>'.format(
