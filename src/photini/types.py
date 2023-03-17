@@ -123,7 +123,7 @@ class MD_Value(object):
 
 
 class MD_UnmergableString(MD_Value, str):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
         if value is None:
             value = ''
         elif isinstance(value, str):
@@ -157,7 +157,8 @@ class MD_Software(MD_String):
 
 
 class MD_Dict(MD_Value, dict):
-    def __init__(self, value):
+    def __init__(self, value=None):
+        value = value or {}
         # can initialise from a string containing comma separated values
         if isinstance(value, str):
             value = value.split(',')
@@ -664,7 +665,7 @@ class MD_Collection(MD_Dict):
 class MD_Structure(MD_Value, dict):
     extendable = False
 
-    def __init__(self, value):
+    def __init__(self, value=None):
         value = value or {}
         # deep copy initial values
         value = dict((k, self.get_type(k, v)(v))
@@ -801,7 +802,7 @@ class MD_ContactInformation(MD_Structure):
 
 class MD_StructArray(MD_Value, tuple):
     # class for arrays of XMP structures such as locations or image regions
-    def __new__(cls, value=[]):
+    def __new__(cls, value=None):
         value = value or []
         temp = []
         for item in value:
@@ -863,7 +864,8 @@ class MD_LangAlt(MD_Value, dict):
 
     DEFAULT = 'x-default'
 
-    def __init__(self, value={}, default_lang=None):
+    def __init__(self, value=None, default_lang=None):
+        value = value or {}
         if isinstance(value, str):
             value = value.strip()
             value = value and {self.DEFAULT: value}
@@ -1097,7 +1099,7 @@ class MD_LensModel(MD_Collection):
 
 
 class MD_MultiString(MD_Value, tuple):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
         value = value or []
         if isinstance(value, str):
             value = value.split(';')
@@ -1150,7 +1152,7 @@ class MD_Keywords(MD_MultiString):
 
 
 class MD_Int(MD_Value, int):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
         if value is None:
             return None
         return super(MD_Int, cls).__new__(cls, value)
@@ -1209,7 +1211,7 @@ class MD_Timezone(MD_Int):
 
 
 class MD_Float(MD_Value, float):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
         if value is None:
             return None
         return super(MD_Float, cls).__new__(cls, value)
@@ -1235,7 +1237,7 @@ class MD_Rating(MD_Float):
 
 
 class MD_Rational(MD_Value, Fraction):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
         if value is None:
             return None
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
@@ -1389,7 +1391,7 @@ class MD_Longitude(MD_Coordinate):
 
 
 class GPSVersionId(MD_Value, bytes):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
         value = value or b'\x02\x00\x00\x00'
         return super(GPSVersionId, cls).__new__(cls, value)
 
@@ -1538,9 +1540,11 @@ class MD_Dimensions(MD_Collection):
 
 
 class CountryCode(MD_UnmergableString):
-    def __new__(cls, value):
-        if value:
-            value = value.upper()
+    def __new__(cls, value=None):
+        if value is None:
+            value = ''
+        elif isinstance(value, str):
+            value = value.strip().upper()
         return super(CountryCode, cls).__new__(cls, value)
 
 
@@ -1686,7 +1690,8 @@ class RegionBoundary(MD_Structure):
         'Iptc4xmpExt:rbVertices': RegionBoundaryPointArray,
         }
 
-    def __init__(self, value):
+    def __init__(self, value=None):
+        value = value or {}
         super(RegionBoundary, self).__init__(value)
         if self['Iptc4xmpExt:rbUnit'] == 'pixel':
             decimals = 0
