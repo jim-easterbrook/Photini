@@ -754,7 +754,7 @@ class Metadata(object):
         if not md:
             return None
         # get relevant metadata
-        image_size = md.dimensions
+        image_size = self.dimensions
         if not image_size:
             return None
         resolution = {}
