@@ -454,6 +454,8 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox, WidgetMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
+        if self.isReadOnly():
+            return
         menu = self.lineEdit().createStandardContextMenu()
         suggestion_group = QtGui2.QActionGroup(menu)
         if self._is_multiple and self.choices:
