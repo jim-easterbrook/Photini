@@ -32,7 +32,7 @@ class WidgetMixin(object):
     @QtSlot()
     @catch_all
     def emit_dict(self):
-        if not self._is_multiple:
+        if not self.is_multiple():
             self.new_value_dict.emit(self.get_value_dict())
 
     def get_value_dict(self):
@@ -278,7 +278,7 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
                     self.setFormat(start, end - start, self.spell_formatter)
 
 
-class MultiLineEdit(QtWidgets.QPlainTextEdit):
+class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
     new_value = QtSignal(str, object)
 
     def __init__(self, key, *arg, spell_check=False, length_check=None,
@@ -299,6 +299,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     @catch_all
     def focusOutEvent(self, event):
+        self.emit_dict()
         if not self._is_multiple:
             self.new_value.emit(self._key, self.get_value())
         super(MultiLineEdit, self).focusOutEvent(event)
@@ -323,7 +324,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                     label = fm.elidedText(
                         label, Qt.TextElideMode.ElideMiddle, self.width())
                     action = QtGui2.QAction(label, suggestion_group)
-                    action.setData(str(suggestion))
+                    action.setData(suggestion)
                     menu.insertAction(sep, action)
         elif self.spell_check:
             cursor = self.cursorForPosition(event.pos())
@@ -346,7 +347,9 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         action = execute(menu, event.globalPos())
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
-                self.new_value.emit(self._key, action.data())
+                self.set_value(action.data())
+                self.new_value.emit(self._key, self.get_value())
+                self.emit_dict()
             else:
                 cursor.setPosition(block_pos + start)
                 cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
@@ -367,12 +370,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             self.setPlainText(str(value))
 
     def get_value(self):
-        return self.toPlainText()
-
-    def get_value_dict(self):
-        if self.is_multiple():
-            return {}
-        return {self._key: self.toPlainText().strip() or None}
+        return self.toPlainText().strip()
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
@@ -628,7 +626,7 @@ class StartStopButton(QtWidgets.QPushButton):
             self.click_start.emit()
 
 
-class LangAltWidget(QtWidgets.QWidget):
+class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     new_value = QtSignal(str, object)
 
     def __init__(self, key, multi_line=True, label=None, **kw):
@@ -640,6 +638,8 @@ class LangAltWidget(QtWidgets.QWidget):
             | Qt.AlignmentFlag.AlignTop)
         layout.setColumnStretch(1, 1)
         self.setLayout(layout)
+        self._key = key
+        self.choices = {}
         self.value = MD_LangAlt()
         # label
         if label:
@@ -658,7 +658,7 @@ class LangAltWidget(QtWidgets.QWidget):
             policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
             self.setSizePolicy(policy)
             self.edit = SingleLineEdit(key, **kw)
-        self.edit.new_value.connect(self._new_value)
+        self.edit.new_value_dict.connect(self._new_value)
         layout.addWidget(self.edit, *edit_pos)
         # language drop down
         self.lang = DropDownSelector('', with_multiple=False, extendable=True)
@@ -692,17 +692,19 @@ class LangAltWidget(QtWidgets.QWidget):
             self.edit.set_text_alignment(Qt.AlignmentFlag.AlignLeft)
         self.edit.set_value(self.value[lang])
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def _new_value(self, key, value):
-        if self.is_multiple():
-            self.value = MD_LangAlt(self.choices[value])
+    def _new_value(self, value):
+        value = value[self.edit._key]
+        if value in self.choices:
+            self.value = self.choices[value]
         else:
             default_lang = self.value.default_lang
             new_value = dict(self.value)
             new_value[self.lang.get_value()] = value.strip()
             self.value = MD_LangAlt(new_value, default_lang=default_lang)
-        self.new_value.emit(key, self.get_value())
+        self.new_value.emit(self._key, self.get_value())
+        self.emit_dict()
 
     def _regularise_default(self):
         if not self.value[MD_LangAlt.DEFAULT]:
@@ -739,7 +741,8 @@ class LangAltWidget(QtWidgets.QWidget):
         new_value = dict(self.value)
         new_value[lang] = text
         self.value = MD_LangAlt(new_value, default_lang=default_lang)
-        self.new_value.emit(self.edit._key, self.get_value())
+        self.new_value.emit(self._key, self.get_value())
+        self.emit_dict()
         return self.labeled_lang(lang)
 
     @QtSlot(QtCore.QPoint)
@@ -768,7 +771,8 @@ class LangAltWidget(QtWidgets.QWidget):
 
     def _set_default_lang(self, lang):
         self.value = MD_LangAlt(self.value, default_lang=lang)
-        self.new_value.emit(self.edit._key, self.get_value())
+        self.new_value.emit(self._key, self.get_value())
+        self.emit_dict()
 
     def labeled_lang(self, lang):
         if lang == MD_LangAlt.DEFAULT:
@@ -782,6 +786,7 @@ class LangAltWidget(QtWidgets.QWidget):
         return label, lang
 
     def set_value(self, value):
+        self.choices = {}
         self.lang.setEnabled(True)
         self.value = MD_LangAlt(value)
         # use current language, if available
@@ -807,11 +812,6 @@ class LangAltWidget(QtWidgets.QWidget):
 
     def get_value(self):
         return self.value
-
-    def get_value_dict(self):
-        if self.is_multiple():
-            return {}
-        return {self.edit._key: self.get_value()}
 
     def set_multiple(self, choices=[]):
         self.choices = {}
