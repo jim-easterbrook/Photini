@@ -950,7 +950,8 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
 
     @catch_all
     def fixup(self, text):
-        return self.fix_up() or super(DoubleSpinBox, self).fixup(text)
+        if not self.fix_up():
+            super(DoubleSpinBox, self).fixup(text)
 
     @catch_all
     def textFromValue(self, value):
