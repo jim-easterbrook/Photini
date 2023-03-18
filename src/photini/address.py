@@ -179,42 +179,43 @@ class LocationInfo(QtWidgets.QScrollArea):
         form.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
         self.members = {}
-        self.members['Iptc4xmpExt:LocationName'] = LangAltWidget(
+        self.members['LocationName'] = LangAltWidget(
             'Iptc4xmpExt:LocationName', multi_line=False)
-        self.members['Iptc4xmpExt:LocationName'].setToolTip('<p>{}</p>'.format(
+        self.members['LocationName'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Enter a full name of the location.')))
-        self.members['Iptc4xmpExt:LocationName'].new_value.connect(
+        self.members['LocationName'].new_value_dict.connect(
             self.editing_finished)
         for (key, tool_tip) in (
-                ('Iptc4xmpExt:Sublocation', translate(
+                ('Sublocation', translate(
                     'AddressTab', 'Enter the name of the sublocation.')),
-                ('Iptc4xmpExt:City', translate(
+                ('City', translate(
                     'AddressTab', 'Enter the name of the city.')),
-                ('Iptc4xmpExt:ProvinceState', translate(
+                ('ProvinceState', translate(
                     'AddressTab', 'Enter the name of the province or state.')),
-                ('Iptc4xmpExt:CountryName', translate(
+                ('CountryName', translate(
                     'AddressTab', 'Enter the name of the country.')),
-                ('Iptc4xmpExt:CountryCode', translate(
+                ('CountryCode', translate(
                     'AddressTab', 'Enter the 2 or 3 letter ISO 3166 country'
                     ' code of the country.')),
-                ('Iptc4xmpExt:WorldRegion', translate(
+                ('WorldRegion', translate(
                     'AddressTab', 'Enter the name of the world region.')),
-                ('Iptc4xmpExt:LocationId', translate(
+                ('LocationId', translate(
                     'AddressTab', 'Enter globally unique identifier(s) of the'
                     ' location. Separate them with ";" characters.'))):
             self.members[key] = SingleLineEdit(
-                key, length_check=ImageMetadata.max_bytes(key.split(':')[1]))
+                'Iptc4xmpExt:' + key, length_check=ImageMetadata.max_bytes(key))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
-            self.members[key].new_value.connect(self.editing_finished)
+            self.members[key].new_value_dict.connect(self.editing_finished)
         self.members['latlon'] = LatLongDisplay()
-        self.members['latlon'].new_value_dict.connect(self.new_latlon)
+        self.members['latlon'].new_value_dict.connect(self.editing_finished)
         self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
         self.members['alt'].setSuffix(' m')
         self.members['alt'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Altitude of the location in metres.')))
-        self.members['alt'].new_value.connect(self.new_altitude)
-        self.members['Iptc4xmpExt:CountryCode'].setMaximumWidth(
-            width_for_text(self.members['Iptc4xmpExt:CountryCode'], 'W' * 4))
+        self.members['alt'].new_value_dict.connect(
+            self.editing_finished)
+        self.members['CountryCode'].setMaximumWidth(
+            width_for_text(self.members['CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),
                                   translate('AddressTab', 'Street'),
                                   translate('AddressTab', 'City'),
@@ -225,14 +226,14 @@ class LocationInfo(QtWidgets.QScrollArea):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['Iptc4xmpExt:LocationName'], 0, 1, 1, 5)
-        layout.addWidget(self.members['Iptc4xmpExt:Sublocation'], 1, 1, 1, 5)
-        layout.addWidget(self.members['Iptc4xmpExt:City'], 2, 1, 1, 5)
-        layout.addWidget(self.members['Iptc4xmpExt:ProvinceState'], 3, 1, 1, 5)
-        layout.addWidget(self.members['Iptc4xmpExt:CountryName'], 4, 1, 1, 4)
-        layout.addWidget(self.members['Iptc4xmpExt:CountryCode'], 4, 5)
-        layout.addWidget(self.members['Iptc4xmpExt:WorldRegion'], 5, 1, 1, 5)
-        layout.addWidget(self.members['Iptc4xmpExt:LocationId'], 6, 1, 1, 5)
+        layout.addWidget(self.members['LocationName'], 0, 1, 1, 5)
+        layout.addWidget(self.members['Sublocation'], 1, 1, 1, 5)
+        layout.addWidget(self.members['City'], 2, 1, 1, 5)
+        layout.addWidget(self.members['ProvinceState'], 3, 1, 1, 5)
+        layout.addWidget(self.members['CountryName'], 4, 1, 1, 4)
+        layout.addWidget(self.members['CountryCode'], 4, 5)
+        layout.addWidget(self.members['WorldRegion'], 5, 1, 1, 5)
+        layout.addWidget(self.members['LocationId'], 6, 1, 1, 5)
         layout.addWidget(self.members['latlon'].label, 7, 0)
         layout.addWidget(self.members['latlon'], 7, 1)
         label = QtWidgets.QLabel(translate('AddressTab', 'Altitude'))
@@ -250,20 +251,10 @@ class LocationInfo(QtWidgets.QScrollArea):
             new_value.update(self.members[key].get_value_dict())
         return new_value
 
-    @QtSlot(object)
-    @catch_all
-    def new_altitude(self, value):
-        self.new_value.emit(self, self.get_value())
-
     @QtSlot(dict)
     @catch_all
-    def new_latlon(self, value):
-        self.new_value.emit(self, self.get_value())
-
-    @QtSlot(str, object)
-    @catch_all
-    def editing_finished(self, key, value):
-        self.new_value.emit(self, self.get_value())
+    def editing_finished(self, value):
+        self.new_value.emit(self, value)
 
 
 class QTabBar(QtWidgets.QTabBar):
@@ -464,29 +455,9 @@ class TabWidget(QtWidgets.QWidget):
         # display data
         for idx in range(count):
             widget = self.location_info.widget(idx)
-            if images:
-                values = defaultdict(list)
-                for image in images:
-                    location = self._get_location(image, idx)
-                    for key in widget.members:
-                        value = None
-                        if key == 'latlon':
-                            value = location
-                        elif key in location:
-                            value = location[key]
-                        if value not in values[key]:
-                            values[key].append(value)
-                for key in widget.members:
-                    if key == 'latlon':
-                        widget.members[key].set_value_list(values[key])
-                    elif len(values[key]) > 1:
-                        widget.members[key].set_multiple(
-                            choices=filter(None, values[key]))
-                    else:
-                        widget.members[key].set_value(values[key][0])
-            else:
-                for key in widget.members:
-                    widget.members[key].set_value(None)
+            values = [self._get_location(image, idx) for image in images]
+            for key in widget.members:
+                widget.members[key].set_value_list(values)
 
     def new_selection(self, selection):
         self.location_info.setEnabled(bool(selection))
