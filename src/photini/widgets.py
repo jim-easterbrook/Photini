@@ -40,6 +40,22 @@ class WidgetMixin(object):
             return {}
         return {self._key: self.get_value()}
 
+    def set_value_list(self, values):
+        if not values:
+            self.setEnabled(False)
+            self.set_value(None)
+            return
+        self.setEnabled(True)
+        choices = []
+        for value in values:
+            value = (value and value[self._key]) or None
+            if value not in choices:
+                choices.append(value)
+        if len(choices) > 1:
+            self.set_multiple(choices=[x for x in choices if x])
+        else:
+            self.set_value(choices and choices[0])
+
 
 class ComboBox(QtWidgets.QComboBox):
     def __init__(self, *args, **kwds):
