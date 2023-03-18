@@ -821,7 +821,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.setEnabled(False)
 
 
-class AugmentSpinBox(object):
+class AugmentSpinBox(WidgetMixin):
     new_value = QtSignal(object)
 
     def __init__(self):
@@ -876,6 +876,7 @@ class AugmentSpinBox(object):
         if self.is_multiple():
             return
         self.get_value(emit=True)
+        self.emit_dict()
 
     def get_value(self, emit=False):
         value = self.value()
@@ -939,8 +940,3 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
     def textFromValue(self, value):
         # don't use QDoubleSpinBox's fixed number of decimals
         return str(round(float(value), self.decimals()))
-
-    def get_value_dict(self):
-        if self.is_multiple():
-            return {}
-        return {self._key: self.get_value()}
