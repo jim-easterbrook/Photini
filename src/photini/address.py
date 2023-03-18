@@ -209,7 +209,7 @@ class LocationInfo(QtWidgets.QScrollArea):
         self.members['latlon'] = LatLongDisplay()
         self.members['latlon'].new_value_dict.connect(self.editing_finished)
         self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
-        self.members['alt'].setSuffix(' m')
+        self.members['alt'].set_suffix(' m')
         self.members['alt'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Altitude of the location in metres.')))
         self.members['alt'].new_value_dict.connect(

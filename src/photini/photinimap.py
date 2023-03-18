@@ -223,7 +223,7 @@ class PhotiniMap(QtWidgets.QWidget):
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 1, 0)
         self.widgets['alt'] = DoubleSpinBox('alt')
-        self.widgets['alt'].setSuffix(' m')
+        self.widgets['alt'].set_suffix(' m')
         self.widgets['alt'].new_value.connect(self.new_altitude)
         left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):

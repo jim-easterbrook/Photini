@@ -591,10 +591,10 @@ class NewLensDialog(NewItemDialog):
             self.lens_spec[key] = DoubleSpinBox(key)
             self.lens_spec[key].setMinimum(0.0)
             if key.endswith('_fn'):
-                self.lens_spec[key].setPrefix('ƒ/')
+                self.lens_spec[key].set_prefix('ƒ/')
             else:
                 self.lens_spec[key].setSingleStep(1.0)
-                self.lens_spec[key].setSuffix(' mm')
+                self.lens_spec[key].set_suffix(' mm')
             self.panel.layout().addRow(label, self.lens_spec[key])
 
     def get_value(self):
@@ -708,21 +708,21 @@ class TabWidget(QtWidgets.QWidget):
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox('focal_length')
         self.widgets['focal_length'].setMinimum(0.0)
-        self.widgets['focal_length'].setSuffix(' mm')
+        self.widgets['focal_length'].set_suffix(' mm')
         self.widgets['focal_length'].new_value.connect(self.new_focal_length)
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
                                     self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = IntSpinBox()
         self.widgets['focal_length_35'].setMinimum(0)
-        self.widgets['focal_length_35'].setSuffix(' mm')
+        self.widgets['focal_length_35'].set_suffix(' mm')
         self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
                                     self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = DoubleSpinBox('aperture')
         self.widgets['aperture'].setMinimum(0.0)
-        self.widgets['aperture'].setPrefix('ƒ/')
+        self.widgets['aperture'].set_prefix('ƒ/')
         self.widgets['aperture'].new_value.connect(self.new_aperture)
         other_group.layout().addRow(translate('TechnicalTab', 'Aperture'),
                                     self.widgets['aperture'])

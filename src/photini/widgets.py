@@ -842,6 +842,8 @@ class AugmentSpinBox(WidgetMixin):
 
     def __init__(self):
         super(AugmentSpinBox, self).__init__()
+        self._prefix = ''
+        self._suffix = ''
         if self.isRightToLeft():
             self.setAlignment(
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -918,6 +920,14 @@ class AugmentSpinBox(WidgetMixin):
     def is_multiple(self):
         return (self.value() == self.minimum()
                 and self.specialValueText() == self.multiple)
+
+    def set_prefix(self, prefix):
+        self._prefix = prefix
+        self.setPrefix(prefix)
+
+    def set_suffix(self, suffix):
+        self._suffix = suffix
+        self.setSuffix(suffix)
 
 
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
