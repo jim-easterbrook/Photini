@@ -435,133 +435,6 @@ class MultiStringEdit(SingleLineEdit):
         return [x for x in value if x]
 
 
-class LatLongDisplay(QtWidgets.QAbstractSpinBox, WidgetMixin):
-    def __init__(self, *args, **kwds):
-        super(LatLongDisplay, self).__init__(*args, **kwds)
-        self.lat_validator = QtGui.QDoubleValidator(
-            -90.0, 90.0, 20, parent=self)
-        self.lng_validator = QtGui.QDoubleValidator(
-            -180.0, 180.0, 20, parent=self)
-        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
-        self._is_multiple = False
-        self.multiple_values = multiple_values()
-        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
-        self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
-        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.setFixedWidth(width_for_text(self, '8' * 23))
-        self.setToolTip('<p>{}</p>'.format(translate(
-            'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
-            ' decimal numbers separated by a comma.')))
-        self.editingFinished.connect(self.emit_dict)
-
-    @catch_all
-    def focusOutEvent(self, event):
-        self.emit_dict()
-        super(LatLongDisplay, self).focusOutEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        if self._is_multiple:
-            self._is_multiple = False
-            self.setPlaceholderText('')
-        super(LatLongDisplay, self).keyPressEvent(event)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        if self.isReadOnly():
-            return
-        menu = self.lineEdit().createStandardContextMenu()
-        suggestion_group = QtGui2.QActionGroup(menu)
-        if self._is_multiple and self.choices:
-            sep = menu.insertSeparator(menu.actions()[0])
-            for suggestion in self.choices:
-                label = str(suggestion)
-                action = QtGui2.QAction(label, suggestion_group)
-                action.setData(str(suggestion))
-                menu.insertAction(sep, action)
-        action = execute(menu, event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            if self._is_multiple:
-                self.set_value(action.data())
-                self.emit_dict()
-
-    def stepEnabled(self):
-        return self.StepEnabledFlag.StepNone
-
-    @catch_all
-    def validate(self, text, pos):
-        if not text:
-            return QtGui.QValidator.State.Acceptable, text, pos
-        parts = [x.strip() for x in text.split(',')]
-        if len(parts) > 2:
-            return QtGui.QValidator.State.Invalid, text, pos
-        result = self.lat_validator.validate(parts[0], pos)[0]
-        if len(parts) > 1:
-            result = min(result, self.lng_validator.validate(parts[1], pos)[0])
-        else:
-            result = min(result, QtGui.QValidator.State.Intermediate)
-        return result, text, pos
-
-    @catch_all
-    def fixup(self, value):
-        value = value.split(',')
-        if len(value) != 2 or not all(value):
-            return
-        value = [float(x) for x in value]
-        value[0] = min(max(value[0], -90.0), 90.0)
-        value[1] = ((value[1] + 180.0) % 360.0) - 180.0
-        self.lineEdit().setText('{:f}, {:f}'.format(*value))
-
-    def get_value(self):
-        value = self.text()
-        if value and self.hasAcceptableInput():
-            return [float(x) for x in value.split(',')]
-        return None
-
-    def get_value_dict(self):
-        if self.is_multiple():
-            return {}
-        return dict(zip(self._key, self.get_value() or (None, None)))
-
-    def set_value(self, value):
-        if self._is_multiple:
-            self._is_multiple = False
-            self.lineEdit().setPlaceholderText('')
-        if not value:
-            self.clear()
-        else:
-            self.lineEdit().setText(str(value))
-
-    def set_value_list(self, values):
-        choices = set()
-        if not values:
-            self.setEnabled(False)
-            self.set_value(None)
-            return
-        self.setEnabled(True)
-        for value in values:
-            if value:
-                lat = value['exif:GPSLatitude']
-                lon = value['exif:GPSLongitude']
-                if lat and lon:
-                    choices.add('{}, {}'.format(lat, lon))
-                    continue
-            choices.add(None)
-        if len(choices) > 1:
-            self.set_multiple(choices=[x for x in choices if x])
-        else:
-            self.set_value(choices and choices.pop())
-
-    def set_multiple(self, choices=[]):
-        self._is_multiple = True
-        self.choices = list(choices)
-        self.lineEdit().setPlaceholderText(self.multiple_values)
-        self.clear()
-
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
-
-
 class Slider(QtWidgets.QSlider):
     editing_finished = QtSignal()
 
@@ -837,13 +710,14 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.setEnabled(False)
 
 
-class AugmentSpinBox(WidgetMixin):
+class AugmentSpinBoxBase(WidgetMixin):
     new_value = QtSignal(object)
 
     def __init__(self):
-        super(AugmentSpinBox, self).__init__()
+        self._is_multiple = False
         self._prefix = ''
         self._suffix = ''
+        super(AugmentSpinBoxBase, self).__init__()
         if self.isRightToLeft():
             self.setAlignment(
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -852,17 +726,18 @@ class AugmentSpinBox(WidgetMixin):
 
     class ContextAction(QtGui2.QAction):
         def __init__(self, value, *arg, **kw):
-            super(AugmentSpinBox.ContextAction, self).__init__(*arg, **kw)
+            super(AugmentSpinBoxBase.ContextAction, self).__init__(*arg, **kw)
             self.setData(value)
             self.triggered.connect(self.set_value)
 
         @QtSlot()
         @catch_all
         def set_value(self):
-            self.parent().setValue(self.data())
+            self.parent().set_value(self.data())
+            self.parent().editing_finished()
 
     def context_menu_event(self):
-        if self.specialValueText() and self.choices:
+        if self.is_multiple() and self.choices:
             QtCore.QTimer.singleShot(0, self.extend_context_menu)
 
     @QtSlot()
@@ -875,11 +750,6 @@ class AugmentSpinBox(WidgetMixin):
         for suggestion in self.choices:
             menu.insertAction(sep, self.ContextAction(
                 suggestion, text=self.textFromValue(suggestion), parent=self))
-
-    def clear_special_value(self):
-        if self.specialValueText():
-            self.set_value(self.default_value)
-            self.selectAll()
 
     def fix_up(self):
         if self.cleanText():
@@ -905,6 +775,7 @@ class AugmentSpinBox(WidgetMixin):
         return value
 
     def set_value(self, value):
+        self.set_not_multiple()
         if value is None:
             self.setValue(self.minimum())
             self.setSpecialValueText(' ')
@@ -912,14 +783,46 @@ class AugmentSpinBox(WidgetMixin):
             self.setSpecialValueText('')
             self.setValue(value)
 
+
+class AugmentDateTime(AugmentSpinBoxBase):
+    def set_not_multiple(self):
+        if self._is_multiple:
+            self._is_multiple = False
+            self.set_value(self.default_value)
+            self.setSelectedSection(self.YearSection)
+
     def set_multiple(self, choices=[]):
         self.choices = list(filter(None, choices))
         self.setValue(self.minimum())
         self.setSpecialValueText(self.multiple)
 
     def is_multiple(self):
-        return (self.value() == self.minimum()
-                and self.specialValueText() == self.multiple)
+        return self._is_multiple and self.value() == self.minimum()
+
+
+class AugmentSpinBox(AugmentSpinBoxBase):
+    def set_not_multiple(self):
+        if self._is_multiple:
+            self._is_multiple = False
+            self.set_value(self.default_value)
+            if self._prefix:
+                self.setPrefix(self._prefix)
+            if self._suffix:
+                self.setSuffix(self._suffix)
+            self.lineEdit().setPlaceholderText('')
+
+    def set_multiple(self, choices=[]):
+        self.choices = list(filter(None, choices))
+        self._is_multiple = True
+        if self._prefix:
+            self.setPrefix('')
+        if self._suffix:
+            self.setSuffix('')
+        self.lineEdit().setPlaceholderText(self.multiple)
+        self.clear()
+
+    def is_multiple(self):
+        return self._is_multiple and self.lineEdit().placeholderText()
 
     def set_prefix(self, prefix):
         self._prefix = prefix
@@ -928,6 +831,123 @@ class AugmentSpinBox(WidgetMixin):
     def set_suffix(self, suffix):
         self._suffix = suffix
         self.setSuffix(suffix)
+
+
+class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
+    def __init__(self, *args, **kwds):
+        super(LatLongDisplay, self).__init__(*args, **kwds)
+        self.lat_validator = QtGui.QDoubleValidator(
+            -90.0, 90.0, 20, parent=self)
+        self.lng_validator = QtGui.QDoubleValidator(
+            -180.0, 180.0, 20, parent=self)
+        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
+        self._is_multiple = False
+        self.default_value = ''
+        self.multiple = multiple_values()
+        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
+        self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.setFixedWidth(width_for_text(self, '8' * 23))
+        self.setToolTip('<p>{}</p>'.format(translate(
+            'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
+            ' decimal numbers separated by a comma.')))
+        self.editingFinished.connect(self.emit_dict)
+
+    @catch_all
+    def focusOutEvent(self, event):
+        self.emit_dict()
+        super(LatLongDisplay, self).focusOutEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.set_not_multiple()
+        super(LatLongDisplay, self).keyPressEvent(event)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        if self.isReadOnly():
+            return
+        menu = self.lineEdit().createStandardContextMenu()
+        suggestion_group = QtGui2.QActionGroup(menu)
+        if self._is_multiple and self.choices:
+            sep = menu.insertSeparator(menu.actions()[0])
+            for suggestion in self.choices:
+                label = str(suggestion)
+                action = QtGui2.QAction(label, suggestion_group)
+                action.setData(str(suggestion))
+                menu.insertAction(sep, action)
+        action = execute(menu, event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            if self._is_multiple:
+                self.set_value(action.data())
+                self.emit_dict()
+
+    def stepEnabled(self):
+        return self.StepEnabledFlag.StepNone
+
+    @catch_all
+    def validate(self, text, pos):
+        if not text:
+            return QtGui.QValidator.State.Acceptable, text, pos
+        parts = [x.strip() for x in text.split(',')]
+        if len(parts) > 2:
+            return QtGui.QValidator.State.Invalid, text, pos
+        result = self.lat_validator.validate(parts[0], pos)[0]
+        if len(parts) > 1:
+            result = min(result, self.lng_validator.validate(parts[1], pos)[0])
+        else:
+            result = min(result, QtGui.QValidator.State.Intermediate)
+        return result, text, pos
+
+    @catch_all
+    def fixup(self, value):
+        value = value.split(',')
+        if len(value) != 2 or not all(value):
+            return
+        value = [float(x) for x in value]
+        value[0] = min(max(value[0], -90.0), 90.0)
+        value[1] = ((value[1] + 180.0) % 360.0) - 180.0
+        self.lineEdit().setText('{:f}, {:f}'.format(*value))
+
+    def get_value(self, emit=False):
+        value = self.text() or None
+        if value and self.hasAcceptableInput():
+            value = [float(x) for x in value.split(',')]
+        if emit:
+            self.new_value.emit(value)
+        return value
+
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return dict(zip(self._key, self.get_value() or (None, None)))
+
+    def set_value(self, value):
+        self.set_not_multiple()
+        if not value:
+            self.clear()
+        else:
+            self.lineEdit().setText(str(value))
+
+    def set_value_list(self, values):
+        choices = set()
+        if not values:
+            self.setEnabled(False)
+            self.set_value(None)
+            return
+        self.setEnabled(True)
+        for value in values:
+            if value:
+                lat = value['exif:GPSLatitude']
+                lon = value['exif:GPSLongitude']
+                if lat and lon:
+                    choices.add('{}, {}'.format(lat, lon))
+                    continue
+            choices.add(None)
+        if len(choices) > 1:
+            self.set_multiple(choices=[x for x in choices if x])
+        else:
+            self.set_value(choices and choices.pop())
 
 
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
@@ -950,12 +970,12 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(DoubleSpinBox, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(DoubleSpinBox, self).stepBy(steps)
 
     @catch_all

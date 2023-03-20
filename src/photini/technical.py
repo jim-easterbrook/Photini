@@ -26,7 +26,7 @@ from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
 from photini.widgets import (
-    AugmentSpinBox, DoubleSpinBox, DropDownSelector, Slider)
+    AugmentDateTime, AugmentSpinBox, DoubleSpinBox, DropDownSelector, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -157,6 +157,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple_values()
+        self._key = 'IntSpinBox'
         super(IntSpinBox, self).__init__(*arg, **kw)
         AugmentSpinBox.__init__(self)
         self.setSingleStep(1)
@@ -171,17 +172,18 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(IntSpinBox, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(IntSpinBox, self).stepBy(steps)
 
     @catch_all
     def fixup(self, text):
-        return self.fix_up() or super(IntSpinBox, self).fixup(text)
+        if not self.fix_up():
+            super(IntSpinBox, self).fixup(text)
 
     def set_faint(self, faint):
         if faint:
@@ -198,18 +200,19 @@ class CalendarWidget(QtWidgets.QCalendarWidget):
         return super(CalendarWidget, self).showEvent(event)
 
 
-class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
+class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
     def __init__(self, *arg, **kw):
         self.default_value = QtCore.QDateTime(
             QtCore.QDate.currentDate(), QtCore.QTime())
         self.multiple = multiple_values()
+        self._key = 'DateTimeEdit'
         # rename some methods for compatibility with AugmentSpinBox
         self.minimum = self.minimumDateTime
         self.setValue = self.setDateTime
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
-        AugmentSpinBox.__init__(self)
+        AugmentDateTime.__init__(self)
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
@@ -222,18 +225,13 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(DateTimeEdit, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(DateTimeEdit, self).stepBy(steps)
-
-    def clear_special_value(self):
-        if self.specialValueText():
-            self.set_value(self.default_value)
-            self.setSelectedSection(self.YearSection)
 
     @catch_all
     def sizeHint(self):
@@ -269,6 +267,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple()
+        self._key = 'TimeZoneWidget'
         super(TimeZoneWidget, self).__init__(*arg, **kw)
         AugmentSpinBox.__init__(self)
         self.setRange(-14 * 60, 15 * 60)
@@ -282,12 +281,12 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(TimeZoneWidget, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(TimeZoneWidget, self).stepBy(steps)
 
     @catch_all
