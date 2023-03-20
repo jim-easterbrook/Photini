@@ -791,10 +791,10 @@ class AugmentDateTime(AugmentSpinBoxBase):
         if self._is_multiple:
             self._is_multiple = False
             self.set_value(self.default_value)
-            self.setSelectedSection(self.YearSection)
 
     def set_multiple(self, choices=[]):
         self.choices = list(filter(None, choices))
+        self._is_multiple = True
         self.setValue(self.minimum())
         self.setSpecialValueText(self.multiple)
 
