@@ -201,11 +201,11 @@ class CalendarWidget(QtWidgets.QCalendarWidget):
 
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
-    def __init__(self, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         self.default_value = QtCore.QDateTime(
             QtCore.QDate.currentDate(), QtCore.QTime())
         self.multiple = multiple_values()
-        self._key = 'DateTimeEdit'
+        self._key = key
         # rename some methods for compatibility with AugmentSpinBox
         self.minimum = self.minimumDateTime
         self.setValue = self.setDateTime
@@ -213,6 +213,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
         AugmentDateTime.__init__(self)
+        self.editingFinished.connect(self.emit_dict)
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
@@ -264,11 +265,12 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
 
 
 class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
-    def __init__(self, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple()
-        self._key = 'TimeZoneWidget'
+        self._key = key
         super(TimeZoneWidget, self).__init__(*arg, **kw)
+        self.editingFinished.connect(self.emit_dict)
         AugmentSpinBox.__init__(self)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
@@ -291,7 +293,8 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def fixup(self, text):
-        return self.fix_up() or super(TimeZoneWidget, self).fixup(text)
+        if not self.fix_up():
+            super(TimeZoneWidget, self).fixup(text)
 
     @catch_all
     def sizeHint(self):
@@ -339,12 +342,19 @@ class PrecisionSlider(Slider):
 
     def __init__(self, *arg, **kw):
         super(PrecisionSlider, self).__init__(*arg, **kw)
+        self.setOrientation(Qt.Orientation.Horizontal)
+        self.setRange(1, 6)
+        self.setValue(6)
+        self.setPageStep(1)
         self.valueChanged.connect(self._value_changed)
 
+    @QtSlot(int)
+    @catch_all
     def _value_changed(self, value):
         if value >= 4:
             value += 1
         self.value_changed.emit(value)
+        self.emit_dict()
 
     def get_value(self):
         value = super(PrecisionSlider, self).get_value()
@@ -368,25 +378,22 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         self.setColumnStretch(3, 1)
         self.members = {}
         # date & time
-        self.members['datetime'] = DateTimeEdit()
+        self.members['datetime'] = DateTimeEdit('datetime')
         self.addWidget(self.members['datetime'], 0, 0, 1, 2)
         # time zone
-        self.members['tz_offset'] = TimeZoneWidget()
+        self.members['tz_offset'] = TimeZoneWidget('tz_offset')
         self.addWidget(self.members['tz_offset'], 0, 2)
         # precision
         self.addWidget(
             QtWidgets.QLabel(translate('TechnicalTab', 'Precision')), 1, 0)
-        self.members['precision'] = PrecisionSlider(Qt.Orientation.Horizontal)
-        self.members['precision'].setRange(1, 6)
-        self.members['precision'].setValue(6)
-        self.members['precision'].setPageStep(1)
+        self.members['precision'] = PrecisionSlider('precision')
         self.addWidget(self.members['precision'], 1, 1)
         # connections
         self.members['precision'].value_changed.connect(
             self.members['datetime'].set_precision)
-        self.members['datetime'].editingFinished.connect(self.editing_finished)
-        self.members['tz_offset'].editingFinished.connect(self.editing_finished)
-        self.members['precision'].editing_finished.connect(self.editing_finished)
+        self.members['datetime'].new_value_dict.connect(self.editing_finished)
+        self.members['tz_offset'].new_value_dict.connect(self.editing_finished)
+        self.members['precision'].new_value_dict.connect(self.editing_finished)
 
     def set_enabled(self, enabled):
         for widget in self.members.values():
@@ -405,9 +412,9 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
                     new_value[key] = new_value[key].toPyDateTime()
         return new_value
 
-    @QtSlot()
+    @QtSlot(dict)
     @catch_all
-    def editing_finished(self):
+    def editing_finished(self, value):
         self.new_value.emit(self.name, self.get_value())
 
 
@@ -427,7 +434,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.offset)
         self.layout().addSpacing(spacing)
         # time zone
-        self.time_zone = TimeZoneWidget()
+        self.time_zone = TimeZoneWidget('time_zone')
         self.time_zone.set_value(None)
         self.layout().addWidget(self.time_zone)
         self.layout().addSpacing(spacing)

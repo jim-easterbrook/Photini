@@ -435,17 +435,19 @@ class MultiStringEdit(SingleLineEdit):
         return [x for x in value if x]
 
 
-class Slider(QtWidgets.QSlider):
+class Slider(QtWidgets.QSlider, WidgetMixin):
     editing_finished = QtSignal()
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         super(Slider, self).__init__(*arg, **kw)
+        self._key = key
         self._is_multiple = False
         self.sliderPressed.connect(self.slider_pressed)
 
     @catch_all
     def focusOutEvent(self, event):
         self.editing_finished.emit()
+        self.emit_dict()
         super(Slider, self).focusOutEvent(event)
 
     @QtSlot()
