@@ -419,6 +419,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, WidgetMixin):
         return False
 
     def set_value_list(self, values):
+        values = [v[self._key] for v in values]
         for key in self.members:
             self.members[key].set_value_list(values)
 
@@ -643,32 +644,31 @@ class TabWidget(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.widgets = {}
-        self.date_widget = {}
         self.link_widget = {}
         # date and time
         date_group = QtWidgets.QGroupBox(
             translate('TechnicalTab', 'Date and time'))
         date_group.setLayout(FormLayout())
         # create date and link widgets
+        for key in ('date_taken', 'date_digitised', 'date_modified'):
+            self.widgets[key] = DateAndTimeWidget(key)
+            self.widgets[key].new_value_dict.connect(self.new_date_value)
         for key in self._linked_date:
-            self.date_widget[key] = DateAndTimeWidget(key)
-            self.date_widget[key].new_value_dict.connect(self.new_date_value)
-            if self._linked_date[key]:
-                self.link_widget[key] = DateLink(key, self._linked_date[key])
-                self.link_widget[key].new_link.connect(self.new_link)
+            self.link_widget[key] = DateLink(key, self._linked_date[key])
+            self.link_widget[key].new_link.connect(self.new_link)
         self.link_widget['date_taken'].setText(
             translate('TechnicalTab', "Link 'taken' and 'digitised'"))
         self.link_widget['date_digitised'].setText(
             translate('TechnicalTab', "Link 'digitised' and 'modified'"))
         # add to layout
         date_group.layout().addRow(translate('TechnicalTab', 'Taken'),
-                                   self.date_widget['date_taken'])
+                                   self.widgets['date_taken'])
         date_group.layout().addRow('', self.link_widget['date_taken'])
         date_group.layout().addRow(translate('TechnicalTab', 'Digitised'),
-                                   self.date_widget['date_digitised'])
+                                   self.widgets['date_digitised'])
         date_group.layout().addRow('', self.link_widget['date_digitised'])
         date_group.layout().addRow(translate('TechnicalTab', 'Modified'),
-                                   self.date_widget['date_modified'])
+                                   self.widgets['date_modified'])
         # offset
         self.offset_widget = OffsetWidget()
         self.offset_widget.apply_offset.connect(self.apply_offset)
@@ -744,7 +744,6 @@ class TabWidget(QtWidgets.QWidget):
     _linked_date = {
         'date_taken'    : 'date_digitised',
         'date_digitised': 'date_modified',
-        'date_modified' : None
         }
 
     def refresh(self):
@@ -767,8 +766,8 @@ class TabWidget(QtWidgets.QWidget):
                 tz = min(max(tz, -14 * 60), 15 * 60)
                 date_taken['tz_offset'] = tz
             self._set_date_value(image, 'date_taken', date_taken)
-        self._update_datetime(images=images)
-        self._update_links(images=images)
+        self._update_widget((
+            'date_taken', 'date_digitised', 'date_modified'), images)
 
     @QtSlot(str, str)
     @catch_all
@@ -778,10 +777,9 @@ class TabWidget(QtWidgets.QWidget):
             for image in images:
                 temp = dict(getattr(image.metadata, primary))
                 self._set_date_value(image, replica, temp)
-            self._update_datetime(images=images)
-            self._update_links(images=images)
+            self._update_widget(replica, images)
         else:
-            self.date_widget[replica].set_enabled(True)
+            self.widgets[replica].set_enabled(True)
 
     @QtSlot(str, object)
     @catch_all
@@ -870,34 +868,25 @@ class TabWidget(QtWidgets.QWidget):
             if temp['datetime'] is None:
                 temp = None
             self._set_date_value(image, key, temp)
-        self._update_datetime(images=images)
+        self._update_widget(
+            ('date_taken', 'date_digitised', 'date_modified'), images)
 
-    def _set_date_value(self, image, primary, new_value):
-        setattr(image.metadata, primary, new_value)
-        replica = self._linked_date[primary]
-        if replica and self.link_widget[primary].isChecked():
-            self._set_date_value(image, replica, new_value)
+    def _set_date_value(self, image, key, new_value):
+        setattr(image.metadata, key, new_value)
+        if key in self.link_widget and self.link_widget[key].isChecked():
+            self._set_date_value(image, self._linked_date[key], new_value)
 
-    def _update_datetime(self, images=[]):
-        images = images or self.app.image_list.get_selected_images()
-        for key in self.date_widget:
-            values = [getattr(image.metadata, key) for image in images]
-            self.date_widget[key].set_value_list(values)
-        self._update_links(images=images)
-
-    def _update_links(self, images=[]):
-        images = images or self.app.image_list.get_selected_images()
+    def _update_links(self, values):
         for primary in self.link_widget:
             replica = self._linked_date[primary]
-            for image in images:
-                if (getattr(image.metadata, primary) !=
-                        getattr(image.metadata, replica)):
+            for value in values:
+                if value[primary] != value[replica]:
                     self.link_widget[primary].setChecked(False)
-                    self.date_widget[replica].set_enabled(True)
+                    self.widgets[replica].set_enabled(True)
                     break
             else:
                 self.link_widget[primary].setChecked(True)
-                self.date_widget[replica].set_enabled(False)
+                self.widgets[replica].set_enabled(False)
 
     def _update_widget(self, keys=[], images=[]):
         images = images or self.app.image_list.get_selected_images()
@@ -910,6 +899,9 @@ class TabWidget(QtWidgets.QWidget):
                 self._update_lens_model(images)
             elif key == 'focal_length_35':
                 self._update_focal_length_35(images)
+        if any(k in ('date_taken', 'date_digitised', 'date_modified')
+               for k in keys):
+            self._update_links(values)
 
     def _update_lens_model(self, images):
         value = self.widgets['lens_model'].get_value_dict()
@@ -979,6 +971,10 @@ class TabWidget(QtWidgets.QWidget):
 
     def _update_focal_length_35(self, images):
         self.widgets['focal_length_35'].set_faint(False)
+        if not images:
+            self.widgets['focal_length_35'].setEnabled(False)
+            self.widgets['focal_length_35'].set_value(None)
+            return
         value = self.widgets['focal_length_35'].get_value_dict()
         if (not value) or value['focal_length_35']:
             return
@@ -1027,17 +1023,8 @@ class TabWidget(QtWidgets.QWidget):
         return md.focal_length_35
 
     def new_selection(self, selection):
-        if not selection:
-            self.setEnabled(False)
-            for widget in self.date_widget.values():
-                for sub_widget in widget.members.values():
-                    sub_widget.set_value(None)
-            for widget in self.widgets.values():
-                widget.set_value(None)
-            return
-        self._update_datetime(images=selection)
-        self._update_links(images=selection)
         self._update_widget(
-            ('orientation', 'camera_model', 'lens_model', 'aperture',
+            ('date_taken', 'date_digitised', 'date_modified',
+             'orientation', 'camera_model', 'lens_model', 'aperture',
              'focal_length', 'focal_length_35'), images=selection)
-        self.setEnabled(True)
+        self.setEnabled(bool(selection))
