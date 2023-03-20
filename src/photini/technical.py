@@ -154,10 +154,10 @@ class LensList(DropdownEdit):
 
 
 class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
-    def __init__(self, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple_values()
-        self._key = 'IntSpinBox'
+        self._key = key
         super(IntSpinBox, self).__init__(*arg, **kw)
         AugmentSpinBox.__init__(self)
         self.setSingleStep(1)
@@ -726,7 +726,7 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
                                     self.widgets['focal_length'])
         # 35mm equivalent focal length
-        self.widgets['focal_length_35'] = IntSpinBox()
+        self.widgets['focal_length_35'] = IntSpinBox('focal_length_35')
         self.widgets['focal_length_35'].setMinimum(0)
         self.widgets['focal_length_35'].set_suffix(' mm')
         self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
@@ -793,7 +793,7 @@ class TabWidget(QtWidgets.QWidget):
         for image in images:
             image.metadata.orientation = value
             image.load_thumbnail()
-        self._update_orientation(images=images)
+        self._update_widget('orientation', images=images)
 
     @QtSlot(str, object)
     @catch_all
@@ -821,7 +821,7 @@ class TabWidget(QtWidgets.QWidget):
                 if delete_makernote:
                     image.metadata.set_delete_makernote()
             image.metadata.camera_model = value
-        self._update_camera_model(images=images)
+        self._update_widget('camera_model', images=images)
 
     @QtSlot(str, object)
     @catch_all
@@ -829,7 +829,7 @@ class TabWidget(QtWidgets.QWidget):
         images = self.app.image_list.get_selected_images()
         for image in images:
             image.metadata.lens_model = value
-        self._update_lens_model(images=images)
+        self._update_widget('lens_model', images=images)
 
     @QtSlot(object)
     @catch_all
@@ -837,7 +837,7 @@ class TabWidget(QtWidgets.QWidget):
         images = self.app.image_list.get_selected_images()
         for image in images:
             image.metadata.aperture = value
-        self._update_aperture(images=images)
+        self._update_widget('aperture', images=images)
 
     @QtSlot(object)
     @catch_all
@@ -849,8 +849,7 @@ class TabWidget(QtWidgets.QWidget):
                 image.metadata.focal_length_35 = self.calc_35(
                     image.metadata, value)
             image.metadata.focal_length = value
-        self._update_focal_length(images=images)
-        self._update_focal_length_35(images=images)
+        self._update_widget(('focal_length', 'focal_length_35'), images=images)
 
     @QtSlot(object)
     @catch_all
@@ -859,8 +858,7 @@ class TabWidget(QtWidgets.QWidget):
         for image in images:
             image.metadata.focal_length_35 = value
             self.set_crop_factor(image.metadata)
-        self._update_focal_length(images=images)
-        self._update_focal_length_35(images=images)
+        self._update_widget(('focal_length', 'focal_length_35'), images=images)
 
     @QtSlot(dict)
     @catch_all
@@ -905,44 +903,24 @@ class TabWidget(QtWidgets.QWidget):
                 self.link_widget[master, slave].setChecked(True)
                 self.date_widget[slave].set_enabled(False)
 
-    def _update_orientation(self, images=[]):
+    def _update_widget(self, keys=[], images=[]):
         images = images or self.app.image_list.get_selected_images()
-        if not images:
-            return
-        value = images[0].metadata.orientation
-        for image in images[1:]:
-            if image.metadata.orientation != value:
-                # multiple values
-                self.widgets['orientation'].set_multiple()
-                return
-        self.widgets['orientation'].set_value(value and int(value))
+        values = [image.metadata for image in images]
+        if isinstance(keys, str):
+            keys = [keys]
+        for key in keys:
+            self.widgets[key].set_value_list(values)
+            if key == 'lens_model':
+                self._update_lens_model(images)
+            elif key == 'focal_length_35':
+                self._update_focal_length_35(images)
 
-    def _update_camera_model(self, images=[]):
-        images = images or self.app.image_list.get_selected_images()
-        if not images:
-            return
-        value = images[0].metadata.camera_model
-        for image in images[1:]:
-            if image.metadata.camera_model != value:
-                self.widgets['camera_model'].set_multiple()
-                return
-        self.widgets['camera_model'].set_value(value)
-
-    def _update_lens_model(self, images=[]):
-        images = images or self.app.image_list.get_selected_images()
-        if not images:
-            return
+    def _update_lens_model(self, images):
+        value = self.widgets['lens_model'].get_value_dict()
         self.widgets['lens_model'].setToolTip('')
-        value = images[0].metadata.lens_model
-        for image in images[1:]:
-            if image.metadata.lens_model != value:
-                # multiple values
-                self.widgets['lens_model'].set_multiple()
-                return
-        self.widgets['lens_model'].set_value(value)
-        if not value:
+        if not (value and value['lens_model']):
             return
-        spec = value['spec']
+        spec = value['lens_model']['spec']
         if not spec:
             return
         tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
@@ -1000,56 +978,15 @@ class TabWidget(QtWidgets.QWidget):
                         image.metadata, new_fl)
                 image.metadata.focal_length = new_fl
         if make_changes:
-            self._update_aperture(images=images)
-            self._update_focal_length(images=images)
-            self._update_focal_length_35(images=images)
+            self._update_widget(
+                ('aperture', 'focal_length', 'focal_length_35'), images=images)
 
-    def _update_aperture(self, images=[]):
-        images = images or self.app.image_list.get_selected_images()
-        if not images:
-            return
-        values = []
-        for image in images:
-            value = image.metadata.aperture
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['aperture'].set_multiple(choices=values)
-        else:
-            self.widgets['aperture'].set_value(values[0])
-
-    def _update_focal_length(self, images=[]):
-        images = images or self.app.image_list.get_selected_images()
-        if not images:
-            return
-        values = []
-        for image in images:
-            value = image.metadata.focal_length
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['focal_length'].set_multiple(choices=values)
-        else:
-            self.widgets['focal_length'].set_value(values[0])
-
-    def _update_focal_length_35(self, images=[]):
-        images = images or self.app.image_list.get_selected_images()
-        if not images:
-            return
+    def _update_focal_length_35(self, images):
         self.widgets['focal_length_35'].set_faint(False)
-        # display real value if it exists
-        values = []
-        for image in images:
-            value = image.metadata.focal_length_35
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['focal_length_35'].set_multiple(choices=values)
-        else:
-            self.widgets['focal_length_35'].set_value(values[0])
-        if values[0]:
+        value = self.widgets['focal_length_35'].get_value_dict()
+        if (not value) or value['focal_length_35']:
             return
-        # otherwise display calculated value
+        # display calculated value
         values = []
         for image in images:
             value = self.calc_35(image.metadata)
@@ -1104,10 +1041,7 @@ class TabWidget(QtWidgets.QWidget):
             return
         self._update_datetime(images=selection)
         self._update_links(images=selection)
-        self._update_orientation(images=selection)
-        self._update_camera_model(images=selection)
-        self._update_lens_model(images=selection)
-        self._update_aperture(images=selection)
-        self._update_focal_length(images=selection)
-        self._update_focal_length_35(images=selection)
+        self._update_widget(
+            ('orientation', 'camera_model', 'lens_model', 'aperture',
+             'focal_length', 'focal_length_35'), images=selection)
         self.setEnabled(True)
