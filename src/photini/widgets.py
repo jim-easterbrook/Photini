@@ -110,7 +110,7 @@ class CompactButton(QtWidgets.QPushButton):
         scale_font(self, 80)
 
 
-class DropDownSelector(ComboBox):
+class DropDownSelector(ComboBox, WidgetMixin):
     new_value = QtSignal(str, object)
 
     def __init__(self, key, values=[], default=None,
@@ -205,6 +205,7 @@ class DropDownSelector(ComboBox):
             # normal item selection
             self._old_idx = idx
             self.new_value.emit(self._key, self.itemData(idx))
+            self.emit_dict()
             return
         # user must have clicked '<new>'
         blocked = self.blockSignals(True)
@@ -224,6 +225,7 @@ class DropDownSelector(ComboBox):
         self.setCurrentIndex(self._old_idx)
         self.blockSignals(blocked)
         self.new_value.emit(self._key, data)
+        self.emit_dict()
 
     def _last_idx(self):
         idx = self.count()
