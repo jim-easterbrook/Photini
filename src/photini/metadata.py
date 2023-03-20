@@ -813,6 +813,12 @@ class Metadata(object):
             result = 'image/raw'
         return result
 
+    def __getitem__(self, name):
+        # allow attributes to be accessed in dict like fashion
+        if name in self._data_type:
+            return getattr(self, name)
+        raise KeyError(name)
+
     def __setattr__(self, name, value):
         if name not in self._data_type:
             return super(Metadata, self).__setattr__(name, value)
