@@ -619,17 +619,18 @@ class NewLensDialog(NewItemDialog):
 
 
 class DateLink(QtWidgets.QCheckBox):
-    new_link = QtSignal(str)
+    new_link = QtSignal(str, str)
 
-    def __init__(self, key, *arg, **kw):
+    def __init__(self, primary, replica, *arg, **kw):
         super(DateLink, self).__init__(*arg, **kw)
-        self._key = key
+        self._primary = primary
+        self._replica = replica
         self.clicked.connect(self._clicked)
 
     @QtSlot()
     @catch_all
     def _clicked(self):
-        self.new_link.emit(self._key)
+        self.new_link.emit(self._primary, self._replica)
 
 
 class TabWidget(QtWidgets.QWidget):
@@ -649,26 +650,23 @@ class TabWidget(QtWidgets.QWidget):
             translate('TechnicalTab', 'Date and time'))
         date_group.setLayout(FormLayout())
         # create date and link widgets
-        for master in self._master_slave:
-            self.date_widget[master] = DateAndTimeWidget(master)
-            self.date_widget[master].new_value_dict.connect(self.new_date_value)
-            slave = self._master_slave[master]
-            if slave:
-                self.link_widget[master, slave] = DateLink(master)
-                self.link_widget[master, slave].new_link.connect(self.new_link)
-        self.link_widget['date_taken', 'date_digitised'].setText(
+        for key in self._linked_date:
+            self.date_widget[key] = DateAndTimeWidget(key)
+            self.date_widget[key].new_value_dict.connect(self.new_date_value)
+            if self._linked_date[key]:
+                self.link_widget[key] = DateLink(key, self._linked_date[key])
+                self.link_widget[key].new_link.connect(self.new_link)
+        self.link_widget['date_taken'].setText(
             translate('TechnicalTab', "Link 'taken' and 'digitised'"))
-        self.link_widget['date_digitised', 'date_modified'].setText(
+        self.link_widget['date_digitised'].setText(
             translate('TechnicalTab', "Link 'digitised' and 'modified'"))
         # add to layout
         date_group.layout().addRow(translate('TechnicalTab', 'Taken'),
                                    self.date_widget['date_taken'])
-        date_group.layout().addRow(
-            '', self.link_widget['date_taken', 'date_digitised'])
+        date_group.layout().addRow('', self.link_widget['date_taken'])
         date_group.layout().addRow(translate('TechnicalTab', 'Digitised'),
                                    self.date_widget['date_digitised'])
-        date_group.layout().addRow(
-            '', self.link_widget['date_digitised', 'date_modified'])
+        date_group.layout().addRow('', self.link_widget['date_digitised'])
         date_group.layout().addRow(translate('TechnicalTab', 'Modified'),
                                    self.date_widget['date_modified'])
         # offset
@@ -743,7 +741,7 @@ class TabWidget(QtWidgets.QWidget):
         # disable until an image is selected
         self.setEnabled(False)
 
-    _master_slave = {
+    _linked_date = {
         'date_taken'    : 'date_digitised',
         'date_digitised': 'date_modified',
         'date_modified' : None
@@ -772,19 +770,18 @@ class TabWidget(QtWidgets.QWidget):
         self._update_datetime(images=images)
         self._update_links(images=images)
 
-    @QtSlot(str)
+    @QtSlot(str, str)
     @catch_all
-    def new_link(self, master):
+    def new_link(self, primary, replica):
         images = self.app.image_list.get_selected_images()
-        slave = self._master_slave[master]
-        if self.link_widget[master, slave].isChecked():
+        if self.link_widget[primary].isChecked():
             for image in images:
-                temp = dict(getattr(image.metadata, master))
-                self._set_date_value(image, slave, temp)
+                temp = dict(getattr(image.metadata, primary))
+                self._set_date_value(image, replica, temp)
             self._update_datetime(images=images)
             self._update_links(images=images)
         else:
-            self.date_widget[slave].set_enabled(True)
+            self.date_widget[replica].set_enabled(True)
 
     @QtSlot(str, object)
     @catch_all
@@ -875,13 +872,11 @@ class TabWidget(QtWidgets.QWidget):
             self._set_date_value(image, key, temp)
         self._update_datetime(images=images)
 
-    def _set_date_value(self, image, master, new_value):
-        while True:
-            setattr(image.metadata, master, new_value)
-            slave = self._master_slave[master]
-            if not slave or not self.link_widget[master, slave].isChecked():
-                break
-            master = slave
+    def _set_date_value(self, image, primary, new_value):
+        setattr(image.metadata, primary, new_value)
+        replica = self._linked_date[primary]
+        if replica and self.link_widget[primary].isChecked():
+            self._set_date_value(image, replica, new_value)
 
     def _update_datetime(self, images=[]):
         images = images or self.app.image_list.get_selected_images()
@@ -892,16 +887,17 @@ class TabWidget(QtWidgets.QWidget):
 
     def _update_links(self, images=[]):
         images = images or self.app.image_list.get_selected_images()
-        for master, slave in self.link_widget:
+        for primary in self.link_widget:
+            replica = self._linked_date[primary]
             for image in images:
-                if (getattr(image.metadata, master) !=
-                        getattr(image.metadata, slave)):
-                    self.link_widget[master, slave].setChecked(False)
-                    self.date_widget[slave].set_enabled(True)
+                if (getattr(image.metadata, primary) !=
+                        getattr(image.metadata, replica)):
+                    self.link_widget[primary].setChecked(False)
+                    self.date_widget[replica].set_enabled(True)
                     break
             else:
-                self.link_widget[master, slave].setChecked(True)
-                self.date_widget[slave].set_enabled(False)
+                self.link_widget[primary].setChecked(True)
+                self.date_widget[replica].set_enabled(False)
 
     def _update_widget(self, keys=[], images=[]):
         images = images or self.app.image_list.get_selected_images()
