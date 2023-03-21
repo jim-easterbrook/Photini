@@ -696,7 +696,7 @@ class TabWidget(QtWidgets.QWidget):
                            'orientation dropdown, diagonal reflection'), 5),
                 (translate('TechnicalTab', 'reflect top left to bottom right',
                            'orientation dropdown, diagonal reflection'), 7)))
-        self.widgets['orientation'].new_value.connect(self.new_orientation)
+        self.widgets['orientation'].new_value_dict.connect(self._new_value)
         self.widgets['orientation'].setFocusPolicy(Qt.FocusPolicy.NoFocus)
         other_group.layout().addRow(translate('TechnicalTab', 'Orientation'),
                                     self.widgets['orientation'])
@@ -704,35 +704,35 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['camera_model'] = CameraList('camera_model')
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
-        self.widgets['camera_model'].new_value.connect(self.new_camera_model)
+        self.widgets['camera_model'].new_value_dict.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Camera'),
                                     self.widgets['camera_model'])
         # lens model
         self.widgets['lens_model'] = LensList('lens_model')
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
-        self.widgets['lens_model'].new_value.connect(self.new_lens_model)
+        self.widgets['lens_model'].new_value_dict.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Lens model'),
                                     self.widgets['lens_model'])
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox('focal_length')
         self.widgets['focal_length'].setMinimum(0.0)
         self.widgets['focal_length'].set_suffix(' mm')
-        self.widgets['focal_length'].new_value.connect(self.new_focal_length)
+        self.widgets['focal_length'].new_value_dict.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
                                     self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = IntSpinBox('focal_length_35')
         self.widgets['focal_length_35'].setMinimum(0)
         self.widgets['focal_length_35'].set_suffix(' mm')
-        self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
+        self.widgets['focal_length_35'].new_value_dict.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
                                     self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = DoubleSpinBox('aperture')
         self.widgets['aperture'].setMinimum(0.0)
         self.widgets['aperture'].set_prefix('ƒ/')
-        self.widgets['aperture'].new_value.connect(self.new_aperture)
+        self.widgets['aperture'].new_value_dict.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Aperture'),
                                     self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
@@ -779,79 +779,55 @@ class TabWidget(QtWidgets.QWidget):
         else:
             self.widgets[replica].set_enabled(True)
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def new_orientation(self, key, value):
-        images = self.app.image_list.get_selected_images()
-        for image in images:
-            image.metadata.orientation = value
-            image.load_thumbnail()
-        self._update_widget('orientation', images=images)
-
-    @QtSlot(str, object)
-    @catch_all
-    def new_camera_model(self, key, value):
+    def _new_value(self, value):
+        key, value = list(value.items())[0]
         images = self.app.image_list.get_selected_images()
         delete_makernote = 'ask'
         for image in images:
-            if not image.metadata.camera_change_ok(value):
-                if delete_makernote == 'ask':
-                    msg = QtWidgets.QMessageBox(parent=self)
-                    msg.setWindowTitle(translate(
-                        'TechnicalTab', 'Photini: maker name change'))
-                    msg.setText('<h3>{}</h3>'.format(translate(
-                        'TechnicalTab', 'Changing maker name will'
-                        ' invalidate Exif makernote information.')))
-                    msg.setInformativeText(translate(
-                        'TechnicalTab',
-                        'Do you want to delete the Exif makernote?'))
-                    msg.setIcon(msg.Icon.Warning)
-                    msg.setStandardButtons(msg.StandardButton.YesToAll |
-                                           msg.StandardButton.NoToAll)
-                    msg.setDefaultButton(msg.StandardButton.NoToAll)
-                    delete_makernote = (
-                        execute(msg) == msg.StandardButton.YesToAll)
-                if delete_makernote:
-                    image.metadata.set_delete_makernote()
-            image.metadata.camera_model = value
-        self._update_widget('camera_model', images=images)
-
-    @QtSlot(str, object)
-    @catch_all
-    def new_lens_model(self, key, value):
-        images = self.app.image_list.get_selected_images()
-        for image in images:
-            image.metadata.lens_model = value
-        self._update_widget('lens_model', images=images)
-
-    @QtSlot(object)
-    @catch_all
-    def new_aperture(self, value):
-        images = self.app.image_list.get_selected_images()
-        for image in images:
-            image.metadata.aperture = value
-        self._update_widget('aperture', images=images)
-
-    @QtSlot(object)
-    @catch_all
-    def new_focal_length(self, value):
-        images = self.app.image_list.get_selected_images()
-        for image in images:
-            # only update 35mm equiv if already set
-            if image.metadata.focal_length_35:
+            if key == 'camera_model':
+                delete_makernote = self.ask_delete_makernote(
+                    delete_makernote, image, value)
+            elif (key == 'focal_length_35' and self.calc_35(
+                    image.metadata, image.metadata.focal_length) == value):
+                continue
+            elif key == 'focal_length' and image.metadata.focal_length_35:
+                # update 35mm equiv if already set
                 image.metadata.focal_length_35 = self.calc_35(
                     image.metadata, value)
-            image.metadata.focal_length = value
-        self._update_widget(('focal_length', 'focal_length_35'), images=images)
+            image.metadata[key] = value
+            if key == 'orientation':
+                image.load_thumbnail()
+            elif key == 'focal_length_35':
+                self.set_crop_factor(image.metadata)
+        if key == 'focal_length':
+            self._update_widget(
+                ('focal_length', 'focal_length_35'), images=images)
+        else:
+            self._update_widget(key, images=images)
 
-    @QtSlot(object)
-    @catch_all
-    def new_focal_length_35(self, value):
-        images = self.app.image_list.get_selected_images()
-        for image in images:
-            image.metadata.focal_length_35 = value
-            self.set_crop_factor(image.metadata)
-        self._update_widget(('focal_length', 'focal_length_35'), images=images)
+    def ask_delete_makernote(self, delete_makernote, image, value):
+        if not image.metadata.camera_change_ok(value):
+            if delete_makernote == 'ask':
+                msg = QtWidgets.QMessageBox(parent=self)
+                msg.setWindowTitle(translate(
+                    'TechnicalTab', 'Photini: maker name change'))
+                msg.setText('<h3>{}</h3>'.format(translate(
+                    'TechnicalTab', 'Changing maker name will'
+                    ' invalidate Exif makernote information.')))
+                msg.setInformativeText(translate(
+                    'TechnicalTab',
+                    'Do you want to delete the Exif makernote?'))
+                msg.setIcon(msg.Icon.Warning)
+                msg.setStandardButtons(msg.StandardButton.YesToAll |
+                                       msg.StandardButton.NoToAll)
+                msg.setDefaultButton(msg.StandardButton.NoToAll)
+                delete_makernote = (
+                    execute(msg) == msg.StandardButton.YesToAll)
+            if delete_makernote:
+                image.metadata.set_delete_makernote()
+        return delete_makernote
 
     @QtSlot(dict)
     @catch_all

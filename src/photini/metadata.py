@@ -813,10 +813,15 @@ class Metadata(object):
             result = 'image/raw'
         return result
 
+    # allow attributes to be accessed in dict like fashion
     def __getitem__(self, name):
-        # allow attributes to be accessed in dict like fashion
         if name in self._data_type:
             return getattr(self, name)
+        raise KeyError(name)
+
+    def __setitem__(self, name, value):
+        if name in self._data_type:
+            return setattr(self, name, value)
         raise KeyError(name)
 
     def __contains__(self, name):
