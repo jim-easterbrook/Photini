@@ -47,8 +47,10 @@ class WidgetMixin(object):
             return
         self.setEnabled(True)
         choices = []
-        for value in values:
-            value = (value and value[self._key]) or None
+        for value_dict in values:
+            value = None
+            if self._key in value_dict:
+                value = value_dict[self._key]
             if value not in choices:
                 choices.append(value)
         if len(choices) > 1:
@@ -756,6 +758,8 @@ class AugmentSpinBoxBase(WidgetMixin):
                 suggestion, text=self.textFromValue(suggestion), parent=self))
 
     def fix_up(self):
+        if self.is_multiple():
+            return True
         if self.cleanText():
             return False
         # user has deleted the value
@@ -826,7 +830,7 @@ class AugmentSpinBox(AugmentSpinBoxBase):
         self.clear()
 
     def is_multiple(self):
-        return self._is_multiple and self.lineEdit().placeholderText()
+        return self._is_multiple and bool(self.lineEdit().placeholderText())
 
     def set_prefix(self, prefix):
         self._prefix = prefix
@@ -839,15 +843,15 @@ class AugmentSpinBox(AugmentSpinBoxBase):
 
 class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
     def __init__(self, *args, **kwds):
+        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
+        self.default_value = ''
+        self.multiple = multiple_values()
         super(LatLongDisplay, self).__init__(*args, **kwds)
+        AugmentSpinBox.__init__(self)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
-        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
-        self._is_multiple = False
-        self.default_value = ''
-        self.multiple = multiple_values()
         self.setButtonSymbols(self.ButtonSymbols.NoButtons)
         self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
@@ -855,7 +859,6 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
             ' decimal numbers separated by a comma.')))
-        self.editingFinished.connect(self.emit_dict)
 
     @catch_all
     def focusOutEvent(self, event):

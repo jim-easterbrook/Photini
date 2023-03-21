@@ -213,7 +213,6 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
         AugmentDateTime.__init__(self)
-        self.editingFinished.connect(self.emit_dict)
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
@@ -270,7 +269,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         self.multiple = multiple()
         self._key = key
         super(TimeZoneWidget, self).__init__(*arg, **kw)
-        self.editingFinished.connect(self.emit_dict)
         AugmentSpinBox.__init__(self)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)

@@ -819,6 +819,9 @@ class Metadata(object):
             return getattr(self, name)
         raise KeyError(name)
 
+    def __contains__(self, name):
+        return name in self._data_type
+
     def __setattr__(self, name, value):
         if name not in self._data_type:
             return super(Metadata, self).__setattr__(name, value)
