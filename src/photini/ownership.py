@@ -121,7 +121,7 @@ class TabWidget(QtWidgets.QWidget):
         form, self.widgets = self.data_form()
         self.enableable.append(form.widget())
         for key in self.widgets:
-            self.widgets[key].new_value.connect(self.new_value)
+            self.widgets[key].new_value_dict.connect(self.new_value)
         self.layout().addWidget(form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
@@ -321,9 +321,10 @@ class TabWidget(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def new_value(self, key, value):
+    def new_value(self, value):
+        (key, value), = value.items()
         images = self.app.image_list.get_selected_images()
         for image in images:
             self._set_value(image, key, value)
