@@ -85,10 +85,19 @@ class RegionMixin(object):
         self.to_scene = QtGui.QTransform().scale(rect.width(), rect.height())
         self.from_scene = self.to_scene.inverted()[0]
         self.display_widget = display_widget
+
+    def set_colours(self):
         pen = QtGui.QPen()
-        pen.setColor(Qt.green)
+        pen.setCosmetic(True)
+        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+        pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+        pen.setColor(Qt.white)
+        pen.setWidthF(1.0)
+        self.highlight.setPen(pen)
+        pen.setColor(QtGui.QColor(0, 0, 0, 100))
+        pen.setWidthF(5.0)
         self.setPen(pen)
-        self.setBrush(QtGui.QColor(128, 230, 128, 150))
+##        self.setBrush(QtGui.QColor(0, 0, 0, 40))
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
@@ -104,9 +113,11 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         corners = self.to_scene.map(region.to_Qt(self.image))
         rect = QtCore.QRectF(corners.at(0), corners.at(1))
         self.setRect(rect)
+        self.highlight = QtWidgets.QGraphicsRectItem(parent=self)
         self.adjust_handles()
         if self.aspect_ratio:
             self.handle_drag(self.handles[3], self.handles[3].pos())
+        self.set_colours()
 
     @catch_all
     def itemChange(self, change, value):
@@ -180,6 +191,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
 
     def adjust_handles(self):
         rect = self.rect()
+        self.highlight.setRect(rect)
         self.handles[0].setPos(rect.topLeft())
         self.handles[1].setPos(rect.topRight())
         self.handles[2].setPos(rect.bottomLeft())
@@ -196,7 +208,9 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         points = self.to_scene.map(region.to_Qt(self.image))
         centre = points.at(0)
         radius = (points.at(1) - centre).manhattanLength()
+        self.highlight = QtWidgets.QGraphicsEllipseItem(parent=self)
         self.set_geometry(centre, radius)
+        self.set_colours()
 
     @catch_all
     def mouseReleaseEvent(self, event):
@@ -230,7 +244,9 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
     def set_geometry(self, centre, r):
         rx = QtCore.QPointF(r, 0)
         ry = QtCore.QPointF(0, r)
-        self.setRect(QtCore.QRectF(centre - (rx + ry), centre + (rx + ry)))
+        rect = QtCore.QRectF(centre - (rx + ry), centre + (rx + ry))
+        self.setRect(rect)
+        self.highlight.setRect(rect)
         self.handles[0].setPos(centre - rx)
         self.handles[1].setPos(centre - ry)
         self.handles[2].setPos(centre + ry)
@@ -242,14 +258,18 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         super(PointRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        # single point, draw bow tie shape
+        # single point, draw cross hairs
         pos = self.to_scene.map(region.to_Qt(self.image)).at(0)
         self.setPos(pos)
         dx = width_for_text(display_widget, 'x') * 4.0
         polygon = QtGui.QPolygonF()
-        for v in ((-dx, -dx), (-dx, dx), (dx, -dx), (dx, dx)):
+        for v in ((0, 0), (-dx, -dx), (dx, dx),
+                  (0, 0), (dx, -dx), (-dx, dx), (0, 0)):
             polygon.append(QtCore.QPointF(*v))
         self.setPolygon(polygon)
+        self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
+        self.highlight.setPolygon(polygon)
+        self.set_colours()
 
     @catch_all
     def itemChange(self, change, value):
@@ -282,6 +302,9 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
             handle.setPos(polygon.at(idx))
             self.handles.append(handle)
         self.setPolygon(polygon)
+        self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
+        self.highlight.setPolygon(polygon)
+        self.set_colours()
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -322,6 +345,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         polygon = self.polygon()
         polygon.replace(idx, pos)
         self.setPolygon(polygon)
+        self.highlight.setPolygon(polygon)
 
     def handle_drag_end(self):
         self.new_boundary()
@@ -336,6 +360,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         polygon = self.polygon()
         polygon.remove(idx)
         self.setPolygon(polygon)
+        self.highlight.setPolygon(polygon)
         self.new_boundary()
 
     def new_boundary(self):
