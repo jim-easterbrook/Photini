@@ -441,25 +441,25 @@ class TabWidget(PhotiniUploader):
                 (translate('IpernityTab', 'Family'), '1'),
                 (translate('IpernityTab', 'Family & friends'), '3')),
             default='4', with_multiple=False)
-        self.widget['visibility'].new_value.connect(self.new_value)
+        self.widget['visibility'].new_value_dict.connect(self.new_value)
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'see the photo')), 1, 0)
         group.layout().addWidget(self.widget['visibility'], 2, 0)
         # comment permission
         self.widget['perm_comment'] = PermissionWidget('perm_comment')
-        self.widget['perm_comment'].new_value.connect(self.new_value)
+        self.widget['perm_comment'].new_value_dict.connect(self.new_value)
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'post a comment')), 1, 1)
         group.layout().addWidget(self.widget['perm_comment'], 2, 1)
         # keywords & notes permission
         self.widget['perm_tag'] = PermissionWidget('perm_tag', default='4')
-        self.widget['perm_tag'].new_value.connect(self.new_value)
+        self.widget['perm_tag'].new_value_dict.connect(self.new_value)
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'add keywords, notes')), 3, 0)
         group.layout().addWidget(self.widget['perm_tag'], 4, 0)
         # people permission
         self.widget['perm_tagme'] = PermissionWidget('perm_tagme', default='4')
-        self.widget['perm_tagme'].new_value.connect(self.new_value)
+        self.widget['perm_tagme'].new_value_dict.connect(self.new_value)
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'identify people')), 3, 1)
         group.layout().addWidget(self.widget['perm_tagme'], 4, 1)
@@ -471,7 +471,7 @@ class TabWidget(PhotiniUploader):
         group.setLayout(FormLayout(wrapped=True))
         # licence
         self.widget['license'] = LicenceWidget('license')
-        self.widget['license'].new_value.connect(self.new_value)
+        self.widget['license'].new_value_dict.connect(self.new_value)
         group.layout().addRow(
             translate('IpernityTab', 'Licence'), self.widget['license'])
         column.addWidget(group, 1, 0, 2, 1)
@@ -497,9 +497,10 @@ class TabWidget(PhotiniUploader):
                 self.widget[key].set_value(
                     self.app.config_store.get('ipernity', key))
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def new_value(self, key, value):
+    def new_value(self, value):
+        (key, value), = value.items()
         self.app.config_store.set('ipernity', key, value)
 
     def accepted_image_type(self, file_type):
