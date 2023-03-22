@@ -556,11 +556,12 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.edit.new_value_dict.connect(self._new_value)
         layout.addWidget(self.edit, *edit_pos)
         # language drop down
-        self.lang = DropDownSelector('', with_multiple=False, extendable=True)
+        self.lang = DropDownSelector(
+            'lang', with_multiple=False, extendable=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
         self.lang.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.lang.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.lang.new_value.connect(self._change_lang)
+        self.lang.new_value_dict.connect(self._change_lang)
         self.lang.customContextMenuRequested.connect(self._context_menu)
         layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
@@ -574,9 +575,10 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def setToolTip(self, text):
         self.edit.setToolTip(text)
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def _change_lang(self, key, lang):
+    def _change_lang(self, value):
+        lang = value['lang']
         if lang == MD_LangAlt.DEFAULT:
             direction = self.layoutDirection()
         else:
@@ -703,7 +705,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.set_values(
             [self.labeled_lang(x) for x in self.value.languages()],
             default=lang)
-        self._change_lang('', lang)
+        self._change_lang({'lang': lang})
 
     def get_value(self):
         return self.value
