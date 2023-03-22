@@ -1251,6 +1251,9 @@ class MD_Rational(MD_Value, Fraction):
     def to_xmp(self):
         return '{}/{}'.format(self.numerator, self.denominator)
 
+    def compact_form(self):
+        return float(self)
+
     def __bool__(self):
         # reinterpret to mean "has a value", even if the value is zero
         return True
