@@ -596,7 +596,7 @@ class UnitSelector(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def state_changed(self):
-        self.new_value_dict.emit({self._key, self.get_value()})
+        self.new_value.emit({self._key, self.get_value()})
 
     def get_value(self):
         for key, widget in self.buttons.items():
@@ -632,7 +632,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
-        self.widgets[key].new_value_dict.connect(self.emit_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
@@ -641,7 +641,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Identifier of the region. Must be unique among all'
             ' Region Identifiers of an image. Does not have to be unique beyond'
             ' the metadata of this image.')))
-        self.widgets[key].new_value_dict.connect(self.emit_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # units
         key = 'Iptc4xmpExt:RegionBoundary/Iptc4xmpExt:rbUnit'
@@ -659,7 +659,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Role of this region among all regions of this image'
             ' or of other images. The value SHOULD be taken from a Controlled'
             ' Vocabulary.')))
-        self.widgets[key].new_value_dict.connect(self.emit_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
@@ -668,7 +668,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
             ' Vocabulary.')))
-        self.widgets[key].new_value_dict.connect(self.emit_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
@@ -677,7 +677,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
-        self.widgets[key].new_value_dict.connect(self.emit_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
         # description
@@ -687,7 +687,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter a "caption" describing the who, what, and why'
             ' of what is happening in this region.')))
-        self.widgets[key].new_value_dict.connect(self.emit_value)
+        self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(self.widgets[key])
 
     @QtSlot(dict)
@@ -716,7 +716,7 @@ class RegionForm(QtWidgets.QScrollArea):
             self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
                 'RegionsTab', 'The Image Region Structure includes optionally'
                 ' any metadata property which is related to the region.')))
-            self.widgets[key].new_value_dict.connect(self.emit_value)
+            self.widgets[key].new_value.connect(self.emit_value)
             if label:
                 layout.addRow(label, self.widgets[key])
             else:

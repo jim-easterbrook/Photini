@@ -27,13 +27,13 @@ translate = QtCore.QCoreApplication.translate
 
 
 class WidgetMixin(object):
-    new_value_dict = QtSignal(dict)
+    new_value = QtSignal(dict)
 
     @QtSlot()
     @catch_all
     def emit_dict(self):
         if not self.is_multiple():
-            self.new_value_dict.emit(self.get_value_dict())
+            self.new_value.emit(self.get_value_dict())
 
     def get_value_dict(self):
         if self.is_multiple():
@@ -542,7 +542,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
             policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
             self.setSizePolicy(policy)
             self.edit = SingleLineEdit(key, **kw)
-        self.edit.new_value_dict.connect(self._new_value)
+        self.edit.new_value.connect(self._new_value)
         layout.addWidget(self.edit, *edit_pos)
         # language drop down
         self.lang = DropDownSelector(
@@ -550,7 +550,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
         self.lang.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.lang.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.lang.new_value_dict.connect(self._change_lang)
+        self.lang.new_value.connect(self._change_lang)
         self.lang.customContextMenuRequested.connect(self._context_menu)
         layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)

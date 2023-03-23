@@ -216,7 +216,7 @@ class PhotiniMap(QtWidgets.QWidget):
         # latitude & longitude
         self.widgets['latlon'] = LatLongDisplay()
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
-        self.widgets['latlon'].new_value_dict.connect(self.new_latlon)
+        self.widgets['latlon'].new_value.connect(self.new_latlon)
         left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
         label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))
@@ -224,7 +224,7 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.addWidget(label, 1, 0)
         self.widgets['alt'] = DoubleSpinBox('exif:GPSAltitude')
         self.widgets['alt'].set_suffix(' m')
-        self.widgets['alt'].new_value_dict.connect(self.new_value)
+        self.widgets['alt'].new_value.connect(self.new_value)
         left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
             self.widgets['get_altitude'] = QtWidgets.QPushButton(

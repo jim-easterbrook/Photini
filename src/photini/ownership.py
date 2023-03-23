@@ -121,7 +121,7 @@ class TabWidget(QtWidgets.QWidget):
         form, self.widgets = self.data_form()
         self.enableable.append(form.widget())
         for key in self.widgets:
-            self.widgets[key].new_value_dict.connect(self.new_value)
+            self.widgets[key].new_value.connect(self.new_value)
         self.layout().addWidget(form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()

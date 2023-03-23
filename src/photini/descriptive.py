@@ -56,7 +56,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.display)
         # adopt child methods/signals
         self.is_multiple = self.slider.is_multiple
-        self.new_value_dict = self.slider.new_value_dict
+        self.new_value = self.slider.new_value
         # over-ride child methods
         self.slider.get_value = self.get_value
 
@@ -122,7 +122,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.set_value = self.edit.set_value
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
-        self.new_value_dict = self.edit.new_value_dict
+        self.new_value = self.edit.new_value
 
     def update_favourites(self):
         self.favourites.clear()
@@ -194,7 +194,7 @@ class TabWidget(QtWidgets.QScrollArea):
         self.widgets['title'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.')))
-        self.widgets['title'].new_value_dict.connect(self.new_value)
+        self.widgets['title'].new_value.connect(self.new_value)
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
@@ -205,7 +205,7 @@ class TabWidget(QtWidgets.QScrollArea):
         self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
             ' of the contents of the image.')))
-        self.widgets['headline'].new_value_dict.connect(self.new_value)
+        self.widgets['headline'].new_value.connect(self.new_value)
         layout.addRow(translate('DescriptiveTab', 'Headline'),
                       self.widgets['headline'])
         # description
@@ -217,7 +217,7 @@ class TabWidget(QtWidgets.QScrollArea):
             ' and why of what is happening in this image, this might include'
             ' names of people, and/or their role in the action that is taking'
             ' place within the image.')))
-        self.widgets['description'].new_value_dict.connect(self.new_value)
+        self.widgets['description'].new_value.connect(self.new_value)
         layout.addRow(translate('DescriptiveTab', 'Description / Caption'),
                       self.widgets['description'])
         # alt text
@@ -228,7 +228,7 @@ class TabWidget(QtWidgets.QScrollArea):
             'DescriptiveTab', 'Enter text describing the appearance of the'
             ' image from a visual perspective, focusing on details that are'
             ' relevant to the purpose and meaning of the image.')))
-        self.widgets['alt_text'].new_value_dict.connect(self.new_value)
+        self.widgets['alt_text'].new_value.connect(self.new_value)
         layout.addRow(
             Label(translate('DescriptiveTab', 'Alt Text (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text'])
@@ -242,7 +242,7 @@ class TabWidget(QtWidgets.QScrollArea):
             ' This property does not have a character limitation and is not'
             ' required if the Alt Text (Accessibility) field sufficiently'
             ' describes the image..')))
-        self.widgets['alt_text_ext'].new_value_dict.connect(self.new_value)
+        self.widgets['alt_text_ext'].new_value.connect(self.new_value)
         layout.addRow(
             Label(translate('DescriptiveTab',
                             'Extended Description (Accessibility)'),
@@ -255,13 +255,13 @@ class TabWidget(QtWidgets.QScrollArea):
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.')))
-        self.widgets['keywords'].new_value_dict.connect(self.new_value)
+        self.widgets['keywords'].new_value.connect(self.new_value)
         layout.addRow(translate('DescriptiveTab', 'Keywords'),
                       self.widgets['keywords'])
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
         # rating
         self.widgets['rating'] = RatingWidget('rating')
-        self.widgets['rating'].new_value_dict.connect(self.new_value)
+        self.widgets['rating'].new_value.connect(self.new_value)
         layout.addRow(translate('DescriptiveTab', 'Rating'),
                       self.widgets['rating'])
         # disable until an image is selected

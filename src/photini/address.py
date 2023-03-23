@@ -183,8 +183,7 @@ class LocationInfo(QtWidgets.QScrollArea):
             'Iptc4xmpExt:LocationName', multi_line=False)
         self.members['LocationName'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Enter a full name of the location.')))
-        self.members['LocationName'].new_value_dict.connect(
-            self.editing_finished)
+        self.members['LocationName'].new_value.connect(self.editing_finished)
         for (key, tool_tip) in (
                 ('Sublocation', translate(
                     'AddressTab', 'Enter the name of the sublocation.')),
@@ -205,15 +204,14 @@ class LocationInfo(QtWidgets.QScrollArea):
             self.members[key] = SingleLineEdit(
                 'Iptc4xmpExt:' + key, length_check=ImageMetadata.max_bytes(key))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
-            self.members[key].new_value_dict.connect(self.editing_finished)
+            self.members[key].new_value.connect(self.editing_finished)
         self.members['latlon'] = LatLongDisplay()
-        self.members['latlon'].new_value_dict.connect(self.editing_finished)
+        self.members['latlon'].new_value.connect(self.editing_finished)
         self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
         self.members['alt'].set_suffix(' m')
         self.members['alt'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Altitude of the location in metres.')))
-        self.members['alt'].new_value_dict.connect(
-            self.editing_finished)
+        self.members['alt'].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),

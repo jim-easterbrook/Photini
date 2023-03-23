@@ -387,9 +387,9 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, WidgetMixin):
         # connections
         self.members['precision'].value_changed.connect(
             self.members['datetime'].set_precision)
-        self.members['datetime'].new_value_dict.connect(self.editing_finished)
-        self.members['tz_offset'].new_value_dict.connect(self.editing_finished)
-        self.members['precision'].new_value_dict.connect(self.editing_finished)
+        self.members['datetime'].new_value.connect(self.editing_finished)
+        self.members['tz_offset'].new_value.connect(self.editing_finished)
+        self.members['precision'].new_value.connect(self.editing_finished)
 
     def set_enabled(self, enabled):
         for widget in self.members.values():
@@ -650,7 +650,7 @@ class TabWidget(QtWidgets.QWidget):
         # create date and link widgets
         for key in ('date_taken', 'date_digitised', 'date_modified'):
             self.widgets[key] = DateAndTimeWidget(key)
-            self.widgets[key].new_value_dict.connect(self.new_date_value)
+            self.widgets[key].new_value.connect(self.new_date_value)
         for key in self._linked_date:
             self.link_widget[key] = DateLink(key, self._linked_date[key])
             self.link_widget[key].new_link.connect(self.new_link)
@@ -696,7 +696,7 @@ class TabWidget(QtWidgets.QWidget):
                            'orientation dropdown, diagonal reflection'), 5),
                 (translate('TechnicalTab', 'reflect top left to bottom right',
                            'orientation dropdown, diagonal reflection'), 7)))
-        self.widgets['orientation'].new_value_dict.connect(self._new_value)
+        self.widgets['orientation'].new_value.connect(self._new_value)
         self.widgets['orientation'].setFocusPolicy(Qt.FocusPolicy.NoFocus)
         other_group.layout().addRow(translate('TechnicalTab', 'Orientation'),
                                     self.widgets['orientation'])
@@ -704,35 +704,35 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['camera_model'] = CameraList('camera_model')
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
-        self.widgets['camera_model'].new_value_dict.connect(self._new_value)
+        self.widgets['camera_model'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Camera'),
                                     self.widgets['camera_model'])
         # lens model
         self.widgets['lens_model'] = LensList('lens_model')
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
-        self.widgets['lens_model'].new_value_dict.connect(self._new_value)
+        self.widgets['lens_model'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Lens model'),
                                     self.widgets['lens_model'])
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox('focal_length')
         self.widgets['focal_length'].setMinimum(0.0)
         self.widgets['focal_length'].set_suffix(' mm')
-        self.widgets['focal_length'].new_value_dict.connect(self._new_value)
+        self.widgets['focal_length'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
                                     self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = IntSpinBox('focal_length_35')
         self.widgets['focal_length_35'].setMinimum(0)
         self.widgets['focal_length_35'].set_suffix(' mm')
-        self.widgets['focal_length_35'].new_value_dict.connect(self._new_value)
+        self.widgets['focal_length_35'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
                                     self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = DoubleSpinBox('aperture')
         self.widgets['aperture'].setMinimum(0.0)
         self.widgets['aperture'].set_prefix('ƒ/')
-        self.widgets['aperture'].new_value_dict.connect(self._new_value)
+        self.widgets['aperture'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Aperture'),
                                     self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
