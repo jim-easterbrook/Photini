@@ -372,7 +372,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class ImageDisplayWidget(QtWidgets.QGraphicsView):
-    new_value = QtSignal(int, str, object)
+    new_value = QtSignal(int, dict)
 
     def __init__(self, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
@@ -468,7 +468,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.ensureVisible(self.boundary.boundingRect())
 
     def new_boundary(self, boundary):
-        self.new_value.emit(self.idx, 'Iptc4xmpExt:RegionBoundary', boundary)
+        self.new_value.emit(self.idx, {'Iptc4xmpExt:RegionBoundary': boundary})
 
 
 class EntityConceptWidget(SingleLineEdit):
@@ -511,7 +511,7 @@ class EntityConceptWidget(SingleLineEdit):
     @QtSlot(bool)
     @catch_all
     def emit_value(self, checked=None):
-        self.new_value.emit(self._key, self.get_value())
+        self.emit_dict()
 
     def set_value(self, value):
         value = value or []
@@ -568,7 +568,7 @@ class EntityConceptWidget(SingleLineEdit):
 
 
 class UnitSelector(QtWidgets.QWidget):
-    new_value = QtSignal(str, object)
+    new_value = QtSignal(dict)
 
     def __init__(self, key, *arg, **kw):
         super(UnitSelector, self).__init__(*arg, **kw)
@@ -596,7 +596,7 @@ class UnitSelector(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def state_changed(self):
-        self.new_value.emit(self._key, self.get_value())
+        self.new_value_dict.emit({self._key, self.get_value()})
 
     def get_value(self):
         for key, widget in self.buttons.items():
@@ -611,7 +611,7 @@ class UnitSelector(QtWidgets.QWidget):
 
 class RegionForm(QtWidgets.QScrollArea):
     name_changed = QtSignal(object, str)
-    new_value = QtSignal(int, str, object)
+    new_value = QtSignal(int, dict)
 
     def __init__(self, idx, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
@@ -632,7 +632,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
-        self.widgets[key].new_value.connect(self.emit_value)
+        self.widgets[key].new_value_dict.connect(self.emit_value)
         layout.addRow(self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
@@ -641,7 +641,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Identifier of the region. Must be unique among all'
             ' Region Identifiers of an image. Does not have to be unique beyond'
             ' the metadata of this image.')))
-        self.widgets[key].new_value.connect(self.emit_value)
+        self.widgets[key].new_value_dict.connect(self.emit_value)
         layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # units
         key = 'Iptc4xmpExt:RegionBoundary/Iptc4xmpExt:rbUnit'
@@ -659,7 +659,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'Role of this region among all regions of this image'
             ' or of other images. The value SHOULD be taken from a Controlled'
             ' Vocabulary.')))
-        self.widgets[key].new_value.connect(self.emit_value)
+        self.widgets[key].new_value_dict.connect(self.emit_value)
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
@@ -668,7 +668,7 @@ class RegionForm(QtWidgets.QScrollArea):
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
             ' Vocabulary.')))
-        self.widgets[key].new_value.connect(self.emit_value)
+        self.widgets[key].new_value_dict.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
@@ -677,7 +677,7 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
-        self.widgets[key].new_value.connect(self.emit_value)
+        self.widgets[key].new_value_dict.connect(self.emit_value)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
         # description
@@ -687,13 +687,13 @@ class RegionForm(QtWidgets.QScrollArea):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter a "caption" describing the who, what, and why'
             ' of what is happening in this region.')))
-        self.widgets[key].new_value.connect(self.emit_value)
+        self.widgets[key].new_value_dict.connect(self.emit_value)
         layout.addRow(self.widgets[key])
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def emit_value(self, key, value):
-        self.new_value.emit(self.idx, key, value)
+    def emit_value(self, value):
+        self.new_value.emit(self.idx, value)
 
     def set_value(self, region):
         self.region = region
@@ -716,7 +716,7 @@ class RegionForm(QtWidgets.QScrollArea):
             self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
                 'RegionsTab', 'The Image Region Structure includes optionally'
                 ' any metadata property which is related to the region.')))
-            self.widgets[key].new_value.connect(self.emit_value)
+            self.widgets[key].new_value_dict.connect(self.emit_value)
             if label:
                 layout.addRow(label, self.widgets[key])
             else:
@@ -843,9 +843,10 @@ class RegionTabs(QtWidgets.QTabWidget):
     def tab_name_changed(self, widget, name):
         self.setTabText(self.indexOf(widget), name)
 
-    @QtSlot(int, str, object)
+    @QtSlot(int, dict)
     @catch_all
-    def new_value(self, idx, key, value):
+    def new_value(self, idx, value):
+        (key, value), = value.items()
         md = self.image.metadata
         region = md.image_region[idx]
         if 'rbUnit' in key:
