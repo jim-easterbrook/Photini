@@ -31,7 +31,7 @@ translate = QtCore.QCoreApplication.translate
 
 
 class ResizeHandle(QtWidgets.QGraphicsRectItem):
-    def __init__(self, *arg, **kw):
+    def __init__(self, draw_unit, *arg, **kw):
         super(ResizeHandle, self).__init__(*arg, **kw)
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
@@ -39,7 +39,7 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         pen.setColor(Qt.white)
         self.setPen(pen)
         widget = QtWidgets.QWidget()
-        r = width_for_text(widget, 'x') * 0.8
+        r = draw_unit * 5
         self.setRect(-r, -r, r * 2, r * 2)
         border = QtWidgets.QGraphicsRectItem(parent=self)
         pen.setColor(Qt.black)
@@ -86,22 +86,22 @@ class RegionMixin(object):
         self.from_scene = self.to_scene.inverted()[0]
         self.display_widget = display_widget
 
-    def set_colours(self):
+    def set_style(self, draw_unit):
         pen = QtGui.QPen()
         pen.setCosmetic(True)
         pen.setCapStyle(Qt.PenCapStyle.RoundCap)
         pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         pen.setColor(Qt.white)
-        pen.setWidthF(1.0)
+        pen.setWidthF(draw_unit)
         self.highlight.setPen(pen)
         pen.setColor(QtGui.QColor(0, 0, 0, 100))
-        pen.setWidthF(5.0)
+        pen.setWidthF(draw_unit * 5.0)
         self.setPen(pen)
 ##        self.setBrush(QtGui.QColor(0, 0, 0, 40))
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
-    def __init__(self, region, display_widget,
+    def __init__(self, region, display_widget, draw_unit,
                  aspect_ratio=0.0, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget)
@@ -109,7 +109,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.aspect_ratio = aspect_ratio
         self.handles = []
         for idx in range(4):
-            self.handles.append(ResizeHandle(parent=self))
+            self.handles.append(ResizeHandle(draw_unit, parent=self))
         corners = self.to_scene.map(region.to_Qt(self.image))
         rect = QtCore.QRectF(corners.at(0), corners.at(1))
         self.setRect(rect)
@@ -117,7 +117,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.adjust_handles()
         if self.aspect_ratio:
             self.handle_drag(self.handles[3], self.handles[3].pos())
-        self.set_colours()
+        self.set_style(draw_unit)
 
     @catch_all
     def itemChange(self, change, value):
@@ -199,18 +199,18 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
 
 
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
-    def __init__(self, region, display_widget, *arg, **kw):
+    def __init__(self, region, display_widget, draw_unit, *arg, **kw):
         super(CircleRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget)
         self.handles = []
         for idx in range(4):
-            self.handles.append(ResizeHandle(parent=self))
+            self.handles.append(ResizeHandle(draw_unit, parent=self))
         points = self.to_scene.map(region.to_Qt(self.image))
         centre = points.at(0)
         radius = (points.at(1) - centre).manhattanLength()
         self.highlight = QtWidgets.QGraphicsEllipseItem(parent=self)
         self.set_geometry(centre, radius)
-        self.set_colours()
+        self.set_style(draw_unit)
 
     @catch_all
     def mouseReleaseEvent(self, event):
@@ -254,14 +254,14 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
 
 
 class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, region, display_widget, *arg, **kw):
+    def __init__(self, region, display_widget, draw_unit, *arg, **kw):
         super(PointRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw cross hairs
         pos = self.to_scene.map(region.to_Qt(self.image)).at(0)
         self.setPos(pos)
-        dx = width_for_text(display_widget, 'x') * 4.0
+        dx = draw_unit * 20
         polygon = QtGui.QPolygonF()
         for v in ((0, 0), (-dx, -dx), (dx, dx),
                   (0, 0), (dx, -dx), (-dx, dx), (0, 0)):
@@ -269,7 +269,7 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.setPolygon(polygon)
         self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
         self.highlight.setPolygon(polygon)
-        self.set_colours()
+        self.set_style(draw_unit)
 
     @catch_all
     def itemChange(self, change, value):
@@ -292,7 +292,7 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, region, display_widget, *arg, **kw):
+    def __init__(self, region, display_widget, draw_unit, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget)
         polygon = self.to_scene.map(region.to_Qt(self.image))
@@ -304,7 +304,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.setPolygon(polygon)
         self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
         self.highlight.setPolygon(polygon)
-        self.set_colours()
+        self.set_style(draw_unit)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -442,6 +442,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             self.boundary = None
         if not region:
             return
+        # a dimension to set the size of elements such as line thickness
+        draw_unit = width_for_text(self, 'x') * 0.14
         boundary = region['Iptc4xmpExt:RegionBoundary']
         if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
             aspect_ratio = 0.0
@@ -457,13 +459,13 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             if aspect_ratio and self.transform().isRotating():
                 aspect_ratio = 1.0 / aspect_ratio
             self.boundary = RectangleRegion(
-                region, self, aspect_ratio=aspect_ratio)
+                region, self, draw_unit, aspect_ratio=aspect_ratio)
         elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
-            self.boundary = CircleRegion(region, self)
+            self.boundary = CircleRegion(region, self, draw_unit)
         elif len(boundary['Iptc4xmpExt:rbVertices']) == 1:
-            self.boundary = PointRegion(region, self)
+            self.boundary = PointRegion(region, self, draw_unit)
         else:
-            self.boundary = PolygonRegion(region, self)
+            self.boundary = PolygonRegion(region, self, draw_unit)
         scene.addItem(self.boundary)
         self.ensureVisible(self.boundary.boundingRect())
 
