@@ -814,6 +814,7 @@ class RegionTabs(QtWidgets.QTabWidget):
         self.setCurrentIndex(current)
 
     def set_image(self, image):
+        current = self.currentIndex()
         self.clear()
         self.image = image
         regions = (image and image.metadata.image_region) or []
@@ -828,6 +829,7 @@ class RegionTabs(QtWidgets.QTabWidget):
             region_form.new_value.connect(self.new_value)
             self.addTab(region_form, str(idx + 1))
             region_form.set_value(region)
+        self.setCurrentIndex(current)
 
     @QtSlot(int)
     @catch_all
