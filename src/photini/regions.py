@@ -92,10 +92,10 @@ class RegionMixin(object):
         pen.setCapStyle(Qt.PenCapStyle.RoundCap)
         pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         pen.setColor(Qt.white)
-        pen.setWidthF(draw_unit)
+        pen.setWidthF(draw_unit * 1.5)
         self.highlight.setPen(pen)
-        pen.setColor(QtGui.QColor(0, 0, 0, 100))
-        pen.setWidthF(draw_unit * 5.0)
+        pen.setColor(QtGui.QColor(0, 0, 0, 120))
+        pen.setWidthF(draw_unit * 5.5)
         self.setPen(pen)
 ##        self.setBrush(QtGui.QColor(0, 0, 0, 40))
 
@@ -376,6 +376,12 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
 
     def __init__(self, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
+        self.setRenderHint(
+            QtGui.QPainter.RenderHint.Antialiasing, True)
+        self.setRenderHint(
+            QtGui.QPainter.RenderHint.HighQualityAntialiasing, True)
+        self.setRenderHint(
+            QtGui.QPainter.RenderHint.SmoothPixmapTransform, True)
         self.setScene(QtWidgets.QGraphicsScene())
         self.boundary = None
 
