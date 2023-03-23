@@ -668,8 +668,7 @@ class MD_Structure(MD_Value, dict):
     def __init__(self, value=None):
         value = value or {}
         # deep copy initial values
-        value = dict((k, self.get_type(k, v)(v))
-                     for (k, v) in value.items() if v)
+        value = dict((k, self.get_type(k, v)(v)) for (k, v) in value.items())
         # set missing values to empty
         for k in self.item_type:
             if k not in value:
