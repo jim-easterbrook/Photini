@@ -352,7 +352,7 @@ class PrecisionSlider(Slider):
         if value >= 4:
             value += 1
         self.value_changed.emit(value)
-        self.emit_dict()
+        self.emit_value()
 
     def get_value(self):
         value = super(PrecisionSlider, self).get_value()
@@ -411,7 +411,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, WidgetMixin):
     @QtSlot(dict)
     @catch_all
     def editing_finished(self, value):
-        self.emit_dict()
+        self.emit_value()
 
     def is_multiple(self):
         return False

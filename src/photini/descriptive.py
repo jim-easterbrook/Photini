@@ -169,7 +169,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         if current_value:
             new_value = current_value + '; ' + new_value
         self.set_value(new_value)
-        self.edit.emit_dict()
+        self.edit.emit_value()
 
 
 class TabWidget(QtWidgets.QScrollArea):

@@ -31,7 +31,7 @@ class WidgetMixin(object):
 
     @QtSlot()
     @catch_all
-    def emit_dict(self):
+    def emit_value(self):
         if not self.is_multiple():
             self.new_value.emit(self.get_value_dict())
 
@@ -204,7 +204,7 @@ class DropDownSelector(ComboBox, WidgetMixin):
         if idx < self._last_idx():
             # normal item selection
             self._old_idx = idx
-            self.emit_dict()
+            self.emit_value()
             return
         # user must have clicked '<new>'
         blocked = self.blockSignals(True)
@@ -223,7 +223,7 @@ class DropDownSelector(ComboBox, WidgetMixin):
             self._old_idx = self.add_item(text, data)
         self.setCurrentIndex(self._old_idx)
         self.blockSignals(blocked)
-        self.emit_dict()
+        self.emit_value()
 
     def _last_idx(self):
         idx = self.count()
@@ -313,7 +313,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
 
     @catch_all
     def focusOutEvent(self, event):
-        self.emit_dict()
+        self.emit_value()
         super(MultiLineEdit, self).focusOutEvent(event)
 
     @catch_all
@@ -360,7 +360,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
                 self.set_value(action.data())
-                self.emit_dict()
+                self.emit_value()
             else:
                 cursor.setPosition(block_pos + start)
                 cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
@@ -442,7 +442,7 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
     @catch_all
     def focusOutEvent(self, event):
         self.editing_finished.emit()
-        self.emit_dict()
+        self.emit_value()
         super(Slider, self).focusOutEvent(event)
 
     @QtSlot()
@@ -589,7 +589,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
             new_value = dict(self.value)
             new_value[self.lang.get_value()] = value.strip()
             self.value = MD_LangAlt(new_value, default_lang=default_lang)
-        self.emit_dict()
+        self.emit_value()
 
     def _regularise_default(self):
         if not self.value[MD_LangAlt.DEFAULT]:
@@ -626,7 +626,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         new_value = dict(self.value)
         new_value[lang] = text
         self.value = MD_LangAlt(new_value, default_lang=default_lang)
-        self.emit_dict()
+        self.emit_value()
         return self.labeled_lang(lang)
 
     @QtSlot(QtCore.QPoint)
@@ -655,7 +655,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
 
     def _set_default_lang(self, lang):
         self.value = MD_LangAlt(self.value, default_lang=lang)
-        self.emit_dict()
+        self.emit_value()
 
     def labeled_lang(self, lang):
         if lang == MD_LangAlt.DEFAULT:
@@ -714,7 +714,7 @@ class AugmentSpinBoxBase(WidgetMixin):
             self.setAlignment(
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.set_value(None)
-        self.editingFinished.connect(self.emit_dict)
+        self.editingFinished.connect(self.emit_value)
 
     class ContextAction(QtGui2.QAction):
         def __init__(self, value, *arg, **kw):
@@ -726,7 +726,7 @@ class AugmentSpinBoxBase(WidgetMixin):
         @catch_all
         def set_value(self):
             self.parent().set_value(self.data())
-            self.parent().emit_dict()
+            self.parent().emit_value()
 
     def context_menu_event(self):
         if self.is_multiple() and self.choices:
@@ -838,7 +838,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
 
     @catch_all
     def focusOutEvent(self, event):
-        self.emit_dict()
+        self.emit_value()
         super(LatLongDisplay, self).focusOutEvent(event)
 
     @catch_all
@@ -863,7 +863,7 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
                 self.set_value(action.data())
-                self.emit_dict()
+                self.emit_value()
 
     def stepEnabled(self):
         return self.StepEnabledFlag.StepNone

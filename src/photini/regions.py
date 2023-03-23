@@ -491,7 +491,7 @@ class EntityConceptWidget(SingleLineEdit):
                     'Iptc4xmpExt:Name': item['name']}
             action.setData(data)
             action.toggled.connect(self.update_display)
-            action.triggered.connect(self.emit_value)
+            action.triggered.connect(self.action_triggered)
             self.actions.append(action)
 
     def mousePressEvent(self, event):
@@ -510,8 +510,8 @@ class EntityConceptWidget(SingleLineEdit):
 
     @QtSlot(bool)
     @catch_all
-    def emit_value(self, checked=None):
-        self.emit_dict()
+    def action_triggered(self, checked=None):
+        self.emit_value()
 
     def set_value(self, value):
         value = value or []
@@ -554,7 +554,7 @@ class EntityConceptWidget(SingleLineEdit):
             action.setChecked(True)
             action.setData(data)
             action.toggled.connect(self.update_display)
-            action.triggered.connect(self.emit_value)
+            action.triggered.connect(self.action_triggered)
             self.actions.append(action)
         self._updating = False
         self.update_display()
