@@ -467,7 +467,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         else:
             self.boundary = PolygonRegion(region, self, draw_unit)
         scene.addItem(self.boundary)
-        self.ensureVisible(self.boundary.boundingRect())
+        self.ensureVisible(self.boundary)
 
     def new_boundary(self, boundary):
         self.new_value.emit(self.idx, {'Iptc4xmpExt:RegionBoundary': boundary})
