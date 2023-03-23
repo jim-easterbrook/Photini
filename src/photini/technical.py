@@ -178,6 +178,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
     @catch_all
     def stepBy(self, steps):
         self.set_not_multiple()
+        self.init_stepping()
         return super(IntSpinBox, self).stepBy(steps)
 
     @catch_all
@@ -231,6 +232,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
     @catch_all
     def stepBy(self, steps):
         self.set_not_multiple()
+        self.init_stepping()
         return super(DateTimeEdit, self).stepBy(steps)
 
     @catch_all
@@ -287,6 +289,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
     @catch_all
     def stepBy(self, steps):
         self.set_not_multiple()
+        self.init_stepping()
         return super(TimeZoneWidget, self).stepBy(steps)
 
     @catch_all

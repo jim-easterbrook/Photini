@@ -749,6 +749,10 @@ class AugmentSpinBoxBase(WidgetMixin):
         self.set_value(None)
         return True
 
+    def init_stepping(self):
+        if self.get_value() is None:
+            self.setValue(self.default_value)
+
     def get_value(self):
         value = self.value()
         if value == self.minimum() and self.specialValueText():
@@ -954,6 +958,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
     @catch_all
     def stepBy(self, steps):
         self.set_not_multiple()
+        self.init_stepping()
         return super(DoubleSpinBox, self).stepBy(steps)
 
     @catch_all
