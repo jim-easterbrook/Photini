@@ -440,7 +440,7 @@ class MetadataHandler(object):
             elif value.xmpStruct() == exiv2.XmpStruct.xsStruct:
                 value = {}
             else:
-                array_type = value.xmpArrayType(value)
+                array_type = value.xmpArrayType()
                 if array_type == exiv2.XmpArrayType.xaNone:
                     value = str(value)
                 else:
