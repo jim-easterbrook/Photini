@@ -113,8 +113,6 @@ class CompactButton(QtWidgets.QPushButton):
 
 
 class DropDownSelector(ComboBox, WidgetMixin):
-    new_value = QtSignal(str, object)
-
     def __init__(self, key, values=[], default=None,
                  with_multiple=True, extendable=False, ordered=False):
         super(DropDownSelector, self).__init__()
@@ -206,7 +204,6 @@ class DropDownSelector(ComboBox, WidgetMixin):
         if idx < self._last_idx():
             # normal item selection
             self._old_idx = idx
-            self.new_value.emit(self._key, self.itemData(idx))
             self.emit_dict()
             return
         # user must have clicked '<new>'
@@ -226,7 +223,6 @@ class DropDownSelector(ComboBox, WidgetMixin):
             self._old_idx = self.add_item(text, data)
         self.setCurrentIndex(self._old_idx)
         self.blockSignals(blocked)
-        self.new_value.emit(self._key, data)
         self.emit_dict()
 
     def _last_idx(self):
@@ -299,8 +295,6 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
-    new_value = QtSignal(str, object)
-
     def __init__(self, key, *arg, spell_check=False, length_check=None,
                  multi_string=False, length_always=False, min_width=None, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
@@ -320,8 +314,6 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
     @catch_all
     def focusOutEvent(self, event):
         self.emit_dict()
-        if not self._is_multiple:
-            self.new_value.emit(self._key, self.get_value())
         super(MultiLineEdit, self).focusOutEvent(event)
 
     @catch_all
@@ -368,7 +360,6 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
                 self.set_value(action.data())
-                self.new_value.emit(self._key, self.get_value())
                 self.emit_dict()
             else:
                 cursor.setPosition(block_pos + start)
@@ -522,8 +513,6 @@ class StartStopButton(QtWidgets.QPushButton):
 
 
 class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
-    new_value = QtSignal(str, object)
-
     def __init__(self, key, multi_line=True, label=None, **kw):
         super(LangAltWidget, self).__init__()
         layout = QtWidgets.QGridLayout()
@@ -600,7 +589,6 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
             new_value = dict(self.value)
             new_value[self.lang.get_value()] = value.strip()
             self.value = MD_LangAlt(new_value, default_lang=default_lang)
-        self.new_value.emit(self._key, self.get_value())
         self.emit_dict()
 
     def _regularise_default(self):
@@ -638,7 +626,6 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         new_value = dict(self.value)
         new_value[lang] = text
         self.value = MD_LangAlt(new_value, default_lang=default_lang)
-        self.new_value.emit(self._key, self.get_value())
         self.emit_dict()
         return self.labeled_lang(lang)
 
@@ -668,7 +655,6 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
 
     def _set_default_lang(self, lang):
         self.value = MD_LangAlt(self.value, default_lang=lang)
-        self.new_value.emit(self._key, self.get_value())
         self.emit_dict()
 
     def labeled_lang(self, lang):
@@ -719,8 +705,6 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
 
 
 class AugmentSpinBoxBase(WidgetMixin):
-    new_value = QtSignal(object)
-
     def __init__(self):
         self._is_multiple = False
         self._prefix = ''
@@ -730,7 +714,7 @@ class AugmentSpinBoxBase(WidgetMixin):
             self.setAlignment(
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.set_value(None)
-        self.editingFinished.connect(self.editing_finished)
+        self.editingFinished.connect(self.emit_dict)
 
     class ContextAction(QtGui2.QAction):
         def __init__(self, value, *arg, **kw):
@@ -742,7 +726,7 @@ class AugmentSpinBoxBase(WidgetMixin):
         @catch_all
         def set_value(self):
             self.parent().set_value(self.data())
-            self.parent().editing_finished()
+            self.parent().emit_dict()
 
     def context_menu_event(self):
         if self.is_multiple() and self.choices:
@@ -768,20 +752,10 @@ class AugmentSpinBoxBase(WidgetMixin):
         self.set_value(None)
         return True
 
-    @QtSlot()
-    @catch_all
-    def editing_finished(self):
-        if self.is_multiple():
-            return
-        self.get_value(emit=True)
-        self.emit_dict()
-
-    def get_value(self, emit=False):
+    def get_value(self):
         value = self.value()
         if value == self.minimum() and self.specialValueText():
             value = None
-        if emit:
-            self.new_value.emit(value)
         return value
 
     def set_value(self, value):
@@ -918,12 +892,10 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
         value[1] = ((value[1] + 180.0) % 360.0) - 180.0
         self.lineEdit().setText('{:f}, {:f}'.format(*value))
 
-    def get_value(self, emit=False):
+    def get_value(self):
         value = self.text() or None
         if value and self.hasAcceptableInput():
             value = [float(x) for x in value.split(',')]
-        if emit:
-            self.new_value.emit(value)
         return value
 
     def get_value_dict(self):
