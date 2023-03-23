@@ -298,7 +298,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         polygon = self.to_scene.map(region.to_Qt(self.image))
         self.handles = []
         for idx in range(polygon.count()):
-            handle = PolygonHandle(parent=self)
+            handle = PolygonHandle(draw_unit, parent=self)
             handle.setPos(polygon.at(idx))
             self.handles.append(handle)
         self.setPolygon(polygon)
@@ -331,7 +331,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         if len(self.handles) == 2:
             for handle in self.handles:
                 handle.deletable = True
-        handle = PolygonHandle(parent=self)
+        handle = PolygonHandle(draw_unit, parent=self)
         handle.setPos(p0)
         self.handles.insert(insert, handle)
 
