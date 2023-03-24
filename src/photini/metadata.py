@@ -326,7 +326,8 @@ class ImageMetadata(MetadataHandler):
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
         'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height',
-                            None, 'Xmp.video.FrameRate'),
+                            None, 'Xmp.video.FrameRate',
+                            'Xmp.video.Duration', 'Xmp.video.TimeScale'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),

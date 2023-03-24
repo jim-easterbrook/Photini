@@ -1432,11 +1432,11 @@ class MD_GPSinfo(MD_Structure):
     def from_ffmpeg(cls, file_value, tag):
         if file_value:
             match = re.match(
-                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)/$', file_value)
+                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)?/', file_value)
             if match:
-                file_value = dict(zip(('exif:GPSLatitude', 'exif:GPSLongitude',
-                                       'exif:GPSAltitude'), match.groups()))
-        return cls(file_value)
+                return cls(dict(zip(('exif:GPSLatitude', 'exif:GPSLongitude',
+                                     'exif:GPSAltitude'), match.groups())))
+        return cls()
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1527,7 +1527,8 @@ class MD_FrameRate(MD_Rational):
 
 
 class MD_Dimensions(MD_Collection):
-    _keys = ('width', 'height', 'frames', 'frame_rate')
+    _keys = ('width', 'height', 'frames', 'frame_rate',
+             'duration', 'time_scale')
     _default_type = MD_Int
     _type = {'frame_rate': MD_FrameRate}
 
@@ -1539,9 +1540,13 @@ class MD_Dimensions(MD_Collection):
         return int((float(target_size) * w / h) + 0.5), target_size
 
     def duration(self):
+        result = 0.0
         if self['frames'] and self['frame_rate']:
-            return float(self['frames'] / self['frame_rate'])
-        return 0.0
+            result = float(self['frames'] / self['frame_rate'])
+        elif self['duration'] and self['time_scale'] and self['frame_rate']:
+            result = (float(self['duration']) * self['frame_rate'] /
+                      float(self['time_scale']))
+        return result
 
 
 class CountryCode(MD_UnmergableString):

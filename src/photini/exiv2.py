@@ -696,7 +696,7 @@ class MetadataHandler(object):
             # can be a struct or array
             if value.xmpStruct() == exiv2.XmpStruct.xsStruct:
                 self.clear_xmp_struct(tag)
-            elif value.xmpArrayType(value) != exiv2.XmpArrayType.xaNone:
+            elif value.xmpArrayType() != exiv2.XmpArrayType.xaNone:
                 self.clear_xmp_array(tag)
         if children_only:
             return datum
