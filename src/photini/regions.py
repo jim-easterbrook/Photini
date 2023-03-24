@@ -821,21 +821,29 @@ class RegionTabs(QtWidgets.QTabWidget):
 
     def set_image(self, image):
         current = self.currentIndex()
-        self.clear()
         self.image = image
         regions = (image and image.metadata.image_region) or []
         if not regions:
             region_form = RegionForm(-1)
             region_form.setEnabled(False)
+            self.clear()
             self.addTab(region_form, '')
             return
-        for idx, region in enumerate(regions):
+        blocked = self.blockSignals(True)
+        while self.count() > len(regions):
+            self.removeTab(self.count() - 1)
+        if self.count() and not self.widget(0).isEnabled():
+            self.removeTab(0)
+        while self.count() < len(regions):
+            idx = self.count()
             region_form = RegionForm(idx)
             region_form.name_changed.connect(self.tab_name_changed)
             region_form.new_value.connect(self.new_value)
             self.addTab(region_form, str(idx + 1))
-            region_form.set_value(region)
+        current = min(max(current, 0), len(regions) - 1)
         self.setCurrentIndex(current)
+        self.blockSignals(blocked)
+        self.tab_changed(current)
 
     @QtSlot(int)
     @catch_all
