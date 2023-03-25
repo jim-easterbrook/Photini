@@ -37,7 +37,7 @@ __all__ = (
     'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
     'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
     'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
-    'MD_Timezone', 'safe_fraction')
+    'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -1520,17 +1520,37 @@ class MD_Aperture(MD_Rational):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
 
 
-class MD_FrameRate(MD_Rational):
+class MD_VideoDuration(MD_Rational):
+    @classmethod
+    def from_ffmpeg(cls, file_value, tag):
+        if tag == 'ffmpeg/streams[0]/duration':
+            return cls(file_value)
+        elif tag == 'ffmpeg/streams[0]/duration_ts':
+            duration_ts, time_base = file_value
+            if duration_ts and time_base:
+                return cls(duration_ts * Fraction(time_base))
+        elif tag == 'ffmpeg/streams[0]/frames':
+            frames, frame_rate = file_value
+            if frames and frame_rate:
+                return cls((int(frames) / Fraction(frame_rate)))
+        return None
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if file_value:
+            return cls((int(file_value), 1000))
+        return None
+
     def contains(self, this, other):
-        # exiv2 rounds 30000/1001 to 29.97
-        return float(min(other, this)) > (float(max(other, this)) * 0.9999)
+        # some values are a bit approximate
+        lo = float(min(other, this))
+        hi = float(max(other, this))
+        return hi - lo < max(hi * 0.0001, 0.2)
 
 
 class MD_Dimensions(MD_Collection):
-    _keys = ('width', 'height', 'frames', 'frame_rate',
-             'duration', 'time_scale')
+    _keys = ('width', 'height')
     _default_type = MD_Int
-    _type = {'frame_rate': MD_FrameRate}
 
     def scaled_to(self, target_size):
         w = float(self['width'])
@@ -1538,15 +1558,6 @@ class MD_Dimensions(MD_Collection):
         if w > h:
             return target_size, int((float(target_size) * h / w) + 0.5)
         return int((float(target_size) * w / h) + 0.5), target_size
-
-    def duration(self):
-        result = 0.0
-        if self['frames'] and self['frame_rate']:
-            result = float(self['frames'] / self['frame_rate'])
-        elif self['duration'] and self['time_scale'] and self['frame_rate']:
-            result = (float(self['duration']) * self['frame_rate'] /
-                      float(self['time_scale']))
-        return result
 
 
 class CountryCode(MD_UnmergableString):

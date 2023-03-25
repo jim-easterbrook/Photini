@@ -122,7 +122,7 @@ class Image(QtWidgets.QFrame):
             return None
         width = dims['width']
         height = dims['height']
-        duration = dims.duration()
+        duration = self.metadata.video_duration or 0
         skip = int(min(duration / 2, 10.0))
         # target dimensions
         w, h = 160, 120

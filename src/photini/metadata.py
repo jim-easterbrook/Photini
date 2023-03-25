@@ -45,7 +45,10 @@ class FFMPEGMetadata(object):
         'ffmpeg/streams[0]/coded_dims': (
             'ffmpeg/streams[0]/coded_width', 'ffmpeg/streams[0]/coded_height'),
         'ffmpeg/streams[0]/dims': (
-            'ffmpeg/streams[0]/width', 'ffmpeg/streams[0]/height',
+            'ffmpeg/streams[0]/width', 'ffmpeg/streams[0]/height'),
+        'ffmpeg/streams[0]/duration_ts': (
+            'ffmpeg/streams[0]/duration_ts', 'ffmpeg/streams[0]/time_base'),
+        'ffmpeg/streams[0]/frames': (
             'ffmpeg/streams[0]/nb_frames', 'ffmpeg/streams[0]/avg_frame_rate'),
         }
 
@@ -68,6 +71,9 @@ class FFMPEGMetadata(object):
         'orientation':    ('ffmpeg/streams[0]/tags/rotate',),
         'rating':         ('ffmpeg/format/tags/com.apple.quicktime.rating.user',),
         'title':          ('ffmpeg/streams[0]/tags/title',),
+        'video_duration': ('ffmpeg/streams[0]/duration',
+                           'ffmpeg/streams[0]/duration_ts',
+                           'ffmpeg/streams[0]/frames'),
         }
 
     def __init__(self, path):
@@ -325,9 +331,7 @@ class ImageMetadata(MetadataHandler):
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height',
-                            None, 'Xmp.video.FrameRate',
-                            'Xmp.video.Duration', 'Xmp.video.TimeScale'),
+        'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
@@ -400,8 +404,8 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.tiff.ImageDescription'),
                             ('WA', 'Iptc.Application2.Caption'),
                             ('WN', 'Xmp.video.Information')),
-        'dimensions'     : (('WN', 'Exif.Photo.Pixel*Dimension'),
-                            ('WN', 'Xmp.video.Dims*'),),
+        'dimensions'     : (('WN', 'Xmp.video.Dims*'),
+                            ('WN', 'Exif.Photo.Pixel*Dimension')),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
                             ('W0', 'Exif.Image.FocalLength'),
                             ('WX', 'Xmp.exif.FocalLength')),
@@ -454,6 +458,7 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.ObjectName'),
                             ('W0', 'Exif.Image.XPTitle'),
                             ('WN', 'Xmp.video.StreamName')),
+        'video_duration' : (('WN', 'Xmp.video.Duration'),),
         }
 
     def read(self, name, type_):
@@ -610,6 +615,7 @@ class Metadata(object):
         'thumbnail'      : MD_Thumbnail,
         'timezone'       : MD_Timezone,
         'title'          : MD_LangAlt,
+        'video_duration' : MD_VideoDuration,
         }
 
     def __init__(self, path, notify=None):
