@@ -998,7 +998,7 @@
     </message>
     <message>
         <source>Open link to &quot;{licence}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Link zu „{licence}“ öffnen</translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
@@ -1162,7 +1162,7 @@
     </message>
     <message>
         <source>Web Statement</source>
-        <translation type="unfinished"></translation>
+        <translation>Web-Erklärung</translation>
     </message>
     <message>
         <source>URL for a licensor web page. May facilitate licensing of the image.</source>
@@ -1240,11 +1240,11 @@
     <name>PixelfedTab</name>
     <message>
         <source>Photini: choose instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: Instanz auswählen</translation>
     </message>
     <message>
         <source>Choose an instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Instanz aus</translation>
     </message>
     <message>
         <source>Which Pixelfed instance hosts your account?</source>
@@ -1264,11 +1264,11 @@
     </message>
     <message>
         <source>Caption</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildunterschrift</translation>
     </message>
     <message>
         <source>Generate</source>
-        <translation type="unfinished"></translation>
+        <translation>Generieren</translation>
     </message>
     <message>
         <source>Spoiler</source>
@@ -1280,23 +1280,23 @@
     </message>
     <message>
         <source>Unlisted</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungelistet</translation>
     </message>
     <message>
         <source>Followers only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Folger</translation>
     </message>
     <message>
         <source>Post visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtbarkeit des Beitrags</translation>
     </message>
     <message>
         <source>Sensitive post</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertraulicher Beitrag</translation>
     </message>
     <message>
         <source>Disable comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentare deaktivieren</translation>
     </message>
     <message>
         <source>All Rights Reserved</source>
@@ -1304,11 +1304,11 @@
     </message>
     <message>
         <source>Public Domain Work</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinfreie Arbeit</translation>
     </message>
     <message>
         <source>Public Domain Dedication (CC0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinfreie Widmung (CC0)</translation>
     </message>
     <message>
         <source>Attribution</source>
@@ -1340,15 +1340,15 @@
     </message>
     <message>
         <source>New collection</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Sammlung</translation>
     </message>
     <message>
         <source>Add to collections</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Sammlungen hinzufügen</translation>
     </message>
     <message>
         <source>Create new collection</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Sammlung erstellen</translation>
     </message>
     <message>
         <source>Title</source>
@@ -1360,7 +1360,7 @@
     </message>
     <message>
         <source>Draft</source>
-        <translation type="unfinished"></translation>
+        <translation>Entwurf</translation>
     </message>
     <message>
         <source>Collection visibility</source>
@@ -1372,11 +1372,11 @@
     </message>
     <message>
         <source>Photini: alt text</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: alt. Text</translation>
     </message>
     <message>
         <source>Missing alt text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlender alt. Text.</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; does not have any &quot;alt text&quot; for accessibility. Would you like to upload it anyway?</source>
@@ -1598,7 +1598,7 @@
     </message>
     <message>
         <source>Create new album</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Album erstellen</translation>
     </message>
     <message>
         <source>Logged in as {user} on {service}</source>
@@ -1626,7 +1626,7 @@
     </message>
     <message>
         <source>Which image file matches this picture on {service}?</source>
-        <translation type="unfinished"></translation>
+        <translation>Welche Bilddatei passt zu diesem Bild auf {service}?</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -1666,11 +1666,11 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Überspringen</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei „{file_name}“ hat {size} Pixel und überschreitet die Grenze von {max_size} Pixel von {service}.</translation>
     </message>
     <message>
         <source>Photini: too large</source>
@@ -1686,7 +1686,7 @@
     </message>
     <message>
         <source>Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die Größe ändern?</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; upload failed.</source>
@@ -1706,7 +1706,7 @@
     </message>
     <message>
         <source>Would you like to convert it to JPEG?</source>
-        <translation type="unfinished">Datei ins JPEG-Format konvertieren?</translation>
+        <translation>Möchten Sie es in ein JPEG konvertieren?</translation>
     </message>
     <message>
         <source>Would you like to upload it anyway?</source>
