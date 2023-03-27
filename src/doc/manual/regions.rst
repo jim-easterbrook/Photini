@@ -46,7 +46,7 @@ The most useful of these is probably ``human``.
 .. image:: ../images/screenshot_276.png
 
 The IPTC specification allows any other metadata to be attached to a region.
-Photini includes ``Person shown`` and ``Description``, which I think are most likely to be useful, and ``Organisation name`` and ``Caption writer``, which the IPTC seems to be keen on.
+Photini includes ``Person shown`` and ``Description``, which I think are most likely to be useful.
 Please let me know if there is anything you would like to be added.
 
 .. image:: ../images/screenshot_277.png
