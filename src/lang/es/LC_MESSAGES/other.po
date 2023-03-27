@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-18 14:23+0000\n"
+"POT-Creation-Date: 2023-03-27 10:13+0100\n"
 "PO-Revision-Date: 2021-06-14 10:52+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: es\n"
@@ -704,7 +704,9 @@ msgstr ""
 msgid "Can import photographs from many digital cameras."
 msgstr ""
 
-msgid "Upload to Flickr_ or `Google Photos`_ or Ipernity_ with reuse of metadata."
+msgid ""
+"Upload to Flickr_ or `Google Photos`_ or Ipernity_ or Pixelfed_ with reuse "
+"of metadata."
 msgstr ""
 
 # 45e1935d790b43bbad8047a9b2d751ac
@@ -793,7 +795,7 @@ msgstr ""
 msgid "http://github.com/jim-easterbrook/Photini"
 msgstr ""
 
-msgid "Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+msgid "Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 msgstr ""
 
 # f875f2e7e273446aaa234dc6fd48245d
@@ -3008,5 +3010,11 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "0.13.1"
+#~ msgstr ""
+
+#~ msgid "Upload to Flickr_ or `Google Photos`_ or Ipernity_ with reuse of metadata."
+#~ msgstr ""
+
+#~ msgid "Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 #~ msgstr ""
 
