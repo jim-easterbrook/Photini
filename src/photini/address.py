@@ -28,7 +28,8 @@ from photini.metadata import ImageMetadata
 from photini.photinimap import GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
-from photini.widgets import CompactButton, LatLongDisplay, SingleLineEdit
+from photini.widgets import (
+    CompactButton, DoubleSpinBox, LatLongDisplay, LangAltWidget, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -39,7 +40,6 @@ class OpenCage(GeocoderBase):
 
     def query(self, params):
         params['key'] = self.api_key
-        params['abbrv'] = '1'
         params['no_annotations'] = '1'
         with Busy():
             self.rate_limit()
@@ -69,34 +69,33 @@ class OpenCage(GeocoderBase):
 
     # Map OpenCage address components to IPTC address heirarchy. There
     # are many possible components (user generated data) so any
-    # unrecognised ones are put in 'SubLocation'. See
+    # unrecognised ones are put in 'Iptc4xmpExt:Sublocation'. See
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
     address_map = {
-        'WorldRegion'   :('continent',),
-        'CountryCode'   :('ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2',
-                          'country_code'),
-        'CountryName'   :('country', 'country_name'),
-        'ProvinceState' :('county', 'county_code', 'local_administrative_area',
-                          'state_district', 'state', 'state_code', 'province',
-                          'region', 'island'),
-        'City'          :('neighbourhood', 'city_block', 'quarter', 'suburb',
-                          'district', 'borough', 'city_district', 'commercial',
-                          'industrial', 'houses', 'subdivision',
-                          'village', 'town', 'municipality', 'city',
-                          'partial_postcode', 'postcode'),
-        'SubLocation'   :('house_number', 'street_number',
-                          'house', 'public_building', 'building', 'residential',
-                          'water', 'road', 'pedestrian', 'path',
-                          'street_name', 'street', 'cycleway', 'footway',
-                          'place', 'square',
-                          'locality', 'hamlet', 'croft'),
-        'ignore'        :('ISO_3166-2', 'political_union', 'road_reference',
-                          'road_reference_intl', 'road_type',
-                          '_category', '_type'),
+        'Iptc4xmpExt:WorldRegion': ('continent',),
+        'Iptc4xmpExt:CountryCode': (
+            'ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2', 'country_code'),
+        'Iptc4xmpExt:CountryName': ('country', 'country_name'),
+        'Iptc4xmpExt:ProvinceState': (
+            'county', 'county_code', 'local_administrative_area',
+            'state_district', 'state', 'state_code', 'province',
+            'region', 'island'),
+        'Iptc4xmpExt:City': (
+            'neighbourhood', 'city_block', 'quarter', 'suburb', 'district',
+            'borough', 'city_district', 'commercial', 'industrial', 'houses',
+            'subdivision', 'village', 'town', 'municipality', 'city',
+            'partial_postcode', 'postcode'),
+        'Iptc4xmpExt:Sublocation': (
+            'house_number', 'street_number', 'house', 'public_building',
+            'building', 'residential', 'water', 'road', 'pedestrian', 'path',
+            'street_name', 'street', 'cycleway', 'footway', 'place', 'square',
+            'locality', 'hamlet', 'croft'),
+        'ignore': (
+            'ISO_3166-2', 'political_union', 'road_reference',
+            'road_reference_intl', 'road_type', '_category', '_type'),
         }
 
     def get_address(self, coords):
-        coords = [float(x) for x in coords.split(',')]
         params = {'q': '{:.5f},{:.5f}'.format(*coords)}
         lang, encoding = locale.getdefaultlocale()
         if lang:
@@ -143,7 +142,8 @@ class OpenCage(GeocoderBase):
                         address[key] = guess
                         del address['postcode']
                         break
-        return MD_Location.from_address(address, self.address_map)
+        gps = results[0]['geometry']
+        return MD_Location.from_address(gps, address, self.address_map)
 
     def search_terms(self):
         text = translate('AddressTab', 'Address lookup powered by OpenCage')
@@ -167,64 +167,92 @@ class OpenCage(GeocoderBase):
             QtCore.QUrl('http://www.openstreetmap.org/copyright'))
 
 
-class LocationInfo(QtWidgets.QWidget):
+class LocationInfo(QtWidgets.QScrollArea):
     new_value = QtSignal(object, dict)
 
     def __init__(self, *args, **kw):
         super(LocationInfo, self).__init__(*args, **kw)
+        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
+        self.setWidgetResizable(True)
+        form = QtWidgets.QWidget()
         layout = QtWidgets.QGridLayout()
-        self.setLayout(layout)
+        form.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
         self.members = {}
-        for key in ('SubLocation', 'City', 'ProvinceState',
-                    'CountryName', 'CountryCode', 'WorldRegion'):
+        self.members['LocationName'] = LangAltWidget(
+            'Iptc4xmpExt:LocationName', multi_line=False)
+        self.members['LocationName'].setToolTip('<p>{}</p>'.format(
+            translate('AddressTab', 'Enter a full name of the location.')))
+        self.members['LocationName'].new_value.connect(self.editing_finished)
+        for (key, tool_tip) in (
+                ('Sublocation', translate(
+                    'AddressTab', 'Enter the name of the sublocation.')),
+                ('City', translate(
+                    'AddressTab', 'Enter the name of the city.')),
+                ('ProvinceState', translate(
+                    'AddressTab', 'Enter the name of the province or state.')),
+                ('CountryName', translate(
+                    'AddressTab', 'Enter the name of the country.')),
+                ('CountryCode', translate(
+                    'AddressTab', 'Enter the 2 or 3 letter ISO 3166 country'
+                    ' code of the country.')),
+                ('WorldRegion', translate(
+                    'AddressTab', 'Enter the name of the world region.')),
+                ('LocationId', translate(
+                    'AddressTab', 'Enter globally unique identifier(s) of the'
+                    ' location. Separate them with ";" characters.'))):
             self.members[key] = SingleLineEdit(
-                key, length_check=ImageMetadata.max_bytes(key))
+                'Iptc4xmpExt:' + key, length_check=ImageMetadata.max_bytes(key))
+            self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
+        self.members['latlon'] = LatLongDisplay()
+        self.members['latlon'].new_value.connect(self.editing_finished)
+        self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
+        self.members['alt'].set_suffix(' m')
+        self.members['alt'].setToolTip('<p>{}</p>'.format(
+            translate('AddressTab', 'Altitude of the location in metres.')))
+        self.members['alt'].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
-        self.members['SubLocation'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the sublocation.')))
-        self.members['City'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the city.')))
-        self.members['ProvinceState'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the province or state.')))
-        self.members['CountryName'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the country.')))
-        self.members['CountryCode'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab',
-            'Enter the 2 or 3 letter ISO 3166 country code of the country.')))
-        self.members['WorldRegion'].setToolTip('<p>{}</p>'.format(translate(
-            'AddressTab', 'Enter the name of the world region.')))
-        for j, text in enumerate((translate('AddressTab', 'Street'),
+        for j, text in enumerate((translate('AddressTab', 'Name'),
+                                  translate('AddressTab', 'Street'),
                                   translate('AddressTab', 'City'),
                                   translate('AddressTab', 'Province'),
                                   translate('AddressTab', 'Country'),
-                                  translate('AddressTab', 'Region'))):
+                                  translate('AddressTab', 'Region'),
+                                  translate('AddressTab', 'Location ID'))):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['SubLocation'], 0, 1, 1, 2)
-        layout.addWidget(self.members['City'], 1, 1, 1, 2)
-        layout.addWidget(self.members['ProvinceState'], 2, 1, 1, 2)
-        layout.addWidget(self.members['CountryName'], 3, 1)
-        layout.addWidget(self.members['CountryCode'], 3, 2)
-        layout.addWidget(self.members['WorldRegion'], 4, 1, 1, 2)
-        layout.setRowStretch(5, 1)
+        layout.addWidget(self.members['LocationName'], 0, 1, 1, 5)
+        layout.addWidget(self.members['Sublocation'], 1, 1, 1, 5)
+        layout.addWidget(self.members['City'], 2, 1, 1, 5)
+        layout.addWidget(self.members['ProvinceState'], 3, 1, 1, 5)
+        layout.addWidget(self.members['CountryName'], 4, 1, 1, 4)
+        layout.addWidget(self.members['CountryCode'], 4, 5)
+        layout.addWidget(self.members['WorldRegion'], 5, 1, 1, 5)
+        layout.addWidget(self.members['LocationId'], 6, 1, 1, 5)
+        layout.addWidget(self.members['latlon'].label, 7, 0)
+        layout.addWidget(self.members['latlon'], 7, 1)
+        label = QtWidgets.QLabel(translate('AddressTab', 'Altitude'))
+        label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(label, 7, 2)
+        self.members['alt'].setFixedWidth(self.members['latlon'].width())
+        layout.addWidget(self.members['alt'], 7, 3)
+        layout.setColumnStretch(4, 1)
+        layout.setRowStretch(8, 1)
+        self.setWidget(form)
 
     def get_value(self):
         new_value = {}
         for key in self.members:
-            if self.members[key].is_multiple():
-                continue
-            new_value[key] = self.members[key].get_value().strip() or None
+            new_value.update(self.members[key].get_value_dict())
         return new_value
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def editing_finished(self, key, value):
-        self.members[key].set_value(value)
-        self.new_value.emit(self, self.get_value())
+    def editing_finished(self, value):
+        self.new_value.emit(self, value)
 
 
 class QTabBar(QtWidgets.QTabBar):
@@ -249,8 +277,8 @@ class TabWidget(QtWidgets.QWidget):
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
         self.coords = LatLongDisplay()
+        self.coords.setReadOnly(True)
         left_side.addWidget(self.coords.label, 0, 0)
-        self.coords.changed.connect(self.new_coords)
         left_side.addWidget(self.coords, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
@@ -284,11 +312,6 @@ class TabWidget(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtSlot()
-    @catch_all
-    def new_coords(self):
-        self.auto_location.setEnabled(bool(self.coords.get_value()))
-
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
     def location_tab_context_menu(self, event):
@@ -307,9 +330,9 @@ class TabWidget(QtWidgets.QWidget):
         idx = self.location_info.currentIndex()
         for image in self.app.image_list.get_selected_images():
             # duplicate data
-            location = MD_Location(self._get_location(image, idx) or {})
+            location = self._get_location(image, idx)
             # shuffle data up
-            location_list = list(image.metadata.location_shown or [])
+            location_list = list(image.metadata.location_shown)
             location_list.insert(idx, location)
             image.metadata.location_shown = location_list
         # display data
@@ -321,12 +344,12 @@ class TabWidget(QtWidgets.QWidget):
         idx = self.location_info.currentIndex()
         for image in self.app.image_list.get_selected_images():
             # shuffle data down
-            location_list = list(image.metadata.location_shown or [])
+            location_list = list(image.metadata.location_shown)
             if idx == 0:
                 if location_list:
-                    location = location_list.pop(0)
+                    location = [location_list.pop(0)]
                 else:
-                    location = None
+                    location = []
                 image.metadata.location_taken = location
             elif idx <= len(location_list):
                 del location_list[max(idx - 1, 0)]
@@ -359,18 +382,18 @@ class TabWidget(QtWidgets.QWidget):
 
     def _get_location(self, image, idx):
         if idx == 0:
-            return image.metadata.location_taken
-        elif not image.metadata.location_shown:
-            return None
+            if image.metadata.location_taken:
+                return image.metadata.location_taken[0]
+            return {}
         elif idx <= len(image.metadata.location_shown):
             return image.metadata.location_shown[idx - 1]
-        return None
+        return {}
 
     def _set_location(self, image, idx, location):
         if idx == 0:
-            image.metadata.location_taken = location
+            image.metadata.location_taken = [location]
         else:
-            location_list = list(image.metadata.location_shown or [])
+            location_list = list(image.metadata.location_shown)
             while len(location_list) < idx:
                 location_list.append(None)
             location_list[idx - 1] = location
@@ -382,7 +405,7 @@ class TabWidget(QtWidgets.QWidget):
         images = images or self.app.image_list.get_selected_images()
         idx = self.location_info.indexOf(widget)
         for image in images:
-            temp = dict(self._get_location(image, idx) or {})
+            temp = dict(self._get_location(image, idx))
             temp.update(new_value)
             self._set_location(image, idx, temp)
         # new_location can be called when changing tab, so don't delete
@@ -430,29 +453,16 @@ class TabWidget(QtWidgets.QWidget):
         # display data
         for idx in range(count):
             widget = self.location_info.widget(idx)
-            if images:
-                values = defaultdict(list)
-                for image in images:
-                    location = self._get_location(image, idx) or {}
-                    for key in widget.members:
-                        value = None
-                        if key in location:
-                            value = location[key]
-                        if value not in values[key]:
-                            values[key].append(value)
-                for key in widget.members:
-                    if len(values[key]) > 1:
-                        widget.members[key].set_multiple(
-                            choices=filter(None, values[key]))
-                    else:
-                        widget.members[key].set_value(values[key][0])
-            else:
-                for key in widget.members:
-                    widget.members[key].set_value(None)
+            values = [self._get_location(image, idx) for image in images]
+            for key in widget.members:
+                widget.members[key].set_value_list(values)
 
     def new_selection(self, selection):
         self.location_info.setEnabled(bool(selection))
-        self.coords.update_display(selection)
+        values = []
+        for image in selection:
+            values.append(image.metadata.gps_info)
+        self.coords.set_value_list(values)
         self.auto_location.setEnabled(bool(self.coords.get_value()))
         self.display_location()
 

@@ -21,20 +21,23 @@ from datetime import datetime, timedelta
 from fractions import Fraction
 import logging
 import math
+import pprint
 import re
 
 from photini.exiv2 import MetadataHandler
-from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
+from photini.pyqt import *
+from photini.pyqt import qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 
 # photini.metadata imports these classes
 __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_GPSinfo', 'MD_Int', 'MD_Keywords', 'MD_LangAlt',
-    'MD_LensModel', 'MD_Location', 'MD_MultiLocation', 'MD_MultiString',
-    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software',
-    'MD_String', 'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
+    'MD_Dimensions', 'MD_GPSinfo', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
+    'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
+    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
+    'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
+    'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -56,21 +59,18 @@ class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
     _quiet = False
 
-    def __bool__(self):
-        # reinterpret to mean "has a value", even if the value is zero
-        return True
-
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
-        if not file_value:
-            return None
         return cls(file_value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
         return cls(file_value)
+
+    def to_exiv2(self, tag):
+        return {'Exif': self.to_exif,
+                'Iptc': self.to_iptc,
+                'Xmp': self.to_xmp}[tag.split('.')[0]]()
 
     def to_exif(self):
         return str(self)
@@ -80,6 +80,9 @@ class MD_Value(object):
 
     def to_xmp(self):
         return str(self)
+
+    def compact_form(self):
+        return self
 
     def merge(self, info, tag, other):
         result, merged, ignored = self.merge_item(self, other)
@@ -120,16 +123,15 @@ class MD_Value(object):
 
 
 class MD_UnmergableString(MD_Value, str):
-    def __new__(cls, value):
-        value = isinstance(value, str) and value.strip()
-        if not value:
-            return None
+    def __new__(cls, value=None):
+        if value is None:
+            value = ''
+        elif isinstance(value, str):
+            value = value.strip()
         return super(MD_UnmergableString, cls).__new__(cls, value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
         if isinstance(file_value, list):
             file_value = ' // '.join(file_value)
         return cls(file_value)
@@ -146,12 +148,8 @@ class MD_String(MD_UnmergableString):
 class MD_Software(MD_String):
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
         if tag.startswith('Iptc'):
-            if not all(file_value):
-                return None
-            file_value = ' v'.join(file_value)
+            file_value = ' v'.join(x for x in file_value if x)
         return cls(file_value)
 
     def to_iptc(self):
@@ -159,7 +157,8 @@ class MD_Software(MD_String):
 
 
 class MD_Dict(MD_Value, dict):
-    def __init__(self, value):
+    def __init__(self, value=None):
+        value = value or {}
         # can initialise from a string containing comma separated values
         if isinstance(value, str):
             value = value.split(',')
@@ -193,21 +192,11 @@ class MD_Dict(MD_Value, dict):
     def __bool__(self):
         return any([x is not None for x in self.values()])
 
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not any(file_value):
-            return None
-        return cls(file_value)
-
     def to_exif(self):
         return [self[x] for x in self._keys]
 
     def __str__(self):
-        result = []
-        for key in self._keys:
-            if self[key]:
-                result.append('{}: {}'.format(key, self[key]))
-        return '\n'.join(result)
+        return '\n'.join('{}: {}'.format(k, v) for (k, v) in self.items() if v)
 
 
 class MD_DateTime(MD_Dict):
@@ -218,10 +207,7 @@ class MD_DateTime(MD_Dict):
     @classmethod
     def convert(cls, value):
         value['precision'] = value['precision'] or 7
-        if not value['datetime']:
-            # use a well known 'zero'
-            value['datetime'] = datetime(1970, 1, 1)
-        else:
+        if value['datetime']:
             value['datetime'] = cls.truncate_datetime(
                 value['datetime'], value['precision'])
         if value['precision'] <= 3:
@@ -249,7 +235,7 @@ class MD_DateTime(MD_Dict):
 
         """
         if not datetime_string:
-            return None
+            return cls([])
         unparsed = datetime_string
         precision = 7
         # extract time zone
@@ -344,9 +330,9 @@ class MD_DateTime(MD_Dict):
                 time_stamp = int(file_value)
             except Exception:
                 # not an integer timestamp
-                return None
+                return cls([])
             if not time_stamp:
-                return None
+                return cls([])
             # assume date should be in range 1970 to 2034
             if time_stamp > cls._qt_offset:
                 time_stamp -= cls._qt_offset
@@ -367,7 +353,7 @@ class MD_DateTime(MD_Dict):
     def from_exif(cls, file_value):
         datetime_string, sub_sec_string = file_value
         if not datetime_string:
-            return None
+            return cls([])
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
@@ -393,14 +379,14 @@ class MD_DateTime(MD_Dict):
     def from_iptc(cls, file_value):
         date_value, time_value = file_value
         if not date_value:
-            return None
+            return cls([])
         if isinstance(date_value, str):
             # Exiv2 couldn't read malformed date, let our parser have a go
             if isinstance(time_value, str):
                 date_value += 'T' + time_value
             return cls.from_ISO_8601(date_value)
         if date_value['year'] == 0:
-            return None
+            return cls([])
         precision = 3
         if isinstance(time_value, dict):
             tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
@@ -455,6 +441,9 @@ class MD_DateTime(MD_Dict):
             precision = 5
         return self.to_ISO_8601(precision=precision)
 
+    def __bool__(self):
+        return bool(self['datetime'])
+
     def __str__(self):
         return self.to_ISO_8601()
 
@@ -464,7 +453,7 @@ class MD_DateTime(MD_Dict):
         return self['datetime']
 
     def merge(self, info, tag, other):
-        if other == self:
+        if other == self or not other:
             return self
         if other['datetime'] != self['datetime']:
             verbose = (other['datetime'] != self.truncate_datetime(
@@ -519,13 +508,13 @@ class MD_LensSpec(MD_Dict):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
-            return None
+            return cls([])
         if isinstance(file_value, str):
             file_value = file_value.split()
         if 'CanonCs' in tag:
             long_focal, short_focal, focal_units = [int(x) for x in file_value]
             if focal_units == 0:
-                return None
+                return cls([])
             file_value = [(short_focal, focal_units), (long_focal, focal_units)]
         return cls(file_value)
 
@@ -602,7 +591,12 @@ class MD_Thumbnail(MD_Dict):
             fmt = 'JPEG'
             data = self.data_from_image(self['image'], max_size=2**32)
         data = codecs.encode(data, 'base64_codec').decode('ascii')
-        return str(self['w']), str(self['h']), fmt, data
+        return [{
+            'xmpGImg:width': str(self['w']),
+            'xmpGImg:height': str(self['h']),
+            'xmpGImg:format': fmt,
+            'xmpGImg:image': data,
+            }]
 
     def __str__(self):
         result = '{fmt} thumbnail, {w}x{h}'.format(**self)
@@ -617,26 +611,26 @@ class MD_Collection(MD_Dict):
     _default_type = MD_String
 
     @classmethod
+    def get_type(cls, key):
+        if key in cls._type:
+            return cls._type[key]
+        return cls._default_type
+
+    @classmethod
     def convert(cls, value):
         for key in value:
             if not value[key]:
                 continue
-            if key in cls._type:
-                value[key] = cls._type[key](value[key])
-            else:
-                value[key] = cls._default_type(value[key])
+            value[key] = cls.get_type(key)(value[key])
         return value
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not (file_value and any(file_value)):
-            return None
+            return cls([])
         value = dict(zip(cls._keys, file_value))
         for key in value:
-            if key in cls._type:
-                value[key] = cls._type[key].from_exiv2(value[key], tag)
-            else:
-                value[key] = cls._default_type.from_exiv2(value[key], tag)
+            value[key] = cls.get_type(key).from_exiv2(value[key], tag)
         return cls(value)
 
     def to_exif(self):
@@ -652,15 +646,15 @@ class MD_Collection(MD_Dict):
         if other == self:
             return self
         result = dict(self)
-        for key in result:
+        for key in other:
             if other[key] is None:
                 continue
-            if result[key] is None:
-                result[key] = other[key]
-                merged, ignored = True, False
-            else:
+            if key in result and result[key] is not None:
                 result[key], merged, ignored = result[key].merge_item(
                                                         result[key], other[key])
+            else:
+                result[key] = other[key]
+                merged, ignored = True, False
             if ignored:
                 self.log_ignored(info, tag, {key: str(other[key])})
             elif merged:
@@ -668,242 +662,323 @@ class MD_Collection(MD_Dict):
         return self.__class__(result)
 
 
-class MD_ContactInformation(MD_Collection):
-    # stores IPTC contact information
-    _keys = ('CiAdrExtadr', 'CiAdrCity', 'CiAdrCtry', 'CiEmailWork',
-             'CiTelWork', 'CiAdrPcode', 'CiAdrRegion', 'CiUrlWork')
+class MD_Structure(MD_Value, dict):
+    extendable = False
 
-
-class MD_Location(MD_Collection):
-    # stores IPTC defined location heirarchy
-    _keys = ('SubLocation', 'City', 'ProvinceState',
-             'CountryName', 'CountryCode', 'WorldRegion')
-    _type = {'CountryCode': MD_UnmergableString}
-
-    def convert(self, value):
-        if value['CountryCode']:
-            value['CountryCode'] = value['CountryCode'].upper()
-        return super(MD_Location, self).convert(value)
+    def __init__(self, value=None):
+        value = value or {}
+        # deep copy initial values
+        value = dict((k, self.get_type(k, v)(v)) for (k, v) in value.items())
+        # set missing values to empty
+        for k in self.item_type:
+            if k not in value:
+                value[k] = self.item_type[k]()
+        super(MD_Structure, self).__init__(value)
 
     @classmethod
-    def from_address(cls, address, key_map):
-        result = {}
-        for key in cls._keys:
-            result[key] = []
-        for key in key_map:
-            for foreign_key in key_map[key]:
-                if foreign_key not in address or not address[foreign_key]:
-                    continue
-                if key in result and address[foreign_key] not in result[key]:
-                    result[key].append(address[foreign_key])
-                del(address[foreign_key])
-        # only use one country code
-        result['CountryCode'] = result['CountryCode'][:1]
-        # put unknown foreign keys in SubLocation
-        for foreign_key in address:
-            if address[foreign_key] in ' '.join(result['SubLocation']):
-                continue
-            result['SubLocation'] = [
-                '{}: {}'.format(foreign_key, address[foreign_key])
-                ] + result['SubLocation']
-        for key in result:
-            result[key] = ', '.join(result[key]) or None
-        return cls(result)
-
-
-class MD_MultiLocation(tuple):
-    def __new__(cls, value):
-        temp = []
-        for item in value:
-            if not item:
-                item = None
-            elif not isinstance(item, MD_Location):
-                item = MD_Location(item)
-            temp.append(item)
-        while temp and not temp[-1]:
-            temp = temp[:-1]
-        return super(MD_MultiLocation, cls).__new__(cls, temp)
+    def get_type(cls, key, value):
+        if cls.extendable and key not in cls.item_type:
+            logger.warning('Inferring type for %s', key)
+            if isinstance(value, (list, tuple)):
+                cls.item_type[key] = MD_MultiString
+            elif isinstance(value, dict):
+                cls.item_type[key] = MD_LangAlt
+            else:
+                cls.item_type[key] = MD_String
+        return cls.item_type[key]
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
+        if isinstance(file_value, (list, tuple)):
+            # "legacy" list of string values
+            file_value = dict(zip(cls.legacy_keys, file_value))
+        file_value = file_value or {}
+        for key, value in file_value.items():
+            file_value[key] = cls.get_type(key, value).from_exiv2(value, tag)
         return cls(file_value)
 
-    def to_xmp(self):
-        result = []
-        for location in self:
-            if location:
-                result.append(location.to_xmp())
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        result = dict(self)
+        for key in other:
+            if not other[key]:
+                continue
+            if key in result and result[key]:
+                result[key] = result[key].merge(
+                    info, '{}[{}]'.format(tag, key), other[key])
             else:
-                result.append([])
-        return result
+                result[key] = other[key]
+                self.log_merged(info, '{}[{}]'.format(tag, key), other[key])
+        return self.__class__(result)
+
+    def to_exif(self):
+        if not self:
+            return None
+        return [self[k] and self[k].to_exif() for k in self.legacy_keys]
+
+    def to_iptc(self):
+        if not self:
+            return None
+        return [self[k] and self[k].to_iptc() for k in self.legacy_keys]
+
+    def to_xmp(self):
+        if not self:
+            return None
+        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+
+    def compact_form(self):
+        return dict((k.split(':')[-1], v.compact_form())
+                    for (k, v) in self.items() if v)
 
     def __str__(self):
-        result = ''
-        for n, location in enumerate(self):
-            result += '-- subject {} --\n'.format(n + 1)
-            if location:
-                result += str(location) + '\n'
-        return result
-
-
-class LangAltDict(dict):
-    # Modified dict that keeps track of a default language.
-    DEFAULT = 'x-default'
-
-    def __init__(self, value={}):
-        super(LangAltDict, self).__init__()
-        self._default_lang = ''
-        if isinstance(value, str):
-            value = value.strip()
-        if not value:
-            value = {QtCore.QLocale.system().bcp47Name() or self.DEFAULT: ''}
-        elif isinstance(value, str):
-            value = {self.DEFAULT: value}
-        for k, v in value.items():
-            self[k] = v
-        if isinstance(value, LangAltDict):
-            self._default_lang = value._default_lang
-        # set default_lang
-        if self._default_lang:
-            return
-        # Exiv2 doesn't preserve the order of items, so we can't assume
-        # the first item is the default language. Use the locale
-        # instead.
-        lang = QtCore.QLocale.system().bcp47Name()
-        if not lang:
-            return
-        for lang in (lang, lang.split('-')[0]):
-            self._default_lang = self.find_key(lang)
-            if self._default_lang:
-                return
-
-    def find_key(self, key):
-        # languages are case insensitive
-        key = key or ''
-        key = key.lower()
-        for k in self:
-            if k.lower() == key:
-                return k
-        return ''
-
-    def __contains__(self, key):
-        return bool(self.find_key(key))
-
-    def __getitem__(self, key):
-        old_key = self.find_key(key)
-        if old_key:
-            key = old_key
-        else:
-            self[key] = ''
-        return super(LangAltDict, self).__getitem__(key)
-
-    def __setitem__(self, key, value):
-        old_key = self.find_key(key)
-        if old_key and old_key != key:
-            # new key does not have same case as old one
-            if self._default_lang == old_key:
-                self._default_lang = key
-            del self[old_key]
-        super(LangAltDict, self).__setitem__(key, value)
-        # Check for empty or duplicate 'x-default' value
-        dflt_key = self.find_key(self.DEFAULT)
-        if dflt_key == key or not dflt_key:
-            return
-        dflt_value = super(LangAltDict, self).__getitem__(dflt_key)
-        if (not dflt_value) or (dflt_value == value):
-            if self._default_lang == dflt_key:
-                self._default_lang = key
-            del self[dflt_key]
+        return pprint.pformat(self.compact_form(), compact=True)
 
     def __bool__(self):
         return any(self.values())
 
-    def __eq__(self, other):
-        if isinstance(other, LangAltDict):
-            return not self.__ne__(other)
-        return super(LangAltDict, self).__eq__(other)
 
-    def __ne__(self, other):
-        if isinstance(other, LangAltDict):
-            if self._default_lang != other._default_lang:
-                return True
-        return super(LangAltDict, self).__ne__(other)
+class Unused(object):
+    def __new__(cls, value=None):
+        return None
 
-    def __str__(self):
-        result = []
-        for key in self:
-            if key != self.DEFAULT:
-                result.append('-- {} --'.format(key))
-            result.append(self[key])
-        return '\n'.join(result)
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        logger.warning('%s: to be deleted when data is saved: %s',
+                       tag, file_value)
+        return None
 
-    def _sort_key(self, key):
-        key = key.lower()
-        if key == self.DEFAULT:
-            return ' '
-        if key == self._default_lang.lower():
-            return '!'
-        return key
 
-    def keys(self):
-        result = list(super(LangAltDict, self).keys())
-        result.sort(key=self._sort_key)
+class MD_ContactInformation(MD_Structure):
+    item_type = {
+        'plus:LicensorID': Unused,
+        'plus:LicensorName': Unused,
+        'plus:LicensorStreetAddress': MD_String,
+        'plus:LicensorExtendedAddress': MD_String,
+        'plus:LicensorCity': MD_String,
+        'plus:LicensorRegion': MD_String,
+        'plus:LicensorPostalCode': MD_String,
+        'plus:LicensorCountry': MD_String,
+        'plus:LicensorTelephoneType1': Unused,
+        'plus:LicensorTelephone1': MD_String,
+        'plus:LicensorTelephoneType2': Unused,
+        'plus:LicensorTelephone2': Unused,
+        'plus:LicensorEmail': MD_String,
+        'plus:LicensorURL': MD_String,
+        }
+
+    _ci_map = {
+        'Iptc4xmpCore:CiAdrExtadr': 'plus:LicensorStreetAddress',
+        'Iptc4xmpCore:CiAdrCity':   'plus:LicensorCity',
+        'Iptc4xmpCore:CiAdrCtry':   'plus:LicensorCountry',
+        'Iptc4xmpCore:CiEmailWork': 'plus:LicensorEmail',
+        'Iptc4xmpCore:CiTelWork':   'plus:LicensorTelephone1',
+        'Iptc4xmpCore:CiAdrPcode':  'plus:LicensorPostalCode',
+        'Iptc4xmpCore:CiAdrRegion': 'plus:LicensorRegion',
+        'Iptc4xmpCore:CiUrlWork':   'plus:LicensorURL',
+        }
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if tag == 'Xmp.iptc.CreatorContactInfo':
+            file_value = file_value or {}
+            file_value = dict((cls._ci_map[k], v)
+                              for (k, v) in file_value.items())
+            if 'plus:LicensorStreetAddress' in file_value:
+                line1, sep, line2 = file_value[
+                    'plus:LicensorStreetAddress'].partition('\n')
+                if line2:
+                    file_value['plus:LicensorExtendedAddress'] = line1
+                    file_value['plus:LicensorStreetAddress'] = line2
+        elif file_value:
+            for value in file_value[1:]:
+                logger.warning(
+                    '%s: to be deleted when data is saved: %s', tag, value)
+            # Xmp.plus.Licensor is an XMP bag with up to 3 entries, use the 1st
+            file_value = file_value[0]
+        return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
+
+    def to_xmp(self):
+        return [super(MD_ContactInformation, self).to_xmp()]
+
+
+class MD_StructArray(MD_Value, tuple):
+    # class for arrays of XMP structures such as locations or image regions
+    def __new__(cls, value=None):
+        value = value or []
+        temp = []
+        for item in value:
+            if not isinstance(item, cls.item_type):
+                item = cls.item_type(item)
+            temp.append(item)
+        while temp and not temp[-1]:
+            temp = temp[:-1]
+        return super(MD_StructArray, cls).__new__(cls, temp)
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        # Exif and IPTC only store one item, XMP stores any number
+        if tag.startswith('Xmp'):
+            file_value = [cls.item_type.from_exiv2(x, tag) for x in file_value]
+        else:
+            file_value = [cls.item_type.from_exiv2(file_value, tag)]
+        return cls(file_value)
+
+    def to_exif(self):
+        return self and self[0].to_exif()
+
+    def to_iptc(self):
+        return self and self[0].to_iptc()
+
+    def to_xmp(self):
+        return [x.to_xmp() for x in self]
+
+    def merge(self, info, tag, other):
+        result = self
+        for item in other:
+            if not isinstance(item, self.item_type):
+                item = self.item_type(item)
+            idx = result.index(item)
+            result = list(result)
+            if idx < len(result):
+                result[idx] = result[idx].merge(info, tag, item)
+            else:
+                self.log_merged(info, tag, item)
+                result.append(item)
+            result = self.__class__(result)
         return result
 
-    def __iter__(self):
-        return iter(self.keys())
+    def compact_form(self):
+        return [v.compact_form() for v in self if v]
 
-    def best_match(self, lang):
-        if not lang:
-            return self.default_text()
-        langs = [lang]
-        if '-' in lang:
-            langs.append(lang.split('-')[0])
-        for lang in langs:
-            k = self.find_key(lang)
-            if k:
-                return self[k]
-            lang = lang.lower()
-            for k in self:
-                if k.lower().startswith(lang):
-                    return self[k]
-        return self.default_text()
-
-    def default_text(self):
-        return self[self.keys()[0]]
-
-    def get_default_lang(self):
-        return self._default_lang or self.DEFAULT
-
-    def set_default_lang(self, lang):
-        self._default_lang = lang
-        new_value = self[lang]
-        key = self.find_key(self.DEFAULT)
-        if not key:
-            return
-        old_value = super(LangAltDict, self).__getitem__(key)
-        del self[key]
-        if new_value in old_value:
-            new_value = old_value
-        elif old_value not in new_value:
-            new_value += ' // ' + old_value
-        self[lang] = new_value
+    def __str__(self):
+        return '\n\n'.join(str(x) for x in self)
 
 
-class MD_LangAlt(LangAltDict, MD_Value):
-    # MD_LangAlt values are a sequence of RFC3066 language tag keys and
+class MD_LangAlt(MD_Value, dict):
+    # XMP LangAlt values are a sequence of RFC3066 language tag keys and
     # text values. The sequence can have a single default value, but if
     # it has more than one value, the default should be repeated with a
     # language tag. See
     # https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
 
+    DEFAULT = 'x-default'
+
+    def __init__(self, value=None, default_lang=None):
+        value = value or {}
+        if isinstance(value, str):
+            value = value.strip()
+            value = value and {self.DEFAULT: value}
+        value = value or {}
+        if default_lang:
+            self.default_lang = default_lang
+        elif isinstance(value, MD_LangAlt):
+            self.default_lang = value.default_lang
+        else:
+            self.default_lang = self.identify_default(value)
+        if self.default_lang != self.DEFAULT and self.DEFAULT in value:
+            del value[self.DEFAULT]
+        super(MD_LangAlt, self).__init__(value)
+
+    @classmethod
+    def identify_default(cls, value):
+        keys = list(value.keys())
+        if len(keys) == 0:
+            return QtCore.QLocale.system().bcp47Name() or cls.DEFAULT
+        if len(keys) == 1:
+            return keys[0]
+        if cls.DEFAULT not in keys:
+            return cls.DEFAULT
+        # look for language with same text as 'x-default' value
+        text = value[cls.DEFAULT]
+        for k, v in value.items():
+            if k != cls.DEFAULT and v == text:
+                return k
+        return cls.DEFAULT
+
+    def find_key(self, key):
+        # languages are case insensitive
+        key = key.lower()
+        for k in self:
+            if k.lower() == key:
+                return k
+        return None
+
+    def __contains__(self, key):
+        key = key and self.find_key(key)
+        return super(MD_LangAlt, self).__contains__(key)
+
+    def __getitem__(self, key):
+        key = self.find_key(key)
+        if not key:
+            return ''
+        return super(MD_LangAlt, self).__getitem__(key)
+
+    def __setitem__(self, key, value):
+        raise NotImplemented()
+
+    def __bool__(self):
+        return any(self.values())
+
+    def __eq__(self, other):
+        if isinstance(other, MD_LangAlt):
+            return not self.__ne__(other)
+        return super(MD_LangAlt, self).__eq__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, MD_LangAlt):
+            if self.default_lang != other.default_lang:
+                return True
+        return super(MD_LangAlt, self).__ne__(other)
+
+    def __str__(self):
+        result = []
+        for key in self.languages():
+            if key != self.DEFAULT:
+                result.append('-- {} --'.format(key))
+            result.append(self[key])
+        return '\n'.join(result)
+
+    def best_match(self, lang=None):
+        if len(self) < 2:
+            return self[self.default_lang]
+        lang = lang or QtCore.QLocale.system().bcp47Name()
+        if not lang:
+            return self[self.default_lang]
+        lang = lang.lower()
+        langs = [lang]
+        if '-' in lang:
+            langs.append(lang.split('-')[0])
+        for lang in langs:
+            for k in self:
+                if k.lower() == lang:
+                    return self[k]
+            for k in self:
+                if k.lower().startswith(lang):
+                    return self[k]
+        return self[self.default_lang]
+
+    def languages(self):
+        keys = list(self.keys())
+        if len(keys) < 1:
+            return [self.default_lang]
+        if len(keys) < 2:
+            return keys
+        if self.default_lang in keys:
+            keys.remove(self.default_lang)
+            keys.sort(key=lambda x: x.lower())
+            keys.insert(0, self.default_lang)
+        else:
+            keys.sort(key=lambda x: x.lower())
+        return keys
+
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
         if not self:
             return None
-        return self.default_text()
+        return self[self.default_lang]
 
     def to_iptc(self):
         return self.to_exif()
@@ -911,32 +986,32 @@ class MD_LangAlt(LangAltDict, MD_Value):
     def to_xmp(self):
         if not self:
             return None
-        if len(self) == 1:
+        if len(self) < 2:
             return dict(self)
-        default_lang = self.get_default_lang()
-        result = {self.DEFAULT: self[default_lang],
-                  default_lang: self[default_lang]}
-        # don't save empty values
-        for k, v in self.items():
-            if v:
-                result[k] = v
+        result = dict((k, v) for (k, v) in self.items() if v)
+        if len(result) > 1:
+            result[self.DEFAULT] = result[self.default_lang]
         return result
 
     def merge(self, info, tag, other):
-        other = LangAltDict(other)
-        if other == self:
+        if self == other:
             return self
-        result = LangAltDict(self)
+        if not isinstance(other, MD_LangAlt):
+            other = MD_LangAlt(other)
+        default_lang = self.default_lang
+        if default_lang == self.DEFAULT:
+            default_lang = other.default_lang
+        result = dict(self)
         for key, value in other.items():
             if key == self.DEFAULT:
                 # try to find matching value
                 for k, v in result.items():
-                    if value in v or v in value:
+                    if k != self.DEFAULT and v == value:
                         key = k
                         break
             else:
                 # try to find matching language
-                key = result.find_key(key) or key
+                key = self.find_key(key) or key
             if key not in result:
                 result[key] = value
             elif value in result[key]:
@@ -946,12 +1021,12 @@ class MD_LangAlt(LangAltDict, MD_Value):
             else:
                 result[key] += ' // ' + value
             self.log_merged(info + '[' + key + ']', tag, value)
-        return self.__class__(result)
+        return self.__class__(result, default_lang=default_lang)
 
 
 class MD_Rights(MD_Collection):
     # stores IPTC rights information
-    _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
+    _keys = ('UsageTerms', 'WebStatement')
     _default_type = MD_UnmergableString
     _type = {'UsageTerms': MD_LangAlt}
 
@@ -1026,7 +1101,8 @@ class MD_LensModel(MD_Collection):
 
 
 class MD_MultiString(MD_Value, tuple):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
+        value = value or []
         if isinstance(value, str):
             value = value.split(';')
         value = filter(bool, [x.strip() for x in value])
@@ -1078,8 +1154,17 @@ class MD_Keywords(MD_MultiString):
 
 
 class MD_Int(MD_Value, int):
+    def __new__(cls, value=None):
+        if value is None:
+            return None
+        return super(MD_Int, cls).__new__(cls, value)
+
     def to_exif(self):
         return self
+
+    def __bool__(self):
+        # reinterpret to mean "has a value", even if the value is zero
+        return True
 
 
 class MD_Orientation(MD_Int):
@@ -1089,6 +1174,29 @@ class MD_Orientation(MD_Int):
         if file_value not in mapping:
             raise ValueError('unrecognised orientation {}'.format(file_value))
         return cls(mapping[file_value])
+
+    def get_transform(self):
+        bits = self - 1
+        if not bits:
+            return None
+        # need to rotate and or reflect image
+        # translation is set so a unit rectangle maps to a unit rectangle
+        transform = QtGui.QTransform()
+        if bits & 0b001:
+            # reflect left-right
+            transform = transform.scale(-1.0, 1.0)
+        if bits & 0b010:
+            # rotate 180°
+            transform = transform.rotate(180.0)
+        if bits & 0b100:
+            # rotate 90° then reflect left-right
+            transform = transform.rotate(-90.0)
+            transform = transform.scale(-1.0, 1.0)
+        if transform.m11() + transform.m12() < 0:
+            transform = transform.translate(-1, 0)
+        if transform.m21() + transform.m22() < 0:
+            transform = transform.translate(0, -1)
+        return transform
 
 
 class MD_Timezone(MD_Int):
@@ -1105,7 +1213,15 @@ class MD_Timezone(MD_Int):
 
 
 class MD_Float(MD_Value, float):
-    pass
+    def __new__(cls, value=None):
+        if value is None:
+            return None
+        return super(MD_Float, cls).__new__(cls, value)
+
+    def __bool__(self):
+        # reinterpret to mean "has a value", even if the value is zero
+        return True
+
 
 class MD_Rating(MD_Float):
     @classmethod
@@ -1123,7 +1239,9 @@ class MD_Rating(MD_Float):
 
 
 class MD_Rational(MD_Value, Fraction):
-    def __new__(cls, value):
+    def __new__(cls, value=None):
+        if value is None:
+            return None
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
 
     def to_exif(self):
@@ -1131,6 +1249,13 @@ class MD_Rational(MD_Value, Fraction):
 
     def to_xmp(self):
         return '{}/{}'.format(self.numerator, self.denominator)
+
+    def compact_form(self):
+        return float(self)
+
+    def __bool__(self):
+        # reinterpret to mean "has a value", even if the value is zero
+        return True
 
     def __str__(self):
         return str(float(self))
@@ -1165,8 +1290,17 @@ class MD_Altitude(MD_Rational):
             ref = '0'
         return '{}/{}'.format(altitude.numerator, altitude.denominator), ref
 
+    def contains(self, this, other):
+        return abs(float(other) - float(this)) < 0.001
+
 
 class MD_Coordinate(MD_Rational):
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if tag.startswith('Exif'):
+            return cls.from_exif(file_value)
+        return cls.from_xmp(file_value)
+
     @classmethod
     def from_exif(cls, value):
         if not all(value):
@@ -1206,7 +1340,7 @@ class MD_Coordinate(MD_Rational):
             degrees = -degrees
         return cls(degrees)
 
-    def to_exif(self):
+    def to_exif_part(self):
         degrees = self
         pstv = degrees >= 0
         if not pstv:
@@ -1219,154 +1353,139 @@ class MD_Coordinate(MD_Rational):
         seconds = (minutes - i) * 60
         minutes = Fraction(i)
         seconds = seconds.limit_denominator(1000000)
-        return pstv, degrees, minutes, seconds
+        return (degrees, minutes, seconds), pstv
 
-    def to_xmp(self):
-        pstv, degrees, minutes, seconds = self.to_exif()
-        numbers = degrees, minutes, seconds
+    def to_xmp_part(self):
+        numbers, pstv = self.to_exif_part()
         if all([x.denominator == 1 for x in numbers]):
             return ('{:d},{:d},{:d}'.format(*[x.numerator for x in numbers]),
                     pstv)
+        degrees, minutes, seconds = numbers
         degrees = int(degrees)
         minutes = float(minutes + (seconds / 60))
         return '{:d},{:.8f}'.format(degrees, minutes), pstv
+
+    def contains(self, this, other):
+        return abs(float(other) - float(this)) < 0.0000001
+
+    def compact_form(self):
+        return round(float(self), 6)
 
     def __str__(self):
         return '{:.6f}'.format(float(self))
 
 
-class MD_GPSinfo(MD_Dict):
-    # stores GPS information
-    _keys = ('version_id', 'method', 'alt', 'lat', 'lon')
+class MD_Latitude(MD_Coordinate):
+    def to_exif(self):
+        numbers, pstv = self.to_exif_part()
+        return numbers, ('S', 'N')[pstv]
 
-    @staticmethod
-    def convert(value):
-        value['version_id'] = value['version_id'] or b'\x02\x00\x00\x00'
-        if value['alt'] and not isinstance(value['alt'], MD_Altitude):
-            value['alt'] = MD_Altitude(value['alt'])
-        for key in 'lat', 'lon':
-            if not value[key]:
-                value['lat'] = None
-                value['lon'] = None
-                break
-            if not isinstance(value[key], MD_Coordinate):
-                value[key] = MD_Coordinate(value[key])
-        return value
+    def to_xmp(self):
+        string, pstv = self.to_xmp_part()
+        return string + ('S', 'N')[pstv]
+
+
+class MD_Longitude(MD_Coordinate):
+    def to_exif(self):
+        numbers, pstv = self.to_exif_part()
+        return numbers, ('W', 'E')[pstv]
+
+    def to_xmp(self):
+        string, pstv = self.to_xmp_part()
+        return string + ('W', 'E')[pstv]
+
+
+class GPSVersionId(MD_Value, bytes):
+    def __new__(cls, value=None):
+        value = value or b'\x02\x00\x00\x00'
+        return super(GPSVersionId, cls).__new__(cls, value)
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if file_value and tag.startswith('Xmp'):
+            file_value = [int(x) for x in file_value.split('.')]
+        return cls(file_value)
+
+    def to_exif(self):
+        return self
+
+    def to_xmp(self):
+        return '.'.join(str(x) for x in self)
+
+    def compact_form(self):
+        return self.to_xmp()
+
+
+class MD_GPSinfo(MD_Structure):
+    item_type = {
+        'version_id': GPSVersionId,
+        'method': MD_UnmergableString,
+        'exif:GPSAltitude': MD_Altitude,
+        'exif:GPSLatitude': MD_Latitude,
+        'exif:GPSLongitude': MD_Longitude,
+        }
+    legacy_keys = (
+        'version_id', 'method',
+        'exif:GPSAltitude', 'exif:GPSLatitude', 'exif:GPSLongitude')
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
         if file_value:
             match = re.match(
-                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)/$', file_value)
+                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)?/', file_value)
             if match:
-                return cls(zip(('lat', 'lon', 'alt'), match.groups()))
-        return None
+                return cls(dict(zip(('exif:GPSLatitude', 'exif:GPSLongitude',
+                                     'exif:GPSAltitude'), match.groups())))
+        return cls()
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Xmp.video'):
             return cls.from_ffmpeg(file_value, tag)
         version_id = file_value[0]
-        method = MD_UnmergableString.from_exiv2(file_value[1], tag)
-        alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
+        method = file_value[1]
+        alt = file_value[2:4]
         if tag.startswith('Exif'):
-            lat = MD_Coordinate.from_exif(file_value[4:6])
-            lon = MD_Coordinate.from_exif(file_value[6:8])
+            lat = file_value[4:6]
+            lon = file_value[6:8]
         else:
-            if version_id:
-                version_id = bytes([int(x) for x in version_id.split('.')])
-            lat = MD_Coordinate.from_xmp(file_value[4])
-            lon = MD_Coordinate.from_xmp(file_value[5])
-        if not any((alt, lat, lon)):
-            return None
-        return cls((version_id, method, alt, lat, lon))
+            lat = file_value[4]
+            lon = file_value[5]
+        file_value = version_id, method, alt, lat, lon
+        return super(MD_GPSinfo, cls).from_exiv2(file_value, tag)
 
     def to_exif(self):
-        if self['alt']:
-            altitude, alt_ref = self['alt'].to_exif()
-        else:
-            altitude, alt_ref = None, None
-        if self['lat']:
-            pstv, degrees, minutes, seconds = self['lat'].to_exif()
-            lat_value = degrees, minutes, seconds
-            lat_ref = ('S', 'N')[pstv]
-            pstv, degrees, minutes, seconds = self['lon'].to_exif()
-            lon_value = degrees, minutes, seconds
-            lon_ref = ('W', 'E')[pstv]
-        else:
-            lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
-        if self['method']:
-            method = 'charset=Ascii ' + self['method']
-        else:
-            method = None
-        return (self['version_id'], method,
-                altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref)
+        if not self:
+            return None
+        result = []
+        for k in self.legacy_keys:
+            if k in ('exif:GPSAltitude', 'exif:GPSLatitude',
+                     'exif:GPSLongitude'):
+                if self[k]:
+                    result += self[k].to_exif()
+                else:
+                    result += [None, None]
+            else:
+                result.append(self[k] and self[k].to_exif())
+        return result
 
     def to_xmp(self):
-        version_id = '.'.join([str(x) for x in self['version_id']])
-        if self['alt']:
-            altitude, alt_ref = self['alt'].to_xmp()
-        else:
-            altitude, alt_ref = None, None
-        if self['lat']:
-            lat_string, pstv = self['lat'].to_xmp()
-            lat_string += ('S', 'N')[pstv]
-            lon_string, pstv = self['lon'].to_xmp()
-            lon_string += ('W', 'E')[pstv]
-        else:
-            lat_string, lon_string = None, None
-        return (version_id, self['method'],
-                altitude, alt_ref, lat_string, lon_string)
+        if not self:
+            return None
+        result = []
+        for k in self.legacy_keys:
+            if k == 'exif:GPSAltitude':
+                if self[k]:
+                    result += self[k].to_xmp()
+                else:
+                    result += [None, None]
+            else:
+                result.append(self[k] and self[k].to_xmp())
+        return result
 
-    def merge_item(self, this, other):
-        merged = False
-        ignored = False
-        result = dict(this)
-        if not isinstance(other, MD_GPSinfo):
-            other = MD_GPSinfo(other)
-        # compare coordinates
-        if other['lat']:
-            if not result['lat']:
-                # swap entirely
-                result = dict(other)
-                other = this
-                merged = True
-            elif (abs(float(other['lat']) -
-                      float(result['lat'])) > 0.000001
-                  or abs(float(other['lon']) -
-                         float(result['lon'])) > 0.000001):
-                # lat, lon differs, keep the one with altitude
-                if other['alt'] and not result['alt']:
-                    result = dict(other)
-                    other = this
-                ignored = True
-        # now consider altitude
-        if other['alt'] and not ignored:
-            if not result['alt']:
-                result['alt'] = other['alt']
-                merged = True
-            elif abs(float(other['alt']) - float(result['alt'])) > 0.01:
-                # alt differs, can only keep one of them
-                ignored = True
-        return result, merged, ignored
-
-    def __eq__(self, other):
-        if not isinstance(other, MD_GPSinfo):
-            return super(MD_GPSinfo, self).__eq__(other)
-        if bool(other['alt']) != bool(self['alt']):
-            return False
-        if bool(other['lat']) != bool(self['lat']):
-            return False
-        if self['alt'] and abs(float(other['alt']) -
-                               float(self['alt'])) > 0.001:
-            return False
-        if self['lat'] and abs(float(other['lat']) -
-                               float(self['lat'])) > 0.0000001:
-            return False
-        if self['lon'] and abs(float(other['lon']) -
-                               float(self['lon'])) > 0.0000001:
-            return False
-        return True
+    def __bool__(self):
+        return any(self[k] for k in ('exif:GPSLatitude', 'exif:GPSLongitude',
+                                     'exif:GPSAltitude'))
 
 
 class MD_Aperture(MD_Rational):
@@ -1401,18 +1520,524 @@ class MD_Aperture(MD_Rational):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
 
 
-class MD_FrameRate(MD_Rational):
+class MD_VideoDuration(MD_Rational):
+    @classmethod
+    def from_ffmpeg(cls, file_value, tag):
+        if tag == 'ffmpeg/streams[0]/duration':
+            return cls(file_value)
+        elif tag == 'ffmpeg/streams[0]/duration_ts':
+            duration_ts, time_base = file_value
+            if duration_ts and time_base:
+                return cls(duration_ts * Fraction(time_base))
+        elif tag == 'ffmpeg/streams[0]/frames':
+            frames, frame_rate = file_value
+            if frames and frame_rate:
+                return cls((int(frames) / Fraction(frame_rate)))
+        return None
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if file_value:
+            return cls((int(file_value), 1000))
+        return None
+
     def contains(self, this, other):
-        # exiv2 rounds 30000/1001 to 29.97
-        return float(min(other, this)) > (float(max(other, this)) * 0.9999)
+        # some values are a bit approximate
+        lo = float(min(other, this))
+        hi = float(max(other, this))
+        return hi - lo < max(hi * 0.0001, 0.2)
 
 
 class MD_Dimensions(MD_Collection):
-    _keys = ('width', 'height', 'frames', 'frame_rate')
+    _keys = ('width', 'height')
     _default_type = MD_Int
-    _type = {'frame_rate': MD_FrameRate}
 
-    def duration(self):
-        if self['frames'] and self['frame_rate']:
-            return float(self['frames'] / self['frame_rate'])
-        return 0.0
+    def scaled_to(self, target_size):
+        w = float(self['width'])
+        h = float(self['height'])
+        if w > h:
+            return target_size, int((float(target_size) * h / w) + 0.5)
+        return int((float(target_size) * w / h) + 0.5), target_size
+
+
+class CountryCode(MD_UnmergableString):
+    def __new__(cls, value=None):
+        if value is None:
+            value = ''
+        elif isinstance(value, str):
+            value = value.strip().upper()
+        return super(CountryCode, cls).__new__(cls, value)
+
+
+class MD_Location(MD_Structure):
+    # stores IPTC defined location heirarchy
+    item_type = {
+        'Iptc4xmpExt:City': MD_String,
+        'Iptc4xmpExt:CountryCode': CountryCode,
+        'Iptc4xmpExt:CountryName': MD_String,
+        'exif:GPSAltitude': MD_Rational,
+        'exif:GPSLatitude': MD_Latitude,
+        'exif:GPSLongitude': MD_Longitude,
+        'Iptc4xmpExt:LocationId': MD_MultiString,
+        'Iptc4xmpExt:LocationName': MD_LangAlt,
+        'Iptc4xmpExt:ProvinceState': MD_String,
+        'Iptc4xmpExt:Sublocation': MD_String,
+        'Iptc4xmpExt:WorldRegion': MD_String,
+        }
+    legacy_keys = (
+        'Iptc4xmpExt:Sublocation', 'Iptc4xmpExt:City',
+        'Iptc4xmpExt:ProvinceState', 'Iptc4xmpExt:CountryName',
+        'Iptc4xmpExt:CountryCode',
+        )
+
+    def to_xmp(self):
+        if not self:
+            # need a place holder for empty values
+            return {'Iptc4xmpExt:City': ' '}
+        return super(MD_Location, self).to_xmp()
+
+    @classmethod
+    def from_address(cls, gps, address, key_map):
+        result = {}
+        for key in cls.item_type:
+            result[key] = []
+        for key in key_map:
+            for foreign_key in key_map[key]:
+                if foreign_key not in address or not address[foreign_key]:
+                    continue
+                if key in result and address[foreign_key] not in result[key]:
+                    result[key].append(address[foreign_key])
+                del(address[foreign_key])
+        # only use one country code
+        result['Iptc4xmpExt:CountryCode'] = result[
+            'Iptc4xmpExt:CountryCode'][:1]
+        # put unknown foreign keys in Sublocation
+        for foreign_key in address:
+            if address[foreign_key] in ' '.join(
+                    result['Iptc4xmpExt:Sublocation']):
+                continue
+            result['Iptc4xmpExt:Sublocation'] = [
+                '{}: {}'.format(foreign_key, address[foreign_key])
+                ] + result['Iptc4xmpExt:Sublocation']
+        for key in result:
+            result[key] = ', '.join(result[key]) or None
+        result['exif:GPSLatitude'] = gps['lat']
+        result['exif:GPSLongitude'] = gps['lng']
+        return cls(result)
+
+
+class MD_MultiLocation(MD_StructArray):
+    item_type = MD_Location
+
+    def index(self, other):
+        for n, value in enumerate(self):
+            if value == other:
+                return n
+        return len(self)
+
+
+class MD_SingleLocation(MD_MultiLocation):
+    def index(self, other):
+        return 0
+
+
+class ConceptIndentifier(MD_MultiString):
+    def compact_form(self):
+        fm = QtWidgets.QWidget().fontMetrics()
+        width = fm.boundingRect('x' * 30).width()
+        return [fm.elidedText(v, Qt.TextElideMode.ElideLeft, width)
+                for v in self if v]
+
+
+class EntityConcept(MD_Structure):
+    item_type = {
+        'Iptc4xmpExt:Name': MD_LangAlt,
+        'xmp:Identifier': ConceptIndentifier,
+        }
+
+
+class EntityConceptArray(MD_StructArray):
+    item_type = EntityConcept
+
+
+class RegionBoundaryNumber(MD_Float):
+    def set_decimals(self, decimals):
+        self.decimals = decimals
+
+    def compact_form(self):
+        return round(self, self.decimals)
+
+    def __str__(self):
+        return '{:g}'.format(round(self, self.decimals))
+
+
+class RegionBoundaryPoint(MD_Structure):
+    item_type = {
+        'Iptc4xmpExt:rbX': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbY': RegionBoundaryNumber,
+        }
+
+    def set_decimals(self, decimals):
+        for v in self.values():
+            v.set_decimals(decimals)
+
+
+class RegionBoundaryPointArray(MD_StructArray):
+    item_type = RegionBoundaryPoint
+
+    def set_decimals(self, decimals):
+        for v in self:
+            v.set_decimals(decimals)
+
+
+class RegionBoundary(MD_Structure):
+    item_type = {
+        'Iptc4xmpExt:rbShape': MD_String,
+        'Iptc4xmpExt:rbUnit': MD_String,
+        'Iptc4xmpExt:rbX': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbY': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbW': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbH': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbRx': RegionBoundaryNumber,
+        'Iptc4xmpExt:rbVertices': RegionBoundaryPointArray,
+        }
+
+    def __init__(self, value=None):
+        value = value or {}
+        super(RegionBoundary, self).__init__(value)
+        if self['Iptc4xmpExt:rbUnit'] == 'pixel':
+            decimals = 0
+        else:
+            decimals = 4
+        for v in self.values():
+            if isinstance(v, (RegionBoundaryNumber, RegionBoundaryPointArray)):
+                v.set_decimals(decimals)
+
+    def compact_form(self):
+        result = super(RegionBoundary, self).compact_form()
+        if result['rbShape'] == 'circle':
+            return {'rbShape':
+                    'circle({rbX:g}, {rbY:g}, {rbRx:g})'.format(**result),
+                    'rbUnit': result['rbUnit']}
+        if result['rbShape'] == 'rectangle':
+            return {'rbShape':
+                    'rectangle({rbX:g}, {rbY:g}, {rbW:g}, {rbH:g})'.format(**result),
+                    'rbUnit': result['rbUnit']}
+        return result
+
+    def to_Qt(self, image):
+        # convert the boundary to a Qt polygon defining the shape in
+        # relative units
+        if self['Iptc4xmpExt:rbShape'] == 'rectangle':
+            # polygon is two opposite corners of rectangle
+            rect = QtCore.QRectF(
+                self['Iptc4xmpExt:rbX'], self['Iptc4xmpExt:rbY'],
+                self['Iptc4xmpExt:rbW'], self['Iptc4xmpExt:rbH'])
+            polygon = QtGui.QPolygonF([rect.topLeft(), rect.bottomRight()])
+        elif self['Iptc4xmpExt:rbShape'] == 'circle':
+            # polygon is centre and a point on the circumference
+            centre = QtCore.QPointF(
+                self['Iptc4xmpExt:rbX'], self['Iptc4xmpExt:rbY'])
+            edge = centre + QtCore.QPointF(self['Iptc4xmpExt:rbRx'], 0.0)
+            polygon = QtGui.QPolygonF([centre, edge])
+        else:
+            # polygon is a list of vertices
+            polygon = QtGui.QPolygonF([
+                QtCore.QPointF(v['Iptc4xmpExt:rbX'], v['Iptc4xmpExt:rbY'])
+                for v in self['Iptc4xmpExt:rbVertices']])
+        if self['Iptc4xmpExt:rbUnit'] == 'relative':
+            return polygon
+        image_dims = image.metadata.dimensions
+        transform = QtGui.QTransform().scale(1.0 / float(image_dims['width']),
+                                             1.0 / float(image_dims['height']))
+        return transform.map(polygon)
+
+    def from_Qt(self, polygon, image):
+        # convert a Qt polygon defining the shape in relative units to a
+        # boundary in pixel or relative units
+        boundary = dict(self)
+        if boundary['Iptc4xmpExt:rbUnit'] == 'pixel':
+            image_dims = image.metadata.dimensions
+            transform = QtGui.QTransform().scale(float(image_dims['width']),
+                                                 float(image_dims['height']))
+            polygon = transform.map(polygon)
+        if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+            # polygon is two opposite corners of rectangle
+            rect = QtCore.QRectF(polygon.at(0), polygon.at(1))
+            boundary['Iptc4xmpExt:rbX'] = rect.x()
+            boundary['Iptc4xmpExt:rbY'] = rect.y()
+            boundary['Iptc4xmpExt:rbW'] = rect.width()
+            boundary['Iptc4xmpExt:rbH'] = rect.height()
+        elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+            # polygon is centre and a point on the circumference
+            centre = polygon.at(0)
+            radius = (polygon.at(1) - centre).manhattanLength()
+            boundary['Iptc4xmpExt:rbX'] = centre.x()
+            boundary['Iptc4xmpExt:rbY'] = centre.y()
+            boundary['Iptc4xmpExt:rbRx'] = radius
+        else:
+            # polygon is a list of vertices
+            boundary['Iptc4xmpExt:rbVertices'] = [
+                {'Iptc4xmpExt:rbX': p.x(), 'Iptc4xmpExt:rbY': p.y()}
+                for p in (polygon.at(n) for n in range(polygon.count()))]
+        return RegionBoundary(boundary)
+
+
+class ImageRegionItem(MD_Structure):
+    extendable = True
+    item_type = {
+        'Iptc4xmpExt:RegionBoundary': RegionBoundary,
+        'Iptc4xmpExt:rId': MD_String,
+        'Iptc4xmpExt:Name': MD_LangAlt,
+        'Iptc4xmpExt:rCtype': EntityConceptArray,
+        'Iptc4xmpExt:rRole': EntityConceptArray,
+        'Iptc4xmpExt:PersonInImage': MD_MultiString,
+        'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
+        'photoshop:CaptionWriter': MD_String,
+        'dc:description': MD_LangAlt,
+        }
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return None
+        if tag.startswith('Xmp'):
+            return cls(file_value)
+        # Convert Exif.Photo.SubjectArea to an image region. See
+        # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
+        if len(file_value) == 2:
+            region = {'Iptc4xmpExt:rbShape': 'polygon',
+                      'Iptc4xmpExt:rbVertices': [{
+                          'Iptc4xmpExt:rbX': file_value[0],
+                          'Iptc4xmpExt:rbY': file_value[1]}]}
+        elif len(file_value) == 3:
+            region = {'Iptc4xmpExt:rbShape': 'circle',
+                      'Iptc4xmpExt:rbX': file_value[0],
+                      'Iptc4xmpExt:rbY': file_value[1],
+                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
+        elif len(file_value) == 4:
+            region = {'Iptc4xmpExt:rbShape': 'rectangle',
+                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
+                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
+                      'Iptc4xmpExt:rbW': file_value[2],
+                      'Iptc4xmpExt:rbH': file_value[3]}
+        else:
+            return None
+        region['Iptc4xmpExt:rbUnit'] = 'pixel'
+        return cls({
+            'Iptc4xmpExt:RegionBoundary': region,
+            'Iptc4xmpExt:rRole': [{
+                'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
+                'xmp:Identifier': [
+                    'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea'],
+                }],
+            })
+
+    def has_uid(self, key, uid):
+        if key not in self:
+            return False
+        for item in self[key]:
+            if 'xmp:Identifier' in item and uid in item['xmp:Identifier']:
+                return True
+        return False
+
+    def is_main_subject_area(self):
+        return self.has_uid(
+            'Iptc4xmpExt:rRole',
+            'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
+
+    def to_Qt(self, image):
+        return self['Iptc4xmpExt:RegionBoundary'].to_Qt(image)
+
+    def from_Qt(self, polygon, image):
+        return self['Iptc4xmpExt:RegionBoundary'].from_Qt(polygon, image)
+
+    def convert_unit(self, unit, image):
+        boundary = self['Iptc4xmpExt:RegionBoundary']
+        if boundary['Iptc4xmpExt:rbUnit'] == unit:
+            return self
+        polygon = boundary.to_Qt(image)
+        boundary['Iptc4xmpExt:rbUnit'] = unit
+        boundary = boundary.from_Qt(polygon, image)
+        result = ImageRegionItem(self)
+        result['Iptc4xmpExt:RegionBoundary'] = boundary
+        return result
+
+
+class MD_ImageRegion(MD_StructArray):
+    item_type = ImageRegionItem
+
+    def new_region(self, region, idx=None):
+        if idx is None:
+            idx = len(self)
+        result = list(self)
+        if region:
+            if idx < len(self):
+                result[idx] = region
+            else:
+                result.append(region)
+        elif idx < len(self):
+            result.pop(idx)
+        result = MD_ImageRegion(result)
+        return result
+
+    def index(self, other):
+        if other.is_main_subject_area():
+            # only one main subject area region allowed
+            for n, value in enumerate(self):
+                if value.is_main_subject_area():
+                    return True
+            return len(self)
+        for n, value in enumerate(self):
+            for key in ('Iptc4xmpExt:RegionBoundary', 'Iptc4xmpExt:rId'):
+                if value[key] and value[key] == other[key]:
+                    return n
+        return len(self)
+
+    @staticmethod
+    def boundary_from_note(note, dims, image):
+        if not ('x' in note and 'y' in note and
+                'w' in note and 'h' in note):
+            return None
+        transform = (image.metadata.orientation
+                     and image.metadata.orientation.get_transform())
+        w, h = dims
+        if transform and transform.isRotating():
+            w, h = h, w
+        scale = QtGui.QTransform().scale(1.0 / float(w), 1.0 / float(h))
+        rect = QtCore.QRectF(float(note['x']), float(note['y']),
+                             float(note['w']), float(note['h']))
+        rect = scale.mapRect(rect)
+        if transform:
+            rect = transform.inverted()[0].mapRect(rect)
+        boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
+                    'Iptc4xmpExt:rbUnit': 'relative'}
+        (boundary['Iptc4xmpExt:rbX'],
+         boundary['Iptc4xmpExt:rbY'],
+         boundary['Iptc4xmpExt:rbW'],
+         boundary['Iptc4xmpExt:rbH']) = rect.getRect()
+        return boundary
+
+    def from_notes(self, notes, image, target_size):
+        # convert current regions to note boundaries for comparison
+        boundaries = {}
+        for region, note in self.to_note_boundary(image, target_size):
+            key = ','.join(note[k] for k in ('x', 'y', 'w', 'h'))
+            boundaries[key] = region['Iptc4xmpExt:RegionBoundary']
+        dims = image.metadata.dimensions.scaled_to(target_size)
+        result = []
+        for note in notes:
+            # use existing boundary if it matches (to cope with low
+            # resolution of Flickr / Ipernity)
+            key = ','.join(note[k] for k in ('x', 'y', 'w', 'h'))
+            if key in boundaries:
+                boundary = dict(boundaries[key])
+            else:
+                boundary = self.boundary_from_note(note, dims, image)
+            if not boundary:
+                continue
+            region = {'Iptc4xmpExt:RegionBoundary': boundary}
+            region['Iptc4xmpExt:rRole'] = [{
+                'xmp:Identifier': [
+                    'http://cv.iptc.org/newscodes/imageregionrole/subjectArea'],
+                'Iptc4xmpExt:Name': {'en-GB': 'subject area'}}]
+            if note['is_person']:
+                region['Iptc4xmpExt:PersonInImage'] = [note['content']]
+                region['Iptc4xmpExt:rCtype'] = [{
+                    'Iptc4xmpExt:Name': {'en-GB': 'human'},
+                    'xmp:Identifier': [
+                        'http://cv.iptc.org/newscodes/imageregiontype/human']}]
+            else:
+                region['dc:description'] = {'x-default': note['content']}
+            if note['authorrealname']:
+                region['photoshop:CaptionWriter'] = note['authorrealname']
+            result.append(region)
+        return result
+
+    def to_note_boundary(self, image, target_size):
+        w, h = image.metadata.dimensions.scaled_to(target_size)
+        transform = (image.metadata.orientation
+                     and image.metadata.orientation.get_transform())
+        if transform and transform.isRotating():
+            w, h = h, w
+        scale = QtGui.QTransform().scale(w, h)
+        for region in self:
+            boundary = region['Iptc4xmpExt:RegionBoundary']
+            if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
+                continue
+            points = region.to_Qt(image)
+            rect = QtCore.QRectF(points.at(0), points.at(1))
+            if transform:
+                rect = transform.mapRect(rect).normalized()
+            rect = scale.mapRect(rect)
+            note = dict(zip(('x', 'y', 'w', 'h'),
+                            [str(int(v + 0.5)) for v in rect.getRect()]))
+            yield region, note
+
+    def to_notes(self, image, target_size):
+        result = []
+        for region, note in self.to_note_boundary(image, target_size):
+            note['content'] = ''
+            note['is_person'] = False
+            if region.has_uid(
+                    'Iptc4xmpExt:rCtype',
+                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
+                if 'Iptc4xmpExt:PersonInImage' in region:
+                    note['content'] = ', '.join(
+                        region['Iptc4xmpExt:PersonInImage'])
+                note['is_person'] = True
+            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
+                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
+                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
+                continue
+            if 'dc:description' in region and not note['content']:
+                note['content'] = MD_LangAlt(
+                    region['dc:description']).best_match()
+            if 'Iptc4xmpExt:Name' in region and not note['content']:
+                note['content'] = MD_LangAlt(
+                    region['Iptc4xmpExt:Name']).best_match()
+            if not note['content']:
+                continue
+            result.append(note)
+        return result
+
+    def get_focus(self, image):
+        image_dims = image.metadata.dimensions
+        portrait_format = image_dims['height'] > image_dims['width']
+        transform = (image.metadata.orientation
+                     and image.metadata.orientation.get_transform())
+        if transform and transform.isRotating():
+            portrait_format = not portrait_format
+        if portrait_format:
+            uris = (
+                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
+                )
+        else:
+            uris = (
+                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
+                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
+                )
+        for uri in uris:
+            for region in self:
+                if not region.has_uid('Iptc4xmpExt:rRole', uri):
+                    continue
+                points = region.to_Qt(image)
+                boundary = region['Iptc4xmpExt:RegionBoundary']
+                if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+                    centre = (points.at(0) + points.at(1)) / 2.0
+                elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+                    centre = points.at(0)
+                else:
+                    centre = points.boundingRect().center()
+                if transform:
+                    centre = transform.map(centre)
+                return (centre.x() * 2.0) - 1.0, 1.0 - (centre.y() * 2.0)
+        return None

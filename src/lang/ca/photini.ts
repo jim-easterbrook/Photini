@@ -4,6 +4,18 @@
 <context>
     <name>AddressTab</name>
     <message>
+        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Street</source>
         <translation>Carrer</translation>
     </message>
@@ -22,6 +34,14 @@
     <message>
         <source>Region</source>
         <translation>Regió</translation>
+    </message>
+    <message>
+        <source>Location ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation type="unfinished">Alçada</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -66,6 +86,10 @@
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodades © OpenStreetMap contributors</translation>
+    </message>
+    <message>
+        <source>Enter a full name of the location.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -401,6 +425,10 @@
     </message>
     <message>
         <source>Change licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace image region notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -783,6 +811,10 @@
         <translation>Canviar els membres de l&apos;album</translation>
     </message>
     <message>
+        <source>Replace image region notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Title</source>
         <translation>Titol</translation>
     </message>
@@ -832,6 +864,10 @@
     <message>
         <source>Lat, long</source>
         <translation>Lat, long</translation>
+    </message>
+    <message>
+        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a comma.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1081,15 +1117,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Email(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1097,19 +1125,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the work phone number(s) for the person that created this image, using the international format, such as +1 (123) 456789.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Phone(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter address for the person that created this image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1145,6 +1161,10 @@
         <translation>País</translation>
     </message>
     <message>
+        <source>Creator / Licensor Contact Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1161,15 +1181,35 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Rights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the work email address for the person that created this image, such as name@domain.com.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the work Web URL for the person that created this image, such as http://www.domain.com/.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the work phone number for the person that created this image, using the international format, such as +1 (123) 456789.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter address detail (e.g. flat number or room number) for the person that created this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Detail Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter street address for the person that created this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Street Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1186,10 +1226,6 @@
     </message>
     <message>
         <source>Apply template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creator Contact Information</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1376,6 +1412,121 @@
     </message>
     <message>
         <source>File &quot;{file_name}&quot; does not have any &quot;alt text&quot; for accessibility. Would you like to upload it anyway?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RegionsTab</name>
+    <message>
+        <source>Delete vertex</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New vertex</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unreadable image format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A pixel of a digital image setting an absolute value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>relative</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relative part of the size of an image along the x- or the y-axis.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Identifier of the region. Must be unique among all Region Identifiers of an image. Does not have to be unique beyond the metadata of this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Identifier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unit used for measuring dimensions of the boundary of a region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Boundary unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Role of this region among all regions of this image or of other images. The value SHOULD be taken from a Controlled Vocabulary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Role</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The semantic type of what is shown inside the region. The value SHOULD be taken from a Controlled Vocabulary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Content type</source>
+        <translation type="unfinished">Tipus de contingut</translation>
+    </message>
+    <message>
+        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation type="unfinished">Descripció</translation>
+    </message>
+    <message>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New rectangle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New circle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete region</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image &amp;Regions</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

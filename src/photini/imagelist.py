@@ -87,19 +87,9 @@ class Image(QtWidgets.QFrame):
         self.app.image_list.emit_selection()
 
     def transform(self, pixmap, orientation):
-        orientation = (orientation or 1) - 1
-        if not orientation:
+        transform = orientation and orientation.get_transform()
+        if not transform:
             return pixmap
-        # need to rotate and or reflect image
-        transform = QtGui.QTransform()
-        if orientation & 0b001:
-            # reflect left-right
-            transform = transform.scale(-1.0, 1.0)
-        if orientation & 0b010:
-            transform = transform.rotate(180.0)
-        if orientation & 0b100:
-            # transpose horizontal & vertical
-            transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
         return pixmap.transformed(transform)
 
     def regenerate_thumbnail(self):
@@ -132,7 +122,7 @@ class Image(QtWidgets.QFrame):
             return None
         width = dims['width']
         height = dims['height']
-        duration = dims.duration()
+        duration = self.metadata.video_duration or 0
         skip = int(min(duration / 2, 10.0))
         # target dimensions
         w, h = 160, 120
@@ -295,7 +285,7 @@ class Image(QtWidgets.QFrame):
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if self.metadata.gps_info and self.metadata.gps_info['lat']:
+        if self.metadata.gps_info['exif:GPSLatitude']:
             status += chr(0x2690)
         # set 'unsaved' status
         if changed:
@@ -668,16 +658,13 @@ class ImageList(QtWidgets.QWidget):
         self._sort_thumbnails()
 
     def _date_key(self, image):
-        result = image.metadata.date_taken
-        if result is None:
-            result = image.metadata.date_digitised
-        if result is None:
-            result = image.metadata.date_modified
-        if result is None:
+        result = (image.metadata.date_taken or image.metadata.date_digitised
+                  or image.metadata.date_modified)
+        if result:
+            result = result['datetime']
+        else:
             # use file date as last resort
             result = datetime.fromtimestamp(os.path.getmtime(image.path))
-        else:
-            result = result['datetime']
         # convert result to string and append path so photos with same
         # time stamp get sorted consistently
         result = result.strftime('%Y%m%d%H%M%S%f') + image.path
@@ -780,6 +767,7 @@ class ImageList(QtWidgets.QWidget):
         dialog.setFixedSize(min(width, self.window().width()),
                             min(width // 2, self.window().height()))
         table = QtWidgets.QTableWidget()
+        table.setVerticalScrollMode(table.ScrollMode.ScrollPerPixel)
         table.setColumnCount(3)
         table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
                                          translate('ImageList', 'undo'),
@@ -817,7 +805,7 @@ class ImageList(QtWidgets.QWidget):
                         'orientation', 'camera_model', 'lens_model',
                         'focal_length', 'focal_length_35', 'aperture',
                         'gps_info', 'location_taken', 'location_shown',
-                        'thumbnail'):
+                        'image_region', 'thumbnail'):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
                     continue

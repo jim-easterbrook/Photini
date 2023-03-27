@@ -590,6 +590,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             buf = QtCore.QBuffer()
             buf.setData(bytes(data))
             reader = QtGui.QImageReader(buf)
+            reader.setAutoTransform(False)
             im = reader.read()
             if im.isNull():
                 raise RuntimeError(reader.errorString())
@@ -848,7 +849,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         if 'keyword' in update:
             # store photo id in image keywords, in main thread
             image, keyword = update['keyword']
-            keywords = list(image.metadata.keywords or [])
+            keywords = list(image.metadata.keywords)
             if keyword not in keywords:
                 image.metadata.keywords = keywords + [keyword]
         if 'busy' in update:
@@ -1144,7 +1145,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                         match = self.find_local(unknowns, date_taken, icon_url)
                         if match:
                             match.metadata.keywords = list(
-                                match.metadata.keywords or []) + [
+                                match.metadata.keywords) + [
                                     '{}:id={}'.format(
                                         self.user_widget.client_data['name'],
                                         photo_id)]
@@ -1158,7 +1159,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         md = image.metadata
         for key, value in data.items():
             if key == 'keywords':
-                value = value or []
                 value = [x for x in value if x != 'uploaded:by=photini']
             if value:
                 old_value = getattr(md, key)

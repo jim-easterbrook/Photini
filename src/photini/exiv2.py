@@ -20,6 +20,7 @@ import codecs
 from collections import defaultdict
 import logging
 import os
+import re
 
 import exiv2
 import chardet
@@ -42,23 +43,19 @@ class MetadataHandler(object):
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
         # invalid, but Photini doesn't write xapGImg so it doesn't
-        # matter. Exiv2 already has the Iptc4xmpExt namespace, but calls
-        # it iptcExt which causes problems saving tags like
-        # 'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City'.
-        # Re-registering it under its full name means I have to use
-        # 'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City' instead.
+        # matter.
         registered = exiv2.XmpProperties.registeredNamespaces()
         for prefix, ns in (
                 ('exifEX',      'http://cipa.jp/exif/1.0/'),
-                ('Iptc4xmpExt', 'http://iptc.org/std/Iptc4xmpExt/2008-02-29/'),
                 ('plus',        'http://ns.useplus.org/ldf/xmp/1.0/'),
+                ('xmp',         'http://ns.adobe.com/xap/1.0/'),
                 ('xapGImg',     'http://ns.adobe.com/xxx/'),
                 ('xmpGImg',     'http://ns.adobe.com/xap/1.0/g/img/'),
                 ('xmpRights',   'http://ns.adobe.com/xap/1.0/rights/'),
                 ):
-            if prefix == 'Iptc4xmpExt' or prefix not in registered:
+            if prefix not in registered:
                 exiv2.XmpProperties.registerNs(ns, prefix)
-        
+
     def __init__(self, path=None, buf=None):
         self._path = path
         # read metadata
@@ -147,6 +144,41 @@ class MetadataHandler(object):
                     set_value(key, value[0])
                 else:
                     set_value(key, value)
+        # assume no XMP thumbnails to replace or append
+        self._xmp_thumb_idx = None
+        # mapping Xmp data to type_id, initialised with some that exiv2
+        # doesn't know, extended with ones read from files
+        self._xmp_type_id = {
+            'Xmp.iptc.AltTextAccessibility': exiv2.TypeId.langAlt,
+            'Xmp.iptc.ExtDescrAccessibility': exiv2.TypeId.langAlt,
+            'Xmp.iptcExt.ImageRegion': exiv2.TypeId.xmpBag,
+            'Iptc4xmpExt:Name': exiv2.TypeId.langAlt,
+            'Iptc4xmpExt:rCtype': exiv2.TypeId.xmpBag,
+            'Iptc4xmpExt:rRole': exiv2.TypeId.xmpBag,
+            'Iptc4xmpExt:rbVertices': exiv2.TypeId.xmpSeq,
+            'Xmp.xmp.Thumbnails': exiv2.TypeId.xmpAlt,
+            }
+
+    def set_xmp_type(self, key, value):
+        if value == exiv2.TypeId.xmpText:
+            return
+        sub_key = key.split('/')[-1]
+        if sub_key in self._xmp_type_id:
+            if value == self._xmp_type_id[sub_key]:
+                return
+            logger.warning('altered type_id %s', sub_key)
+        self._xmp_type_id[sub_key] = value
+
+    def get_xmp_type(self, key):
+        value = exiv2.XmpProperties.propertyType(exiv2.XmpKey(key))
+        if value != exiv2.TypeId.xmpText:
+            # exiv2 knows what it should be
+            self.set_xmp_type(key, value)
+            return value
+        sub_key = key.split('/')[-1]
+        if sub_key in self._xmp_type_id:
+            return self._xmp_type_id[sub_key]
+        return exiv2.TypeId.xmpText
 
     def decode_string(self, tag, raw_value, encoding):
         try:
@@ -368,19 +400,65 @@ class MetadataHandler(object):
                 result.append(self.decode_iptc_value(datum))
         return result
 
-    def get_xmp_value(self, tag):
-        datum = self._xmpData.findKey(exiv2.XmpKey(tag))
-        if datum == self._xmpData.end():
-            return None
-        type_id = datum.typeId()
-        value = datum.value()
-        if type_id == exiv2.TypeId.xmpText:
-            return value.toString()
-        if type_id == exiv2.TypeId.langAlt:
-            return dict(value)
-        return list(value)
+    _re_key_parts = re.compile(r'(.*?)(\[(\d+)\])?(/(.*))?$')
 
-    def get_exif_thumbnails(self):
+    def set_item(self, result, key, value):
+        # break exiv2 tags into component parts
+        match = self._re_key_parts.match(key)
+        root = match.group(1)
+        idx = match.group(3)
+        node = match.group(5)
+        if node:
+            if idx:
+                self.set_item(result[root][int(idx)-1], node, value)
+            else:
+                self.set_item(result[root], node, value)
+        elif idx:
+            result[root].append(value)
+        else:
+            result[root] = value
+
+    def get_xmp_value(self, tag):
+        # XMP has a nested structure of arbitrary depth. Exiv2 converts
+        # this to "flat" tag names. This method converts back to nested
+        # dicts and lists.
+        result = {}
+        for datum in self._xmpData:
+            key = datum.key()
+            if not key.startswith(tag):
+                continue
+            value = datum.value()
+            type_id = value.typeId()
+            if type_id == exiv2.TypeId.langAlt:
+                value = dict(value)
+            elif type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                             exiv2.TypeId.xmpSeq):
+                value = list(value)
+            elif tag == 'Xmp.xmp.Thumbnails' and ':image' in key:
+                # don't copy large string to unicode
+                value = value.data()
+            elif value.xmpStruct() == exiv2.XmpStruct.xsStruct:
+                value = {}
+            else:
+                array_type = value.xmpArrayType()
+                if array_type == exiv2.XmpArrayType.xaNone:
+                    value = str(value)
+                else:
+                    value = []
+                    type_id = {
+                        exiv2.XmpArrayType.xaAlt: exiv2.TypeId.xmpAlt,
+                        exiv2.XmpArrayType.xaBag: exiv2.TypeId.xmpBag,
+                        exiv2.XmpArrayType.xaSeq: exiv2.TypeId.xmpSeq,
+                        }[array_type]
+            self.set_xmp_type(key, type_id)
+            self.set_item(result, key, value)
+        if tag in result:
+            return result[tag]
+        return None
+
+    def select_exif_thumbnail(self):
+        if self.xmp_only:
+            return
         # try normal thumbnail
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
@@ -397,25 +475,51 @@ class MetadataHandler(object):
         while idx > 0:
             idx -= 1
             if max(props[idx].width_, props[idx].height_) <= 640:
-                logger.info('%s: trying preview %d', self._name, idx)
+                logger.info('%s: trying preview %dx%d', self._name,
+                            props[idx].width_, props[idx].height_)
                 image = preview_manager.getPreviewImage(props[idx])
                 yield memoryview(image.pData()), 'preview ' + str(idx)
 
-    def get_preview_images(self):
+    def select_xmp_thumbnail(self, file_value):
+        if not file_value:
+            return
+        # new thumbnail will be appended
+        self._xmp_thumb_idx = len(file_value) + 1
+        # make list of all thumbnails
+        candidates = []
+        for n, value in enumerate(file_value):
+            candidate = dict((k.split(':')[1], v) for (k, v) in value.items())
+            candidate['width'] = int(candidate['width'])
+            candidate['height'] = int(candidate['height'])
+            if max(candidate['width'], candidate['height']) == 160:
+                # new thumbnail will replace this one
+                self._xmp_thumb_idx = n + 1
+                # try this one before any others
+                logger.info('%s: trying xmp thumb %dx%d', self._name,
+                            candidate['width'], candidate['height'])
+                yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
+            else:
+                candidates.append(candidate)
+        # Xmp spec says first thumbnail is default, so just try them in order
+        for n, candidate in enumerate(candidates):
+            logger.info('%s: trying xmp thumb %dx%d', self._name,
+                        candidate['width'], candidate['height'])
+            yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
+
+    def get_previews(self):
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
-        if not props:
-            return
-        for prop in reversed(props):
-            image = preview_manager.getPreviewImage(prop)
-            yield memoryview(image.copy())
+        idx = len(props)
+        while idx:
+            idx -= 1
+            image = preview_manager.getPreviewImage(props[idx])
+            yield memoryview(image.pData())
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
-        if not props:
-            return 0, 0
-        return props[-1].width_, props[-1].height_
+        for p in props:
+            yield p.width_, p.height_
 
     def set_exif_value(self, tag, value):
         if not value:
@@ -531,43 +635,40 @@ class MetadataHandler(object):
         if not value:
             self.clear_xmp_tag(tag)
             return
-        if '[' in tag:
-            # create XMP array
-            container = tag.split('[')[0]
-            for datum in self._xmpData:
-                if datum.key().startswith(container):
-                    # container already exists
-                    break
-            else:
-                # XmpProperties uses 'iptcExt' namespace abbreviation
-                key = exiv2.XmpKey(container.replace('Iptc4xmpExt', 'iptcExt'))
-                type_id = exiv2.XmpProperties.propertyType(key)
-                if type_id not in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
-                                   exiv2.TypeId.xmpSeq):
-                    if container == 'Xmp.xmp.Thumbnails':
-                        type_id = exiv2.TypeId.xmpAlt
-                    else:
-                        type_id = exiv2.TypeId.xmpSeq
-                self._xmpData[container] = exiv2.XmpArrayValue(type_id)
-        datum = self._xmpData[tag]
-        if isinstance(value, str):
-            # set a single value
-            datum.setValue(value)
-            return
-        # set a list/tuple/dict of values
-        type_id = datum.typeId()
-        if type_id == exiv2.TypeId.invalidTypeId:
-            type_id = exiv2.XmpProperties.propertyType(exiv2.XmpKey(tag))
-        if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
-                       exiv2.TypeId.xmpSeq):
-            datum.setValue(exiv2.XmpArrayValue(value, type_id))
-        elif type_id == exiv2.TypeId.langAlt or isinstance(value, dict):
-            datum.setValue(exiv2.LangAltValue(value))
+        type_id = self.get_xmp_type(tag)
+        if type_id == exiv2.TypeId.langAlt:
+            self._xmpData[tag] = exiv2.LangAltValue(value)
+        elif isinstance(value, dict):
+            # clear any existing struct members
+            self.clear_xmp_tag(tag, children_only=True)
+            # create struct
+            tmp = exiv2.XmpTextValue()
+            tmp.setXmpStruct()
+            self._xmpData[tag] = tmp
+            # set struct members
+            for k, v in value.items():
+                self.set_xmp_value('{}/{}'.format(tag, k), v)
+        elif not isinstance(value, (list, tuple)):
+            # simple value
+            self._xmpData[tag] = exiv2.XmpTextValue(str(value))
+        elif not isinstance(value[0], dict):
+            # simple array value
+            self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
         else:
-            logger.error(
-                '%s: %s: setting type "%s" from %s', self._name, tag,
-                exiv2.TypeId(type_id).name, type(value))
-            datum.setValue(';'.join(value))
+            # clear any existing array elements
+            self.clear_xmp_tag(tag, children_only=True)
+            # create array
+            array_type = {
+                exiv2.TypeId.xmpAlt: exiv2.XmpArrayType.xaAlt,
+                exiv2.TypeId.xmpBag: exiv2.XmpArrayType.xaBag,
+                exiv2.TypeId.xmpSeq: exiv2.XmpArrayType.xaSeq,
+                }[type_id]
+            tmp = exiv2.XmpTextValue()
+            tmp.setXmpArrayType(array_type)
+            self._xmpData[tag] = tmp
+            # set array elements
+            for idx, element in enumerate(value):
+                self.set_xmp_value('{}[{}]'.format(tag, idx+1), element)
 
     def clear_exif_tag(self, tag):
         datum = self._exifData.findKey(exiv2.ExifKey(tag))
@@ -584,23 +685,42 @@ class MetadataHandler(object):
             else:
                 next(datum)
 
-    def clear_xmp_tag(self, tag):
-        datum = self._xmpData.findKey(exiv2.XmpKey(tag))
-        if datum != self._xmpData.end():
-            self._xmpData.erase(datum)
-        # possibly delete Xmp container(s)
-        for sep in ('/', '['):
-            if sep not in tag:
+    def clear_xmp_tag(self, tag, children_only=False):
+        key = exiv2.XmpKey(tag)
+        datum = self._xmpData.findKey(key)
+        if datum == self._xmpData.end():
+            return datum
+        value = datum.value()
+        type_id = value.typeId()
+        if type_id == exiv2.TypeId.xmpText:
+            # can be a struct or array
+            if value.xmpStruct() == exiv2.XmpStruct.xsStruct:
+                self.clear_xmp_struct(tag)
+            elif value.xmpArrayType() != exiv2.XmpArrayType.xaNone:
+                self.clear_xmp_array(tag)
+        if children_only:
+            return datum
+        return self._xmpData.erase(datum)
+
+    def clear_xmp_struct(self, tag):
+        tag += '/'
+        datum = self._xmpData.begin()
+        while datum != self._xmpData.end():
+            key = datum.key()
+            if key.startswith(tag):
+                datum = self.clear_xmp_tag(key)
+            else:
+                next(datum)
+
+    def clear_xmp_array(self, tag):
+        idx = 0
+        while True:
+            idx += 1
+            key = exiv2.XmpKey('{}[{}]'.format(tag, idx))
+            if self._xmpData.findKey(key) == self._xmpData.end():
                 return
-            container = tag.split(sep)[0] + sep
-            for datum in self._xmpData:
-                if datum.key().startswith(container):
-                    # container is not empty
-                    return
-            container = tag.split(sep)[0]
-            datum = self._xmpData.findKey(exiv2.XmpKey(container))
-            if datum != self._xmpData.end():
-                self._xmpData.erase(datum)
+            while self.clear_xmp_tag(str(key)) != self._xmpData.end():
+                pass
 
     def has_iptc(self):
         return self._iptcData.count() > 0
