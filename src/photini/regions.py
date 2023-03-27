@@ -716,6 +716,8 @@ class RegionForm(QtWidgets.QScrollArea):
         for key, value in region.items():
             if key in list(self.widgets) + ['Iptc4xmpExt:RegionBoundary']:
                 continue
+            if not value:
+                continue
             label = key.split(':')[-1]
             label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
             label = label.capitalize()
@@ -836,12 +838,8 @@ class RegionTabs(QtWidgets.QTabWidget):
             self.addTab(region_form, '')
             return
         blocked = self.blockSignals(True)
-        while self.count() > len(regions):
-            self.removeTab(self.count() - 1)
-        if self.count() and not self.widget(0).isEnabled():
-            self.removeTab(0)
-        while self.count() < len(regions):
-            idx = self.count()
+        self.clear()
+        for idx in range(len(regions)):
             region_form = RegionForm(idx)
             region_form.name_changed.connect(self.tab_name_changed)
             region_form.new_value.connect(self.new_value)
