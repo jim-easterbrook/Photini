@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-3  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -20,10 +20,43 @@ import logging
 import re
 
 from photini.pyqt import *
-from photini.types import LangAltDict
+from photini.types import MD_LangAlt
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+class WidgetMixin(object):
+    new_value = QtSignal(dict)
+
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        if not self.is_multiple():
+            self.new_value.emit(self.get_value_dict())
+
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return {self._key: self.get_value()}
+
+    def set_value_list(self, values):
+        if not values:
+            self.setEnabled(False)
+            self.set_value(None)
+            return
+        self.setEnabled(True)
+        choices = []
+        for value_dict in values:
+            value = None
+            if self._key in value_dict:
+                value = value_dict[self._key]
+            if value not in choices:
+                choices.append(value)
+        if len(choices) > 1:
+            self.set_multiple(choices=[x for x in choices if x])
+        else:
+            self.set_value(choices and choices[0])
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -36,7 +69,6 @@ class ComboBox(QtWidgets.QComboBox):
         if self.hasFocus():
             return super(ComboBox, self).wheelEvent(event)
         event.ignore()
-        return True
 
     def set_dropdown_width(self):
         width = 0
@@ -80,9 +112,7 @@ class CompactButton(QtWidgets.QPushButton):
         scale_font(self, 80)
 
 
-class DropDownSelector(ComboBox):
-    new_value = QtSignal(str, object)
-
+class DropDownSelector(ComboBox, WidgetMixin):
     def __init__(self, key, values=[], default=None,
                  with_multiple=True, extendable=False, ordered=False):
         super(DropDownSelector, self).__init__()
@@ -174,7 +204,7 @@ class DropDownSelector(ComboBox):
         if idx < self._last_idx():
             # normal item selection
             self._old_idx = idx
-            self.new_value.emit(self._key, self.itemData(idx))
+            self.emit_value()
             return
         # user must have clicked '<new>'
         blocked = self.blockSignals(True)
@@ -193,7 +223,7 @@ class DropDownSelector(ComboBox):
             self._old_idx = self.add_item(text, data)
         self.setCurrentIndex(self._old_idx)
         self.blockSignals(blocked)
-        self.new_value.emit(self._key, data)
+        self.emit_value()
 
     def _last_idx(self):
         idx = self.count()
@@ -264,12 +294,12 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
                     self.setFormat(start, end - start, self.spell_formatter)
 
 
-class MultiLineEdit(QtWidgets.QPlainTextEdit):
-    new_value = QtSignal(str, object)
-
+class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
     def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, length_always=False, **kw):
+                 multi_string=False, length_always=False, min_width=None, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
+        if min_width:
+            self.setMinimumWidth(width_for_text(self, 'x' * min_width))
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self._key = key
@@ -283,8 +313,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     @catch_all
     def focusOutEvent(self, event):
-        if not self._is_multiple:
-            self.new_value.emit(self._key, self.get_value())
+        self.emit_value()
         super(MultiLineEdit, self).focusOutEvent(event)
 
     @catch_all
@@ -307,7 +336,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                     label = fm.elidedText(
                         label, Qt.TextElideMode.ElideMiddle, self.width())
                     action = QtGui2.QAction(label, suggestion_group)
-                    action.setData(str(suggestion))
+                    action.setData(suggestion)
                     menu.insertAction(sep, action)
         elif self.spell_check:
             cursor = self.cursorForPosition(event.pos())
@@ -330,7 +359,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         action = execute(menu, event.globalPos())
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
-                self.new_value.emit(self._key, action.data())
+                self.set_value(action.data())
+                self.emit_value()
             else:
                 cursor.setPosition(block_pos + start)
                 cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
@@ -351,7 +381,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             self.setPlainText(str(value))
 
     def get_value(self):
-        return self.toPlainText()
+        return self.toPlainText().strip()
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
@@ -388,76 +418,28 @@ class SingleLineEdit(MultiLineEdit):
         self.insertPlainText(source.text().replace('\n', ' '))
 
 
-class LatLongDisplay(SingleLineEdit):
-    changed = QtSignal()
+class MultiStringEdit(SingleLineEdit):
+    def set_value(self, value):
+        if isinstance(value, (list, tuple)):
+            value = '; '.join(value)
+        super(MultiStringEdit, self).set_value(value)
 
-    def __init__(self, *args, **kwds):
-        super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
-        self.app = QtWidgets.QApplication.instance()
-        self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
-        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.setFixedWidth(width_for_text(self, '8' * 23))
-        self.setEnabled(False)
-        self.new_value.connect(self.editing_finished)
-
-    @QtSlot(str, object)
-    @catch_all
-    def editing_finished(self, key, value):
-        selected_images = self.app.image_list.get_selected_images()
-        new_value = value.strip() or None
-        if new_value:
-            try:
-                new_value = [float(x) for x in new_value.split(',')]
-                lat, lng = new_value
-            except Exception:
-                # user typed in an invalid value
-                self.update_display(selected_images)
-                return
-        else:
-            lat, lng = None, None
-        for image in selected_images:
-            gps = dict(image.metadata.gps_info or {})
-            gps['lat'], gps['lon'] = lat, lng
-            gps['method'] = 'MANUAL'
-            image.metadata.gps_info = gps
-        self.update_display(selected_images)
-        self.changed.emit()
-
-    def update_display(self, selected_images=None):
-        if selected_images is None:
-            selected_images = self.app.image_list.get_selected_images()
-        if not selected_images:
-            self.set_value(None)
-            self.setEnabled(False)
-            return
-        values = []
-        for image in selected_images:
-            gps = image.metadata.gps_info
-            if not (gps and gps['lat']):
-                continue
-            value = '{lat}, {lon}'.format(**gps)
-            if value not in values:
-                values.append(value)
-        if not values:
-            self.set_value(None)
-        elif len(values) > 1:
-            self.set_multiple(choices=values)
-        else:
-            self.set_value(values[0])
-        self.setEnabled(True)
+    def get_value(self):
+        value = super(MultiStringEdit, self).get_value().split(';')
+        value = [x.strip() for x in value]
+        return [x for x in value if x]
 
 
-class Slider(QtWidgets.QSlider):
-    editing_finished = QtSignal()
-
-    def __init__(self, *arg, **kw):
+class Slider(QtWidgets.QSlider, WidgetMixin):
+    def __init__(self, key, *arg, **kw):
         super(Slider, self).__init__(*arg, **kw)
+        self._key = key
         self._is_multiple = False
         self.sliderPressed.connect(self.slider_pressed)
 
     @catch_all
     def focusOutEvent(self, event):
-        self.editing_finished.emit()
+        self.emit_value()
         super(Slider, self).focusOutEvent(event)
 
     @QtSlot()
@@ -527,30 +509,47 @@ class StartStopButton(QtWidgets.QPushButton):
             self.click_start.emit()
 
 
-class LangAltWidget(QtWidgets.QWidget):
-    new_value = QtSignal(str, object)
-
-    def __init__(self, key, multi_line=True, **kw):
+class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
+    def __init__(self, key, multi_line=True, label=None, **kw):
         super(LangAltWidget, self).__init__()
-        layout = QtWidgets.QHBoxLayout()
+        layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setAlignment(
+            (layout.alignment() & Qt.AlignmentFlag.AlignHorizontal_Mask)
+            | Qt.AlignmentFlag.AlignTop)
+        layout.setColumnStretch(1, 1)
         self.setLayout(layout)
-        self.value = LangAltDict()
+        self._key = key
+        self.choices = {}
+        self.value = MD_LangAlt()
+        # label
+        if label:
+            # put label and lang selector on line above edit box
+            layout.addWidget(QtWidgets.QLabel(label), 0, 0)
+            edit_pos = 1, 0, 1, 3
+            layout.setRowStretch(1, 1)
+        else:
+            # put lang selector to right of edit box
+            edit_pos = 0, 0, 1, 2
         # text edit
         if multi_line:
             self.edit = MultiLineEdit(key, **kw)
         else:
+            policy = self.sizePolicy()
+            policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
+            self.setSizePolicy(policy)
             self.edit = SingleLineEdit(key, **kw)
         self.edit.new_value.connect(self._new_value)
-        layout.addWidget(self.edit)
+        layout.addWidget(self.edit, *edit_pos)
         # language drop down
-        self.lang = DropDownSelector('', with_multiple=False, extendable=True)
+        self.lang = DropDownSelector(
+            'lang', with_multiple=False, extendable=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
         self.lang.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.lang.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.lang.new_value.connect(self._change_lang)
         self.lang.customContextMenuRequested.connect(self._context_menu)
-        layout.addWidget(self.lang)
+        layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
         # adopt some child methods ...
         self.is_multiple = self.edit.is_multiple
@@ -562,10 +561,11 @@ class LangAltWidget(QtWidgets.QWidget):
     def setToolTip(self, text):
         self.edit.setToolTip(text)
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def _change_lang(self, key, lang):
-        if lang == LangAltDict.DEFAULT:
+    def _change_lang(self, value):
+        lang = value['lang']
+        if lang == MD_LangAlt.DEFAULT:
             direction = self.layoutDirection()
         else:
             direction = QtCore.QLocale(lang).textDirection()
@@ -575,24 +575,27 @@ class LangAltWidget(QtWidgets.QWidget):
             self.edit.set_text_alignment(Qt.AlignmentFlag.AlignLeft)
         self.edit.set_value(self.value[lang])
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def _new_value(self, key, value):
-        if self.is_multiple():
+    def _new_value(self, value):
+        value = value[self.edit._key]
+        if value in self.choices:
             self.value = self.choices[value]
         else:
-            self.value[self.lang.get_value()] = value
-        self.new_value.emit(key, self.get_value())
+            default_lang = self.value.default_lang
+            new_value = dict(self.value)
+            new_value[self.lang.get_value()] = value.strip()
+            self.value = MD_LangAlt(new_value, default_lang=default_lang)
+        self.emit_value()
 
     def _regularise_default(self):
-        if (LangAltDict.DEFAULT not in self.value
-                or not self.value[LangAltDict.DEFAULT]):
+        if not self.value[MD_LangAlt.DEFAULT]:
             return True
         prompt = QtCore.QLocale.system().bcp47Name()
         if prompt in self.value:
             prompt = None
-        self.lang.set_value(LangAltDict.DEFAULT)
-        self.edit.set_value(self.value[LangAltDict.DEFAULT])
+        self.lang.set_value(MD_LangAlt.DEFAULT)
+        self.edit.set_value(self.value[MD_LangAlt.DEFAULT])
         lang, OK = QtWidgets.QInputDialog.getText(
             self, translate('LangAltWidget', 'New language'),
             wrap_text(self, translate(
@@ -615,8 +618,12 @@ class LangAltWidget(QtWidgets.QWidget):
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
             return None, None
-        self.value[lang] = ''
-        self.new_value.emit(self.edit._key, self.get_value())
+        default_lang = self.value.default_lang
+        text = self.value[lang]
+        new_value = dict(self.value)
+        new_value[lang] = text
+        self.value = MD_LangAlt(new_value, default_lang=default_lang)
+        self.emit_value()
         return self.labeled_lang(lang)
 
     @QtSlot(QtCore.QPoint)
@@ -625,11 +632,11 @@ class LangAltWidget(QtWidgets.QWidget):
         langs = []
         for n in range(self.lang.count()):
             lang = self.lang.itemData(n)
-            if lang and lang != LangAltDict.DEFAULT:
+            if lang and lang != MD_LangAlt.DEFAULT:
                 langs.append(lang)
         if not langs:
             return
-        default_lang = self.value.get_default_lang()
+        default_lang = self.value.default_lang
         menu = QtWidgets.QMenu()
         menu.addAction(translate('LangAltWidget', 'Set default language'))
         for lang in langs:
@@ -644,13 +651,11 @@ class LangAltWidget(QtWidgets.QWidget):
         self._set_default_lang(action.text())
 
     def _set_default_lang(self, lang):
-        self.value.set_default_lang(lang)
-        value = self.get_value()
-        self.set_value(value)
-        self.new_value.emit(self.edit._key, value)
+        self.value = MD_LangAlt(self.value, default_lang=lang)
+        self.emit_value()
 
     def labeled_lang(self, lang):
-        if lang == LangAltDict.DEFAULT:
+        if lang == MD_LangAlt.DEFAULT:
             if len(self.value) == 1:
                 return translate('LangAltWidget', 'Language'), lang
             label = '-'
@@ -661,8 +666,9 @@ class LangAltWidget(QtWidgets.QWidget):
         return label, lang
 
     def set_value(self, value):
+        self.choices = {}
         self.lang.setEnabled(True)
-        self.value = LangAltDict(value)
+        self.value = MD_LangAlt(value)
         # use current language, if available
         lang = self.lang.get_value()
         if lang not in self.value:
@@ -673,13 +679,16 @@ class LangAltWidget(QtWidgets.QWidget):
                 for lang in self.value:
                     if lang.split('-')[0] == base_lang:
                         break
-        if lang not in self.value:
+        if lang in self.value:
+            lang = self.value.find_key(lang)
+        else:
             # use the default for this value
-            lang = self.value.get_default_lang()
+            lang = self.value.default_lang
         # set language drop down
         self.lang.set_values(
-            [self.labeled_lang(x) for x in self.value], default=lang)
-        self._change_lang('', lang)
+            [self.labeled_lang(x) for x in self.value.languages()],
+            default=lang)
+        self._change_lang({'lang': lang})
 
     def get_value(self):
         return self.value
@@ -687,6 +696,277 @@ class LangAltWidget(QtWidgets.QWidget):
     def set_multiple(self, choices=[]):
         self.choices = {}
         for choice in choices:
-            self.choices[str(choice)] = LangAltDict(choice)
+            self.choices[str(choice)] = MD_LangAlt(choice)
         self.edit.set_multiple(choices=self.choices.keys())
         self.lang.setEnabled(False)
+
+
+class AugmentSpinBoxBase(WidgetMixin):
+    def __init__(self):
+        self._is_multiple = False
+        self._prefix = ''
+        self._suffix = ''
+        super(AugmentSpinBoxBase, self).__init__()
+        if self.isRightToLeft():
+            self.setAlignment(
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.set_value(None)
+        self.editingFinished.connect(self.emit_value)
+
+    class ContextAction(QtGui2.QAction):
+        def __init__(self, value, *arg, **kw):
+            super(AugmentSpinBoxBase.ContextAction, self).__init__(*arg, **kw)
+            self.setData(value)
+            self.triggered.connect(self.set_value)
+
+        @QtSlot()
+        @catch_all
+        def set_value(self):
+            self.parent().set_value(self.data())
+            self.parent().emit_value()
+
+    def context_menu_event(self):
+        if self.is_multiple() and self.choices:
+            QtCore.QTimer.singleShot(0, self.extend_context_menu)
+
+    @QtSlot()
+    @catch_all
+    def extend_context_menu(self):
+        menu = self.findChild(QtWidgets.QMenu)
+        if not menu:
+            return
+        sep = menu.insertSeparator(menu.actions()[0])
+        for suggestion in self.choices:
+            menu.insertAction(sep, self.ContextAction(
+                suggestion, text=self.textFromValue(suggestion), parent=self))
+
+    def fix_up(self):
+        if self.is_multiple():
+            return True
+        if self.cleanText():
+            return False
+        # user has deleted the value
+        self.set_value(None)
+        return True
+
+    def init_stepping(self):
+        if self.get_value() is None:
+            self.setValue(self.default_value)
+
+    def get_value(self):
+        value = self.value()
+        if value == self.minimum() and self.specialValueText():
+            value = None
+        return value
+
+    def set_value(self, value):
+        self.set_not_multiple()
+        if value is None:
+            self.setValue(self.minimum())
+            self.setSpecialValueText(' ')
+        else:
+            self.setSpecialValueText('')
+            self.setValue(value)
+
+
+class AugmentDateTime(AugmentSpinBoxBase):
+    def set_not_multiple(self):
+        if self._is_multiple:
+            self._is_multiple = False
+            self.set_value(self.default_value)
+
+    def set_multiple(self, choices=[]):
+        self.choices = list(filter(None, choices))
+        self._is_multiple = True
+        self.setValue(self.minimum())
+        self.setSpecialValueText(self.multiple)
+
+    def is_multiple(self):
+        return self._is_multiple and self.value() == self.minimum()
+
+
+class AugmentSpinBox(AugmentSpinBoxBase):
+    def set_not_multiple(self):
+        if self._is_multiple:
+            self._is_multiple = False
+            self.set_value(self.default_value)
+            if self._prefix:
+                self.setPrefix(self._prefix)
+            if self._suffix:
+                self.setSuffix(self._suffix)
+            self.lineEdit().setPlaceholderText('')
+
+    def set_multiple(self, choices=[]):
+        self.choices = list(filter(None, choices))
+        self._is_multiple = True
+        if self._prefix:
+            self.setPrefix('')
+        if self._suffix:
+            self.setSuffix('')
+        self.lineEdit().setPlaceholderText(self.multiple)
+        self.clear()
+
+    def is_multiple(self):
+        return self._is_multiple and bool(self.lineEdit().placeholderText())
+
+    def set_prefix(self, prefix):
+        self._prefix = prefix
+        self.setPrefix(prefix)
+
+    def set_suffix(self, suffix):
+        self._suffix = suffix
+        self.setSuffix(suffix)
+
+
+class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
+    def __init__(self, *args, **kwds):
+        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
+        self.default_value = ''
+        self.multiple = multiple_values()
+        super(LatLongDisplay, self).__init__(*args, **kwds)
+        AugmentSpinBox.__init__(self)
+        self.lat_validator = QtGui.QDoubleValidator(
+            -90.0, 90.0, 20, parent=self)
+        self.lng_validator = QtGui.QDoubleValidator(
+            -180.0, 180.0, 20, parent=self)
+        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
+        self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.setFixedWidth(width_for_text(self, '8' * 23))
+        self.setToolTip('<p>{}</p>'.format(translate(
+            'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
+            ' decimal numbers separated by a comma.')))
+
+    @catch_all
+    def focusOutEvent(self, event):
+        self.emit_value()
+        super(LatLongDisplay, self).focusOutEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.set_not_multiple()
+        super(LatLongDisplay, self).keyPressEvent(event)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        if self.isReadOnly():
+            return
+        menu = self.lineEdit().createStandardContextMenu()
+        suggestion_group = QtGui2.QActionGroup(menu)
+        if self._is_multiple and self.choices:
+            sep = menu.insertSeparator(menu.actions()[0])
+            for suggestion in self.choices:
+                label = str(suggestion)
+                action = QtGui2.QAction(label, suggestion_group)
+                action.setData(str(suggestion))
+                menu.insertAction(sep, action)
+        action = execute(menu, event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            if self._is_multiple:
+                self.set_value(action.data())
+                self.emit_value()
+
+    def stepEnabled(self):
+        return self.StepEnabledFlag.StepNone
+
+    @catch_all
+    def validate(self, text, pos):
+        if not text:
+            return QtGui.QValidator.State.Acceptable, text, pos
+        parts = [x.strip() for x in text.split(',')]
+        if len(parts) > 2:
+            return QtGui.QValidator.State.Invalid, text, pos
+        result = self.lat_validator.validate(parts[0], pos)[0]
+        if len(parts) > 1:
+            result = min(result, self.lng_validator.validate(parts[1], pos)[0])
+        else:
+            result = min(result, QtGui.QValidator.State.Intermediate)
+        return result, text, pos
+
+    @catch_all
+    def fixup(self, value):
+        value = value.split(',')
+        if len(value) != 2 or not all(value):
+            return
+        value = [float(x) for x in value]
+        value[0] = min(max(value[0], -90.0), 90.0)
+        value[1] = ((value[1] + 180.0) % 360.0) - 180.0
+        self.lineEdit().setText('{:f}, {:f}'.format(*value))
+
+    def get_value(self):
+        value = self.text() or None
+        if value and self.hasAcceptableInput():
+            value = [float(x) for x in value.split(',')]
+        return value
+
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return dict(zip(self._key, self.get_value() or (None, None)))
+
+    def set_value(self, value):
+        self.set_not_multiple()
+        if not value:
+            self.clear()
+        else:
+            self.lineEdit().setText(str(value))
+
+    def set_value_list(self, values):
+        choices = set()
+        if not values:
+            self.setEnabled(False)
+            self.set_value(None)
+            return
+        self.setEnabled(True)
+        for value in values:
+            if value:
+                lat = value['exif:GPSLatitude']
+                lon = value['exif:GPSLongitude']
+                if lat and lon:
+                    choices.add('{}, {}'.format(lat, lon))
+                    continue
+            choices.add(None)
+        if len(choices) > 1:
+            self.set_multiple(choices=[x for x in choices if x])
+        else:
+            self.set_value(choices and choices.pop())
+
+
+class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
+    def __init__(self, key, *arg, **kw):
+        self._key = key
+        self.default_value = 0
+        self.multiple = multiple_values()
+        super(DoubleSpinBox, self).__init__(*arg, **kw)
+        AugmentSpinBox.__init__(self)
+        self.setSingleStep(0.1)
+        self.setDecimals(4)
+        lim = (2 ** 31) - 1
+        self.setRange(-lim, lim)
+        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu_event()
+        return super(DoubleSpinBox, self).contextMenuEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.set_not_multiple()
+        return super(DoubleSpinBox, self).keyPressEvent(event)
+
+    @catch_all
+    def stepBy(self, steps):
+        self.set_not_multiple()
+        self.init_stepping()
+        return super(DoubleSpinBox, self).stepBy(steps)
+
+    @catch_all
+    def fixup(self, text):
+        if not self.fix_up():
+            super(DoubleSpinBox, self).fixup(text)
+
+    @catch_all
+    def textFromValue(self, value):
+        # don't use QDoubleSpinBox's fixed number of decimals
+        return str(round(float(value), self.decimals()))

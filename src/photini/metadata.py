@@ -45,7 +45,10 @@ class FFMPEGMetadata(object):
         'ffmpeg/streams[0]/coded_dims': (
             'ffmpeg/streams[0]/coded_width', 'ffmpeg/streams[0]/coded_height'),
         'ffmpeg/streams[0]/dims': (
-            'ffmpeg/streams[0]/width', 'ffmpeg/streams[0]/height',
+            'ffmpeg/streams[0]/width', 'ffmpeg/streams[0]/height'),
+        'ffmpeg/streams[0]/duration_ts': (
+            'ffmpeg/streams[0]/duration_ts', 'ffmpeg/streams[0]/time_base'),
+        'ffmpeg/streams[0]/frames': (
             'ffmpeg/streams[0]/nb_frames', 'ffmpeg/streams[0]/avg_frame_rate'),
         }
 
@@ -68,6 +71,9 @@ class FFMPEGMetadata(object):
         'orientation':    ('ffmpeg/streams[0]/tags/rotate',),
         'rating':         ('ffmpeg/format/tags/com.apple.quicktime.rating.user',),
         'title':          ('ffmpeg/streams[0]/tags/title',),
+        'video_duration': ('ffmpeg/streams[0]/duration',
+                           'ffmpeg/streams[0]/duration_ts',
+                           'ffmpeg/streams[0]/frames'),
         }
 
     def __init__(self, path):
@@ -142,55 +148,25 @@ class FFMPEGMetadata(object):
 
 
 class ImageMetadata(MetadataHandler):
-    def clear_multi_group(self, tag, stop=0):
-        # count entries
-        idx = 1
-        while any(self.get_group(tag, idx=idx)):
-            idx += 1
-        # delete entries
-        while idx > stop + 1:
-            idx -= 1
-            self.clear_group(tag, idx=idx)
-
-    def clear_group(self, tag, idx=1):
+    def clear_group(self, tag):
         for sub_tag in self._multi_tags[tag]:
             if sub_tag:
-                self.clear_value(sub_tag.format(idx=idx))
+                self.clear_value(sub_tag)
 
     def clear_value(self, tag):
         {'Exif': self.clear_exif_tag,
          'Iptc': self.clear_iptc_tag,
          'Xmp': self.clear_xmp_tag}[tag.split('.')[0]](tag)
 
-    def get_multi_group(self, tag):
-        result = []
-        for idx in range(1, 100):
-            value = self.get_group(tag, idx=idx)
-            if not any(value):
-                break
-            result.append(value)
-        return result
-
-    def get_group(self, tag, idx=1):
+    def get_group(self, tag):
         result = []
         for x in self._multi_tags[tag]:
-            result.append(self.get_value(x, idx=idx))
-        if tag.startswith('Exif.Thumbnail'):
-            result = self._get_exif_thumbnail(*result)
-        elif tag.startswith('Xmp.xmp.Thumbnails'):
-            w, h, fmt, data = result
-            if data:
-                data = bytes(data, 'ascii')
-                data = codecs.decode(data, 'base64_codec')
-                fmt, image = self._decode_thumbnail(data, 'thumbnail')
-                result = w, h, fmt, data, image
+            result.append(self.get_value(x))
         return result
 
-    def get_value(self, tag, idx=1):
+    def get_value(self, tag):
         if not tag:
             return None
-        if 'idx' in tag:
-            tag = tag.format(idx=idx)
         family = tag.split('.')[0]
         if family == 'Exif':
             return self.get_exif_value(tag)
@@ -198,43 +174,37 @@ class ImageMetadata(MetadataHandler):
             return self.get_iptc_value(tag)
         return self.get_xmp_value(tag)
 
-    def _get_exif_thumbnail(self, w, h, fmt):
-        for data, label in self.get_exif_thumbnails():
+    def get_exif_thumbnail(self):
+        for data, label in self.select_exif_thumbnail():
             if data:
-                fmt, image = self._decode_thumbnail(data, label)
-                if image:
-                    return w, h, fmt, data, image
+                try:
+                    fmt, image = MD_Thumbnail.image_from_data(data)
+                    return None, None, fmt, data, image
+                except Exception as ex:
+                    logger.error('%s: %s: %s', self._name, label, str(ex))
         return None, None, None, None, None
 
-    def _decode_thumbnail(self, data, label):
-        try:
-            return MD_Thumbnail.image_from_data(data)
-        except Exception as ex:
-            logger.error('%s: %s: %s', self._name, label, str(ex))
-        return None, None
+    def get_xmp_thumbnail(self, file_value):
+        for data, label in self.select_xmp_thumbnail(file_value):
+            if data:
+                try:
+                    data = codecs.decode(data, 'base64_codec')
+                    fmt, image = MD_Thumbnail.image_from_data(data)
+                    return None, None, fmt, data, image
+                except Exception as ex:
+                    logger.error('%s: %s: %s', self._name, label, str(ex))
+        return None, None, None, None, None
 
-    def set_multi_group(self, tag, value):
-        # delete unwanted old entries
-        self.clear_multi_group(tag, stop=len(value))
-        # set new entries
-        for idx, sub_value in enumerate(value, 1):
-            if not any(sub_value):
-                # set a place holder
-                sub_value = [' ']
-            self.set_group(tag, sub_value, idx=idx)
-
-    def set_group(self, tag, value, idx=1):
+    def set_group(self, tag, value):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
             if sub_tag:
-                self.set_value(sub_tag, sub_value, idx=idx)
+                self.set_value(sub_tag, sub_value)
         if tag == 'Exif.Thumbnail.*' and value[3]:
             self.set_exif_thumbnail_from_buffer(value[3])
 
-    def set_value(self, tag, value, idx=1):
+    def set_value(self, tag, value):
         if not tag:
             return
-        if 'idx' in tag:
-            tag = tag.format(idx=idx)
         family = tag.split('.')[0]
         if family == 'Exif':
             self.set_exif_value(tag, value)
@@ -337,7 +307,6 @@ class ImageMetadata(MetadataHandler):
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
-        'Iptc.Application2.Contact*': ('', '', '', 'Iptc.Application2.Contact'),
         'Iptc.Application2.DateCreated*': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate*': (
@@ -359,51 +328,13 @@ class ImageMetadata(MetadataHandler):
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
-        'Xmp.iptc.CreatorContactInfo*': (
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCity',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCtry',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiEmailWork',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiTelWork',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrPcode',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrRegion',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiUrlWork'),
-        'Xmp.iptc.Location*': (
+        'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.Iptc4xmpExt.LocationShown*': (
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:Sublocation',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:City',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:ProvinceState',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:CountryName',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:CountryCode',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:WorldRegion',
-            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:LocationId'),
-        'Xmp.Iptc4xmpExt.LocationCreated*': (
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
-            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
-        'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height',
-                            None, 'Xmp.video.FrameRate'),
+        'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
-        'Xmp.xmp.Thumbnails*': (
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:image'),
-        'Xmp.xmp.ThumbnailsXap*': (
-            'Xmp.xmp.Thumbnails[1]/xapGImg:width',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:height',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:format',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:image'),
         'Xmp.xmpRights.*': (
-            'Xmp.xmpRights.UsageTerms',
-            'Xmp.xmpRights.WebStatement',
-            'Xmp.plus.Licensor[1]/plus:LicensorURL'),
+            'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
         }
 
     # Mapping of tags to Photini data fields Each field has a list of
@@ -426,8 +357,8 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Pentax.ModelID*'),
                             ('WN', 'Xmp.aux.SerialNumber*'),
                             ('WN', 'Xmp.video.Make*')),
-        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo*'),
-                            ('WA', 'Iptc.Application2.Contact*')),
+        'contact_info'   : (('WA', 'Xmp.plus.Licensor'),
+                            ('W0', 'Xmp.iptc.CreatorContactInfo')),
         'copyright'      : (('WA', 'Xmp.dc.rights'),
                             ('WA', 'Exif.Image.Copyright'),
                             ('W0', 'Xmp.tiff.Copyright'),
@@ -473,7 +404,8 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.tiff.ImageDescription'),
                             ('WA', 'Iptc.Application2.Caption'),
                             ('WN', 'Xmp.video.Information')),
-        'dimensions'     : (('WN', 'Xmp.video.Dims*'),),
+        'dimensions'     : (('WN', 'Xmp.video.Dims*'),
+                            ('WN', 'Exif.Photo.Pixel*Dimension')),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
                             ('W0', 'Exif.Image.FocalLength'),
                             ('WX', 'Xmp.exif.FocalLength')),
@@ -484,6 +416,8 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Xmp.video.GPSCoordinates')),
         'headline'       : (('WA', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.Headline')),
+        'image_region'   : (('WN', 'Exif.Photo.SubjectArea'),
+                            ('WA', 'Xmp.iptcExt.ImageRegion')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
                             ('WA', 'Iptc.Application2.SpecialInstructions')),
         'keywords'       : (('WA', 'Xmp.dc.subject'),
@@ -500,9 +434,9 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.NikonLd2.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd3.LensIDNumber*'),
                             ('W0', 'Xmp.aux.Lens*')),
-        'location_shown' : (('WA', 'Xmp.Iptc4xmpExt.LocationShown*'),),
-        'location_taken' : (('WA', 'Xmp.Iptc4xmpExt.LocationCreated*'),
-                            ('WA', 'Xmp.iptc.Location*'),
+        'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
+        'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
+                            ('WA', 'Iptc.Legacy.Location*'),
                             ('WA', 'Iptc.Application2.Location*')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
                             ('WX', 'Xmp.tiff.Orientation')),
@@ -514,12 +448,8 @@ class ImageMetadata(MetadataHandler):
         'software'       : (('WA', 'Exif.Image.Software'),
                             ('WA', 'Iptc.Application2.Program*'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
-        # Both xmpGImg and xapGImg namespaces are specified in different
-        # Adobe documents I've seen. xmpGImg appears to be more recent,
-        # so we write that but read either.
         'thumbnail'      : (('WA', 'Exif.Thumbnail.*'),
-                            ('WX', 'Xmp.xmp.Thumbnails*'),
-                            ('W0', 'Xmp.xmp.ThumbnailsXap*')),
+                            ('WX', 'Xmp.xmp.Thumbnails')),
         'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
                             ('WN', 'Exif.CanonTi.TimeZone'),
                             ('WN', 'Exif.NikonWt.Timezone'),
@@ -528,18 +458,23 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.ObjectName'),
                             ('W0', 'Exif.Image.XPTitle'),
                             ('WN', 'Xmp.video.StreamName')),
+        'video_duration' : (('WN', 'Xmp.video.Duration'),),
         }
 
     def read(self, name, type_):
         result = []
         for mode, tag in self._tag_list[name]:
             try:
-                if tag not in self._multi_tags:
-                    file_value = self.get_value(tag)
-                elif 'idx' in self._multi_tags[tag][0]:
-                    file_value = self.get_multi_group(tag)
-                else:
+                if tag.startswith('Exif.Thumbnail'):
+                    file_value = self.get_exif_thumbnail()
+                elif tag == 'Exif.Photo.Pixel*Dimension':
+                    file_value = self.get_image_size()
+                elif tag in self._multi_tags:
                     file_value = self.get_group(tag)
+                else:
+                    file_value = self.get_value(tag)
+                if tag == 'Xmp.xmp.Thumbnails':
+                    file_value = self.get_xmp_thumbnail(file_value)
                 value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
@@ -558,26 +493,58 @@ class ImageMetadata(MetadataHandler):
                 continue
             if ((not value) or (mode == 'W0')
                     or (mode == 'WX' and not self.xmp_only)):
-                if tag not in self._multi_tags:
-                    self.clear_value(tag)
-                elif 'idx' in self._multi_tags[tag][0]:
-                    self.clear_multi_group(tag)
-                else:
+                if tag == 'Xmp.xmp.Thumbnails':
+                    # don't clear XMP thumbnails
+                    pass
+                elif tag in self._multi_tags:
                     self.clear_group(tag)
+                else:
+                    self.clear_value(tag)
                 continue
-            family = tag.split('.')[0]
-            if family == 'Exif':
-                file_value = value.to_exif()
-            elif family == 'Iptc':
-                file_value = value.to_iptc()
-            else:
-                file_value = value.to_xmp()
-            if tag not in self._multi_tags:
-                self.set_value(tag, file_value)
-            elif 'idx' in self._multi_tags[tag][0]:
-                self.set_multi_group(tag, file_value)
-            else:
+            file_value = value.to_exiv2(tag)
+            if tag == 'Xmp.xmp.Thumbnails' and self._xmp_thumb_idx:
+                # replace or append one thumbnail of the array
+                tag = '{}[{}]'.format(tag, self._xmp_thumb_idx)
+                file_value = file_value[0]
+            if tag in self._multi_tags:
                 self.set_group(tag, file_value)
+            else:
+                self.set_value(tag, file_value)
+
+    def get_image_size(self):
+        # try exiv2's header decoding first
+        w = self._image.pixelWidth()
+        h = self._image.pixelHeight()
+        if w and h:
+            return w, h
+        # get preview sizes
+        candidates = set(self.get_preview_imagedims())
+        # search metadata for image / subimage / sensor sizes
+        widths = {}
+        heights = {}
+        for key in self.get_all_tags():
+            family, group, tag = key.split('.', 2)
+            if tag in ('PixelXDimension', 'ImageWidth'):
+                widths[key] = int(self.get_value(key))
+            elif tag in ('PixelYDimension', 'ImageLength'):
+                heights[key] = int(self.get_value(key))
+        for kx in widths:
+            if 'ImageWidth' in kx:
+                ky = kx.replace('ImageWidth', 'ImageLength')
+            else:
+                ky = kx.replace('PixelXDimension', 'PixelYDimension')
+            if ky in heights:
+                candidates.add((widths[kx], heights[ky]))
+        if not candidates:
+            return None
+        candidates = list(candidates)
+        candidates.sort()
+        if len(candidates) > 1:
+            # some cameras report a sensor size that's slightly bigger
+            # than the actual image
+            if candidates[-1][0] < 1.03 * candidates[-2][0]:
+                return candidates[-2]
+        return candidates[-1]
 
 
 class SidecarMetadata(ImageMetadata):
@@ -635,11 +602,12 @@ class Metadata(object):
         'focal_length_35': MD_Int,
         'gps_info'       : MD_GPSinfo,
         'headline'       : MD_String,
+        'image_region'   : MD_ImageRegion,
         'instructions'   : MD_String,
         'keywords'       : MD_Keywords,
         'lens_model'     : MD_LensModel,
         'location_shown' : MD_MultiLocation,
-        'location_taken' : MD_Location,
+        'location_taken' : MD_SingleLocation,
         'orientation'    : MD_Orientation,
         'rating'         : MD_Rating,
         'rights'         : MD_Rights,
@@ -647,6 +615,7 @@ class Metadata(object):
         'thumbnail'      : MD_Thumbnail,
         'timezone'       : MD_Timezone,
         'title'          : MD_LangAlt,
+        'video_duration' : MD_VideoDuration,
         }
 
     def __init__(self, path, notify=None):
@@ -693,7 +662,7 @@ class Metadata(object):
                     values[n] = (tag, self._data_type[name](value))
                     logger.info('%s: merged camera timezone offset', tag)
             # choose result and merge in non-matching data so user can review it
-            value = None
+            value = self._data_type[name](None)
             if values:
                 info = '{}({})'.format(os.path.basename(self._path), name)
                 tag, value = values[0]
@@ -782,36 +751,18 @@ class Metadata(object):
             if self._notify:
                 self._notify(self.dirty)
 
-    def get_preview_images(self):
-        md = self._if
-        if not md:
+    def get_previews(self):
+        if not self._if:
             return
-        for result in md.get_preview_images():
-            yield result
-
-    def get_sensor_size(self):
-        md = self._if or self._sc
-        if not md:
-            return 0, 0
-        # get largest preview
-        sensor_size = {}
-        sensor_size['x'], sensor_size['y'] = md.get_preview_imagedims()
-        # search metadata for something larger
-        for key in md.get_all_tags():
-            family, group, tag = key.split('.', 2)
-            if tag in ('PixelXDimension', 'ImageWidth'):
-                sensor_size['x'] = max(sensor_size['x'], int(md.get_value(key)))
-            elif tag in ('PixelYDimension', 'ImageLength'):
-                sensor_size['y'] = max(sensor_size['y'], int(md.get_value(key)))
-        return sensor_size
+        return self._if.get_previews()
 
     def get_crop_factor(self):
         md = self._if or self._sc
         if not md:
             return None
         # get relevant metadata
-        sensor_size = self.get_sensor_size()
-        if not sensor_size['x'] or not sensor_size['y']:
+        image_size = self.dimensions
+        if not image_size:
             return None
         resolution = {}
         resolution_source = None, None
@@ -835,8 +786,8 @@ class Metadata(object):
         resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # find largest image dimensions
-        w = sensor_size['x'] / resolution['x']
-        h = sensor_size['y'] / resolution['y']
+        w = image_size['width'] / resolution['x']
+        h = image_size['height'] / resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))
         if resolution['unit'] == 3:
             # unit is cm
@@ -869,14 +820,25 @@ class Metadata(object):
             result = 'image/raw'
         return result
 
+    # allow attributes to be accessed in dict like fashion
+    def __getitem__(self, name):
+        if name in self._data_type:
+            return getattr(self, name)
+        raise KeyError(name)
+
+    def __setitem__(self, name, value):
+        if name in self._data_type:
+            return setattr(self, name, value)
+        raise KeyError(name)
+
+    def __contains__(self, name):
+        return name in self._data_type
+
     def __setattr__(self, name, value):
         if name not in self._data_type:
             return super(Metadata, self).__setattr__(name, value)
-        if value in (None, '', [], {}):
-            value = None
-        elif not isinstance(value, self._data_type[name]):
-            new_value = self._data_type[name](value)
-            value = self._data_type[name](value) or None
+        if not isinstance(value, self._data_type[name]):
+            value = self._data_type[name](value)
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)

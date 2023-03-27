@@ -29,8 +29,7 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (
     QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, qt_version_info)
-from photini.technical import DoubleSpinBox
-from photini.widgets import ComboBox, LatLongDisplay
+from photini.widgets import ComboBox, DoubleSpinBox, LatLongDisplay
 
 
 logger = logging.getLogger(__name__)
@@ -217,16 +216,16 @@ class PhotiniMap(QtWidgets.QWidget):
         # latitude & longitude
         self.widgets['latlon'] = LatLongDisplay()
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
-        self.widgets['latlon'].changed.connect(self.new_coords)
+        self.widgets['latlon'].new_value.connect(self.new_latlon)
         left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
         label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 1, 0)
-        self.widgets['altitude'] = DoubleSpinBox()
-        self.widgets['altitude'].setSuffix(' m')
-        self.widgets['altitude'].new_value.connect(self.new_altitude)
-        left_side.addWidget(self.widgets['altitude'], 1, 1)
+        self.widgets['alt'] = DoubleSpinBox('exif:GPSAltitude')
+        self.widgets['alt'].set_suffix(' m')
+        self.widgets['alt'].new_value.connect(self.new_value)
+        left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
             self.widgets['get_altitude'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Get altitude from map'))
@@ -344,8 +343,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def refresh(self):
         self.app.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
         selection = self.app.image_list.get_selected_images()
-        self.widgets['latlon'].update_display(selection)
-        self.update_altitude(selection)
+        self.update_display(selection, adjust_map=False)
         if self.map_loaded < 1:
             self.map_loaded = 1     # started loading
             self.initialise()
@@ -375,69 +373,50 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @catch_all
     def marker_drop(self, lat, lng):
-        for path in self.dropped_images:
-            image = self.app.image_list.get_image(path)
-            gps = dict(image.metadata.gps_info or {})
-            gps['lat'] = lat
-            gps['lon'] = lng
-            gps['method'] = 'MANUAL'
-            image.metadata.gps_info = gps
+        value = {'exif:GPSLatitude': lat, 'exif:GPSLongitude': lng}
+        images = [self.app.image_list.get_image(path)
+                  for path in self.dropped_images]
         self.dropped_images = []
-        self.new_coords()
+        self.new_value(value, images=images, adjust_map=False)
 
-    @QtSlot()
+    @QtSlot(dict)
     @catch_all
-    def new_coords(self):
-        selected_images = self.app.image_list.get_selected_images()
-        self.redraw_markers()
-        self.widgets['latlon'].update_display(selected_images)
-        self.update_altitude(selected_images)
-        self.see_selection(selected_images)
+    def new_latlon(self, value):
+        self.new_value(value, adjust_map=True)
 
-    @QtSlot(object)
+    @QtSlot(dict)
     @catch_all
-    def new_altitude(self, value, images=[]):
+    def new_value(self, value, images=[], adjust_map=False):
         images = images or self.app.image_list.get_selected_images()
+        value['method'] = 'MANUAL'
         for image in images:
-            gps = dict(image.metadata.gps_info or {})
-            gps['alt'] = value
-            gps['method'] = 'MANUAL'
+            gps = dict(image.metadata.gps_info)
+            gps.update(value)
             image.metadata.gps_info = gps
-        self.update_altitude(images)
+        self.update_display(images, adjust_map=adjust_map)
 
-    def update_altitude(self, selected_images):
-        if not selected_images:
-            self.widgets['altitude'].set_value(None)
-            self.widgets['altitude'].setEnabled(False)
-            if self.widgets['get_altitude']:
-                self.widgets['get_altitude'].setEnabled(False)
-            return
+    def update_display(self, images, adjust_map=True):
+        self.redraw_markers()
         values = []
-        for image in selected_images:
-            gps = image.metadata.gps_info
-            if not (gps and gps['alt']):
-                continue
-            if gps['alt'] not in values:
-                values.append(gps['alt'])
-        if not values:
-            self.widgets['altitude'].set_value(None)
-        elif len(values) > 1:
-            self.widgets['altitude'].set_multiple(choices=values)
-        else:
-            self.widgets['altitude'].set_value(values[0])
-        self.widgets['altitude'].setEnabled(True)
+        for image in images:
+            values.append(image.metadata.gps_info)
+        self.widgets['latlon'].set_value_list(values)
+        self.widgets['alt'].set_value_list(values)
         if self.widgets['get_altitude']:
             self.widgets['get_altitude'].setEnabled(
                 bool(self.widgets['latlon'].get_value()))
+        if adjust_map:
+            self.see_selection(images)
 
     def see_selection(self, selected_images):
         locations = []
         # get locations of selected images
         for image in selected_images:
             gps = image.metadata.gps_info
-            if not (gps and gps['lat']):
+            if not gps['exif:GPSLatitude']:
                 continue
-            location = [float(gps['lat']), float(gps['lon'])]
+            location = [float(gps['exif:GPSLatitude']),
+                        float(gps['exif:GPSLongitude'])]
             if location not in locations:
                 locations.append(location)
         if not locations:
@@ -455,12 +434,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if 'set_from_gpx' in self.widgets:
             self.widgets['set_from_gpx'].setEnabled(
                 bool(selection) and bool(self.app.gpx_importer.display_points))
-        self.redraw_markers()
         self.redraw_gps_track(selection)
-        self.widgets['latlon'].update_display(selection)
-        self.update_altitude(selection)
-        if adjust_map:
-            self.see_selection(selection)
+        self.update_display(selection, adjust_map=adjust_map)
 
     def redraw_markers(self):
         if self.map_loaded < 2:
@@ -470,9 +445,10 @@ class PhotiniMap(QtWidgets.QWidget):
         # assign images to existing markers or create new markers
         for image in self.app.image_list.get_images():
             gps = image.metadata.gps_info
-            if not (gps and gps['lat']):
+            if not gps['exif:GPSLatitude']:
                 continue
-            location = [float(gps['lat']), float(gps['lon'])]
+            location = [float(gps['exif:GPSLatitude']),
+                        float(gps['exif:GPSLongitude'])]
             for info in self.marker_info.values():
                 if info['location'] == location:
                     info['images'].append(image)
@@ -573,18 +549,15 @@ class PhotiniMap(QtWidgets.QWidget):
             for c in candidates[1:]:
                 if abs(c.time - utc_time) < abs(nearest.time - utc_time):
                     nearest = c
-            gps = dict(image.metadata.gps_info or {})
-            gps['lat'] = nearest.latitude
-            gps['lon'] = nearest.longitude
-            gps['alt'] = nearest.elevation
+            gps = dict(image.metadata.gps_info)
+            gps['exif:GPSLatitude'] = nearest.latitude
+            gps['exif:GPSLongitude'] = nearest.longitude
+            gps['exif:GPSAltitude'] = nearest.elevation
             gps['method'] = 'GPS'
             image.metadata.gps_info = gps
             changed = True
         if changed:
-            self.redraw_markers()
-            self.widgets['latlon'].update_display(selected_images)
-            self.update_altitude(selected_images)
-            self.see_selection(selected_images)
+            self.update_display(selected_images)
 
     @QtSlot()
     @catch_all
@@ -601,7 +574,8 @@ class PhotiniMap(QtWidgets.QWidget):
         altitude = self.geocoder.get_altitude(
             self.widgets['latlon'].get_value())
         if altitude is not None:
-            self.new_altitude(round(altitude, 1), images)
+            self.new_value(
+                {'exif:GPSAltitude': round(altitude, 1)}, images=images)
 
     @QtSlot()
     @catch_all
@@ -666,14 +640,15 @@ class PhotiniMap(QtWidgets.QWidget):
     def marker_drag_end(self, lat, lng, marker_id):
         info = self.marker_info[marker_id]
         for image in info['images']:
-            gps = dict(image.metadata.gps_info or {})
-            gps['lat'] = lat
-            gps['lon'] = lng
+            gps = dict(image.metadata.gps_info)
+            gps['exif:GPSLatitude'] = lat
+            gps['exif:GPSLongitude'] = lng
             gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
-        info['location'] = [float(image.metadata.gps_info['lat']),
-                            float(image.metadata.gps_info['lon'])]
-        self.widgets['latlon'].update_display()
+        info['location'] = [float(image.metadata.gps_info['exif:GPSLatitude']),
+                            float(image.metadata.gps_info['exif:GPSLongitude'])]
+        self.widgets['latlon'].set_value_list(
+            [info['images'][0].metadata.gps_info])
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:

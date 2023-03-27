@@ -25,7 +25,8 @@ import re
 from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
-from photini.widgets import DropDownSelector, Slider
+from photini.widgets import (AugmentDateTime, AugmentSpinBox, DoubleSpinBox,
+                             DropDownSelector, Slider, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -152,92 +153,11 @@ class LensList(DropdownEdit):
         return lens_model.get_name()
 
 
-class AugmentSpinBox(object):
-    new_value = QtSignal(object)
-
-    def __init__(self):
-        super(AugmentSpinBox, self).__init__()
-        if self.isRightToLeft():
-            self.setAlignment(
-                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        self.set_value(None)
-        self.editingFinished.connect(self.editing_finished)
-
-    class ContextAction(QtGui2.QAction):
-        def __init__(self, value, *arg, **kw):
-            super(AugmentSpinBox.ContextAction, self).__init__(*arg, **kw)
-            self.setData(value)
-            self.triggered.connect(self.set_value)
-
-        @QtSlot()
-        @catch_all
-        def set_value(self):
-            self.parent().setValue(self.data())
-
-    def context_menu_event(self):
-        if self.specialValueText() and self.choices:
-            QtCore.QTimer.singleShot(0, self.extend_context_menu)
-
-    @QtSlot()
-    @catch_all
-    def extend_context_menu(self):
-        menu = self.findChild(QtWidgets.QMenu)
-        if not menu:
-            return
-        sep = menu.insertSeparator(menu.actions()[0])
-        for suggestion in self.choices:
-            menu.insertAction(sep, self.ContextAction(
-                suggestion, text=self.textFromValue(suggestion), parent=self))
-
-    def clear_special_value(self):
-        if self.specialValueText():
-            self.set_value(self.default_value)
-            self.selectAll()
-
-    def fix_up(self):
-        if self.cleanText():
-            return False
-        # user has deleted the value
-        self.set_value(None)
-        return True
-
-    @QtSlot()
-    @catch_all
-    def editing_finished(self):
-        if self.is_multiple():
-            return
-        self.get_value(emit=True)
-
-    def get_value(self, emit=False):
-        value = self.value()
-        if value == self.minimum() and self.specialValueText():
-            value = None
-        if emit:
-            self.new_value.emit(value)
-        return value
-
-    def set_value(self, value):
-        if value is None:
-            self.setValue(self.minimum())
-            self.setSpecialValueText(' ')
-        else:
-            self.setSpecialValueText('')
-            self.setValue(value)
-
-    def set_multiple(self, choices=[]):
-        self.choices = list(filter(None, choices))
-        self.setValue(self.minimum())
-        self.setSpecialValueText(self.multiple)
-
-    def is_multiple(self):
-        return (self.value() == self.minimum()
-                and self.specialValueText() == self.multiple)
-
-
 class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
-    def __init__(self, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple_values()
+        self._key = key
         super(IntSpinBox, self).__init__(*arg, **kw)
         AugmentSpinBox.__init__(self)
         self.setSingleStep(1)
@@ -252,60 +172,25 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(IntSpinBox, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.clear_special_value()
+        self.set_not_multiple()
+        self.init_stepping()
         return super(IntSpinBox, self).stepBy(steps)
 
     @catch_all
     def fixup(self, text):
-        return self.fix_up() or super(IntSpinBox, self).fixup(text)
+        if not self.fix_up():
+            super(IntSpinBox, self).fixup(text)
 
     def set_faint(self, faint):
         if faint:
             self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
         else:
             self.setStyleSheet('QAbstractSpinBox {font-weight:normal}')
-
-
-class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
-    def __init__(self, *arg, **kw):
-        self.default_value = 0
-        self.multiple = multiple_values()
-        super(DoubleSpinBox, self).__init__(*arg, **kw)
-        AugmentSpinBox.__init__(self)
-        self.setSingleStep(0.1)
-        self.setDecimals(4)
-        lim = (2 ** 31) - 1
-        self.setRange(-lim, lim)
-        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(DoubleSpinBox, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self.clear_special_value()
-        return super(DoubleSpinBox, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self.clear_special_value()
-        return super(DoubleSpinBox, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        return self.fix_up() or super(DoubleSpinBox, self).fixup(text)
-
-    @catch_all
-    def textFromValue(self, value):
-        # don't use QDoubleSpinBox's fixed number of decimals
-        return str(round(float(value), self.decimals()))
 
 
 class CalendarWidget(QtWidgets.QCalendarWidget):
@@ -316,18 +201,19 @@ class CalendarWidget(QtWidgets.QCalendarWidget):
         return super(CalendarWidget, self).showEvent(event)
 
 
-class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
-    def __init__(self, *arg, **kw):
+class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
+    def __init__(self, key, *arg, **kw):
         self.default_value = QtCore.QDateTime(
             QtCore.QDate.currentDate(), QtCore.QTime())
         self.multiple = multiple_values()
+        self._key = key
         # rename some methods for compatibility with AugmentSpinBox
         self.minimum = self.minimumDateTime
         self.setValue = self.setDateTime
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
-        AugmentSpinBox.__init__(self)
+        AugmentDateTime.__init__(self)
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
@@ -340,18 +226,14 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(DateTimeEdit, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.clear_special_value()
+        self.set_not_multiple()
+        self.init_stepping()
         return super(DateTimeEdit, self).stepBy(steps)
-
-    def clear_special_value(self):
-        if self.specialValueText():
-            self.set_value(self.default_value)
-            self.setSelectedSection(self.YearSection)
 
     @catch_all
     def sizeHint(self):
@@ -384,9 +266,10 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
 
 
 class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
-    def __init__(self, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple()
+        self._key = key
         super(TimeZoneWidget, self).__init__(*arg, **kw)
         AugmentSpinBox.__init__(self)
         self.setRange(-14 * 60, 15 * 60)
@@ -400,17 +283,19 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.clear_special_value()
+        self.set_not_multiple()
         return super(TimeZoneWidget, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.clear_special_value()
+        self.set_not_multiple()
+        self.init_stepping()
         return super(TimeZoneWidget, self).stepBy(steps)
 
     @catch_all
     def fixup(self, text):
-        return self.fix_up() or super(TimeZoneWidget, self).fixup(text)
+        if not self.fix_up():
+            super(TimeZoneWidget, self).fixup(text)
 
     @catch_all
     def sizeHint(self):
@@ -458,12 +343,19 @@ class PrecisionSlider(Slider):
 
     def __init__(self, *arg, **kw):
         super(PrecisionSlider, self).__init__(*arg, **kw)
+        self.setOrientation(Qt.Orientation.Horizontal)
+        self.setRange(1, 6)
+        self.setValue(6)
+        self.setPageStep(1)
         self.valueChanged.connect(self._value_changed)
 
+    @QtSlot(int)
+    @catch_all
     def _value_changed(self, value):
         if value >= 4:
             value += 1
         self.value_changed.emit(value)
+        self.emit_value()
 
     def get_value(self):
         value = super(PrecisionSlider, self).get_value()
@@ -477,35 +369,30 @@ class PrecisionSlider(Slider):
         super(PrecisionSlider, self).set_value(value)
 
 
-class DateAndTimeWidget(QtWidgets.QGridLayout):
-    new_value = QtSignal(str, dict)
-
-    def __init__(self, name, *arg, **kw):
+class DateAndTimeWidget(QtWidgets.QGridLayout, WidgetMixin):
+    def __init__(self, key, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
-        self.name = name
+        self._key = key
         self.setVerticalSpacing(0)
         self.setColumnStretch(3, 1)
         self.members = {}
         # date & time
-        self.members['datetime'] = DateTimeEdit()
+        self.members['datetime'] = DateTimeEdit('datetime')
         self.addWidget(self.members['datetime'], 0, 0, 1, 2)
         # time zone
-        self.members['tz_offset'] = TimeZoneWidget()
+        self.members['tz_offset'] = TimeZoneWidget('tz_offset')
         self.addWidget(self.members['tz_offset'], 0, 2)
         # precision
         self.addWidget(
             QtWidgets.QLabel(translate('TechnicalTab', 'Precision')), 1, 0)
-        self.members['precision'] = PrecisionSlider(Qt.Orientation.Horizontal)
-        self.members['precision'].setRange(1, 6)
-        self.members['precision'].setValue(6)
-        self.members['precision'].setPageStep(1)
+        self.members['precision'] = PrecisionSlider('precision')
         self.addWidget(self.members['precision'], 1, 1)
         # connections
         self.members['precision'].value_changed.connect(
             self.members['datetime'].set_precision)
-        self.members['datetime'].editingFinished.connect(self.editing_finished)
-        self.members['tz_offset'].editingFinished.connect(self.editing_finished)
-        self.members['precision'].editing_finished.connect(self.editing_finished)
+        self.members['datetime'].new_value.connect(self.editing_finished)
+        self.members['tz_offset'].new_value.connect(self.editing_finished)
+        self.members['precision'].new_value.connect(self.editing_finished)
 
     def set_enabled(self, enabled):
         for widget in self.members.values():
@@ -524,10 +411,18 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
                     new_value[key] = new_value[key].toPyDateTime()
         return new_value
 
-    @QtSlot()
+    @QtSlot(dict)
     @catch_all
-    def editing_finished(self):
-        self.new_value.emit(self.name, self.get_value())
+    def editing_finished(self, value):
+        self.emit_value()
+
+    def is_multiple(self):
+        return False
+
+    def set_value_list(self, values):
+        values = [v[self._key] for v in values]
+        for key in self.members:
+            self.members[key].set_value_list(values)
 
 
 class OffsetWidget(QtWidgets.QWidget):
@@ -546,7 +441,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.offset)
         self.layout().addSpacing(spacing)
         # time zone
-        self.time_zone = TimeZoneWidget()
+        self.time_zone = TimeZoneWidget('time_zone')
         self.time_zone.set_value(None)
         self.layout().addWidget(self.time_zone)
         self.layout().addSpacing(spacing)
@@ -706,13 +601,13 @@ class NewLensDialog(NewItemDialog):
                 ('max_fl_fn',
                  translate('TechnicalTab', 'Aperture at max. focal length')),
                 ):
-            self.lens_spec[key] = DoubleSpinBox()
+            self.lens_spec[key] = DoubleSpinBox(key)
             self.lens_spec[key].setMinimum(0.0)
             if key.endswith('_fn'):
-                self.lens_spec[key].setPrefix('ƒ/')
+                self.lens_spec[key].set_prefix('ƒ/')
             else:
                 self.lens_spec[key].setSingleStep(1.0)
-                self.lens_spec[key].setSuffix(' mm')
+                self.lens_spec[key].set_suffix(' mm')
             self.panel.layout().addRow(label, self.lens_spec[key])
 
     def get_value(self):
@@ -726,17 +621,18 @@ class NewLensDialog(NewItemDialog):
 
 
 class DateLink(QtWidgets.QCheckBox):
-    new_link = QtSignal(str)
+    new_link = QtSignal(str, str)
 
-    def __init__(self, name, *arg, **kw):
+    def __init__(self, primary, replica, *arg, **kw):
         super(DateLink, self).__init__(*arg, **kw)
-        self.name = name
+        self._primary = primary
+        self._replica = replica
         self.clicked.connect(self._clicked)
 
     @QtSlot()
     @catch_all
     def _clicked(self):
-        self.new_link.emit(self.name)
+        self.new_link.emit(self._primary, self._replica)
 
 
 class TabWidget(QtWidgets.QWidget):
@@ -749,33 +645,31 @@ class TabWidget(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.widgets = {}
-        self.date_widget = {}
         self.link_widget = {}
         # date and time
         date_group = QtWidgets.QGroupBox(
             translate('TechnicalTab', 'Date and time'))
         date_group.setLayout(FormLayout())
         # create date and link widgets
-        for master in self._master_slave:
-            self.date_widget[master] = DateAndTimeWidget(master)
-            self.date_widget[master].new_value.connect(self.new_date_value)
-            slave = self._master_slave[master]
-            if slave:
-                self.link_widget[master, slave] = DateLink(master)
-                self.link_widget[master, slave].new_link.connect(self.new_link)
-        self.link_widget['taken', 'digitised'].setText(
+        for key in ('date_taken', 'date_digitised', 'date_modified'):
+            self.widgets[key] = DateAndTimeWidget(key)
+            self.widgets[key].new_value.connect(self.new_date_value)
+        for key in self._linked_date:
+            self.link_widget[key] = DateLink(key, self._linked_date[key])
+            self.link_widget[key].new_link.connect(self.new_link)
+        self.link_widget['date_taken'].setText(
             translate('TechnicalTab', "Link 'taken' and 'digitised'"))
-        self.link_widget['digitised', 'modified'].setText(
+        self.link_widget['date_digitised'].setText(
             translate('TechnicalTab', "Link 'digitised' and 'modified'"))
         # add to layout
         date_group.layout().addRow(translate('TechnicalTab', 'Taken'),
-                                   self.date_widget['taken'])
-        date_group.layout().addRow('', self.link_widget['taken', 'digitised'])
+                                   self.widgets['date_taken'])
+        date_group.layout().addRow('', self.link_widget['date_taken'])
         date_group.layout().addRow(translate('TechnicalTab', 'Digitised'),
-                                   self.date_widget['digitised'])
-        date_group.layout().addRow('', self.link_widget['digitised', 'modified'])
+                                   self.widgets['date_digitised'])
+        date_group.layout().addRow('', self.link_widget['date_digitised'])
         date_group.layout().addRow(translate('TechnicalTab', 'Modified'),
-                                   self.date_widget['modified'])
+                                   self.widgets['date_modified'])
         # offset
         self.offset_widget = OffsetWidget()
         self.offset_widget.apply_offset.connect(self.apply_offset)
@@ -805,7 +699,7 @@ class TabWidget(QtWidgets.QWidget):
                            'orientation dropdown, diagonal reflection'), 5),
                 (translate('TechnicalTab', 'reflect top left to bottom right',
                            'orientation dropdown, diagonal reflection'), 7)))
-        self.widgets['orientation'].new_value.connect(self.new_orientation)
+        self.widgets['orientation'].new_value.connect(self._new_value)
         self.widgets['orientation'].setFocusPolicy(Qt.FocusPolicy.NoFocus)
         other_group.layout().addRow(translate('TechnicalTab', 'Orientation'),
                                     self.widgets['orientation'])
@@ -813,45 +707,44 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['camera_model'] = CameraList('camera_model')
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
-        self.widgets['camera_model'].new_value.connect(self.new_camera_model)
+        self.widgets['camera_model'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Camera'),
                                     self.widgets['camera_model'])
         # lens model
         self.widgets['lens_model'] = LensList('lens_model')
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
-        self.widgets['lens_model'].new_value.connect(self.new_lens_model)
+        self.widgets['lens_model'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Lens model'),
                                     self.widgets['lens_model'])
         # focal length
-        self.widgets['focal_length'] = DoubleSpinBox()
+        self.widgets['focal_length'] = DoubleSpinBox('focal_length')
         self.widgets['focal_length'].setMinimum(0.0)
-        self.widgets['focal_length'].setSuffix(' mm')
-        self.widgets['focal_length'].new_value.connect(self.new_focal_length)
+        self.widgets['focal_length'].set_suffix(' mm')
+        self.widgets['focal_length'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
                                     self.widgets['focal_length'])
         # 35mm equivalent focal length
-        self.widgets['focal_length_35'] = IntSpinBox()
+        self.widgets['focal_length_35'] = IntSpinBox('focal_length_35')
         self.widgets['focal_length_35'].setMinimum(0)
-        self.widgets['focal_length_35'].setSuffix(' mm')
-        self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
+        self.widgets['focal_length_35'].set_suffix(' mm')
+        self.widgets['focal_length_35'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
                                     self.widgets['focal_length_35'])
         # aperture
-        self.widgets['aperture'] = DoubleSpinBox()
+        self.widgets['aperture'] = DoubleSpinBox('aperture')
         self.widgets['aperture'].setMinimum(0.0)
-        self.widgets['aperture'].setPrefix('ƒ/')
-        self.widgets['aperture'].new_value.connect(self.new_aperture)
+        self.widgets['aperture'].set_prefix('ƒ/')
+        self.widgets['aperture'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Aperture'),
                                     self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
         # disable until an image is selected
         self.setEnabled(False)
 
-    _master_slave = {
-        'taken'    : 'digitised',
-        'digitised': 'modified',
-        'modified' : None
+    _linked_date = {
+        'date_taken'    : 'date_digitised',
+        'date_digitised': 'date_modified',
         }
 
     def refresh(self):
@@ -863,8 +756,9 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot(timedelta, object)
     @catch_all
     def apply_offset(self, offset, tz_offset):
-        for image in self.app.image_list.get_selected_images():
-            date_taken = dict(image.metadata.date_taken or {})
+        images = self.app.image_list.get_selected_images()
+        for image in images:
+            date_taken = dict(image.metadata.date_taken)
             if not date_taken:
                 continue
             date_taken['datetime'] += offset
@@ -872,185 +766,126 @@ class TabWidget(QtWidgets.QWidget):
                 tz = (date_taken['tz_offset'] or 0) + tz_offset
                 tz = min(max(tz, -14 * 60), 15 * 60)
                 date_taken['tz_offset'] = tz
-            self._set_date_value(image, 'taken', date_taken)
-        self._update_datetime()
-        self._update_links()
+            self._set_date_value(image, 'date_taken', date_taken)
+        self._update_widget((
+            'date_taken', 'date_digitised', 'date_modified'), images)
 
-    @QtSlot(str)
+    @QtSlot(str, str)
     @catch_all
-    def new_link(self, master):
-        slave = self._master_slave[master]
-        if self.link_widget[master, slave].isChecked():
-            for image in self.app.image_list.get_selected_images():
-                temp = dict(getattr(image.metadata, 'date_' + master) or {})
-                self._set_date_value(image, slave, temp)
-            self._update_datetime()
-            self._update_links()
+    def new_link(self, primary, replica):
+        images = self.app.image_list.get_selected_images()
+        if self.link_widget[primary].isChecked():
+            for image in images:
+                temp = dict(getattr(image.metadata, primary))
+                self._set_date_value(image, replica, temp)
+            self._update_widget(replica, images)
         else:
-            self.date_widget[slave].set_enabled(True)
+            self.widgets[replica].set_enabled(True)
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def new_orientation(self, key, value):
-        for image in self.app.image_list.get_selected_images():
-            image.metadata.orientation = value
-            image.load_thumbnail()
-        self._update_orientation()
-
-    @QtSlot(str, object)
-    @catch_all
-    def new_camera_model(self, key, value):
+    def _new_value(self, value):
+        key, value = list(value.items())[0]
+        images = self.app.image_list.get_selected_images()
         delete_makernote = 'ask'
-        for image in self.app.image_list.get_selected_images():
-            if not image.metadata.camera_change_ok(value):
-                if delete_makernote == 'ask':
-                    msg = QtWidgets.QMessageBox(parent=self)
-                    msg.setWindowTitle(translate(
-                        'TechnicalTab', 'Photini: maker name change'))
-                    msg.setText('<h3>{}</h3>'.format(translate(
-                        'TechnicalTab', 'Changing maker name will'
-                        ' invalidate Exif makernote information.')))
-                    msg.setInformativeText(translate(
-                        'TechnicalTab',
-                        'Do you want to delete the Exif makernote?'))
-                    msg.setIcon(msg.Icon.Warning)
-                    msg.setStandardButtons(msg.StandardButton.YesToAll |
-                                           msg.StandardButton.NoToAll)
-                    msg.setDefaultButton(msg.StandardButton.NoToAll)
-                    delete_makernote = (
-                        execute(msg) == msg.StandardButton.YesToAll)
-                if delete_makernote:
-                    image.metadata.set_delete_makernote()
-            image.metadata.camera_model = value
-        self._update_camera_model()
-
-    @QtSlot(str, object)
-    @catch_all
-    def new_lens_model(self, key, value):
-        for image in self.app.image_list.get_selected_images():
-            image.metadata.lens_model = value
-        self._update_lens_model()
-
-    @QtSlot(object)
-    @catch_all
-    def new_aperture(self, value):
-        for image in self.app.image_list.get_selected_images():
-            image.metadata.aperture = value
-        self._update_aperture()
-
-    @QtSlot(object)
-    @catch_all
-    def new_focal_length(self, value):
-        for image in self.app.image_list.get_selected_images():
-            # only update 35mm equiv if already set
-            if image.metadata.focal_length_35:
+        for image in images:
+            if key == 'camera_model':
+                delete_makernote = self.ask_delete_makernote(
+                    delete_makernote, image, value)
+            elif (key == 'focal_length_35' and self.calc_35(
+                    image.metadata, image.metadata.focal_length) == value):
+                continue
+            elif key == 'focal_length' and image.metadata.focal_length_35:
+                # update 35mm equiv if already set
                 image.metadata.focal_length_35 = self.calc_35(
                     image.metadata, value)
-            image.metadata.focal_length = value
-        self._update_focal_length()
-        self._update_focal_length_35()
+            image.metadata[key] = value
+            if key == 'orientation':
+                image.load_thumbnail()
+            elif key == 'focal_length_35':
+                self.set_crop_factor(image.metadata)
+        if key == 'focal_length':
+            self._update_widget(
+                ('focal_length', 'focal_length_35'), images=images)
+        else:
+            self._update_widget(key, images=images)
 
-    @QtSlot(object)
-    @catch_all
-    def new_focal_length_35(self, value):
-        for image in self.app.image_list.get_selected_images():
-            image.metadata.focal_length_35 = value
-            self.set_crop_factor(image.metadata)
-        self._update_focal_length()
-        self._update_focal_length_35()
+    def ask_delete_makernote(self, delete_makernote, image, value):
+        if not image.metadata.camera_change_ok(value):
+            if delete_makernote == 'ask':
+                msg = QtWidgets.QMessageBox(parent=self)
+                msg.setWindowTitle(translate(
+                    'TechnicalTab', 'Photini: maker name change'))
+                msg.setText('<h3>{}</h3>'.format(translate(
+                    'TechnicalTab', 'Changing maker name will'
+                    ' invalidate Exif makernote information.')))
+                msg.setInformativeText(translate(
+                    'TechnicalTab',
+                    'Do you want to delete the Exif makernote?'))
+                msg.setIcon(msg.Icon.Warning)
+                msg.setStandardButtons(msg.StandardButton.YesToAll |
+                                       msg.StandardButton.NoToAll)
+                msg.setDefaultButton(msg.StandardButton.NoToAll)
+                delete_makernote = (
+                    execute(msg) == msg.StandardButton.YesToAll)
+            if delete_makernote:
+                image.metadata.set_delete_makernote()
+        return delete_makernote
 
-    @QtSlot(str, dict)
+    @QtSlot(dict)
     @catch_all
-    def new_date_value(self, key, new_value):
-        for image in self.app.image_list.get_selected_images():
-            temp = dict(getattr(image.metadata, 'date_' + key) or {})
+    def new_date_value(self, value):
+        images = self.app.image_list.get_selected_images()
+        key, new_value = list(value.items())[0]
+        for image in images:
+            temp = dict(getattr(image.metadata, key))
             temp.update(new_value)
             if 'datetime' not in temp:
                 continue
             if temp['datetime'] is None:
                 temp = None
             self._set_date_value(image, key, temp)
-        self._update_datetime()
+        self._update_widget(
+            ('date_taken', 'date_digitised', 'date_modified'), images)
 
-    def _set_date_value(self, image, master, new_value):
-        while True:
-            setattr(image.metadata, 'date_' + master, new_value)
-            slave = self._master_slave[master]
-            if not slave or not self.link_widget[master, slave].isChecked():
-                break
-            master = slave
+    def _set_date_value(self, image, key, new_value):
+        setattr(image.metadata, key, new_value)
+        if key in self.link_widget and self.link_widget[key].isChecked():
+            self._set_date_value(image, self._linked_date[key], new_value)
 
-    def _update_datetime(self):
-        images = self.app.image_list.get_selected_images()
-        for name in self.date_widget:
-            attribute = 'date_' + name
-            widget = self.date_widget[name]
-            values = defaultdict(list)
-            for image in images:
-                image_datetime = getattr(image.metadata, attribute) or {}
-                for key in widget.members:
-                    value = None
-                    if key in image_datetime:
-                        value = image_datetime[key]
-                    if value not in values[key]:
-                        values[key].append(value)
-            for key in widget.members:
-                if len(values[key]) > 1:
-                    widget.members[key].set_multiple(choices=values[key])
-                else:
-                    widget.members[key].set_value(values[key][0])
-
-    def _update_links(self):
-        images = self.app.image_list.get_selected_images()
-        for master, slave in self.link_widget:
-            for image in images:
-                if (getattr(image.metadata, 'date_' + master) !=
-                        getattr(image.metadata, 'date_' + slave)):
-                    self.link_widget[master, slave].setChecked(False)
-                    self.date_widget[slave].set_enabled(True)
+    def _update_links(self, values):
+        for primary in self.link_widget:
+            replica = self._linked_date[primary]
+            for value in values:
+                if value[primary] != value[replica]:
+                    self.link_widget[primary].setChecked(False)
+                    self.widgets[replica].set_enabled(True)
                     break
             else:
-                self.link_widget[master, slave].setChecked(True)
-                self.date_widget[slave].set_enabled(False)
+                self.link_widget[primary].setChecked(True)
+                self.widgets[replica].set_enabled(False)
 
-    def _update_orientation(self):
-        images = self.app.image_list.get_selected_images()
-        if not images:
-            return
-        value = images[0].metadata.orientation
-        for image in images[1:]:
-            if image.metadata.orientation != value:
-                # multiple values
-                self.widgets['orientation'].set_multiple()
-                return
-        self.widgets['orientation'].set_value(value and int(value))
+    def _update_widget(self, keys=[], images=[]):
+        images = images or self.app.image_list.get_selected_images()
+        values = [image.metadata for image in images]
+        if isinstance(keys, str):
+            keys = [keys]
+        for key in keys:
+            self.widgets[key].set_value_list(values)
+            if key == 'lens_model':
+                self._update_lens_model(images)
+            elif key == 'focal_length_35':
+                self._update_focal_length_35(images)
+        if any(k in ('date_taken', 'date_digitised', 'date_modified')
+               for k in keys):
+            self._update_links(values)
 
-    def _update_camera_model(self):
-        images = self.app.image_list.get_selected_images()
-        if not images:
-            return
-        value = images[0].metadata.camera_model
-        for image in images[1:]:
-            if image.metadata.camera_model != value:
-                self.widgets['camera_model'].set_multiple()
-                return
-        self.widgets['camera_model'].set_value(value)
-
-    def _update_lens_model(self):
-        images = self.app.image_list.get_selected_images()
-        if not images:
-            return
+    def _update_lens_model(self, images):
+        value = self.widgets['lens_model'].get_value_dict()
         self.widgets['lens_model'].setToolTip('')
-        value = images[0].metadata.lens_model
-        for image in images[1:]:
-            if image.metadata.lens_model != value:
-                # multiple values
-                self.widgets['lens_model'].set_multiple()
-                return
-        self.widgets['lens_model'].set_value(value)
-        if not value:
+        if not (value and value['lens_model']):
             return
-        spec = value['spec']
+        spec = value['lens_model']['spec']
         if not spec:
             return
         tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
@@ -1108,56 +943,19 @@ class TabWidget(QtWidgets.QWidget):
                         image.metadata, new_fl)
                 image.metadata.focal_length = new_fl
         if make_changes:
-            self._update_aperture()
-            self._update_focal_length()
-            self._update_focal_length_35()
+            self._update_widget(
+                ('aperture', 'focal_length', 'focal_length_35'), images=images)
 
-    def _update_aperture(self):
-        images = self.app.image_list.get_selected_images()
-        if not images:
-            return
-        values = []
-        for image in images:
-            value = image.metadata.aperture
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['aperture'].set_multiple(choices=values)
-        else:
-            self.widgets['aperture'].set_value(values[0])
-
-    def _update_focal_length(self):
-        images = self.app.image_list.get_selected_images()
-        if not images:
-            return
-        values = []
-        for image in images:
-            value = image.metadata.focal_length
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['focal_length'].set_multiple(choices=values)
-        else:
-            self.widgets['focal_length'].set_value(values[0])
-
-    def _update_focal_length_35(self):
-        images = self.app.image_list.get_selected_images()
-        if not images:
-            return
+    def _update_focal_length_35(self, images):
         self.widgets['focal_length_35'].set_faint(False)
-        # display real value if it exists
-        values = []
-        for image in images:
-            value = image.metadata.focal_length_35
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['focal_length_35'].set_multiple(choices=values)
-        else:
-            self.widgets['focal_length_35'].set_value(values[0])
-        if values[0]:
+        if not images:
+            self.widgets['focal_length_35'].setEnabled(False)
+            self.widgets['focal_length_35'].set_value(None)
             return
-        # otherwise display calculated value
+        value = self.widgets['focal_length_35'].get_value_dict()
+        if (not value) or value['focal_length_35']:
+            return
+        # display calculated value
         values = []
         for image in images:
             value = self.calc_35(image.metadata)
@@ -1202,20 +1000,8 @@ class TabWidget(QtWidgets.QWidget):
         return md.focal_length_35
 
     def new_selection(self, selection):
-        if not selection:
-            self.setEnabled(False)
-            for widget in self.date_widget.values():
-                for sub_widget in widget.members.values():
-                    sub_widget.set_value(None)
-            for widget in self.widgets.values():
-                widget.set_value(None)
-            return
-        self._update_datetime()
-        self._update_links()
-        self._update_orientation()
-        self._update_camera_model()
-        self._update_lens_model()
-        self._update_aperture()
-        self._update_focal_length()
-        self._update_focal_length_35()
-        self.setEnabled(True)
+        self._update_widget(
+            ('date_taken', 'date_digitised', 'date_modified',
+             'orientation', 'camera_model', 'lens_model', 'aperture',
+             'focal_length', 'focal_length_35'), images=selection)
+        self.setEnabled(bool(selection))

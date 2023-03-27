@@ -199,6 +199,68 @@ class FlickrSession(UploaderSession):
                 return 'Failed to remove from album'
         return ''
 
+    def get_notes(self, photo_id, photo=[]):
+        if not photo:
+            rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
+            if rsp:
+                photo = rsp['photo']
+        if 'notes' in photo:
+            for note in photo['notes']['note']:
+                note['content'] = note['_content']
+                note['is_person'] = False
+                yield note
+        if not ('people' in photo and photo['people']['haspeople'] == 1):
+            return
+        rsp = self.api_call('flickr.photos.people.getList', photo_id=photo_id)
+        if rsp:
+            for note in rsp['people']['person']:
+                if not all(k in note for k in ('x', 'y', 'w', 'h')):
+                    continue
+                note['content'] = note['realname']
+                if note['added_by'] == self.user_data['user_nsid']:
+                    note['authorrealname'] = self.user_data['fullname']
+                else:
+                    rsp = self.api_call(
+                        'flickr.people.getInfo', user_id=note['added_by'])
+                    note['authorrealname'] = (
+                        rsp and rsp['person']['realname']) or ''
+                note['is_person'] = True
+                yield note
+
+    def set_notes(self, params, photo_id):
+        if params['function'] != 'upload':
+            # delete non-existent notes
+            for note in self.get_notes(photo_id):
+                local_note = dict((k, note[k]) for k in (
+                    'x', 'y', 'w', 'h', 'content', 'is_person'))
+                if local_note in params['notes']:
+                    params['notes'].remove(local_note)
+                    continue
+                if note['is_person']:
+                    rsp = self.api_call(
+                        'flickr.photos.people.delete',
+                        post=True, photo_id=photo_id, user_id=note['nsid'])
+                else:
+                    rsp = self.api_call('flickr.photos.notes.delete',
+                                        post=True, note_id=note['id'])
+                if rsp is None:
+                    return 'Failed to delete note'
+        # add new notes
+        for note in params['notes']:
+            if not note['is_person']:
+                rsp = self.api_call(
+                    'flickr.photos.notes.add', post=True, photo_id=photo_id,
+                    note_x=note['x'], note_y=note['y'], note_w=note['w'],
+                    note_h=note['h'], note_text=note['content'])
+            elif note['content'] == self.user_data['fullname']:
+                rsp = self.api_call(
+                    'flickr.photos.people.add', post=True, photo_id=photo_id,
+                    person_x=note['x'], person_y=note['y'], person_w=note['w'],
+                    person_h=note['h'], user_id=self.user_data['user_nsid'])
+            if rsp is None:
+                return 'Failed to add note'
+        return ''
+
     def upload_files(self, upload_list):
         upload_count = 0
         uploads = list(upload_list)
@@ -276,6 +338,12 @@ class FlickrSession(UploaderSession):
                 if error:
                     self.upload_progress.emit({'error': (image, error)})
                     continue
+                # add notes
+                if 'notes' in params:
+                    error = self.set_notes(params, params['photo_id'])
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
+                        continue
                 # add to or remove from albums
                 if 'albums' in params:
                     error = self.set_albums(params, params['photo_id'])
@@ -527,10 +595,10 @@ class TabWidget(PhotiniUploader):
                     params['dates']['date_taken_granularity'] = '4'
             # location
             gps = image.metadata.gps_info
-            if gps and gps['lat']:
+            if gps and gps['exif:GPSLatitude']:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(float(gps['lat'])),
-                    'lon': '{:.6f}'.format(float(gps['lon'])),
+                    'lat': '{:.6f}'.format(float(gps['exif:GPSLatitude'])),
+                    'lon': '{:.6f}'.format(float(gps['exif:GPSLongitude'])),
                     }
             else:
                 # clear any existing location
@@ -570,6 +638,16 @@ class TabWidget(PhotiniUploader):
         # albums
         if upload_prefs['new_photo'] or replace_prefs['albums']:
             params['albums'] = self.widget['albums'].get_checked_widgets()
+        # notes
+        if upload_prefs['new_photo'] or replace_prefs['notes']:
+            params['notes'] = []
+            for note in image.metadata.image_region.to_notes(image, 500):
+                params['notes'].append(note)
+                if note['is_person']:
+                    # Flickr doesn't show box around person, so add one
+                    note = dict(note)
+                    note['is_person'] = False
+                    params['notes'].append(note)
         return params
 
     def replace_dialog(self, image):
@@ -583,12 +661,13 @@ class TabWidget(PhotiniUploader):
             ('hidden', translate('FlickrTab', 'Change hide from search')),
             ('licence', translate('FlickrTab', 'Change licence')),
             ('content_type', translate('FlickrTab', 'Change content type')),
-            ('albums', translate('FlickrTab', 'Change album membership'))))
+            ('albums', translate('FlickrTab', 'Change album membership')),
+            ('notes', translate('FlickrTab', 'Replace image region notes'))))
 
     _address_map = {
-        'CountryName':   ('country',),
-        'ProvinceState': ('county', 'region'),
-        'City':          ('neighbourhood', 'locality'),
+        'Iptc4xmpExt:CountryName':   ('country',),
+        'Iptc4xmpExt:ProvinceState': ('county', 'region'),
+        'Iptc4xmpExt:City':          ('neighbourhood', 'locality'),
         }
 
     def merge_metadata(self, session, photo_id, image):
@@ -615,15 +694,19 @@ class TabWidget(PhotiniUploader):
                                               '%Y-%m-%d %H:%M:%S'),
                 'precision': precision, 'tz_offset': None}
         if 'location' in photo:
-            data['gps_info'] = {'lat': photo['location']['latitude'],
-                                'lon': photo['location']['longitude'],
-                                'method': 'MANUAL'}
+            gps = {'lat': photo['location']['latitude'],
+                   'lng': photo['location']['longitude']}
             address = {}
             for key in photo['location']:
                 if '_content' in photo['location'][key]:
                     address[key] = photo['location'][key]['_content']
-            data['location_taken'] = MD_Location.from_address(
-                address, self._address_map)
+            data['location_taken'] = [MD_Location.from_address(
+                gps, address, self._address_map)]
+        # get annotated image regions
+        notes = session.get_notes(photo_id, photo=photo)
+        if notes:
+            data['image_region'] = image.metadata.image_region.from_notes(
+                notes, image, 500)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

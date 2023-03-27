@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2022  Jim Easterbrook.
+   Copyright (C)  2022-23  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Ipernity uploader
@@ -77,6 +77,9 @@ Select the image(s) you would like to update and click the ``Synchronise`` butto
 If an image does not have a ``ipernity:id`` keyword then Photini will try to find the photograph on Ipernity by matching the date and time it was taken.
 If there is new metadata on Ipernity then it is merged into the image's metadata.
 You can see what changed with the image's context menu ``View changes``.
+
+.. versionadded:: 2023.4.0
+    Ipernity "notes" attached to an image are shown on Photini's :doc:`regions` tab.
 
 Synchronising Ipernity metadata to local
 ----------------------------------------

@@ -14,6 +14,7 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    image_selector
    descriptive_metadata
    ownership_metadata
+   regions
    technical_metadata
    map
    address

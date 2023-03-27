@@ -737,6 +737,9 @@ class TabWidget(PhotiniUploader):
                 state['ask_alt_text'] = False
             elif result == dialog.StandardButton.Abort:
                 return 'abort'
+        focus = image.metadata.image_region.get_focus(image)
+        if focus:
+            params['media']['focus'] = '{:f},{:f}'.format(*focus)
         params['license'] = self.widget['license'].get_value()
         params['default_license'] = int(
             self.user_widget.compose_settings['default_license'])

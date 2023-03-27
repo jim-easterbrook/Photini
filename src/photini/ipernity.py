@@ -28,6 +28,7 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import *
+from photini.types import MD_ImageRegion
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
@@ -170,6 +171,44 @@ class IpernitySession(UploaderSession):
                 return 'Failed to remove from album'
         return ''
 
+    def get_notes(self, doc_id, photo=[]):
+        if not photo:
+            rsp = self.api_call('doc.get', doc_id=doc_id, extra='notes')
+            if rsp:
+                photo = rsp['doc']
+        if 'notes' in photo:
+            for note in photo['notes']['note']:
+                note['is_person'] = 'member_id' in note
+                if note['is_person']:
+                    note['content'] = note['membername']
+                note['authorrealname'] = note['username']
+                yield note
+
+    def set_notes(self, params, doc_id):
+        if params['function'] != 'upload.file':
+            # delete non-existent notes
+            for note in self.get_notes(doc_id):
+                local_note = dict((k, note[k]) for k in (
+                    'x', 'y', 'w', 'h', 'content', 'is_person'))
+                if local_note in params['notes']:
+                    params['notes'].remove(local_note)
+                    continue
+                rsp = self.api_call('doc.notes.delete',
+                                    post=True, note_id=note['note_id'])
+                if rsp is None:
+                    return 'Failed to delete note'
+        # add new notes
+        for note in params['notes']:
+            if (note['is_person']
+                    and note['content'] == self.user_data['realname']):
+                note['member_id'] = self.user_data['user_id']
+            del note['is_person']
+            rsp = self.api_call(
+                'doc.notes.add', post=True, doc_id=doc_id, **note)
+            if rsp is None:
+                return 'Failed to add note'
+        return ''
+
     def upload_files(self, upload_list):
         upload_count = 0
         uploads = list(upload_list)
@@ -236,6 +275,11 @@ class IpernitySession(UploaderSession):
                 # set remaining metadata after uploading images
                 image, params = metadata.pop(0)
                 error = self.set_metadata(params, params['doc_id'])
+                if error:
+                    self.upload_progress.emit({'error': (image, error)})
+                    continue
+                # add notes
+                error = self.set_notes(params, params['doc_id'])
                 if error:
                     self.upload_progress.emit({'error': (image, error)})
                     continue
@@ -453,9 +497,10 @@ class TabWidget(PhotiniUploader):
                 self.widget[key].set_value(
                     self.app.config_store.get('ipernity', key))
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def new_value(self, key, value):
+    def new_value(self, value):
+        (key, value), = value.items()
         self.app.config_store.set('ipernity', key, value)
 
     def accepted_image_type(self, file_type):
@@ -480,10 +525,10 @@ class TabWidget(PhotiniUploader):
                     }
             # location
             gps = image.metadata.gps_info
-            if gps and gps['lat']:
+            if gps and gps['exif:GPSLatitude']:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(float(gps['lat'])),
-                    'lng': '{:.6f}'.format(float(gps['lon'])),
+                    'lat': '{:.6f}'.format(float(gps['exif:GPSLatitude'])),
+                    'lng': '{:.6f}'.format(float(gps['exif:GPSLongitude'])),
                     }
             else:
                 # clear any existing location
@@ -510,6 +555,10 @@ class TabWidget(PhotiniUploader):
         # albums
         if upload_prefs['new_photo'] or replace_prefs['albums']:
             params['albums'] = self.widget['albums'].get_checked_ids()
+        # notes
+        if upload_prefs['new_photo'] or replace_prefs['notes']:
+            params['notes'] = list(
+                image.metadata.image_region.to_notes(image, 560))
         return params
 
     def replace_dialog(self, image):
@@ -519,11 +568,12 @@ class TabWidget(PhotiniUploader):
             ('permissions',
              translate('IpernityTab', 'Change who can comment or tag')),
             ('licence', translate('IpernityTab', 'Change the licence')),
-            ('albums', translate('IpernityTab', 'Change album membership'))
+            ('albums', translate('IpernityTab', 'Change album membership')),
+            ('notes', translate('IpernityTab', 'Replace image region notes'))
             ), replace=False)
 
     def merge_metadata(self, session, doc_id, image):
-        rsp = session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
+        rsp = session.api_call('doc.get', doc_id=doc_id, extra='tags,geo,notes')
         if not rsp:
             return
         photo = rsp['doc']
@@ -538,9 +588,14 @@ class TabWidget(PhotiniUploader):
                 'precision': 6, 'tz_offset': None}
             }
         if 'geo' in photo:
-            data['gps_info'] = {'lat': photo['geo']['lat'],
-                                'lon': photo['geo']['lng'],
+            data['gps_info'] = {'exif:GPSLatitude': photo['geo']['lat'],
+                                'exif:GPSLongitude': photo['geo']['lng'],
                                 'method': 'MANUAL'}
+        # get annotated image regions
+        notes = session.get_notes(doc_id, photo=photo)
+        if notes:
+            data['image_region'] = image.metadata.image_region.from_notes(
+                notes, image, 560)
         self.merge_metadata_items(image, data)
 
     @QtSlot()
