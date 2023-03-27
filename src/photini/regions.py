@@ -295,6 +295,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def __init__(self, region, display_widget, draw_unit, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget)
+        self.draw_unit = draw_unit
         polygon = self.to_scene.map(region.to_Qt(self.image))
         self.handles = []
         for idx in range(polygon.count()):
@@ -328,10 +329,11 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
                 insert = idx
         polygon.insert(insert, p0)
         self.setPolygon(polygon)
+        self.highlight.setPolygon(polygon)
         if len(self.handles) == 2:
             for handle in self.handles:
                 handle.deletable = True
-        handle = PolygonHandle(draw_unit, parent=self)
+        handle = PolygonHandle(self.draw_unit, parent=self)
         handle.setPos(p0)
         self.handles.insert(insert, handle)
 
@@ -765,9 +767,6 @@ class RegionTabs(QtWidgets.QTabWidget):
     def context_menu(self, idx, pos):
         md = self.image.metadata
         menu = QtWidgets.QMenu()
-        delete_action = (
-            bool(md.image_region)
-            and menu.addAction(translate('RegionsTab', 'Delete region')))
         rect_action = menu.addAction(
             translate('RegionsTab', 'New rectangle'))
         circ_action = menu.addAction(
@@ -776,6 +775,9 @@ class RegionTabs(QtWidgets.QTabWidget):
             translate('RegionsTab', 'New point'))
         poly_action = menu.addAction(
             translate('RegionsTab', 'New polygon'))
+        delete_action = (
+            bool(md.image_region)
+            and menu.addAction(translate('RegionsTab', 'Delete region')))
         action = execute(menu, pos)
         if action == delete_action:
             current = self.currentIndex()
