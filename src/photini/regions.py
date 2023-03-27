@@ -646,7 +646,7 @@ class RegionForm(QtWidgets.QScrollArea):
         layout.addRow(self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
-        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key] = SingleLineEdit(key, min_width=15)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Identifier of the region. Must be unique among all'
             ' Region Identifiers of an image. Does not have to be unique beyond'
@@ -683,7 +683,7 @@ class RegionForm(QtWidgets.QScrollArea):
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
         key = 'Iptc4xmpExt:PersonInImage'
-        self.widgets[key] = MultiStringEdit(key)
+        self.widgets[key] = MultiStringEdit(key, min_width=15)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
@@ -720,9 +720,9 @@ class RegionForm(QtWidgets.QScrollArea):
                     key, multi_line=False, min_width=15, label=label)
                 label = None
             elif isinstance(value, list):
-                self.widgets[key] = MultiStringEdit(key)
+                self.widgets[key] = MultiStringEdit(key, min_width=15)
             else:
-                self.widgets[key] = SingleLineEdit(key)
+                self.widgets[key] = SingleLineEdit(key, min_width=15)
             self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
                 'RegionsTab', 'The Image Region Structure includes optionally'
                 ' any metadata property which is related to the region.')))
