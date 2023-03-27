@@ -587,6 +587,10 @@ class UnitSelector(QtWidgets.QWidget):
         policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
         self.setSizePolicy(policy)
         self.setLayout(QtWidgets.QHBoxLayout())
+        margins = self.layout().contentsMargins()
+        margins.setTop(0)
+        margins.setBottom(0)
+        self.layout().setContentsMargins(margins)
         self.buttons = {}
         self.buttons['pixel'] = QtWidgets.QRadioButton(
             translate('RegionsTab', 'pixel'))
