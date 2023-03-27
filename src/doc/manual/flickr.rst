@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-22  Jim Easterbrook.
+   Copyright (C)  2012-23  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Flickr uploader
@@ -84,6 +84,9 @@ Select the image(s) you would like to update and click the ``Synchronise`` butto
 
 If an image does not have a ``flickr:id`` keyword then Photini will try to find the photograph on Flickr by matching the date and time it was taken.
 If there is new metadata on Flickr then it is merged into the image's metadata.
+
+.. versionadded:: 2023.4.0
+    Flickr "notes" attached to an image are shown on Photini's :doc:`regions` tab.
 
 .. image:: ../images/screenshot_160.png
 

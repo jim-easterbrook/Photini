@@ -375,28 +375,10 @@ class MainWindow(QtWidgets.QMainWindow):
         instance_server = InstanceServer(parent=self)
         instance_server.new_files.connect(self.app.image_list.open_file_list,
                                           Qt.ConnectionType.QueuedConnection)
-        # update config file
-        if self.app.config_store.config.has_section('tabs'):
-            conv = {
-                'descriptive_metadata': 'photini.descriptive',
-                'technical_metadata'  : 'photini.technical',
-                'map_google'          : 'photini.googlemap',
-                'map_bing'            : 'photini.bingmap',
-                'map_mapbox'          : 'photini.mapboxmap',
-                'address'             : 'photini.address',
-                'flickr_upload'       : 'photini.flickr',
-                'import_photos'       : 'photini.importer',
-                }
-            for key in self.app.config_store.config.options('tabs'):
-                if key in conv:
-                    self.app.config_store.set(
-                        'tabs', conv[key],
-                        self.app.config_store.get('tabs', key))
-                    self.app.config_store.delete('tabs', key)
         # prepare list of tabs and associated stuff
         self.tab_info = {}
         default_modules = ['photini.descriptive',  'photini.ownership',
-                           'photini.technical',
+                           'photini.technical',    'photini.regions',
                            'photini.googlemap',    'photini.bingmap',
                            'photini.mapboxmap',    'photini.address',
                            'photini.flickr',       'photini.ipernity',

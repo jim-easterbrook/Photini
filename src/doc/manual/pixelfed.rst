@@ -66,6 +66,11 @@ You can abort the upload and edit your photograph's alt text, or you can carry o
 If you add alt text later on you can use the ``Update remote`` button to copy the updated alt text to a previously uploaded picture.
 This is not available on Mastodon instances, and your updated alt text might not propagate to all federated instances if they have already cached your picture.
 
+.. versionadded:: 2023.4.0
+    Mastodon uses "`focal points`_" when cropping images.
+    If you define a cropping region in Photini's :doc:`regions` tab, the centre of that region will be used as the focal point.
+    Ipernity currently ignores the focal point parameter.
+
 .. image:: ../images/screenshot_260.png
 
 Pixelfed instances have maximum allowed image sizes, both pixel count and bytes in the file.
@@ -73,6 +78,8 @@ If your image is too large, and is in a format Photini can process, Photini will
 For best picture quality Photini will use Pillow_ if it is installed.
 
 
+.. _focal points:
+    https://docs.joinmastodon.org/api/guidelines/#focal-points
 .. _Mastodon: https://joinmastodon.org/
 .. _Pillow:   http://pillow.readthedocs.io/
 .. _Pixelfed: https://pixelfed.org/

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-18 14:23+0000\n"
+"POT-Creation-Date: 2023-03-27 10:13+0100\n"
 "PO-Revision-Date: 2022-06-28 09:10+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
 "Language: ko\n"
@@ -740,7 +740,10 @@ msgstr "이미지 파일이나 XMP \"sidecar\" 파일에 메타데이터를 씁�
 msgid "Can import photographs from many digital cameras."
 msgstr "많은 디지털 카메라에서 사진을 가져올 수 있습니다."
 
-msgid "Upload to Flickr_ or `Google Photos`_ or Ipernity_ with reuse of metadata."
+#, fuzzy
+msgid ""
+"Upload to Flickr_ or `Google Photos`_ or Ipernity_ or Pixelfed_ with reuse "
+"of metadata."
 msgstr "메타데이터를 재사용하여 Flickr_ 또는 `Google Photos`_ 또는 Ipernity_ 에 업로드합니다."
 
 msgid "Geotagging - search map to find named places."
@@ -824,7 +827,8 @@ msgstr "Photini - 간단한 사진 메타데이터 편집기."
 msgid "http://github.com/jim-easterbrook/Photini"
 msgstr "http://github.com/jim-easterbrook/Photini"
 
-msgid "Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+#, fuzzy
+msgid "Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 msgstr "Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 
 msgid "Catalan translation by Joan Juvanteny"

@@ -30,21 +30,18 @@ translate = QtCore.QCoreApplication.translate
 
 
 class RatingWidget(QtWidgets.QWidget):
-    new_value = QtSignal(str, object)
-
     def __init__(self, key, *arg, **kw):
         super(RatingWidget, self).__init__(*arg, **kw)
-        self._key = key
         self.multiple_values = multiple_values()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # slider
-        self.slider = Slider(Qt.Orientation.Horizontal)
+        self.slider = Slider(key)
+        self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.setFixedWidth(width_for_text(self.slider, 'x' * 25))
         self.slider.setRange(-2, 5)
         self.slider.setPageStep(1)
         self.slider.valueChanged.connect(self.set_display)
-        self.slider.editing_finished.connect(self._new_value)
         self.layout().addWidget(self.slider)
         # display
         self.display = QtWidgets.QLineEdit()
@@ -59,11 +56,9 @@ class RatingWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.display)
         # adopt child methods/signals
         self.is_multiple = self.slider.is_multiple
-
-    @QtSlot()
-    @catch_all
-    def _new_value(self):
-        self.new_value.emit(self._key, self.get_value())
+        self.new_value = self.slider.new_value
+        # over-ride child methods
+        self.slider.get_value = self.get_value
 
     @QtSlot(int)
     @catch_all
@@ -150,7 +145,7 @@ class KeywordsEditor(QtWidgets.QWidget):
     def update_league_table(self, images):
         today = date.today().isoformat()
         for image in images:
-            keywords = image.metadata.keywords or []
+            keywords = image.metadata.keywords
             value = [x for x in keywords if ':' not in x]
             if not value:
                 continue
@@ -174,7 +169,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         if current_value:
             new_value = current_value + '; ' + new_value
         self.set_value(new_value)
-        self.new_value.emit(self.edit._key, new_value)
+        self.edit.emit_value()
 
 
 class TabWidget(QtWidgets.QScrollArea):
@@ -284,9 +279,10 @@ class TabWidget(QtWidgets.QScrollArea):
         self.widgets['keywords'].update_league_table(
             self.app.image_list.get_images())
 
-    @QtSlot(str, object)
+    @QtSlot(dict)
     @catch_all
-    def new_value(self, key, value):
+    def new_value(self, value):
+        key, value = list(value.items())[0]
         images = self.app.image_list.get_selected_images()
         for image in images:
             setattr(image.metadata, key, value)

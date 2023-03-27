@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-18 14:23+0000\n"
+"POT-Creation-Date: 2023-03-27 10:13+0100\n"
 "PO-Revision-Date: 2022-06-30 10:57+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: nb\n"
@@ -642,7 +642,9 @@ msgstr ""
 msgid "Can import photographs from many digital cameras."
 msgstr ""
 
-msgid "Upload to Flickr_ or `Google Photos`_ or Ipernity_ with reuse of metadata."
+msgid ""
+"Upload to Flickr_ or `Google Photos`_ or Ipernity_ or Pixelfed_ with reuse "
+"of metadata."
 msgstr ""
 
 msgid "Geotagging - search map to find named places."
@@ -718,7 +720,7 @@ msgstr ""
 msgid "http://github.com/jim-easterbrook/Photini"
 msgstr ""
 
-msgid "Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+msgid "Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 msgstr ""
 
 msgid "Catalan translation by Joan Juvanteny"
@@ -1697,5 +1699,11 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "0.13.1"
+#~ msgstr ""
+
+#~ msgid "Upload to Flickr_ or `Google Photos`_ or Ipernity_ with reuse of metadata."
+#~ msgstr ""
+
+#~ msgid "Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 #~ msgstr ""
 
