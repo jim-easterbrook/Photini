@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2021-22  Jim Easterbrook.
+   Copyright (C)  2021-23  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Ownership metadata
@@ -22,7 +22,7 @@ Note that the ``Copyright Notice`` and ``Rights: Usage Terms`` fields can have a
 .. image:: ../images/screenshot_202.png
 
 Note that you can insert the year in which a photograph was taken with ``%Y``.
-This is probably only useful in the ``Copyright Notice``, but is available for all fields.
+This is probably only useful in the ``Copyright Notice``, but is available for all text fields.
 (You can actually use any directive recognised by the `Python strftime function`_, such as ``%m`` for month number or ``%B`` for the month name.)
 
 .. image:: ../images/screenshot_203.png
@@ -31,7 +31,7 @@ The ``Rights: Web Statement`` field is a drop down list of `Creative Commons`_ l
 The widget's context menu allows you to visit any of the licence URLs with your web browser.
 
 Google Image Search displays the ``Creator``, ``Credit Line``, and ``Copyright Notice`` values alongside search results.
-It also uses the ``Rights: Web Statement`` and ``Rights: Licensor URL`` to help people find images that can be licensed for reuse.
+It also uses the ``Rights: Web Statement`` and ``Contact Information: Web URL`` to help people find images that can be licensed for reuse.
 See the `Quick guide to IPTC Photo Metadata and Google Images`_ for more detail.
 
 .. image:: ../images/screenshot_204.png
@@ -64,14 +64,13 @@ Some of them are also stored in "legacy" IPTC-IIM data.
   URL of a web page describing the usage rights of an image.
   `All rights reserved`_ is shown for any image with no URL set.
   Not stored in IPTC-IIM.
-`Rights: Licensor URL <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#licensor>`_
-  URL of a person or company who can grant a right to reuse the image.
-  Not stored in IPTC-IIM.
 `Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#instructions>`_
   Notes to a publisher of the image.
-`Contact Information <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creators-contact-info>`_
-  Only the `Address <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#address>`_ is stored in IPTC-IIM.
-  Multiple email addresses, URLs, or phone numbers should be separated by commas.
+`Contact Information <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#licensor>`_
+  The IPTC standard allows up to three licensors, but Photini only uses one.
+  Any more licensors in a file will be deleted when Photini saves metadata to the file.
+  The IPTC also includes a second telephone number field and the option to specify the number type (mobile, fax(!), ...).
+  Photini will also delete this information if it is present in a file.
 
 .. _All rights reserved: https://en.wikipedia.org/wiki/All_rights_reserved
 .. _Creative Commons: https://creativecommons.org/licenses/

@@ -381,7 +381,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
             self.setPlainText(str(value))
 
     def get_value(self):
-        return self.toPlainText().strip()
+        return self.toPlainText()
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
@@ -584,8 +584,9 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         else:
             default_lang = self.value.default_lang
             new_value = dict(self.value)
-            new_value[self.lang.get_value()] = value.strip()
-            self.value = MD_LangAlt(new_value, default_lang=default_lang)
+            new_value[self.lang.get_value()] = value
+            self.value = MD_LangAlt(
+                new_value, default_lang=default_lang, strip=False)
         self.emit_value()
 
     def _regularise_default(self):
@@ -622,7 +623,8 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         text = self.value[lang]
         new_value = dict(self.value)
         new_value[lang] = text
-        self.value = MD_LangAlt(new_value, default_lang=default_lang)
+        self.value = MD_LangAlt(
+            new_value, default_lang=default_lang, strip=False)
         self.emit_value()
         return self.labeled_lang(lang)
 
@@ -651,7 +653,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self._set_default_lang(action.text())
 
     def _set_default_lang(self, lang):
-        self.value = MD_LangAlt(self.value, default_lang=lang)
+        self.value = MD_LangAlt(self.value, default_lang=lang, strip=False)
         self.emit_value()
 
     def labeled_lang(self, lang):
@@ -668,7 +670,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def set_value(self, value):
         self.choices = {}
         self.lang.setEnabled(True)
-        self.value = MD_LangAlt(value)
+        self.value = MD_LangAlt(value, strip=False)
         # use current language, if available
         lang = self.lang.get_value()
         if lang not in self.value:
@@ -696,7 +698,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def set_multiple(self, choices=[]):
         self.choices = {}
         for choice in choices:
-            self.choices[str(choice)] = MD_LangAlt(choice)
+            self.choices[str(choice)] = MD_LangAlt(choice, strip=False)
         self.edit.set_multiple(choices=self.choices.keys())
         self.lang.setEnabled(False)
 

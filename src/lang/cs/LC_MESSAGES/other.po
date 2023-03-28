@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.7.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-27 10:13+0100\n"
+"POT-Creation-Date: 2023-03-28 13:22+0100\n"
 "PO-Revision-Date: 2022-07-02 10:40+0000\n"
 "Last-Translator: fri, 2022\n"
 "Language: cs\n"
@@ -457,8 +457,8 @@ msgid "`python-exiv2`_"
 msgstr ""
 
 #, fuzzy
-msgid "0.13.2"
-msgstr "0.11.0"
+msgid "0.14.0"
+msgstr "5.11.0"
 
 msgid "exiv2"
 msgstr "exiv2"
@@ -1720,4 +1720,7 @@ msgstr ""
 
 #~ msgid "Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 #~ msgstr ""
+
+#~ msgid "0.13.2"
+#~ msgstr "0.11.0"
 
