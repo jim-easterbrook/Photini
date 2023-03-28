@@ -587,6 +587,10 @@ class UnitSelector(QtWidgets.QWidget):
         policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
         self.setSizePolicy(policy)
         self.setLayout(QtWidgets.QHBoxLayout())
+        margins = self.layout().contentsMargins()
+        margins.setTop(0)
+        margins.setBottom(0)
+        self.layout().setContentsMargins(margins)
         self.buttons = {}
         self.buttons['pixel'] = QtWidgets.QRadioButton(
             translate('RegionsTab', 'pixel'))
@@ -646,7 +650,7 @@ class RegionForm(QtWidgets.QScrollArea):
         layout.addRow(self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
-        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key] = SingleLineEdit(key, min_width=15)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Identifier of the region. Must be unique among all'
             ' Region Identifiers of an image. Does not have to be unique beyond'
@@ -683,7 +687,7 @@ class RegionForm(QtWidgets.QScrollArea):
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
         key = 'Iptc4xmpExt:PersonInImage'
-        self.widgets[key] = MultiStringEdit(key)
+        self.widgets[key] = MultiStringEdit(key, min_width=15)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
@@ -712,6 +716,8 @@ class RegionForm(QtWidgets.QScrollArea):
         for key, value in region.items():
             if key in list(self.widgets) + ['Iptc4xmpExt:RegionBoundary']:
                 continue
+            if not value:
+                continue
             label = key.split(':')[-1]
             label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
             label = label.capitalize()
@@ -720,9 +726,9 @@ class RegionForm(QtWidgets.QScrollArea):
                     key, multi_line=False, min_width=15, label=label)
                 label = None
             elif isinstance(value, list):
-                self.widgets[key] = MultiStringEdit(key)
+                self.widgets[key] = MultiStringEdit(key, min_width=15)
             else:
-                self.widgets[key] = SingleLineEdit(key)
+                self.widgets[key] = SingleLineEdit(key, min_width=15)
             self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
                 'RegionsTab', 'The Image Region Structure includes optionally'
                 ' any metadata property which is related to the region.')))
@@ -832,12 +838,8 @@ class RegionTabs(QtWidgets.QTabWidget):
             self.addTab(region_form, '')
             return
         blocked = self.blockSignals(True)
-        while self.count() > len(regions):
-            self.removeTab(self.count() - 1)
-        if self.count() and not self.widget(0).isEnabled():
-            self.removeTab(0)
-        while self.count() < len(regions):
-            idx = self.count()
+        self.clear()
+        for idx in range(len(regions)):
             region_form = RegionForm(idx)
             region_form.name_changed.connect(self.tab_name_changed)
             region_form.new_value.connect(self.new_value)
