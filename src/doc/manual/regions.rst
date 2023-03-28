@@ -47,6 +47,7 @@ The most useful of these is probably ``human``.
 
 The IPTC specification allows any other metadata to be attached to a region.
 Photini includes ``Person shown`` and ``Description``, which I think are most likely to be useful.
+Rectangular subject area regions with a description or person's name attached are used by the :doc:`flickr` and :doc:`ipernity` to create "notes".
 Please let me know if there is anything you would like to be added.
 
 .. image:: ../images/screenshot_277.png
