@@ -872,6 +872,7 @@ class MD_LangAlt(MD_Value, dict):
         value = value or {}
         if strip:
             value = dict((k, v.strip()) for (k, v) in value.items())
+        value = dict((k, v) for (k, v) in value.items() if v)
         if default_lang:
             self.default_lang = default_lang
         elif isinstance(value, MD_LangAlt):
