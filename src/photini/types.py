@@ -866,12 +866,12 @@ class MD_LangAlt(MD_Value, dict):
 
     DEFAULT = 'x-default'
 
-    def __init__(self, value=None, default_lang=None):
-        value = value or {}
+    def __init__(self, value=None, default_lang=None, strip=True):
         if isinstance(value, str):
-            value = value.strip()
-            value = value and {self.DEFAULT: value}
+            value = {self.DEFAULT: value}
         value = value or {}
+        if strip:
+            value = dict((k, v.strip()) for (k, v) in value.items())
         if default_lang:
             self.default_lang = default_lang
         elif isinstance(value, MD_LangAlt):
