@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-27 10:13+0100\n"
+"POT-Creation-Date: 2023-03-28 13:22+0100\n"
 "PO-Revision-Date: 2022-06-28 09:10+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
 "Language: ko\n"
@@ -1623,12 +1623,13 @@ msgstr ""
 " 도움말 텍스트도 마찬가지입니다. ``저작권 고지`` 및 ``권리: 사용 조건`` 필드에는 :ref:`alternative-"
 "languages` 에 설명된 대로 대체 언어가 있을 수 있습니다."
 
+#, fuzzy
 msgid ""
 "Note that you can insert the year in which a photograph was taken with "
 "``%Y``. This is probably only useful in the ``Copyright Notice``, but is "
-"available for all fields. (You can actually use any directive recognised by "
-"the `Python strftime function`_, such as ``%m`` for month number or ``%B`` "
-"for the month name.)"
+"available for all text fields. (You can actually use any directive "
+"recognised by the `Python strftime function`_, such as ``%m`` for month "
+"number or ``%B`` for the month name.)"
 msgstr ""
 "사진을 찍은 연도는 ``%Y`` 로 삽입할 수 있습니다. 이것은 아마도 ``저작권 고지`` 에서만 유용하지만 모든 필드에서 사용할 수 "
 "있습니다. (실제로 `Python strftime function`_ 에서 인식하는 모든 지시문을 사용할 수 있습니다. 예를 들어 "
@@ -1643,12 +1644,13 @@ msgstr ""
 "``Rights: Web Statement`` 필드는 사용하는 다른 라이선스로 확장할 수 있는 `Creative Commons`_ "
 "라이선스의 드롭다운 목록입니다. 위젯의 상황에 맞는 메뉴를 사용하면 웹 브라우저에서 라이선스 URL을 방문할 수 있습니다."
 
+#, fuzzy
 msgid ""
 "Google Image Search displays the ``Creator``, ``Credit Line``, and "
 "``Copyright Notice`` values alongside search results. It also uses the "
-"``Rights: Web Statement`` and ``Rights: Licensor URL`` to help people find "
-"images that can be licensed for reuse. See the `Quick guide to IPTC Photo "
-"Metadata and Google Images`_ for more detail."
+"``Rights: Web Statement`` and ``Contact Information: Web URL`` to help "
+"people find images that can be licensed for reuse. See the `Quick guide to "
+"IPTC Photo Metadata and Google Images`_ for more detail."
 msgstr ""
 "Google 이미지 검색은 검색 결과와 함께 ``Creator``, ``Credit Line`` 및 ``Copyright Notice``"
 " 값을 표시합니다. 또한 ``Rights: Web Statement`` 및 ``Rights: Licensor URL`` 을 사용하여 "
@@ -1746,18 +1748,6 @@ msgstr ""
 "표시됩니다. IPTC-IIM에 저장되지 않습니다."
 
 msgid ""
-"`Rights: Licensor URL <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#licensor>`_"
-msgstr ""
-"`권한: 라이선스 제공자 URL <http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#licensor>`_"
-
-msgid ""
-"URL of a person or company who can grant a right to reuse the image. Not "
-"stored in IPTC-IIM."
-msgstr "이미지 재사용 권한을 부여할 수 있는 개인 또는 회사의 URL입니다. IPTC-IIM에 저장되지 않습니다."
-
-msgid ""
 "`Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#instructions>`_"
 msgstr ""
@@ -1767,20 +1757,21 @@ msgstr ""
 msgid "Notes to a publisher of the image."
 msgstr "이미지 게시자에 대한 참고 사항입니다."
 
+#, fuzzy
 msgid ""
 "`Contact Information <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#creators-contact-info>`_"
+"/IPTC-PhotoMetadata#licensor>`_"
 msgstr ""
 "`연락처 정보 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#creators-contact-info>`_"
 
 msgid ""
-"Only the `Address <http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#address>`_ is stored in IPTC-IIM. Multiple email addresses, "
-"URLs, or phone numbers should be separated by commas."
+"The IPTC standard allows up to three licensors, but Photini only uses one. "
+"Any more licensors in a file will be deleted when Photini saves metadata to "
+"the file. The IPTC also includes a second telephone number field and the "
+"option to specify the number type (mobile, fax(!), ...). Photini will also "
+"delete this information if it is present in a file."
 msgstr ""
-"IPTC-IIM에는 `주소 <http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#address>`_ 만 저장됩니다. 여러 이메일 주소, URL 또는 전화번호는 쉼표로 구분해야 합니다."
 
 #, fuzzy
 msgid "Pixelfed uploader"
@@ -1956,9 +1947,10 @@ msgstr ""
 msgid ""
 "The IPTC specification allows any other metadata to be attached to a region."
 " Photini includes ``Person shown`` and ``Description``, which I think are "
-"most likely to be useful, and ``Organisation name`` and ``Caption writer``, "
-"which the IPTC seems to be keen on. Please let me know if there is anything "
-"you would like to be added."
+"most likely to be useful. Rectangular subject area regions with a "
+"description or person's name attached are used by the :doc:`flickr` and "
+":doc:`ipernity` to create \"notes\". Please let me know if there is anything"
+" you would like to be added."
 msgstr ""
 
 msgid ""
@@ -2099,8 +2091,9 @@ msgstr "Rating_"
 msgid "Xmp.xmp.Rating"
 msgstr "Xmp.xmp.Rating"
 
-msgid "`Creator / Artist`_"
-msgstr "`크리에이터/아티스트`_"
+#, fuzzy
+msgid "Creator_"
+msgstr "Xmp.dc.creator"
 
 msgid "Exif.Image.Artist"
 msgstr "Exif.Image.Artist"
@@ -2153,12 +2146,6 @@ msgstr "`권한: Web Statement`_"
 msgid "Xmp.xmpRights.WebStatement"
 msgstr "Xmp.xmpRights.WebStatement"
 
-msgid "`Rights: Licensor URL`_"
-msgstr "`권한: 라이선스 제공자 URL`_"
-
-msgid "Xmp.plus.Licensor[1]/plus:LicensorURL"
-msgstr "Xmp.plus.Licensor[1]/plus:LicensorURL"
-
 msgid "Instructions_"
 msgstr "Instructions_"
 
@@ -2171,8 +2158,8 @@ msgstr "Iptc.Application2.SpecialInstructions"
 msgid "`Contact Information`_"
 msgstr "`연락처`_"
 
-msgid "Xmp.iptc.CreatorContactInfo"
-msgstr "Xmp.iptc.CreatorContactInfo"
+msgid "Xmp.plus.Licensor"
+msgstr ""
 
 msgid "Iptc.Application2.Contact"
 msgstr "Iptc.Application2.Contact"
@@ -2247,8 +2234,14 @@ msgstr "Exif.Photo.FocalLengthIn35mmFilm"
 msgid "Aperture"
 msgstr "조리개"
 
-msgid "Exif.Photo.FNumber"
-msgstr "Exif.Photo.FNumber"
+msgid "Exif.Photo.FNumber Exif.Photo.ApertureValue"
+msgstr ""
+
+msgid "`Image Regions`_"
+msgstr ""
+
+msgid "Xmp.iptcExt.ImageRegion"
+msgstr ""
 
 msgid "Latitude_, longitude_"
 msgstr "위도_, 경도_"
@@ -2324,7 +2317,8 @@ msgstr "설명 / 캡션"
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 
-msgid "Xmp.tiff.ImageDescription"
+#, fuzzy
+msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
 msgstr "Xmp.tiff.ImageDescription"
 
 msgid "Keywords"
@@ -2342,8 +2336,9 @@ msgstr "Exif.Image.Rating Exif.Image.RatingPercent"
 msgid "Xmp.MicrosoftPhoto.Rating"
 msgstr "Xmp.MicrosoftPhoto.Rating"
 
-msgid "Creator / Artist"
-msgstr "크리에이터/아티스트"
+#, fuzzy
+msgid "Creator"
+msgstr "Xmp.dc.creator"
 
 msgid "Exif.Image.XPAuthor"
 msgstr "Exif.Image.XPAuthor"
@@ -2356,6 +2351,13 @@ msgstr "저작권"
 
 msgid "Xmp.tiff.Copyright"
 msgstr "Xmp.tiff.Copyright"
+
+#, fuzzy
+msgid "Contact Information"
+msgstr "`연락처`_"
+
+msgid "Xmp.iptc.CreatorContactInfo"
+msgstr "Xmp.iptc.CreatorContactInfo"
 
 msgid "Date / time Taken"
 msgstr "촬영 날짜/시간"
@@ -2381,11 +2383,9 @@ msgstr "Xmp.aux.Lens"
 msgid "Exif.Image.FocalLength"
 msgstr "Exif.Image.FocalLength"
 
-msgid "Exif.Image.FNumber Exif.Image.ApertureValue Exif.Photo.ApertureValue"
+#, fuzzy
+msgid "Exif.Image.FNumber Exif.Image.ApertureValue"
 msgstr "Exif.Image.FNumber Exif.Image.ApertureValue Exif.Photo.ApertureValue"
-
-msgid "Xmp.exif.ApertureValue"
-msgstr "Xmp.exif.ApertureValue"
 
 msgid "Xmp.xmp.Thumbnails[n]/xapGImg"
 msgstr "Xmp.xmp.Thumbnails[n]/xapGImg"
@@ -2414,8 +2414,9 @@ msgstr "Xmp.exif.FocalLength"
 msgid "Xmp.exif.FocalLengthIn35mmFilm"
 msgstr "Xmp.exif.FocalLengthIn35mmFilm"
 
-msgid "Xmp.exif.FNumber"
-msgstr "Xmp.exif.FNumber"
+#, fuzzy
+msgid "Xmp.exif.FNumber Xmp.exif.ApertureValue"
+msgstr "Xmp.exif.ApertureValue"
 
 msgid "Latitude, longitude"
 msgstr "위도, 경도"
@@ -2443,16 +2444,35 @@ msgstr ""
 "Photini는 이러한 태그에서 정보를 읽고 이를 기본 태그의 정보와 병합할 수 있습니다. 이러한 태그는 해당 기본 태그가 저장될 때 "
 "삭제되지 않습니다."
 
+msgid "Xmp.video.StreamName"
+msgstr ""
+
+msgid "Xmp.video.Information"
+msgstr ""
+
 msgid "Time zone offset[1]"
 msgstr "Time zone offset[1]"
 
 msgid "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
 msgstr "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
 
+msgid "Xmp.video.TimeZone"
+msgstr ""
+
 msgid "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
 msgstr "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
 
 msgid ""
+"Xmp.video.DateTimeOriginal Xmp.video.CreateDate Xmp.video.CreationDate "
+"Xmp.video.DateUTC Xmp.video.MediaCreateDate Xmp.video.TrackCreateDate"
+msgstr ""
+
+msgid ""
+"Xmp.video.ModificationDate Xmp.video.MediaModifyDate "
+"Xmp.video.TrackModifyDate"
+msgstr ""
+
+msgid ""
 "Exif.Image.CameraSerialNumber Exif.Image.UniqueCameraModel "
 "Exif.Canon.ModelID Exif.Canon.SerialNumber Exif.Fujifilm.SerialNumber "
 "Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType "
@@ -2463,8 +2483,8 @@ msgstr ""
 "Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType "
 "Exif.OlympusEq.SerialNumber Exif.Pentax.ModelID Exif.Pentax.SerialNumber"
 
-msgid "Xmp.aux.SerialNumber"
-msgstr "Xmp.aux.SerialNumber"
+msgid "Xmp.aux.SerialNumber Xmp.video.Make Xmp.video.Model"
+msgstr ""
 
 msgid ""
 "Exif.Canon.LensModel Exif.CanonCs.Lens Exif.CanonCs.LensType "
@@ -2476,6 +2496,16 @@ msgstr ""
 "Exif.Nikon3.Lens Exif.NikonLd1.LensIDNumber Exif.NikonLd2.LensIDNumber "
 "Exif.NikonLd3.LensIDNumber Exif.OlympusEq.LensModel "
 "Exif.OlympusEq.LensSerialNumber"
+
+msgid "Image Regions"
+msgstr ""
+
+#, fuzzy
+msgid "Exif.Photo.SubjectArea"
+msgstr "Exif.Photo.FNumber"
+
+msgid "Xmp.video.GPSCoordinates"
+msgstr ""
 
 msgid "Exif.SubImage*"
 msgstr "Exif.SubImage*"
@@ -2835,4 +2865,62 @@ msgstr "The :doc:`flickr` 탭은 비디오 파일을 업로드할 수 있지만 
 #~ "area allows you to choose them one"
 #~ " at a time."
 #~ msgstr ""
+
+#~ msgid ""
+#~ "`Rights: Licensor URL "
+#~ "<http://www.iptc.org/std/photometadata/specification/IPTC-"
+#~ "PhotoMetadata#licensor>`_"
+#~ msgstr ""
+#~ "`권한: 라이선스 제공자 URL "
+#~ "<http://www.iptc.org/std/photometadata/specification/IPTC-"
+#~ "PhotoMetadata#licensor>`_"
+
+#~ msgid ""
+#~ "URL of a person or company who "
+#~ "can grant a right to reuse the "
+#~ "image. Not stored in IPTC-IIM."
+#~ msgstr "이미지 재사용 권한을 부여할 수 있는 개인 또는 회사의 URL입니다. IPTC-IIM에 저장되지 않습니다."
+
+#~ msgid ""
+#~ "Only the `Address "
+#~ "<http://www.iptc.org/std/photometadata/specification/IPTC-"
+#~ "PhotoMetadata#address>`_ is stored in IPTC-"
+#~ "IIM. Multiple email addresses, URLs, or "
+#~ "phone numbers should be separated by "
+#~ "commas."
+#~ msgstr ""
+#~ "IPTC-IIM에는 `주소 "
+#~ "<http://www.iptc.org/std/photometadata/specification/IPTC-"
+#~ "PhotoMetadata#address>`_ 만 저장됩니다. 여러 이메일 "
+#~ "주소, URL 또는 전화번호는 쉼표로 구분해야 합니다."
+
+#~ msgid ""
+#~ "The IPTC specification allows any other "
+#~ "metadata to be attached to a region."
+#~ " Photini includes ``Person shown`` and "
+#~ "``Description``, which I think are most "
+#~ "likely to be useful, and ``Organisation "
+#~ "name`` and ``Caption writer``, which the"
+#~ " IPTC seems to be keen on. Please"
+#~ " let me know if there is anything"
+#~ " you would like to be added."
+#~ msgstr ""
+
+#~ msgid "`Creator / Artist`_"
+#~ msgstr "`크리에이터/아티스트`_"
+
+#~ msgid "`Rights: Licensor URL`_"
+#~ msgstr "`권한: 라이선스 제공자 URL`_"
+
+#~ msgid "Xmp.plus.Licensor[1]/plus:LicensorURL"
+#~ msgstr "Xmp.plus.Licensor[1]/plus:LicensorURL"
+
+#~ msgid "Creator / Artist"
+#~ msgstr "크리에이터/아티스트"
+
+#~ msgid "Xmp.exif.FNumber"
+#~ msgstr "Xmp.exif.FNumber"
+
+#~ msgid "Xmp.aux.SerialNumber"
+#~ msgstr "Xmp.aux.SerialNumber"
 
