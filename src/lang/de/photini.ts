@@ -5,7 +5,7 @@
     <name>AddressTab</name>
     <message>
         <source>Enter a full name of the location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den vollständigen Namen des Ortes ein.</translation>
     </message>
     <message>
         <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhe des Ortes in Metern.</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Street</source>
@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="unfinished">Höhe</translation>
+        <translation>Höhe</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -867,7 +867,7 @@
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a comma.</source>
-        <translation type="unfinished"></translation>
+        <translation>Breitengrad und Längengrad (in Grad) als zwei durch ein Komma getrennte Dezimalzahlen.</translation>
     </message>
 </context>
 <context>
@@ -1455,19 +1455,19 @@
     <name>RegionsTab</name>
     <message>
         <source>Delete vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Eckpunkt löschen</translation>
     </message>
     <message>
         <source>New vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Eckpunkt</translation>
     </message>
     <message>
         <source>Unreadable image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Unlesbares Bildformat</translation>
     </message>
     <message>
         <source>pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixel</translation>
     </message>
     <message>
         <source>A pixel of a digital image setting an absolute value.</source>
@@ -1475,7 +1475,7 @@
     </message>
     <message>
         <source>relative</source>
-        <translation type="unfinished"></translation>
+        <translation>relativ</translation>
     </message>
     <message>
         <source>Relative part of the size of an image along the x- or the y-axis.</source>
@@ -1483,11 +1483,11 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Freitext-Name der Region. Sollte unter allen Regionsnamen eines Bildes eindeutig sein.</translation>
     </message>
     <message>
         <source>Identifier of the region. Must be unique among all Region Identifiers of an image. Does not have to be unique beyond the metadata of this image.</source>
@@ -1511,7 +1511,7 @@
     </message>
     <message>
         <source>Role</source>
-        <translation type="unfinished"></translation>
+        <translation>Rolle</translation>
     </message>
     <message>
         <source>The semantic type of what is shown inside the region. The value SHOULD be taken from a Controlled Vocabulary.</source>
@@ -1527,11 +1527,11 @@
     </message>
     <message>
         <source>Person shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Abgebildete Person</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
@@ -1543,27 +1543,27 @@
     </message>
     <message>
         <source>New rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Rechteck</translation>
     </message>
     <message>
         <source>New circle</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Kreis</translation>
     </message>
     <message>
         <source>New point</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Punkt</translation>
     </message>
     <message>
         <source>New polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Polygon</translation>
     </message>
     <message>
         <source>Delete region</source>
-        <translation type="unfinished"></translation>
+        <translation>Region löschen</translation>
     </message>
     <message>
         <source>Image &amp;Regions</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild&amp;regionen</translation>
     </message>
 </context>
 <context>
@@ -1598,7 +1598,7 @@
     </message>
     <message>
         <source>Remove &quot;{camera_or_lens}&quot;</source>
-        <translation type="unfinished">&quot;{camera_or_lens}&quot; entfernen</translation>
+        <translation>&quot;{camera_or_lens}&quot; entfernen</translation>
     </message>
     <message>
         <source>Serial number</source>
@@ -1793,7 +1793,7 @@
     </message>
     <message>
         <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
-        <translation type="unfinished">Die Datei „{file_name}“ hat {size} Bytes und überschreitet {service} Begrenzung von {max_size} Bytes.</translation>
+        <translation>Die Datei „{file_name}“ hat {size} Bytes und überschreitet {service} Begrenzung von {max_size} Bytes.</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
@@ -1885,7 +1885,7 @@
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
-        <translation type="unfinished">Datei „{file_name}“ ist im Format „{file_type}“, das {service} evtl. nicht korrekt behandelt.</translation>
+        <translation>Datei „{file_name}“ ist im Format „{file_type}“, das {service} möglicherweise nicht korrekt verarbeitet.</translation>
     </message>
     <message>
         <source>Would you like to convert it to JPEG?</source>
