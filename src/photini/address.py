@@ -134,7 +134,7 @@ class OpenCage(GeocoderBase):
                         del address[key_1]
                         break
         # attempt to format postcode correctly
-        for key in 'city', 'state', 'country':
+        for key in 'town', 'city', 'state', 'country':
             if 'postcode' in address and key in address:
                 for fmt in '{0} {1}', '{0}, {1}', '{1} {0}', '{1}, {0}':
                     guess = fmt.format(address['postcode'], address[key])
