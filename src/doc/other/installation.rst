@@ -580,7 +580,7 @@ These are all required for Photini to be usable.
 Package                        Minimum version    Typical Linux package name        PyPI package name
 =============================  =================  ================================  =================
 Python_                        3.6                ``python3``
-PyQt_ [1]                      5.9                ``python3-qt5``
+PyQt_ [1]                      5.11               ``python3-qt5``
                                                   or ``python3-pyqt5``
                                                   or ``python310-PyQt6``
 PySide2_ [1]                   5.11.0             ``python3-pyside2``               PySide2

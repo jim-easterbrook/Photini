@@ -24,18 +24,9 @@ It's only usable after you've authorised Photini to access your Flickr account b
 The first time you click ``Log in`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
 (Note that Photini does not interact with other people's photos and videos.)
 
-.. image:: ../images/screenshot_151b.png
-
-In January 2020 Flickr introduced a bug in the authorisation process.
-They change the "callback URL" from HTTP to HTTPS, which causes an error like the one shown above.
-(Other browsers may show a different error.)
-
-.. image:: ../images/screenshot_151c.png
-
-The workaround is to click on the browser's URL display, change "https" to "http", then hit the return key.
-
 .. image:: ../images/screenshot_151d.png
 
+After authorisation your browser should display this page.
 The web browser window can then be closed.
 
 .. image:: ../images/screenshot_152.png

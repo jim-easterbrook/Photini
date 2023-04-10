@@ -149,6 +149,7 @@ function addMarker(id, lat, lng, active)
         position: new google.maps.LatLng(lat, lng),
         map: map,
         draggable: true,
+        crossOnDrag: false,
         });
     markers[id] = marker;
     google.maps.event.addListener(marker, 'click', markerClick);

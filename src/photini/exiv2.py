@@ -152,6 +152,7 @@ class MetadataHandler(object):
             'Xmp.iptc.AltTextAccessibility': exiv2.TypeId.langAlt,
             'Xmp.iptc.ExtDescrAccessibility': exiv2.TypeId.langAlt,
             'Xmp.iptcExt.ImageRegion': exiv2.TypeId.xmpBag,
+            'Iptc4xmpExt:LocationName': exiv2.TypeId.langAlt,
             'Iptc4xmpExt:Name': exiv2.TypeId.langAlt,
             'Iptc4xmpExt:rCtype': exiv2.TypeId.xmpBag,
             'Iptc4xmpExt:rRole': exiv2.TypeId.xmpBag,

@@ -148,6 +148,12 @@ else:
             map(int, QtCore.QT_VERSION_STR.split('.')))
     qt_version = 'PyQt {}, Qt {}'.format(
         QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
+    pyqt_version_info = namedtuple(
+        'pyqt_version_info', ('major', 'minor', 'micro'))._make(
+            map(int, QtCore.PYQT_VERSION_STR.split('.')))
+    if pyqt_version_info < (5, 11):
+        raise ImportError(
+            'PyQt version {}.{}.{} is less than 5.11'.format(*pyqt_version_info))
 
 if qt_version_info < (5, 8):
     raise ImportError(
