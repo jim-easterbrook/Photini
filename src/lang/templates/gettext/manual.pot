@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2023.3.0\n"
+"Project-Id-Version: Photini 2023.4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-28 13:22+0100\n"
+"POT-Creation-Date: 2023-04-10 10:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -292,13 +292,7 @@ msgstr ""
 msgid "The first time you click ``Log in`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf. (Note that Photini does not interact with other people's photos and videos.)"
 msgstr ""
 
-msgid "In January 2020 Flickr introduced a bug in the authorisation process. They change the \"callback URL\" from HTTP to HTTPS, which causes an error like the one shown above. (Other browsers may show a different error.)"
-msgstr ""
-
-msgid "The workaround is to click on the browser's URL display, change \"https\" to \"http\", then hit the return key."
-msgstr ""
-
-msgid "The web browser window can then be closed."
+msgid "After authorisation your browser should display this page. The web browser window can then be closed."
 msgstr ""
 
 msgid "If the authorisation is successful Photini displays your Flickr user name and profile picture. You should not need to redo this authorisation process unless you click the ``Log out`` button."

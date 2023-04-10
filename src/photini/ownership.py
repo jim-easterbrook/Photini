@@ -437,8 +437,8 @@ class TabWidget(QtWidgets.QWidget):
                 value = template[key]
                 if isinstance(value, dict):
                     # langalt copyright
-                    for k in value:
-                        value[k] = date_taken.strftime(value[k])
+                    value = dict((k, date_taken.strftime(v))
+                                 for (k, v) in value.items())
                 else:
                     value = date_taken.strftime(value)
                 self._set_value(image, key, value)
