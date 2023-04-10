@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.7.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-28 13:22+0100\n"
+"POT-Creation-Date: 2023-04-10 10:12+0100\n"
 "PO-Revision-Date: 2022-07-02 10:40+0000\n"
 "Last-Translator: fri, 2022\n"
 "Language: cs\n"
@@ -410,8 +410,9 @@ msgstr "python3"
 msgid "PyQt_ [1]"
 msgstr "PyQt_ [1]"
 
-msgid "5.9"
-msgstr "5.9"
+#, fuzzy
+msgid "5.11"
+msgstr "5.11.0"
 
 #, fuzzy
 msgid "``python3-qt5`` or ``python3-pyqt5`` or ``python310-PyQt6``"
@@ -1723,4 +1724,7 @@ msgstr ""
 
 #~ msgid "0.13.2"
 #~ msgstr "0.11.0"
+
+#~ msgid "5.9"
+#~ msgstr "5.9"
 

@@ -86,6 +86,8 @@ def configure(argv=None):
                ('google', 'photini.googlephotos',
                 'upload pictures to Google Photos'),
                ('ipernity', 'photini.ipernity', 'upload pictures to Ipernity'),
+               ('pixelfed', 'photini.pixelfed',
+                'upload pictures to Pixelfed or Mastodon'),
                ('spelling', None, 'check spelling of metadata'),
                ('gpxpy', None, 'import GPS track data'),
                ('Pillow', None, 'make higher quality thumbnails')]

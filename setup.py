@@ -28,6 +28,7 @@ extras_require = {
     'google'   : ['requests-oauthlib', 'keyring'],
     'importer' : ['gphoto2; platform_system != "Windows"'],
     'ipernity' : ['requests-toolbelt', 'keyring'],
+    'pixelfed' : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'spelling' : ['pyenchant'],
     # the following are intended for use by the photini-configure script
     'PySide2'  : ['PySide2'],
