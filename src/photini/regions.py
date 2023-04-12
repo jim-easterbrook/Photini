@@ -97,7 +97,6 @@ class RegionMixin(object):
         pen.setColor(QtGui.QColor(0, 0, 0, 120))
         pen.setWidthF(draw_unit * 5.5)
         self.setPen(pen)
-##        self.setBrush(QtGui.QColor(0, 0, 0, 40))
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
@@ -115,13 +114,15 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.setRect(rect)
         self.highlight = QtWidgets.QGraphicsRectItem(parent=self)
         self.adjust_handles()
-        if self.aspect_ratio:
-            self.handle_drag(self.handles[3], self.handles[3].pos())
         self.set_style(draw_unit)
 
     @catch_all
     def itemChange(self, change, value):
         scene = self.scene()
+        if scene and change == self.GraphicsItemChange.ItemSceneHasChanged:
+            if self.aspect_ratio:
+                self.handle_drag(self.handles[3], self.handles[3].pos())
+            return
         if scene and change == self.GraphicsItemChange.ItemPositionChange:
             # limit move, in relative coords
             rect = self.rect()
