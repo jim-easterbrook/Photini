@@ -382,8 +382,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.setRenderHint(
             QtGui.QPainter.RenderHint.Antialiasing, True)
         self.setRenderHint(
-            QtGui.QPainter.RenderHint.HighQualityAntialiasing, True)
-        self.setRenderHint(
             QtGui.QPainter.RenderHint.SmoothPixmapTransform, True)
         self.setScene(QtWidgets.QGraphicsScene())
         self.boundary = None
