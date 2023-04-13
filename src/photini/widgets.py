@@ -878,10 +878,12 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         if len(parts) > 2:
             return QtGui.QValidator.State.Invalid, text, pos
         result = self.lat_validator.validate(parts[0], pos)[0]
-        if len(parts) > 1:
-            result = min(result, self.lng_validator.validate(parts[1], pos)[0])
-        else:
-            result = min(result, QtGui.QValidator.State.Intermediate)
+        if result != QtGui.QValidator.State.Invalid and len(parts) > 1:
+            lng_result = self.lng_validator.validate(parts[1], pos)[0]
+            if lng_result == QtGui.QValidator.State.Invalid:
+                result = lng_result
+            elif result == QtGui.QValidator.State.Acceptable:
+                result = lng_result
         return result, text, pos
 
     @catch_all
