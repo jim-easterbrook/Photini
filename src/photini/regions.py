@@ -23,7 +23,7 @@ import re
 
 from photini.cv import image_region_types, image_region_roles
 from photini.pyqt import *
-from photini.types import MD_LangAlt
+from photini.types import ImageRegionItem, MD_LangAlt
 from photini.widgets import LangAltWidget, MultiStringEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
@@ -36,13 +36,13 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
         pen = QtGui.QPen()
-        pen.setColor(Qt.white)
+        pen.setColor(Qt.GlobalColor.white)
         self.setPen(pen)
         widget = QtWidgets.QWidget()
         r = draw_unit * 5
         self.setRect(-r, -r, r * 2, r * 2)
         border = QtWidgets.QGraphicsRectItem(parent=self)
-        pen.setColor(Qt.black)
+        pen.setColor(Qt.GlobalColor.black)
         border.setPen(pen)
         r -= 1
         border.setRect(-r, -r, r * 2, r * 2)
@@ -91,7 +91,7 @@ class RegionMixin(object):
         pen.setCosmetic(True)
         pen.setCapStyle(Qt.PenCapStyle.RoundCap)
         pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
-        pen.setColor(Qt.white)
+        pen.setColor(Qt.GlobalColor.white)
         pen.setWidthF(draw_unit * 1.5)
         self.highlight.setPen(pen)
         pen.setColor(QtGui.QColor(0, 0, 0, 120))
@@ -439,7 +439,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 scene.addItem(item)
             scene.setSceneRect(item.boundingRect())
 
-    @QtSlot(int, dict)
+    @QtSlot(int, ImageRegionItem)
     @catch_all
     def draw_boundary(self, idx, region):
         self.idx = idx
@@ -761,7 +761,7 @@ class QTabBar(QtWidgets.QTabBar):
 
 
 class RegionTabs(QtWidgets.QTabWidget):
-    new_region = QtSignal(int, dict)
+    new_region = QtSignal(int, ImageRegionItem)
 
     def __init__(self, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
@@ -853,7 +853,7 @@ class RegionTabs(QtWidgets.QTabWidget):
     def tab_changed(self, idx):
         regions = (self.image and self.image.metadata.image_region) or []
         if idx < 0 or idx >= len(regions):
-            self.new_region.emit(-1, {})
+            self.new_region.emit(-1, ImageRegionItem())
             return
         region_form = self.widget(idx)
         region_form.set_value(regions[idx])
