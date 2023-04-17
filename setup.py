@@ -18,6 +18,7 @@
 
 import os
 from setuptools import setup
+from setuptools import __version__ as setuptools_version
 
 
 # list dependency packages
@@ -60,51 +61,55 @@ for option in extras_require:
     extras_require[option] = [add_version(x) for x in extras_require[option]]
 install_requires = [add_version(x) for x in install_requires]
 
-# read current version info without importing package
-with open('src/photini/__init__.py') as f:
-    exec(f.read())
-
-with open('README.rst') as ldf:
-    long_description = ldf.read()
-url = 'https://github.com/jim-easterbrook/Photini'
-
 package_data = []
 for root, dirs, files in os.walk('src/photini/data/'):
     package_data += [
         os.path.join(root.replace('src/photini/', ''), x) for x in files]
+url = 'https://github.com/jim-easterbrook/Photini'
 
-setup(name = 'Photini',
-      version = __version__,
-      author = 'Jim Easterbrook',
-      author_email = 'jim@jim-easterbrook.me.uk',
-      url = url,
-      download_url = url + '/archive/' + __version__ + '.tar.gz',
-      description = 'Simple photo metadata editor',
-      long_description = long_description,
-      classifiers = [
-          'Development Status :: 5 - Production/Stable',
-          'Environment :: Win32 (MS Windows)',
-          'Environment :: X11 Applications :: Qt',
-          'Intended Audience :: End Users/Desktop',
-          'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-          'Operating System :: OS Independent',
-          'Programming Language :: Python :: 3',
-          'Topic :: Multimedia :: Graphics',
-          ],
-      license = 'GPLv3+',
-      packages = ['photini'],
-      package_dir = {'' : 'src'},
-      package_data = {'photini' : package_data},
-      entry_points = {
-          'console_scripts' : [
-              'photini-configure = photini.scripts:configure',
-              'photini-post-install = photini.scripts:post_install',
+if tuple(map(int, setuptools_version.split('.'))) >= (61, 0):
+    # use metadata from pyproject.toml
+    setup()
+else:
+    # read current version info without importing package
+    with open('src/photini/__init__.py') as f:
+        exec(f.read())
+
+    with open('README.rst') as ldf:
+        long_description = ldf.read()
+
+    setup(name = 'Photini',
+          version = __version__,
+          author = 'Jim Easterbrook',
+          author_email = 'jim@jim-easterbrook.me.uk',
+          url = url,
+          download_url = url + '/archive/' + __version__ + '.tar.gz',
+          description = 'Simple photo metadata editor',
+          long_description = long_description,
+          classifiers = [
+              'Development Status :: 5 - Production/Stable',
+              'Environment :: Win32 (MS Windows)',
+              'Environment :: X11 Applications :: Qt',
+              'Intended Audience :: End Users/Desktop',
+              'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+              'Operating System :: OS Independent',
+              'Programming Language :: Python :: 3',
+              'Topic :: Multimedia :: Graphics',
               ],
-          'gui_scripts' : [
-              'photini = photini.editor:main',
-              ],
-          },
-      install_requires = install_requires,
-      extras_require = extras_require,
-      zip_safe = False,
-      )
+          license = 'GPLv3+',
+          packages = ['photini'],
+          package_dir = {'' : 'src'},
+          package_data = {'photini' : package_data},
+          entry_points = {
+              'console_scripts' : [
+                  'photini-configure = photini.scripts:configure',
+                  'photini-post-install = photini.scripts:post_install',
+                  ],
+              'gui_scripts' : [
+                  'photini = photini.editor:main',
+                  ],
+              },
+          install_requires = install_requires,
+          extras_require = extras_require,
+          zip_safe = False,
+          )
