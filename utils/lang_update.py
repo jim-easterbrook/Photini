@@ -60,42 +60,28 @@ def extract_program_strings(root):
                 outputs.append(path)
         outputs.sort()
     # run pylupdate
-    cmd = ['pyside6-lupdate']
-    if args.purge:
-        cmd.append('-no-obsolete')
-    if args.strip:
-        cmd += ['-locations', 'none']
-    cmd += inputs
-    cmd.append('-ts')
-    cmd += outputs
-    result = subprocess.call(cmd)
-    if result:
-        return result
+    for path in outputs:
+        cmd = ['pyside6-lupdate', '-source-language', 'en_GB']
+        if 'templates' not in path:
+            language = os.path.basename(os.path.dirname(path))
+            cmd += ['-target-language', language]
+        if args.purge:
+            cmd.append('-no-obsolete')
+        if args.strip:
+            cmd += ['-locations', 'none']
+        cmd += inputs
+        cmd += ['-ts', path]
+        result = subprocess.call(cmd)
+        if result:
+            return result
     # process pylupdate output
     for path in outputs:
         if not os.path.exists(path):
             continue
-        if 'templates' in path:
-            language = None
-        else:
-            language = os.path.basename(os.path.dirname(path))
-        # process as XML
-        tree = ET.parse(path)
-        xml = tree.getroot()
-        if xml.get('sourcelanguage') != 'en_GB':
-            xml.set('sourcelanguage', 'en_GB')
-        if language and xml.get('language') != language:
-            xml.set('language', language)
-        tree.write(path, encoding='utf-8',
-                   xml_declaration=True, short_empty_elements=False)
-        # process as text
         with open(path, 'r') as f:
             text = f.read()
+        # HTML escape some characters
         text = re.sub('>.+?<', html_escape, text, flags=re.DOTALL)
-        text = text.replace(
-            "<?xml version='1.0' encoding='utf-8'?>",
-            '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE TS>')
-        text += '\n'
         with open(path, 'w') as f:
             f.write(text)
     return 0
