@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="it" sourcelanguage="en_GB" version="2.1">
+<TS version="2.1" language="it" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -497,21 +497,21 @@
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+        </translation>
     </message>
     <message>
         <source>new value</source>
@@ -637,7 +637,7 @@
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+        </translation>
     </message>
 </context>
 <context>

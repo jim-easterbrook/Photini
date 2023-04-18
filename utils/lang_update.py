@@ -59,33 +59,6 @@ def extract_program_strings(root):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
-    # remove extra plurals expected by Transifex
-    numerus_count = {
-        'cs': {'qt': 3, 'tx': 4},
-        'es': {'qt': 2, 'tx': 3},
-        'fr': {'qt': 2, 'tx': 3},
-        'it': {'qt': 2, 'tx': 3},
-        'pl': {'qt': 3, 'tx': 4},
-        }
-    for path in outputs:
-        if 'templates' in path or not os.path.exists(path):
-            continue
-        language = os.path.basename(os.path.dirname(path))
-        if language not in numerus_count:
-            continue
-        tree = ET.parse(path)
-        xml = tree.getroot()
-        for context in xml.iter('context'):
-            for message in context.iter('message'):
-                if message.get('numerus'):
-                    translation = message.find('translation')
-                    numerusforms = translation.findall('numerusform')
-                    extra = len(numerusforms) - numerus_count[language]['qt']
-                    if extra > 0:
-                        for i in range(extra):
-                            translation.remove(numerusforms.pop())
-        tree.write(path, encoding='utf-8',
-                   xml_declaration=True, short_empty_elements=False)
     # run pylupdate
     cmd = ['pyside6-lupdate']
     if args.purge:
@@ -99,9 +72,6 @@ def extract_program_strings(root):
     if result:
         return result
     # process pylupdate output
-    if args.transifex:
-        unused = ET.Element('numerusform')
-        unused.text = 'Unused'
     for path in outputs:
         if not os.path.exists(path):
             continue
@@ -112,20 +82,10 @@ def extract_program_strings(root):
         # process as XML
         tree = ET.parse(path)
         xml = tree.getroot()
-        xml.set('sourcelanguage', 'en_GB')
-        if language:
+        if xml.get('sourcelanguage') != 'en_GB':
+            xml.set('sourcelanguage', 'en_GB')
+        if language and xml.get('language') != language:
             xml.set('language', language)
-        # add extra plurals expected by Transifex
-        if args.transifex and  language in numerus_count:
-            for context in xml.iter('context'):
-                for message in context.iter('message'):
-                    if message.get('numerus'):
-                        translation = message.find('translation')
-                        numerusforms = len(translation.findall('numerusform'))
-                        missing = numerus_count[language]['tx'] - numerusforms
-                        if missing > 0:
-                            for i in range(missing):
-                                translation.append(unused)
         tree.write(path, encoding='utf-8',
                    xml_declaration=True, short_empty_elements=False)
         # process as text
@@ -208,8 +168,6 @@ def main(argv=None):
                         help='remove obsolete strings')
     parser.add_argument('-s', '--strip', action='store_true',
                         help='remove line numbers')
-    parser.add_argument('-t', '--transifex', action='store_true',
-                        help='make output Transifex compatible')
     args = parser.parse_args()
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     if args.docs:
