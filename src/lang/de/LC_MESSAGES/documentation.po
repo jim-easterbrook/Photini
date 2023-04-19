@@ -3,15 +3,21 @@
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
+# Translators:
+# aasche <anton.asche@mhinac.de>, 2023
+# Ettore Atalan <atalanttore@googlemail.com>, 2023
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-04-19 09:10+0100\n"
-"PO-Revision-Date: 2023-04-19 09:19+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2023-04-19 08:54+0000\n"
+"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023\n"
 "Language: de\n"
-"Language-Team: de <LL@li.org>\n"
+"Language-Team: German (https://app.transifex.com/jim-"
+"easterbrook/teams/32598/de/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -19,7 +25,7 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 
 msgid "Photini documentation"
-msgstr ""
+msgstr "Photini-Dokumentation"
 
 msgid ""
 "Welcome to the documentation of Photini, an easy to use photograph metadata "
@@ -81,6 +87,13 @@ msgid ""
 "lookup service is provided by OpenCage_, using data from OpenStreetMap_. "
 "Other map providers don't allow lookup results to be permanently stored."
 msgstr ""
+"Die Schaltfläche ``Get address from lat, long`` verwendet \"umgekehrte "
+"Geokodierung\" zur Umwandlung von Längen- und Breitengrad in eine "
+"hierarchische Adresse. Dies ist ein recht ungenauer Prozess, so dass Sie die"
+" Ergebnisse möglicherweise selbst bearbeiten müssen. Der Adressensuchdienst "
+"wird von OpenCage_ zur Verfügung gestellt und verwendet Daten von "
+"OpenStreetMap_. Andere Kartenanbieter erlauben keine dauerhafte Speicherung "
+"der Suchergebnisse."
 
 msgid ""
 "Photini attempts to use all the data returned in an address lookup. This can"
@@ -112,7 +125,7 @@ msgid ""
 msgstr ""
 
 msgid "Configuration"
-msgstr ""
+msgstr "Konfiguration"
 
 msgid ""
 "If there are tabs in the Photini GUI that you don't use, you can remove them"
@@ -163,7 +176,7 @@ msgid ""
 msgstr ""
 
 msgid "Spell checking"
-msgstr ""
+msgstr "Rechtschreibprüfung"
 
 msgid ""
 "The ``Spelling`` menu allows you to enable or disable spell checking on "
@@ -200,7 +213,7 @@ msgid ""
 msgstr ""
 
 msgid "PyQt options"
-msgstr ""
+msgstr "PyQt-Optionen"
 
 msgid ""
 "The configuration file includes options to select use of PyQt5, PyQt6, "
@@ -246,7 +259,7 @@ msgid ""
 msgstr ""
 
 msgid "Application style"
-msgstr ""
+msgstr "Anwendungsstil"
 
 msgid ""
 "Qt applications can have their appearance changed by selecting different "
@@ -895,13 +908,13 @@ msgid ""
 msgstr ""
 
 msgid "keyword"
-msgstr ""
+msgstr "Schlüsselwort"
 
 msgid "meaning"
 msgstr ""
 
 msgid "example"
-msgstr ""
+msgstr "Beispiel"
 
 msgid "{camera}"
 msgstr ""
@@ -916,10 +929,10 @@ msgid "{name}"
 msgstr ""
 
 msgid "the complete file name"
-msgstr ""
+msgstr "der vollständige Dateiname"
 
 msgid "IMG_9999.JPG"
-msgstr ""
+msgstr "IMG_9999.JPG"
 
 msgid "{number}"
 msgstr ""
@@ -928,7 +941,7 @@ msgid "the numeric part of the file name"
 msgstr ""
 
 msgid "9999"
-msgstr ""
+msgstr "9999"
 
 msgid "{root}"
 msgstr ""
@@ -937,7 +950,7 @@ msgid "the filename without its extension"
 msgstr ""
 
 msgid "IMG_9999"
-msgstr ""
+msgstr "IMG_9999"
 
 msgid "{ext}"
 msgstr ""
@@ -946,7 +959,7 @@ msgid "the filename extension"
 msgstr ""
 
 msgid ".JPG"
-msgstr ""
+msgstr ".JPG"
 
 msgid ""
 "Below the ``Target format`` field is an example generated from the current "
@@ -1023,7 +1036,7 @@ msgid ""
 msgstr ""
 
 msgid "User manual"
-msgstr ""
+msgstr "Benutzeranleitung"
 
 msgid ""
 "This manual attempts to cover every part of Photini in detail, but still be "
@@ -1821,13 +1834,13 @@ msgid "Xmp.xmp.ModifyDate"
 msgstr ""
 
 msgid "Orientation"
-msgstr ""
+msgstr "Ausrichtung"
 
 msgid "Exif.Image.Orientation"
 msgstr ""
 
 msgid "Camera"
-msgstr ""
+msgstr "Kamera"
 
 msgid "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
 msgstr ""
@@ -1841,19 +1854,19 @@ msgid ""
 msgstr ""
 
 msgid "Focal length"
-msgstr ""
+msgstr "Brennweite"
 
 msgid "Exif.Photo.FocalLength"
 msgstr ""
 
 msgid "35mm equiv"
-msgstr ""
+msgstr "35mm equiv"
 
 msgid "Exif.Photo.FocalLengthIn35mmFilm"
 msgstr ""
 
 msgid "Aperture"
-msgstr ""
+msgstr "Blende"
 
 msgid "Exif.Photo.FNumber Exif.Photo.ApertureValue"
 msgstr ""
@@ -1916,13 +1929,13 @@ msgid ""
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr ""
+msgstr "Titel"
 
 msgid "Exif.Image.XPTitle"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr ""
+msgstr "Beschreibung"
 
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr ""
@@ -1931,13 +1944,13 @@ msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Schlüsselwörter"
 
 msgid "Exif.Image.XPKeywords"
 msgstr ""
 
 msgid "Rating"
-msgstr ""
+msgstr "Bewertung"
 
 msgid "Exif.Image.Rating Exif.Image.RatingPercent"
 msgstr ""
@@ -1946,7 +1959,7 @@ msgid "Xmp.MicrosoftPhoto.Rating"
 msgstr ""
 
 msgid "Creator"
-msgstr ""
+msgstr "Fotograf"
 
 msgid "Exif.Image.XPAuthor"
 msgstr ""
@@ -1955,7 +1968,7 @@ msgid "Xmp.tiff.Artist"
 msgstr ""
 
 msgid "Copyright"
-msgstr ""
+msgstr "Copyright"
 
 msgid "Xmp.tiff.Copyright"
 msgstr ""
@@ -2028,7 +2041,7 @@ msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr ""
 
 msgid "Altitude"
-msgstr ""
+msgstr "Höhe"
 
 msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 msgstr ""
@@ -2109,7 +2122,7 @@ msgid ""
 msgstr ""
 
 msgid "Technical metadata"
-msgstr ""
+msgstr "Technische Metadaten"
 
 msgid ""
 "The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you to "
@@ -2319,7 +2332,7 @@ msgid ""
 msgstr ""
 
 msgid "Change Log"
-msgstr ""
+msgstr "Änderungsprotokoll"
 
 msgid "GNU Free Documentation License"
 msgstr ""
@@ -2330,7 +2343,7 @@ msgid ""
 msgstr ""
 
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Verschiedenes"
 
 msgid "GNU General Public License"
 msgstr ""
@@ -2339,7 +2352,7 @@ msgid "The Photini software is licensed under the GNU General Public License."
 msgstr ""
 
 msgid "Installation"
-msgstr ""
+msgstr "Installation"
 
 msgid ""
 "Installation of Photini is done in two parts - first install Python, then "
@@ -2347,7 +2360,7 @@ msgid ""
 msgstr ""
 
 msgid "Installing Python"
-msgstr ""
+msgstr "Python installieren"
 
 msgid ""
 "Python_ is absolutely essential to run Photini. It is already installed on "
@@ -2356,7 +2369,7 @@ msgid ""
 msgstr ""
 
 msgid "Linux/MacOS"
-msgstr ""
+msgstr "Linux/MacOS"
 
 msgid ""
 "Python should already be installed, but make sure you have Python |nbsp| 3. "
@@ -2389,7 +2402,7 @@ msgid "Running ``pip --version`` again shows the new version::"
 msgstr ""
 
 msgid "Windows"
-msgstr ""
+msgstr "Windows"
 
 msgid ""
 "I suggest reading `Using Python on Windows`_ before you begin. Go to "
@@ -2420,7 +2433,7 @@ msgid ""
 msgstr ""
 
 msgid "Installing Photini"
-msgstr ""
+msgstr "Photini installieren"
 
 msgid ""
 "Before installing Photini you need to decide if you are installing it for a "
@@ -2444,7 +2457,7 @@ msgid ""
 msgstr ""
 
 msgid "Virtual environment"
-msgstr ""
+msgstr "Virtuelle Umgebung"
 
 msgid ""
 "If you are using a virtual environment you should set it up now. I use the "
@@ -2460,7 +2473,7 @@ msgid ""
 msgstr ""
 
 msgid "Initial installation"
-msgstr ""
+msgstr "Erstinstallation"
 
 msgid ""
 "The ``photini-configure`` post installation script can be used to install "
@@ -2491,7 +2504,7 @@ msgid ""
 msgstr ""
 
 msgid "Missing system packages"
-msgstr ""
+msgstr "Fehlende Systempakete"
 
 msgid ""
 "On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run "
@@ -2503,7 +2516,7 @@ msgid ""
 msgstr ""
 
 msgid "Optional dependencies"
-msgstr ""
+msgstr "Optionale Abhängigkeiten"
 
 msgid ""
 "Most of the dependencies required for Photini's optional features can also "
@@ -2523,7 +2536,7 @@ msgid ""
 msgstr ""
 
 msgid "Start menu / application menu"
-msgstr ""
+msgstr "Startmenü / Anwendungsmenü"
 
 msgid ""
 "Although you can run Photini from a command shell, most users would probably"
@@ -2532,7 +2545,7 @@ msgid ""
 msgstr ""
 
 msgid "Additional users"
-msgstr ""
+msgstr "Zusätzliche Benutzer"
 
 msgid ""
 "If you have installed Photini in a virtual environment then other users "
@@ -2553,7 +2566,7 @@ msgid ""
 msgstr ""
 
 msgid "Uninstalling Photini"
-msgstr ""
+msgstr "Photini deinstallieren"
 
 msgid ""
 "Before removing Photini you should use the ``photini-post-install`` command "
@@ -2568,7 +2581,7 @@ msgid ""
 msgstr ""
 
 msgid "Updating Photini"
-msgstr ""
+msgstr "Photini aktualisieren"
 
 msgid ""
 "When a new release of Photini is issued you can easily update your "
@@ -2588,7 +2601,7 @@ msgid ""
 msgstr ""
 
 msgid "Dependency details"
-msgstr ""
+msgstr "Abhängigkeitsdetails"
 
 msgid ""
 "These lists of dependencies may be useful to Linux or MacOS users who prefer"
@@ -2605,100 +2618,100 @@ msgid ""
 msgstr ""
 
 msgid "Essential dependencies"
-msgstr ""
+msgstr "Wesentliche Abhängigkeiten"
 
 msgid "These are all required for Photini to be usable."
 msgstr ""
 
 msgid "Package"
-msgstr ""
+msgstr "Paket"
 
 msgid "Minimum version"
-msgstr ""
+msgstr "Mindestversion"
 
 msgid "Typical Linux package name"
 msgstr ""
 
 msgid "PyPI package name"
-msgstr ""
+msgstr "PyPI-Paketname"
 
 msgid "Python_"
-msgstr ""
+msgstr "Python_"
 
 msgid "3.6"
-msgstr ""
+msgstr "3.6"
 
 msgid "``python3``"
-msgstr ""
+msgstr "``python3``"
 
 msgid "PyQt_ [1]"
-msgstr ""
+msgstr "PyQt_ [1]"
 
 msgid "5.11"
-msgstr ""
+msgstr "5.11"
 
 msgid "``python3-qt5`` or ``python3-pyqt5`` or ``python310-PyQt6``"
 msgstr ""
 
 msgid "PySide2_ [1]"
-msgstr ""
+msgstr "PySide2_ [1]"
 
 msgid "5.11.0"
-msgstr ""
+msgstr "5.11.0"
 
 msgid "``python3-pyside2``"
-msgstr ""
+msgstr "``python3-pyside2``"
 
 msgid "PySide2"
-msgstr ""
+msgstr "PySide2"
 
 msgid "PySide6_ [1]"
-msgstr ""
+msgstr "PySide6_ [1]"
 
 msgid "6.2.0"
-msgstr ""
+msgstr "6.2.0"
 
 msgid "``python3-pyside6``"
-msgstr ""
+msgstr "``python3-pyside6``"
 
 msgid "PySide6"
-msgstr ""
+msgstr "PySide6"
 
 msgid "QtWebEngine_ [2]"
-msgstr ""
+msgstr "QtWebEngine_ [2]"
 
 msgid "``python3-pyside2.qtwebengine`` or ``python310-PyQt6-WebEngine``"
-msgstr ""
+msgstr "``python3-pyside2.qtwebengine`` oder ``python310-PyQt6-WebEngine``"
 
 msgid "PyQtWebEngine"
-msgstr ""
+msgstr "PyQtWebEngine"
 
 msgid "`python-exiv2`_"
-msgstr ""
+msgstr "`python-exiv2`_"
 
 msgid "0.14.0"
-msgstr ""
+msgstr "0.14.0"
 
 msgid "exiv2"
-msgstr ""
+msgstr "exiv2"
 
 msgid "appdirs"
-msgstr ""
+msgstr "appdirs"
 
 msgid "1.3"
-msgstr ""
+msgstr "1.3"
 
 msgid "``python3-appdirs``"
-msgstr ""
+msgstr "``python3-appdirs``"
 
 msgid "requests_"
 msgstr ""
 
 msgid "2.4"
-msgstr ""
+msgstr "2.4"
 
 msgid "``python3-requests``"
-msgstr ""
+msgstr "``python3-requests``"
 
 msgid "requests"
 msgstr ""
@@ -2730,7 +2743,7 @@ msgid "Feature"
 msgstr ""
 
 msgid "Dependencies"
-msgstr ""
+msgstr "Abhängigkeiten"
 
 msgid "Spell check[1]"
 msgstr ""
@@ -2805,7 +2818,7 @@ msgid ""
 msgstr ""
 
 msgid "Development version"
-msgstr ""
+msgstr "Entwicklungsversion"
 
 msgid ""
 "To install the development version you can use git to clone the `GitHub "
@@ -2840,7 +2853,7 @@ msgid ""
 msgstr ""
 
 msgid "Troubleshooting"
-msgstr ""
+msgstr "Fehlersuche"
 
 msgid ""
 "If you ever have problems running Photini the first thing to do is to run it"
@@ -2890,7 +2903,7 @@ msgid ""
 msgstr ""
 
 msgid "Introduction"
-msgstr ""
+msgstr "Einführung"
 
 msgid ""
 "A free, easy to use, digital photograph metadata (Exif, IPTC, XMP) editing "
@@ -2918,13 +2931,13 @@ msgid "Why is it called Photini? Read my `blog post`_ on how I chose a name."
 msgstr ""
 
 msgid "Contents"
-msgstr ""
+msgstr "Inhalt"
 
 msgid "Features"
-msgstr ""
+msgstr "Merkmale"
 
 msgid "Easy to use graphical interface."
-msgstr ""
+msgstr "Einfach zu bedienende grafische Benutzeroberfläche."
 
 msgid "Set photo title, description, keywords, copyright and creator fields."
 msgstr ""
@@ -3013,7 +3026,7 @@ msgid ""
 msgstr ""
 
 msgid "Localisation"
-msgstr ""
+msgstr "Lokalisierung"
 
 msgid ""
 "Work has begun on providing Photini in multiple languages. I rely on users "
@@ -3024,7 +3037,7 @@ msgid ""
 msgstr ""
 
 msgid "Licence"
-msgstr ""
+msgstr "Lizenz"
 
 msgid "Photini - a simple photo metadata editor."
 msgstr ""
@@ -3132,7 +3145,7 @@ msgid ""
 msgstr ""
 
 msgid "\"Localisation\""
-msgstr ""
+msgstr "\"Lokalisierung\""
 
 msgid ""
 "Photini can be made easier to use for people who don't speak English. There "
@@ -3158,13 +3171,13 @@ msgid ""
 msgstr ""
 
 msgid "Translation status"
-msgstr ""
+msgstr "Übersetzungsstatus"
 
 msgid "Translation progress so far"
 msgstr ""
 
 msgid "Online translation"
-msgstr ""
+msgstr "Online-Übersetzung"
 
 msgid ""
 "The main advantages of online translation are that you don't need to install"
@@ -3179,7 +3192,7 @@ msgid ""
 msgstr ""
 
 msgid "Weblate"
-msgstr ""
+msgstr "Weblate"
 
 msgid ""
 "Weblate_ is an online translation service that provides free support for "
@@ -3206,7 +3219,7 @@ msgid ""
 msgstr ""
 
 msgid "Transifex"
-msgstr ""
+msgstr "Transifex"
 
 msgid ""
 "Transifex_ is another online translation service with free support for open "
@@ -3241,7 +3254,7 @@ msgid ""
 msgstr ""
 
 msgid "Offline translation"
-msgstr ""
+msgstr "Offline-Übersetzung"
 
 msgid ""
 "Translating Photini on your own computer will probably require extra "
@@ -3285,7 +3298,7 @@ msgid "Things to be aware of"
 msgstr ""
 
 msgid "String length"
-msgstr ""
+msgstr "Zeichenkettenlänge"
 
 msgid ""
 "Many of the strings to be translated have to fit into buttons on the GUI, so"
@@ -3326,7 +3339,7 @@ msgid ""
 msgstr ""
 
 msgid "HTML markup"
-msgstr ""
+msgstr "HTML-Auszeichnung"
 
 msgid ""
 "Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML"
@@ -3337,7 +3350,7 @@ msgid ""
 msgstr ""
 
 msgid "Keyboard shortcuts"
-msgstr ""
+msgstr "Tastaturkürzel"
 
 msgid ""
 "Some strings include a single ampersand character ``&`` immediately before a"
@@ -3516,7 +3529,7 @@ msgid ""
 msgstr ""
 
 msgid "Typical workflow"
-msgstr ""
+msgstr "Typischer Arbeitsablauf"
 
 msgid ""
 "This is a suggestion for how to use Photini. It roughly reflects what I do, "
@@ -3539,7 +3552,7 @@ msgid ""
 msgstr ""
 
 msgid "Load images"
-msgstr ""
+msgstr "Bilder laden"
 
 msgid ""
 "Select the ``File`` menu ``Open images`` item (keyboard shortcut "

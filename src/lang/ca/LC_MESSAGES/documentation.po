@@ -3,15 +3,20 @@
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
+# Translators:
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023
+# Joan <sacoo2@hotmail.com>, 2023
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-04-19 09:10+0100\n"
-"PO-Revision-Date: 2023-04-19 09:19+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2023-04-19 08:54+0000\n"
+"Last-Translator: Joan <sacoo2@hotmail.com>, 2023\n"
 "Language: ca\n"
-"Language-Team: ca <LL@li.org>\n"
+"Language-Team: Catalan (https://app.transifex.com/jim-"
+"easterbrook/teams/32598/ca/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -19,7 +24,7 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 
 msgid "Photini documentation"
-msgstr ""
+msgstr "Documentació Photini"
 
 msgid ""
 "Welcome to the documentation of Photini, an easy to use photograph metadata "
@@ -27,6 +32,11 @@ msgid ""
 "read :doc:`the introduction <other/introduction>`. More detail about its "
 "capabilities can be found in :doc:`the user manual <manual/index>`."
 msgstr ""
+"Benvingut a la documentació de Photini, un editor de metadades fàcil de fer "
+"servir. Per una introducció ràpida a Photini i a les seves funcions ús "
+"suggerim que llegiu :doc:`la introducció <other/introduction>`. Més detalls "
+"sobre les funcionalitats les trobareu a :doc:`el manual d'usuari "
+"<manual/index>`."
 
 msgid "Copyright (C)  2012-23  Jim Easterbrook."
 msgstr ""
@@ -39,11 +49,19 @@ msgid ""
 "license is included in the section entitled \"GNU Free Documentation "
 "License\"."
 msgstr ""
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License, Version 1.3 or any later "
+"version published by the Free Software Foundation; with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the "
+"license is included in the section entitled \"GNU Free Documentation "
+"License\"."
 
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
+"Comentaris o preguntes? Subscriviu-vos a la llista de correu de Photini a "
+"https://groups.google.com/forum/#!forum/photini i ens ho feu saber."
 
 msgid "Location addresses"
 msgstr ""
@@ -112,12 +130,14 @@ msgid ""
 msgstr ""
 
 msgid "Configuration"
-msgstr ""
+msgstr "Configuració"
 
 msgid ""
 "If there are tabs in the Photini GUI that you don't use, you can remove them"
 " by deselecting their entry in the ``Options`` menu."
 msgstr ""
+"Si hi ha pestanyes obertes en l'interficie del Photini que no feu servir, "
+"les podeu esborra desmarcant-ne l'entrada en el menú ``Opcions``"
 
 msgid ""
 "The ``Options`` menu also has a ``Settings`` item which opens the dialog "
@@ -1821,7 +1841,7 @@ msgid "Xmp.xmp.ModifyDate"
 msgstr ""
 
 msgid "Orientation"
-msgstr ""
+msgstr "Orientació"
 
 msgid "Exif.Image.Orientation"
 msgstr ""
@@ -1841,19 +1861,19 @@ msgid ""
 msgstr ""
 
 msgid "Focal length"
-msgstr ""
+msgstr "Distància focal"
 
 msgid "Exif.Photo.FocalLength"
 msgstr ""
 
 msgid "35mm equiv"
-msgstr ""
+msgstr "equiv. 35 mm"
 
 msgid "Exif.Photo.FocalLengthIn35mmFilm"
 msgstr ""
 
 msgid "Aperture"
-msgstr ""
+msgstr "Obertura"
 
 msgid "Exif.Photo.FNumber Exif.Photo.ApertureValue"
 msgstr ""
@@ -1916,13 +1936,13 @@ msgid ""
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr ""
+msgstr "Títol / Nom d'objecte"
 
 msgid "Exif.Image.XPTitle"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr ""
+msgstr "Descripció / Comentari"
 
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr ""
@@ -1931,13 +1951,13 @@ msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Paraules clau"
 
 msgid "Exif.Image.XPKeywords"
 msgstr ""
 
 msgid "Rating"
-msgstr ""
+msgstr "Valoració"
 
 msgid "Exif.Image.Rating Exif.Image.RatingPercent"
 msgstr ""
@@ -1955,7 +1975,7 @@ msgid "Xmp.tiff.Artist"
 msgstr ""
 
 msgid "Copyright"
-msgstr ""
+msgstr "Drets d'autor"
 
 msgid "Xmp.tiff.Copyright"
 msgstr ""
@@ -2028,7 +2048,7 @@ msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr ""
 
 msgid "Altitude"
-msgstr ""
+msgstr "Alçada"
 
 msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 msgstr ""
