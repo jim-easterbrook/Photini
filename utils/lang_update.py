@@ -86,7 +86,13 @@ def extract_doc_strings(root):
     src_dir = os.path.join(root, 'src', 'doc')
     dst_dir = os.path.join(root, 'src', 'lang', 'templates', 'gettext')
     doctree_dir = os.path.join(root, 'doctrees', 'gettext')
-    app = Sphinx(src_dir, src_dir, dst_dir, doctree_dir, 'gettext')
+    confoverrides = {
+        'gettext_uuid': False,
+        'gettext_location': not args.strip,
+        }
+    app = Sphinx(src_dir, src_dir, dst_dir, doctree_dir, 'gettext',
+                 confoverrides=confoverrides, freshenv=True,
+                 warningiserror=True)
     app.build()
     # create / update .po files with Babel
     src_dir = dst_dir
@@ -105,31 +111,19 @@ def extract_doc_strings(root):
             if '.' not in name and name not in ('templates', 'en'):
                 locales.append(name)
     locales.sort()
-    outputs = []
     for locale in locales:
+        dst_dir = os.path.join(root, 'src', 'lang', locale, 'LC_MESSAGES')
+        if not os.path.isdir(dst_dir):
+            os.makedirs(dst_dir)
         for in_file in inputs:
             domain = os.path.splitext(os.path.basename(in_file))[0]
-            out_file = os.path.join(
-                dst_dir, locale, 'LC_MESSAGES', domain + '.po')
-            if os.path.exists(out_file):
-                cmd = ['pybabel', 'update']
-            else:
-                cmd = ['pybabel', 'init']
-            cmd += ['--input-file', in_file, '--output-file', out_file,
-                    '--locale', locale, '--width', '79']
+            out_file = os.path.join(dst_dir, domain + '.po')
+            cmd = ['pybabel', 'update', '--input-file', in_file,
+                   '--output-file', out_file, '--locale', locale,
+                   '--width', '79', '--init-missing']
             result = subprocess.call(cmd)
             if result:
                 return result
-            outputs.append(out_file)
-    if args.strip:
-        test = re.compile('^#: ')
-        for path in inputs + outputs:
-            with open(path, 'r') as f:
-                old_text = f.readlines()
-            with open(path, 'w') as f:
-                for line in old_text:
-                    if not test.match(line):
-                        f.write(line)
     return 0
 
 
