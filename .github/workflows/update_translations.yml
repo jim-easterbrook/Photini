@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'src/lang/**'
+      - 'transifex.yml'
 
 jobs:
   update-weblate:
