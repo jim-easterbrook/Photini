@@ -68,7 +68,7 @@ The longer codes are usually regional or national variations of a common languag
 You should choose the common language if it’s not already available in Photini, moving on to the variations once the common language is done.
 Once your language is added you can ask to join the language team and then start translating.
 
-Click on your language, then click on "src..en/photini.ts (master)" to work on the Photini GUI strings.
+Click on your language, then click on "src..en/photini.ts (transifex)" to work on the Photini GUI strings.
 
 When you've finished working on a translation there's no need to do anything further.
 Transifex automatically pushes the translation to GitHub, where I can merge it into the main repository branch.
@@ -178,7 +178,7 @@ Online translation
 ^^^^^^^^^^^^^^^^^^
 
 This uses Transifex_ as described above.
-The documentation strings are in resources with names like "src..gettext/manual.pot (master)".
+The documentation strings are in the resource "src..gettext/documentation.pot (transifex)".
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
@@ -190,7 +190,7 @@ You can open the translation file in any editor, but a translation tool is best.
 For example::
 
    $ python3 utils/lang_update.py -l nl -d
-   $ pyside6-linguist src/lang/nl/LC_MESSAGES/manual.po
+   $ pyside6-linguist src/lang/nl/LC_MESSAGES/documentation.po
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
@@ -242,5 +242,5 @@ Open ``doc/html/index.html`` with a web browser to read the translated documenta
 .. _Babel:       http://babel.pocoo.org/
 .. _Qt Linguist: https://doc.qt.io/qt-6/linguist-translators.html
 .. _Sphinx:      https://www.sphinx-doc.org/
-.. _Transifex:   https://www.transifex.com/jim-easterbrook/photini/
+.. _Transifex:   https://app.transifex.com/jim-easterbrook/photini/
 .. _Weblate:     https://hosted.weblate.org/projects/photini/
