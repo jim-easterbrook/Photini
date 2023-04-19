@@ -51,6 +51,18 @@ def extract_program_strings(root):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
+    # change Transifex language
+    for path in outputs:
+        if not os.path.exists(path):
+            continue
+        tree = ET.parse(path)
+        xml = tree.getroot()
+        language = xml.get('language', default='')
+        if '@' not in language:
+            continue
+        xml.set('language', language.split('@')[0])
+        tree.write(path, encoding='utf-8',
+                   xml_declaration=True, short_empty_elements=False)
     # run pylupdate
     for path in outputs:
         cmd = ['pyside6-lupdate', '-source-language', 'en_GB']
