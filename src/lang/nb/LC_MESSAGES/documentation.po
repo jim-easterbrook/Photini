@@ -1,0 +1,3648 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012-23, Jim Easterbrook
+# This file is distributed under the same license as the Photini package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Photini 2023.4.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-04-19 09:10+0100\n"
+"PO-Revision-Date: 2023-04-19 09:19+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: nb\n"
+"Language-Team: nb <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.11.0\n"
+
+msgid "Photini documentation"
+msgstr ""
+
+msgid ""
+"Welcome to the documentation of Photini, an easy to use photograph metadata "
+"editor. For a quick introduction to Photini and its features I suggest you "
+"read :doc:`the introduction <other/introduction>`. More detail about its "
+"capabilities can be found in :doc:`the user manual <manual/index>`."
+msgstr ""
+
+msgid "Copyright (C)  2012-23  Jim Easterbrook."
+msgstr ""
+
+msgid ""
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License, Version 1.3 or any later "
+"version published by the Free Software Foundation; with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the "
+"license is included in the section entitled \"GNU Free Documentation "
+"License\"."
+msgstr ""
+
+msgid ""
+"Comments or questions? Please subscribe to the Photini mailing list "
+"https://groups.google.com/forum/#!forum/photini and let us know."
+msgstr ""
+
+msgid "Location addresses"
+msgstr ""
+
+msgid ""
+"The ``Address`` tab shows text address data for the location from where the "
+"photograph was taken (``camera``) and one or more locations shown in the "
+"photograph (``subject``). For example, a general view of the Eiffel Tower "
+"will almost certainly have been taken from somewhere else in Paris."
+msgstr ""
+
+msgid ""
+"These are stored in a 5-level hierarchy: ``street``, ``city``, ``province``,"
+" ``country`` and ``region``. The meaning of these terms is rather loose, "
+"especially when out in the countryside, and there's no requirement to fill "
+"them all in. Typically ``city`` can be anything from a village to a "
+"metropolis, and ``street`` is a more specific location, e.g. \"23 Abdication"
+" Avenue\". ``Province`` would be a state in the USA or a county in the UK. "
+"``Country`` is stored as a name and a 2 or 3 letter `ISO code`_. ``Region`` "
+"appears to be rarely used but could be a continent or sub-continent. More "
+"detail about these can be found on the `IPTC web site`_."
+msgstr ""
+
+msgid ""
+"The separation of camera and subject addresses was added to the IPTC "
+"specification in 2008, but you may still have software that only recognises "
+"\"legacy\" IPTC-IIM address metadata. In this case you should not use the "
+"``subject`` tabs or ``region`` field."
+msgstr ""
+
+msgid ""
+"The ``Get address from lat, long`` button uses \"reverse geocoding\" to "
+"convert latitude & longitude into a hierarchical address. This is a rather "
+"imprecise process so you may need to edit the results yourself. The address "
+"lookup service is provided by OpenCage_, using data from OpenStreetMap_. "
+"Other map providers don't allow lookup results to be permanently stored."
+msgstr ""
+
+msgid ""
+"Photini attempts to use all the data returned in an address lookup. This can"
+" lead to some duplication, e.g. Château-Gontier appears twice in ``city``. "
+"Note also the blue underlining indicating text that is too long to store in "
+"IPTC-IIM metadata."
+msgstr ""
+
+msgid "It is usually necessary to edit the address quite a lot."
+msgstr ""
+
+msgid ""
+"Right-clicking on a location tab displays a context menu that allows the tab"
+" to be copied to a new tab or deleted. Copying the ``camera`` location is an"
+" easy way to initialise a ``subject`` location. (An empty ``subject 2`` tab "
+"is immediately created, in case the photograph has more than one subject.)"
+msgstr ""
+
+msgid ""
+"In this case most of the data is the same, but I changed ``street`` to the "
+"subject of the photograph rather than the place where I was standing."
+msgstr ""
+
+msgid ""
+"To reorder the subject locations, or to convert between camera and subject, "
+"you can drag any of the tabs to another position. If this results in the "
+"rightmost tab having data then another tab will be added. If the two "
+"rightmost tabs have no data then one of the empty tabs will be removed."
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
+
+msgid ""
+"If there are tabs in the Photini GUI that you don't use, you can remove them"
+" by deselecting their entry in the ``Options`` menu."
+msgstr ""
+
+msgid ""
+"The ``Options`` menu also has a ``Settings`` item which opens the dialog "
+"shown below."
+msgstr ""
+
+msgid ""
+"The first three items adjust how Photini uses IPTC-IIM \"legacy\" metadata. "
+"(Since 2004 the `IPTC standard`_ uses XMP to store metadata. Photini always "
+"writes these XMP fields.) The first option is to always write IPTC-IIM "
+"metadata. You may need this if you use other software that reads IPTC-IIM "
+"but not XMP. The second option only writes IPTC-IIM metadata if it is "
+"already present in the file, as recommended by the `Metadata Working "
+"Group`_. The third option is to delete any IPTC-IIM metadata that might be "
+"present."
+msgstr ""
+
+msgid ""
+"IPTC-IIM metadata has limited length for some fields. Photini truncates the "
+"IPTC-IIM data if necessary, but the full length data is still stored in Exif"
+" and / or XMP. Text that exceeds the IPTC-IIM length is shown with a blue "
+"underline. If you don't need to worry about IPTC-IIM compatibility you can "
+"disable this warning."
+msgstr ""
+
+msgid ""
+"Sidecar files allow metadata to be stored without needing to write to the "
+"actual image file. If you deselect \"write to image file\" then sidecars "
+"will always be created. Otherwise, you can choose to have them always "
+"created (storing data in parallel with the image file), only created when "
+"necessary (e.g. an image file is write protected), or deleted when possible "
+"(if metadata can be copied to the image file the sidecar is deleted)."
+msgstr ""
+
+msgid ""
+"Finally there are options to adjust file timestamps. \"Keep original\" "
+"leaves image files' timestamps unchanged. \"Set to when photo was taken\" "
+"changes files' timestamps to the date & time taken (as shown on the "
+"technical tab). \"Set to when the file is saved\" sets files' timestamps to "
+"when you save the file with Photini, like most other computer programs do. "
+"You may find these options useful if you often use a file browser to sort "
+"files by date."
+msgstr ""
+
+msgid "Spell checking"
+msgstr ""
+
+msgid ""
+"The ``Spelling`` menu allows you to enable or disable spell checking on "
+"Photini's text fields, and to select the language dictionary to use. The "
+"available languages depend on what dictionaries you have installed. Adding "
+"extra languages on Linux is easy -- just use your system's package manager "
+"to install the appropriate dictionary (and make sure you have the "
+"appropriate enchant \"backend\" installed)."
+msgstr ""
+
+msgid ""
+"Windows programs don't share spell checking dictionaries as easily as on "
+"Linux. The Hunspell `LibreOffice dictionaries`_ can be used. Select the "
+"subdirectory with the language you need (e.g. ``fr_FR`` for French as spoken"
+" in France) and download the ``.aff`` and ``.dic`` files. (Ignore hyphen and"
+" thesaurus files.) Put these files in the same directory as the English "
+"dictionaries installed with pyenchant. On my computer the directory is "
+"``C:\\Users\\Jim\\AppData\\Local\\Programs\\Python\\Python38\\Lib\\`` "
+"``site-packages\\enchant\\data\\mingw64\\share\\enchant\\hunspell`` but this"
+" will depend on your Python installation."
+msgstr ""
+
+msgid "Configuration file location"
+msgstr ""
+
+msgid ""
+"Photini stores its configuration in a file called ``editor.ini``. The "
+"default location of this file is ``$HOME/.config/photini/`` (Linux), "
+"``$HOME/Library/Preferences/photini`` (MacOS), or "
+"``%USERPROFILE%\\AppData\\Local\\photini\\`` (Windows). If you'd like to "
+"store it elsewhere (e.g. on a networked drive so you can share configuration"
+" between several computers) you can set an environment variable "
+"``PHOTINI_CONFIG`` to the directory you'd like to use."
+msgstr ""
+
+msgid "PyQt options"
+msgstr ""
+
+msgid ""
+"The configuration file includes options to select use of PyQt5, PyQt6, "
+"PySide2, or PySide6. These may be useful if one of these components on your "
+"computer is incompatible with Photini. There are so many versions of PyQt "
+"that it is impossible to test Photini with every one."
+msgstr ""
+
+msgid "The default options in the configuration file are in the ``[pyqt]`` section:"
+msgstr ""
+
+msgid ""
+"To force use of a particular Qt library set the value of ``qt_lib`` to "
+"``'PyQt5'``, ``'PyQt6'``, ``'PySide2'``, or ``'PySide6'``. (You can also use"
+" the ``photini-configure`` command to set this.) You can check which "
+"versions Photini is currently using by running it in a command window with "
+"the ``--version`` option::"
+msgstr ""
+
+msgid ""
+"If your computer has a high resolution screen, or you have poor eyesight, "
+"you may find the Photini user interface's text is too small to read "
+"comfortably. Setting ``scale_factor`` to a value larger than ``1`` should "
+"enlarge Photini. Using non-integer values is possible, but might show "
+"artefacts from the scaling."
+msgstr ""
+
+msgid ""
+"Setting the ``native_dialog`` option to ``False`` makes Photini use a Qt "
+"dialog to select files to open instead of the normal operating system "
+"dialog."
+msgstr ""
+
+msgid ""
+"Note that there is no GUI to set these options. You may need to adjust them "
+"if Photini crashes on startup, in which case the GUI would be unusable. The "
+"configuration file can be edited with any plain text editing program."
+msgstr ""
+
+msgid ""
+"Make sure your editor doesn't change the file's encoding (e.g. from utf-8 to"
+" iso-8859) or insert a \"byte order mark\"."
+msgstr ""
+
+msgid "Application style"
+msgstr ""
+
+msgid ""
+"Qt applications can have their appearance changed by selecting different "
+"\"styles\". Normally a style is automatically chosen that suits the "
+"operating system, but you may want to override this if you prefer something "
+"different. For example, on one of my computers the default style doesn't "
+"draw lines round the grouped elements on the uploader tabs, so I change the "
+"style to one that does."
+msgstr ""
+
+msgid ""
+"The choice of style affects how some \"widgets\" are drawn. If you find "
+"problems such as date or timezone values (on the \"technical metadata\" tab)"
+" being partly hidden then it might be worth trying another style."
+msgstr ""
+
+msgid ""
+"To find out what styles are available on your computer you can use Photini's"
+" ``--version`` flag. (You need to run Photini from a command window to do "
+"this, see the :ref:`installation troubleshooting<installation-"
+"troubleshooting>` section.) You can then try one of these styles as "
+"follows::"
+msgstr ""
+
+msgid ""
+"Note that the style names are not case sensitive. If none of the available "
+"styles is to your liking you may be able to install extra ones. For example,"
+" on some Ubuntu Linux systems the package ``qt5-style-plugins`` is "
+"available."
+msgstr ""
+
+msgid ""
+"Once you find a style that you like, you can set Photini to use that style "
+"by editing the configuration file as described above. Add a line such as "
+"``style = cleanlooks`` to the ``[pyqt]`` section to set your chosen style. "
+"Note that after doing this you can not set a different style on the command "
+"line unless you remove the ``style = ...`` line from your config file."
+msgstr ""
+
+msgid "Tab order"
+msgstr ""
+
+msgid ""
+"The tabs can be re-ordered by dragging and dropping a tab to your preferred "
+"position. This is much easier to do than editing the configuration file."
+msgstr ""
+
+msgid ""
+"Photini's tabs can be enabled or disabled with the ``Options`` menu as "
+"described above, but their order is set in the configuration file. The "
+"``[tabs]`` section has a ``modules`` entry which lists the modules to be "
+"imported for each tab. You can reorder the tabs by reordering this list."
+msgstr ""
+
+msgid ""
+"You could even use a tab provided by another Python package by adding its "
+"module name to the list. See :doc:`extending` for more information."
+msgstr ""
+
+msgid "Metadata options"
+msgstr ""
+
+msgid ""
+"Photini can optionally read metadata from \"BMFF\" based filed types CR3, "
+"HEIF, HEIC, and AVIF. This requires use of python-exiv2 with libexiv2 "
+"v0.27.4 or later. (See :ref:`essential-dependencies` for more details about "
+"Photini's dependencies.) Using BMFF files may infringe patents. Please read "
+"the `Exiv2 warning`_ before enabling this feature."
+msgstr ""
+
+msgid ""
+"To enable BMFF file reading, edit the configuration file and set the "
+"``enable_bmff`` option to ``True``:"
+msgstr ""
+
+msgid "Descriptive metadata"
+msgstr ""
+
+msgid ""
+"The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to"
+" edit basic information about your photographs, such as the title and "
+"description."
+msgstr ""
+
+msgid ""
+"The data form is disabled until you select one or more images to edit. "
+"Hovering the mouse over one of the data fields displays a popup \"tooltip\" "
+"describing the sort of information to put in that field. This help text is "
+"taken from the `IPTC standard`_."
+msgstr ""
+
+msgid ""
+"The first thing I usually do with a new set of photographs is to set the "
+"title. Select all the images that should have the same title, then type the "
+"title in the ``Title / Object name`` text editing box. Note that the title "
+"(and headline and keywords) are stored in XMP and IPTC-IIM but not in Exif, "
+"so may not be visible to software that only handles Exif metadata (see "
+":doc:`tag reference <tags>` for more detail). You may prefer to leave these "
+"fields blank."
+msgstr ""
+
+msgid ""
+"The legacy IPTC-IIM standard has a maximum number of bytes for each data "
+"item. If your text has more bytes then the excess is shown underlined in "
+"blue. You can ignore this if you don't need compatibility with old software "
+"that relies on IPTC-IIM data. This warning can be turned off in Photini's "
+":doc:`configuration <configuration>`."
+msgstr ""
+
+msgid ""
+"The ``Title / Object name`` field has an optional spell checker, enabled "
+"with the ``Spelling`` menu. The word \"Château-Gontier\" is not in the "
+"British English dictionary, as indicated by the red underlining. Right-"
+"clicking on a misspelled word shows any suggested alternatives, one of which"
+" can be chosen by clicking on it."
+msgstr ""
+
+msgid ""
+"Note that all the image thumbnails now have a warning symbol (|hazard|) "
+"displayed next to them. This shows that they have unsaved metadata edits. "
+"The ``File`` menu ``Save images with new data`` item (keyboard shortcut "
+"``Ctrl+S``) saves your edits and clears the warning symbols, as shown below."
+" I do this frequently to avoid losing any of my work."
+msgstr ""
+
+msgid ""
+"Now you can add more detail in the ``Headline`` and / or ``Description / "
+"Caption`` boxes. (My descriptions are usually so short that a separate "
+"headline summary isn't needed.) There are probably only one or two "
+"photographs that share the same description, so select those images first."
+msgstr ""
+
+msgid ""
+"If you select a group of images you may see ``<multiple values>`` displayed "
+"in some of the text boxes. You can right-click on the box to bring up a "
+"context menu from which you can choose a value to be copied to all the "
+"selected photographs. Very long texts are elided with ``...`` replacing some"
+" of the text."
+msgstr ""
+
+msgid ""
+"The ``Alt Text (Accessibility)`` and ``Extended Description "
+"(Accessibility)`` boxes are where you describe the photograph for visually "
+"impaired users. These are a recent addition to the `IPTC standard`_ - in "
+"future image display programs and web sites should use this metadata to "
+"create their \"ALT text\" image description."
+msgstr ""
+
+msgid ""
+"Next you can set a list of keywords for the image by typing them in the "
+"``Keywords`` box. Keywords should be separated by semi-colon (;) characters."
+" The ``<favourites>`` drop-down list can be used to select keywords from the"
+" ones you use most often."
+msgstr ""
+
+msgid ""
+"Finally the ``Rating`` slider allows you to note any particularly good or "
+"bad pictures. Good pictures can be given a one to five star rating."
+msgstr ""
+
+msgid ""
+"Bad pictures can be given a ``reject`` rating. This is stored in the "
+"metadata as a rating value of -1."
+msgstr ""
+
+msgid "Alternative Languages"
+msgstr ""
+
+msgid ""
+"Some fields, such as title and description, are stored in XMP as `Lang Alt`_"
+" data. This allows translations into alternative languages to be stored "
+"along with the default language text. (Only the default language is stored "
+"in Exif and IPTC-IIM.)"
+msgstr ""
+
+msgid ""
+"Photini has a language drop down selector next to each ``Lang Alt`` data "
+"field. If the current text is in an unspecified default language the "
+"selector shows ``Language``, otherwise it shows ``Lang:`` and the current "
+"language. If the field is empty the current language is set to your "
+"computer's default locale. You can add an alternative language by clicking "
+"on the drop down and selecting ``<new>``."
+msgstr ""
+
+msgid ""
+"If there is already some text in an unspecified default language you will be"
+" asked to say what that language is. Languages are specified with an "
+"RFC3066_ code. This usually starts with a two-letter language code, e.g. "
+"``en`` for English, and may be followed by a hyphen and a two-letter country"
+" code, e.g. ``en-GB`` for English as spoken in Great Britain."
+msgstr ""
+
+msgid ""
+"Next you can set the language to be added, e.g. ``fr-FR`` for French as "
+"spoken in France."
+msgstr ""
+
+msgid "You can then type the translation in to the text field."
+msgstr ""
+
+msgid ""
+"If you would like to change the default language, right-click on the "
+"``Lang:`` dropdown and choose a language."
+msgstr ""
+
+msgid "More information about the data fields"
+msgstr ""
+
+msgid ""
+"Click on any field name below to see the IPTC definition and user notes for "
+"that field. Although these fields are defined in an `IPTC standard`_, they "
+"are all stored in XMP metadata. Some of them are also stored in Exif and/or "
+"\"legacy\" IPTC-IIM data."
+msgstr ""
+
+msgid ""
+"`Title / Object Name <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#title>`_"
+msgstr ""
+
+msgid "A short title."
+msgstr ""
+
+msgid ""
+"`Headline <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#headline>`_"
+msgstr ""
+
+msgid "A brief description."
+msgstr ""
+
+msgid ""
+"`Description / Caption <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#description>`_"
+msgstr ""
+
+msgid "The who, what and why of what the image depicts."
+msgstr ""
+
+msgid ""
+"`Alt Text (Accessibility) "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#alt-"
+"text-accessibility>`_"
+msgstr ""
+
+msgid "Text description for visually impaired accessibility."
+msgstr ""
+
+msgid ""
+"`Extended Description (Accessibility) "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata"
+"#extended-description-accessibility>`_"
+msgstr ""
+
+msgid "Extended description for visually impaired accessibility."
+msgstr ""
+
+msgid ""
+"`Keywords <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#keywords>`_"
+msgstr ""
+
+msgid "Separate words or phrases with ``;`` characters. Not stored in Exif."
+msgstr ""
+
+msgid ""
+"`Rating <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#image-rating>`_"
+msgstr ""
+
+msgid "How good is the photo."
+msgstr ""
+
+msgid "Extending Photini"
+msgstr ""
+
+msgid ""
+"It is possible to add new functionality to Photini by providing a new "
+"\"tab\". Because the tabs are loaded dynamically at run-time the new tab "
+"does not need to be part of the Photini Python package. For example, if the "
+"package ``mypackage`` provides a Photini tab in the module "
+"``mypackage.photini``, then adding ``mypackage.photini`` to the tab modules "
+"list (see :ref:`configuration-tabs`) will add the tab to Photini."
+msgstr ""
+
+msgid "Every Photini tab has to have the following interface:"
+msgstr ""
+
+msgid ""
+"The ``tab_name`` method returns the label given to the tab. It should be as "
+"short as possible."
+msgstr ""
+
+msgid ""
+"When the user defines any new metadata you should get the current selection "
+"from the ``image_list`` and set the metadata on every image in the "
+"selection."
+msgstr ""
+
+msgid ""
+"It's probably easiest to start with a copy of the Photini tab module most "
+"like what you want to do, strip out the bits you don't need and then add "
+"your own stuff."
+msgstr ""
+
+msgid "Flickr uploader"
+msgstr ""
+
+msgid ""
+"The ``Flickr upload`` tab (keyboard shortcut ``Alt+F``) allows you to upload"
+" your photographs to `Flickr <http://www.flickr.com/>`_, a popular online "
+"photograph sharing service. The Flickr upload tab uses the Flickr API but is"
+" not endorsed or certified by Flickr."
+msgstr ""
+
+msgid ""
+"Unlike some other Flickr uploaders, Photini uses the descriptive metadata "
+"you've created to set Flickr's title, description and tags. This means you "
+"don't have to retype all that information!"
+msgstr ""
+
+msgid ""
+"Note that the Flickr upload tab is only enabled if you have installed some "
+"extra software packages. See :ref:`installation <installation-optional>` for"
+" more detail."
+msgstr ""
+
+msgid ""
+"Initially most of the Flickr uploader tab is disabled. It's only usable "
+"after you've authorised Photini to access your Flickr account by clicking "
+"the ``Log in`` button."
+msgstr ""
+
+msgid ""
+"The first time you click ``Log in`` Photini connects your web browser to "
+"Flickr, from where you can log in and give Photini permission to access "
+"Flickr on your behalf. (Note that Photini does not interact with other "
+"people's photos and videos.)"
+msgstr ""
+
+msgid ""
+"After authorisation your browser should display this page. The web browser "
+"window can then be closed."
+msgstr ""
+
+msgid ""
+"If the authorisation is successful Photini displays your Flickr user name "
+"and profile picture. You should not need to redo this authorisation process "
+"unless you click the ``Log out`` button."
+msgstr ""
+
+msgid ""
+"Your current Flickr albums are shown on the right hand side of the Flickr "
+"uploader tab. You can add a new album with the ``New album`` button. This "
+"opens a pop-up dialog as shown below."
+msgstr ""
+
+msgid ""
+"Type in the album details and click ``OK``. Note that the album will not be "
+"created on Flickr until you upload a photo to it."
+msgstr ""
+
+msgid ""
+"To upload one or more photographs to Flickr, select them in the image "
+"selector area, then choose which (if any) of your albums to add them to and "
+"set the privacy, safety level and other settings, then click on the ``Start "
+"upload`` button."
+msgstr ""
+
+msgid ""
+"The album membership and privacy & other settings apply to all the "
+"photographs in this upload. If you want some photographs to have different "
+"album membership or privacy & other settings you need to upload them as a "
+"separate batch."
+msgstr ""
+
+msgid ""
+"During uploading Photini displays a progress bar. Uploading takes place in "
+"the background, so you can continue to use other tabs while the upload is in"
+" progress. The upload can be stopped by clicking the ``Stop upload`` button."
+msgstr ""
+
+msgid "After uploading a photograph it is marked as having new metadata."
+msgstr ""
+
+msgid ""
+"If you switch to the ``Descriptive metadata`` tab you can see there is a new"
+" keyword ``flickr:id=<long-number>``. Photini uses this `triple tag`_ to "
+"store the Flickr photo id so it can be used to synchronise metadata later "
+"on, as described below."
+msgstr ""
+
+msgid "Synchronising local metadata to Flickr"
+msgstr ""
+
+msgid ""
+"Sometimes you might change your photograph's metadata on Flickr and would "
+"like to copy those changes back to the image file on your computer. Select "
+"the image(s) you would like to update and click the ``Synchronise`` button."
+msgstr ""
+
+msgid ""
+"If an image does not have a ``flickr:id`` keyword then Photini will try to "
+"find the photograph on Flickr by matching the date and time it was taken. If"
+" there is new metadata on Flickr then it is merged into the image's "
+"metadata."
+msgstr ""
+
+msgid ""
+"Flickr \"notes\" attached to an image are shown on Photini's :doc:`regions` "
+"tab."
+msgstr ""
+
+msgid ""
+"You can see what changed with the image's context menu ``View changes``. In "
+"this case Flickr has set the location city to its new name of \"Château-"
+"Gontier-sur-Mayenne\". I chose to ignore this new metadata."
+msgstr ""
+
+msgid "Synchronising Flickr metadata to local"
+msgstr ""
+
+msgid ""
+"If you change your image file metadata and would like to make the same "
+"changes on Flickr you can select the image and click on the ``Start upload``"
+" button."
+msgstr ""
+
+msgid ""
+"If you upload an image that already has a ``flickr:id`` keyword then Photini"
+" allows you to change the photograph's metadata instead of uploading a new "
+"photograph. You can also replace the image itself, which might be useful if "
+"you've processed it in another application."
+msgstr ""
+
+msgid "Google Photos uploader"
+msgstr ""
+
+msgid ""
+"The ``Google Photos upload`` tab (keyboard shortcut ``Alt+P``) allows you to"
+" upload your photographs to `Google Photos`_. The Google Photos API is quite"
+" restrictive, so 3rd party software such as Photini is rather limited in its"
+" abilities."
+msgstr ""
+
+msgid ""
+"Note that the Google Photos upload tab is only enabled if you have installed"
+" some extra software packages. See :ref:`installation <installation-"
+"optional>` for more detail."
+msgstr ""
+
+msgid ""
+"Initially most of the Google Photos uploader tab is disabled. It's only "
+"usable after you've authorised Photini to access your Google Photos account "
+"by clicking the ``Log in`` button."
+msgstr ""
+
+msgid ""
+"The first time you click ``Log in`` Photini connects your web browser to "
+"Google Photos, from where you can log in and give Photini permission to "
+"access Google Photos on your behalf."
+msgstr ""
+
+msgid ""
+"Unfortunately Google won't verify Photini because it continues to be "
+"developed, so you will be presented with several warning messages during the"
+" authentication process, and a warning email may be sent to your GMail "
+"account."
+msgstr ""
+
+msgid ""
+"If the authorisation is successful Photini displays your Google Photos user "
+"name and profile picture. You should not need to redo this authorisation "
+"process unless you click the ``Log out`` button."
+msgstr ""
+
+msgid ""
+"Your current Google Photos albums are shown on the right hand side of the "
+"Google Photos uploader tab. The Google Photos API only allows Photini to add"
+" pictures to albums created by Photini. Other albums are shown but are "
+"disabled."
+msgstr ""
+
+msgid ""
+"You can add a new album with the ``New album`` button. This opens a pop-up "
+"dialog as shown below."
+msgstr ""
+
+msgid ""
+"Type in the album title and click ``OK``. The title can be up to 500 "
+"characters long, so you may want to enlarge the dialog box."
+msgstr ""
+
+msgid ""
+"To upload one or more photographs to Google Photos, select them in the image"
+" selector area, then choose which (if any) of your albums to add them to, "
+"then click on the ``Start upload`` button."
+msgstr ""
+
+msgid "Image selector"
+msgstr ""
+
+msgid ""
+"When you start the Photini editor it displays a GUI (graphical user "
+"interface) as shown below. The exact appearance will depend on your "
+"operating system and window manager preferences, but the same functional "
+"elements should be present. (The appearance can be altered by setting a "
+"different style, see the :ref:`configuration section <configuration-style>` "
+"for more detail.)"
+msgstr ""
+
+msgid ""
+"The Photini editor GUI has two main areas. The upper part has a set of tabs "
+"to select different functions. The lower part is an image selector that is "
+"common to all the tabs. In between the two is a divider that can be dragged "
+"with the mouse to change the relative sizes of the two parts. The overall "
+"size of the window can also be changed by dragging its edges or corners with"
+" the mouse."
+msgstr ""
+
+msgid ""
+"The tabs can be re-ordered by dragging and dropping a tab to your preferred "
+"position."
+msgstr ""
+
+msgid ""
+"Now load some images using the ``File`` menu ``Open files`` item (or its "
+"keyboard shortcut ``Ctrl+O``). The loaded files are displayed as thumbnail "
+"images in the image selector part of the GUI. Note that the thumbnail size "
+"can be changed with the slider control just beneath the thumbnail display "
+"area. The files can also be sorted by name or date by clicking on the "
+"appropriate button."
+msgstr ""
+
+msgid ""
+"Images can also be loaded by \"drag and drop\" from a file manager window or"
+" by adding them to the command line if you run Photini from a command "
+"terminal. If you open a directory then all the images in that directory will"
+" be opened. This is recursive, so beware of accidentally opening too many "
+"images in one go."
+msgstr ""
+
+msgid ""
+"Clicking on any thumbnail selects that file. The selected file is "
+"highlighted by a red border. Double clicking on a thumbnail should display "
+"the full size image, using your default image viewing application."
+msgstr ""
+
+msgid ""
+"Multiple files can be selected by holding down the 'shift' key while "
+"clicking on a second image. To select multiple files that are not adjacent, "
+"hold down the 'control' key while clicking on the images."
+msgstr ""
+
+msgid "The keyboard shortcut ``Ctrl+A`` selects all the loaded files."
+msgstr ""
+
+msgid ""
+"Selecting multiple files allows you to set metadata, such as the image "
+"title, on several files at once. This is much quicker than having to edit "
+"the metadata of each file separately. You will probably want to select a "
+"different group of files before editing each metadata item. For example, you"
+" might give the same title to all the images, then select only the first two"
+" or three before writing a description."
+msgstr ""
+
+msgid "Context menu"
+msgstr ""
+
+msgid ""
+"Right-clicking on a thumbnail displays a context menu for all the currently "
+"selected files."
+msgstr ""
+
+msgid ""
+"The context menu currently has five items. ``Reload file`` discards any "
+"metadata changes. ``Save changes`` saves any changes to the file(s). ``View "
+"changes`` displays any changes of metadata, as shown below. ``Regenerate "
+"thumbnail`` creates a new thumbnail of the image(s). ``Close file`` closes "
+"the file(s)."
+msgstr ""
+
+msgid ""
+"The ``view changes`` context menu item displays all the metadata items that "
+"have changed. In this example I've set two items that were previously empty."
+" If you want to discard any of these changes then select the appropriate "
+"``undo`` checkboxes and click on ``OK``."
+msgstr ""
+
+msgid "The same menu items also appear in the main ``File`` menu."
+msgstr ""
+
+msgid "Using Photini with other programs"
+msgstr ""
+
+msgid ""
+"If you use other applications that can display or edit image metadata then "
+"you need to be careful when using them with Photini. Just like with a word "
+"processor or text editor it can be risky to have a file open for editing in "
+"more than one program. If you make changes in Photini you should save them "
+"before getting another program to reload or reopen the file. If you make "
+"changes in another program you should use the context menu described above "
+"to reload the file in Photini."
+msgstr ""
+
+msgid ""
+"You may also want to experiment with how other programs display the metadata"
+" you create in Photini and *vice versa*. Be aware that other programs might "
+"not store their metadata in the picture files, but use a database or "
+"separate files (other than XMP sidecars). Such programs are not compatible "
+"with Photini, unless they can be configured to use metadata standards."
+msgstr ""
+
+msgid "Image importer"
+msgstr ""
+
+msgid ""
+"The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy "
+"photographs from your digital camera or anywhere else on your computer (for "
+"example, a camera memory card if your computer has a card reader). Whilst "
+"there are many other programs to do this, I've never found one that does "
+"things the way I want, so I added one to Photini."
+msgstr ""
+
+msgid ""
+"Note that you can only import directly from cameras if you have installed "
+"python-gphoto2 (which is not available on Windows). See :ref:`installation "
+"<installation-optional>` for more detail."
+msgstr ""
+
+#, python-format
+msgid ""
+"The key part of the importer is the ``Target format`` field. This provides a"
+" very flexible way to specify where on your computer imported images should "
+"be stored. It uses ``%`` formats to generate file and directory names based "
+"on the image capture date & time. The most useful ones are ``%Y`` (year), "
+"``%m`` (month number) and ``%d`` (day of the month) but many more are "
+"available. See the `Python documentation "
+"<https://docs.python.org/2/library/datetime.html#strftime-strptime-"
+"behavior>`_ for a complete list."
+msgstr ""
+
+msgid ""
+"As well as the date & time format strings, bracketed keywords can be used to"
+" manipulate parts of the file name:"
+msgstr ""
+
+msgid "keyword"
+msgstr ""
+
+msgid "meaning"
+msgstr ""
+
+msgid "example"
+msgstr ""
+
+msgid "{camera}"
+msgstr ""
+
+msgid "the camera model name"
+msgstr ""
+
+msgid "Canon_PowerShot_A1100_IS"
+msgstr ""
+
+msgid "{name}"
+msgstr ""
+
+msgid "the complete file name"
+msgstr ""
+
+msgid "IMG_9999.JPG"
+msgstr ""
+
+msgid "{number}"
+msgstr ""
+
+msgid "the numeric part of the file name"
+msgstr ""
+
+msgid "9999"
+msgstr ""
+
+msgid "{root}"
+msgstr ""
+
+msgid "the filename without its extension"
+msgstr ""
+
+msgid "IMG_9999"
+msgstr ""
+
+msgid "{ext}"
+msgstr ""
+
+msgid "the filename extension"
+msgstr ""
+
+msgid ".JPG"
+msgstr ""
+
+msgid ""
+"Below the ``Target format`` field is an example generated from the current "
+"format to help you edit it correctly."
+msgstr ""
+
+#, python-format
+msgid ""
+"Note that Photini stores a different target format for each camera or source"
+" folder that you use. This can be useful if you have two cameras that use "
+"the same file names. For example, I use "
+"``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/100D_{name}`` for my DSLR to "
+"rename files from ``IMG_9999.JPG`` to ``100D_IMG_9999.JPG`` so they don't "
+"clash with files from my compact camera, which also uses names like "
+"``IMG_9999.JPG``."
+msgstr ""
+
+msgid ""
+"After connecting one or more cameras and pressing the ``refresh`` button, a "
+"camera can be chosen from the ``<select source>`` drop down list. Photini "
+"then fetches a list of all the files stored on the camera, which can take "
+"some time."
+msgstr ""
+
+msgid ""
+"The drop down list also includes the most recent source folders you have "
+"used. Click on ``<add a folder>`` to add a new source folder to the list. "
+"Photini lists all the image files in the source folder and all its sub-"
+"folders, so take care to navigate down to the folder containing the photos "
+"you want, to avoid including too many other files."
+msgstr ""
+
+msgid ""
+"The list is displayed in the central area, with the location where the file "
+"would be stored. It is sorted by name or date, as selected by the buttons "
+"below the image thumbnail area."
+msgstr ""
+
+msgid ""
+"When the ``Target format`` has been set to match where previous images were "
+"put, images that have already been copied to the computer are non selectable"
+" (shown in light grey)."
+msgstr ""
+
+msgid ""
+"The remaining images can be selected by clicking on them, or by using the "
+"``Select all`` button (to select all uncopied images) or ``Select new`` "
+"button (to select images newer than the last ones copied)."
+msgstr ""
+
+msgid ""
+"Clicking the ``Copy photos`` button copies the selected images to the "
+"computer and loads them into Photini. To avoid overloading Photini you "
+"should be careful not to select too many images before clicking on ``Copy "
+"photos``."
+msgstr ""
+
+msgid ""
+"The ``Move photos`` button moves image files instead of copying them. This "
+"is probably not useful with a camera source, but can be used to reorganise "
+"your photo files by moving them to different directories, perhaps renaming "
+"them as well."
+msgstr ""
+
+msgid ""
+"As each file is copied it is shown in grey on the file list and the selected"
+" file count decreases."
+msgstr ""
+
+msgid ""
+"After copying all the files the file list is refreshed, which may take some "
+"time. Now that all the files have been copied from the camera none can be "
+"selected."
+msgstr ""
+
+msgid "User manual"
+msgstr ""
+
+msgid ""
+"This manual attempts to cover every part of Photini in detail, but still be "
+"usable as a tutorial. I suggest you read the :doc:`image selector "
+"<image_selector>` and :doc:`descriptive metadata <descriptive_metadata>` "
+"sections first, then read other sections when you start using the relevant "
+"features."
+msgstr ""
+
+msgid "Ipernity uploader"
+msgstr ""
+
+msgid ""
+"The ``Ipernity upload`` tab (keyboard shortcut ``Alt+I``) allows you to "
+"upload your photographs to `Ipernity <http://www.ipernity.com/>`_, a "
+"friendly online photograph sharing club. The Ipernity upload tab uses the "
+"Ipernity API but is not endorsed or certified by Ipernity."
+msgstr ""
+
+msgid ""
+"Unlike some other uploaders, Photini uses the descriptive metadata you've "
+"created to set Ipernity's title, description and keywords. This means you "
+"don't have to retype all that information!"
+msgstr ""
+
+msgid ""
+"Note that the Ipernity upload tab is only enabled if you have installed some"
+" extra software packages. See :ref:`installation <installation-optional>` "
+"for more detail."
+msgstr ""
+
+msgid ""
+"Initially most of the Ipernity uploader tab is disabled. It's only usable "
+"after you've authorised Photini to access your Ipernity account by clicking "
+"the ``Log in`` button."
+msgstr ""
+
+msgid ""
+"The first time you click ``Log in`` Photini connects your web browser to "
+"Ipernity, from where you can log in and give Photini permission to access "
+"Ipernity on your behalf."
+msgstr ""
+
+msgid ""
+"After authorising Photini close the web browser window or tab and return to "
+"the Photini window. You can now close the \"Authorisation required\" dialog."
+msgstr ""
+
+msgid ""
+"If the authorisation is successful Photini displays your Ipernity user name "
+"and profile picture. You should not need to redo this authorisation process "
+"unless you click the ``Log out`` button."
+msgstr ""
+
+msgid ""
+"Your current Ipernity albums are shown on the right hand side of the "
+"Ipernity uploader tab. You can add a new album with the ``New album`` "
+"button. This opens a pop-up dialog as shown below."
+msgstr ""
+
+msgid ""
+"Type in the album details and click ``OK``. Note that the album will not be "
+"visible on Ipernity until you upload a photo to it."
+msgstr ""
+
+msgid ""
+"To upload one or more photographs to Ipernity, select them in the image "
+"selector area, then choose which (if any) of your albums to add them to and "
+"set the permissions and licence, then click on the ``Start upload`` button."
+msgstr ""
+
+msgid ""
+"The permissions, licence, and album membership apply to all the photographs "
+"in this upload. If you want some photographs to have different permissions, "
+"licence, or album membership you need to upload them as a separate batch."
+msgstr ""
+
+msgid ""
+"If you switch to the ``Descriptive metadata`` tab you can see there is a new"
+" keyword ``ipernity:id=<long-number>``. Photini uses this `triple tag`_ to "
+"store the Ipernity photo id so it can be used to synchronise metadata later "
+"on, as described below."
+msgstr ""
+
+msgid "Synchronising local metadata to Ipernity"
+msgstr ""
+
+msgid ""
+"Sometimes you might change your photograph's metadata on Ipernity and would "
+"like to copy those changes back to the image file on your computer. Select "
+"the image(s) you would like to update and click the ``Synchronise`` button."
+msgstr ""
+
+msgid ""
+"If an image does not have a ``ipernity:id`` keyword then Photini will try to"
+" find the photograph on Ipernity by matching the date and time it was taken."
+" If there is new metadata on Ipernity then it is merged into the image's "
+"metadata. You can see what changed with the image's context menu ``View "
+"changes``."
+msgstr ""
+
+msgid ""
+"Ipernity \"notes\" attached to an image are shown on Photini's "
+":doc:`regions` tab."
+msgstr ""
+
+msgid "Synchronising Ipernity metadata to local"
+msgstr ""
+
+msgid ""
+"If you change your image file metadata and would like to make the same "
+"changes on Ipernity you can select the image and click on the ``Start "
+"upload`` button."
+msgstr ""
+
+msgid ""
+"If you upload an image that already has a ``ipernity:id`` keyword then "
+"Photini allows you to change the photograph's metadata instead of uploading "
+"a new photograph."
+msgstr ""
+
+msgid "Geotagging"
+msgstr ""
+
+msgid ""
+"The map tabs allow you to set the location of where a photograph was taken. "
+"Photini currently uses three different map providers: Google, Bing, and "
+"Mapbox/OpenStreetMap. All three tabs have similar functionality, but have "
+"different styles and levels of detail. Google, Bing, and Mapbox also offer "
+"aerial (or \"satellite\") photography."
+msgstr ""
+
+msgid ""
+"The map initially displays the previously used location. You can change the "
+"view by zooming in or out, or by panning the map by dragging it with the "
+"mouse. However, it's usually easier to find a specific location by using the"
+" search facility."
+msgstr ""
+
+msgid ""
+"Click on the ``<new search>`` edit box and type in a search term such as the"
+" name of a town, then press the 'return' key. A drop down list of place "
+"names should appear, from which you can select one. Note that the search box"
+" may be disabled for a few seconds after each search to limit the load on "
+"the free servers that provide the service."
+msgstr ""
+
+msgid ""
+"The search is influenced by the current location shown on the map. A search "
+"for 'newport' may return different results if the map is showing New York "
+"than if it's showing London. You can do a world wide search, ignoring the "
+"current location, by clicking on the ``<widen search>`` item in the drop "
+"down list. Alternatively you can drag the map to somewhere near where you "
+"want to be and then click on the ``<repeat search>`` item in the drop down "
+"list."
+msgstr ""
+
+msgid ""
+"Each map provider has its own search facility. You may get more useful "
+"results by switching to a different map tab."
+msgstr ""
+
+msgid ""
+"Having found the right town, you can then zoom in and pan around to find the"
+" exact location where your photograph was taken. Using aerial / satellite "
+"imagery can help with this."
+msgstr ""
+
+msgid ""
+"Now you can drag and drop your photograph onto the map to set its location. "
+"To set the same location on multiple images, select them all and then drag "
+"and drop one of them."
+msgstr ""
+
+msgid ""
+"Note that photographs that have location data are shown with a flag symbol "
+"(|flag|) in the image selector area."
+msgstr ""
+
+msgid ""
+"The location coordinates are shown in the ``Lat, long:`` box. These values "
+"are editable, so you can set the location of photographs directly, e.g. by "
+"copying and pasting from another one. You can also adjust the location by "
+"dragging the marker on the map. To clear a photograph's location data just "
+"delete the coordinates."
+msgstr ""
+
+msgid ""
+"When several photographs have location metadata Photini will pan the map "
+"(and zoom out if required) to ensure all the selected images are shown on "
+"the map. Selected images are shown with coloured markers. Unselected images "
+"are shown with grey markers."
+msgstr ""
+
+msgid ""
+"The ``Get altitude from map`` button sets the photograph's altitude (in "
+"metres) from its latitude and longitude, using data from the map provider. "
+"Not all map providers have altitude data, and the accuracy varies quite a "
+"lot. You can edit the value to correct it."
+msgstr ""
+
+msgid ""
+"Selecting another map tab will show the same location but with data and "
+"imagery from a different provider."
+msgstr ""
+
+msgid "GPX file import"
+msgstr ""
+
+msgid ""
+"If you have a mobile phone or other device with a GPS logger you may be able"
+" to set the approximate locations of photographs from logged GPS positions. "
+"If you have installed gpxpy_ then the map pages have a button to import GPX "
+"files."
+msgstr ""
+
+msgid ""
+"First you need to export your GPS log as a GPX_ (GPS eXchange format) file, "
+"then transfer the .gpx file to your computer. Make sure your images have the"
+" correct time zone set so that Photini can calculate their UTC_ timestamps."
+msgstr ""
+
+msgid ""
+"When a GPX file is imported its track points are displayed on the map as "
+"blue circles. If the file has a large number of points, closely positioned "
+"in space or time, then not all of them are shown."
+msgstr ""
+
+msgid ""
+"Selecting a photograph shows up to four track points in red. These are "
+"points with time stamps around the time the photograph was taken."
+msgstr ""
+
+msgid ""
+"After zooming in on the red track points the photograph can be dragged to "
+"the map as usual."
+msgstr ""
+
+msgid ""
+"Alternatively, the ``Set coords from GPX`` button can be used to set the "
+"latitude and longitude of all the selected photographs to the nearest (in "
+"time) GPX track point."
+msgstr ""
+
+msgid ""
+"Sometimes GPS receivers lose accuracy, so some GPX file points can be wrong "
+"by over 100 metres. In this case the ``Set coords from GPX`` button is not "
+"very useful."
+msgstr ""
+
+msgid ""
+"When you've finished with the GPX track points they can be removed from the "
+"map with the ``Remove GPX data`` button."
+msgstr ""
+
+msgid "Ownership metadata"
+msgstr ""
+
+msgid ""
+"The ``Ownership metadata`` tab (keyboard shortcut ``Alt+O``) allows you to "
+"edit ownership and copyright information about your photographs."
+msgstr ""
+
+msgid ""
+"Most of this data will be the same for all your photographs, so Photini uses"
+" a \"template\" to apply the same text to all the selected images. If your "
+"photographs already have some of this information (some cameras set the "
+"creator and copyright notice) you can copy it to the template by selecting "
+"one or more photographs and clicking on ``Initialise template``. Otherwise "
+"use the ``Edit template`` button to open the dialog shown below."
+msgstr ""
+
+msgid ""
+"Fill in any of the fields you want to use on every photograph. The field "
+"labels are copied from the `IPTC standard`_, as is the help text which "
+"should pop up if you hover your mouse over a field. Note that the "
+"``Copyright Notice`` and ``Rights: Usage Terms`` fields can have alternative"
+" languages, as discussed in :ref:`alternative-languages`."
+msgstr ""
+
+msgid ""
+"Note that you can insert the year in which a photograph was taken with "
+"``%Y``. This is probably only useful in the ``Copyright Notice``, but is "
+"available for all text fields. (You can actually use any directive "
+"recognised by the `Python strftime function`_, such as ``%m`` for month "
+"number or ``%B`` for the month name.)"
+msgstr ""
+
+msgid ""
+"The ``Rights: Web Statement`` field is a drop down list of `Creative "
+"Commons`_ licences which you can extend with any other licences you use. The"
+" widget's context menu allows you to visit any of the licence URLs with your"
+" web browser."
+msgstr ""
+
+msgid ""
+"Google Image Search displays the ``Creator``, ``Credit Line``, and "
+"``Copyright Notice`` values alongside search results. It also uses the "
+"``Rights: Web Statement`` and ``Contact Information: Web URL`` to help "
+"people find images that can be licensed for reuse. See the `Quick guide to "
+"IPTC Photo Metadata and Google Images`_ for more detail."
+msgstr ""
+
+msgid ""
+"The ``Apply template`` button copies the template data to all the selected "
+"images, setting the correct year in the ``Copyright Notice``. If you want to"
+" clear any of the images' existing ownership data when the template is "
+"applied, then set the corresponding template field to a single space. You "
+"can then add more information, or edit the existing information, in the "
+"usual way."
+msgstr ""
+
+msgid ""
+"Click on any field name below to see the IPTC definition and user notes for "
+"that field. Although these fields are defined in an `IPTC standard`_, they "
+"are all stored in XMP metadata. Some of them are also stored in \"legacy\" "
+"IPTC-IIM data."
+msgstr ""
+
+msgid ""
+"`Creator <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#creator>`_"
+msgstr ""
+
+msgid ""
+"Usually the photographer's name. If there is more than one creator, separate"
+" them with a ``;`` character."
+msgstr ""
+
+msgid ""
+"`Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#creators-jobtitle>`_"
+msgstr ""
+
+msgid ""
+"Job title of the first creator. Do not fill in this field unless the creator"
+" field is filled in."
+msgstr ""
+
+msgid ""
+"`Credit Line <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#credit-line>`_"
+msgstr ""
+
+msgid "Usually the photographer's name, but could be their employer or client."
+msgstr ""
+
+msgid ""
+"`Copyright Notice <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#copyright-notice>`_"
+msgstr ""
+
+msgid "Who owns the copyright."
+msgstr ""
+
+msgid ""
+"`Rights: Usage Terms <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#rights-usage-terms>`_"
+msgstr ""
+
+msgid "Plain text summary of how the image may be reused. Not stored in IPTC-IIM."
+msgstr ""
+
+msgid ""
+"`Rights: Web Statement <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#web-statement-of-rights>`_"
+msgstr ""
+
+msgid ""
+"URL of a web page describing the usage rights of an image. `All rights "
+"reserved`_ is shown for any image with no URL set. Not stored in IPTC-IIM."
+msgstr ""
+
+msgid ""
+"`Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#instructions>`_"
+msgstr ""
+
+msgid "Notes to a publisher of the image."
+msgstr ""
+
+msgid ""
+"`Contact Information <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#licensor>`_"
+msgstr ""
+
+msgid ""
+"The IPTC standard allows up to three licensors, but Photini only uses one. "
+"Any more licensors in a file will be deleted when Photini saves metadata to "
+"the file. The IPTC also includes a second telephone number field and the "
+"option to specify the number type (mobile, fax(!), ...). Photini will also "
+"delete this information if it is present in a file."
+msgstr ""
+
+msgid "Pixelfed uploader"
+msgstr ""
+
+msgid ""
+"The ``Pixelfed upload`` tab (keyboard shortcut ``Alt+P``) allows you to "
+"upload your photographs to Pixelfed_, an open source decentralised photo "
+"sharing system. Pixelfed is built on the same federated publishing system as"
+" Mastodon_ and the uploader can also be used with Mastodon, but with some "
+"features disabled."
+msgstr ""
+
+msgid ""
+"Note that the Pixelfed upload tab is only enabled if you have installed some"
+" extra software packages. See :ref:`installation <installation-optional>` "
+"for more detail."
+msgstr ""
+
+msgid ""
+"Initially most of the Pixelfed uploader tab is disabled. It's only usable "
+"after you've authorised Photini to access your Pixelfed account by clicking "
+"the ``Log in`` button."
+msgstr ""
+
+msgid ""
+"The first time you click ``Log in`` Photini asks you to choose a Pixelfed "
+"\"instance\" (or server) where you have an account. Photini already knows a "
+"few popular instances, but you can choose another by putting its domain name"
+" in the ``other`` box."
+msgstr ""
+
+msgid ""
+"After choosing an instance Photini opens a page in your web browser where "
+"you can log in to your Pixelfed account and then authorise Photini to access"
+" it."
+msgstr ""
+
+msgid ""
+"If the authorisation is successful Photini displays your Pixelfed user name "
+"and profile picture. You should not need to redo this authorisation process "
+"unless you click the ``Log out`` button."
+msgstr ""
+
+msgid ""
+"After logging in most of the Pixelfed uploader interface is enabled. However"
+" some features remain disabled if they are not available with the software "
+"version running on the chosen instance."
+msgstr ""
+
+msgid ""
+"When you select some pictures to upload they are shown in the column to the "
+"right of your user details. The number of pictures you can upload in one go "
+"depends on the instance. Pixelfed instances usually allow twelve, but "
+"Mastodon instances only allow four."
+msgstr ""
+
+msgid ""
+"The pictures are uploaded, and should be displayed on Pixelfed, in the order"
+" you selected them. Using the ``Ctrl`` key while clicking in the image "
+"selector area allows you to choose them one at a time."
+msgstr ""
+
+msgid ""
+"The ``Generate`` button creates a caption for the uploaded pictures based on"
+" their title, headline, description, and keywords metadata."
+msgstr ""
+
+msgid ""
+"You will almost certainly want to edit the generated text to make a good "
+"caption."
+msgstr ""
+
+msgid ""
+"If you want to hide your pictures from users until they choose to see them "
+"(e.g. if the pictures are \"not suitable for work\") you can check "
+"``Sensitive post`` and optionally write some text in the ``Spoiler`` box. "
+"You can add the post to up to three of your \"collections\" by checking "
+"their tick-boxes."
+msgstr ""
+
+msgid ""
+"Clicking the ``Start upload`` button uploads each picture and then posts a "
+"Pixelfed \"status\" with your pictures and caption."
+msgstr ""
+
+msgid ""
+"If your Pixelfed account settings have ``require media descriptions`` set "
+"then Photini will warn you if the picture you are uploading does not have "
+"\"alt text\" set. (See :doc:`descriptive_metadata` for more about alt text.)"
+" You can abort the upload and edit your photograph's alt text, or you can "
+"carry on and upload without alt text."
+msgstr ""
+
+msgid ""
+"If you add alt text later on you can use the ``Update remote`` button to "
+"copy the updated alt text to a previously uploaded picture. This is not "
+"available on Mastodon instances, and your updated alt text might not "
+"propagate to all federated instances if they have already cached your "
+"picture."
+msgstr ""
+
+msgid ""
+"Mastodon uses \"`focal points`_\" when cropping images. If you define a "
+"cropping region in Photini's :doc:`regions` tab, the centre of that region "
+"will be used as the focal point. Ipernity currently ignores the focal point "
+"parameter."
+msgstr ""
+
+msgid ""
+"Pixelfed instances have maximum allowed image sizes, both pixel count and "
+"bytes in the file. If your image is too large, and is in a format Photini "
+"can process, Photini will offer to resize it for you. For best picture "
+"quality Photini will use Pillow_ if it is installed."
+msgstr ""
+
+msgid "Image regions"
+msgstr ""
+
+msgid ""
+"The ``Image regions`` tab (keyboard shortcut ``Alt+R``) allows you to select"
+" part of a picture and label it with metadata. This can be useful to "
+"identify people in a photograph, or to mark which part of the photograph "
+"should remain visible if the image is cropped. The `IPTC User Guide`_ "
+"discusses possible uses of image regions in more detail."
+msgstr ""
+
+msgid "The user interface is disabled until one image file is selected."
+msgstr ""
+
+msgid ""
+"The image is shown on the right hand side in a scrollable area. On the left "
+"are one or more tabs showing metadata for each image region."
+msgstr ""
+
+msgid ""
+"To create a new region, right-click on the region info tab bar and select "
+"the region shape. This same context menu can also be used to delete regions."
+msgstr ""
+
+msgid "The new region is initially placed at the centre of the image."
+msgstr ""
+
+msgid ""
+"The small squares at each corner of the rectangle can be dragged to change "
+"the size and shape. The entire region can be dragged by clicking within it."
+msgstr ""
+
+msgid ""
+"The most important metadata for a region is probably its \"role\". This is "
+"chosen from a \"`controlled vocabulary`_\" defined by the IPTC. Photini "
+"shows the IPTC names and definitions (as \"tooltips\") in a drop down menu "
+"when you click on the ``Role`` entry. You can select one or more roles from "
+"the list."
+msgstr ""
+
+msgid ""
+"Other, less useful, metadata includes a name and identifier for the region. "
+"The ``Content type`` is another controlled vocabulary that allows you to say"
+" what's special about the selected area. The most useful of these is "
+"probably ``human``."
+msgstr ""
+
+msgid ""
+"The IPTC specification allows any other metadata to be attached to a region."
+" Photini includes ``Person shown`` and ``Description``, which I think are "
+"most likely to be useful. Rectangular subject area regions with a "
+"description or person's name attached are used by the :doc:`flickr` and "
+":doc:`ipernity` to create \"notes\". Please let me know if there is anything"
+" you would like to be added."
+msgstr ""
+
+msgid ""
+"It can be useful to set cropping regions for an image. Many social media web"
+" sites crop images, typically to square or 16:9 aspect ratio landscape. This"
+" often causes problems such as decapitated bodies."
+msgstr ""
+
+msgid ""
+"The polygon region is initially a triangle shape. Right-clicking on one of "
+"its vertices allows a vertex to be added or deleted."
+msgstr ""
+
+msgid "A vertex can also be added by right-clicking anywhere within the polygon."
+msgstr ""
+
+msgid ""
+"Vertices can be added to make shapes of arbitrary complexity. Is this useful"
+" for anything?"
+msgstr ""
+
+msgid "Tag reference"
+msgstr ""
+
+msgid ""
+"This section lists the \"mapping\" from Photini's field names (such as "
+"\"Title / Object Name\") to the Exif / XMP / IPTC-IIM tags the data is "
+"stored in. The tag names are those used by the Exiv2 library. See "
+"http://exiv2.org/metadata.html for more detail."
+msgstr ""
+
+msgid ""
+"As far as possible Photini follows the `Metadata Working Group "
+"<https://en.wikipedia.org/wiki/Metadata_Working_Group>`_ (MWG) \"Guidelines "
+"for Handling Image Metadata\". These specify the mapping between tags in "
+"Exif, XMP and IPTC-IIM, and say how software should reconcile any "
+"differences between information stored in equivalent tags."
+msgstr ""
+
+msgid "Primary tags"
+msgstr ""
+
+msgid ""
+"These tags are where Photini stores its metadata. (Legacy IPTC-IIM data is "
+"only used if it already exists in the file, in line with the MWG guidelines,"
+" unless the \"write unconditionally\" user setting is enabled.)"
+msgstr ""
+
+msgid ""
+"Note that some fields, such as \"Title / Object Name\" and \"Keywords\", are"
+" not stored in Exif. You may prefer not to use these fields to ensure "
+"compatibility with software that only handles Exif."
+msgstr ""
+
+msgid ""
+"Some of the field names in the table below lingk to their definition in the "
+"IPTC standard. You may find this useful when deciding what to write in those"
+" fields."
+msgstr ""
+
+msgid "Photini field"
+msgstr ""
+
+msgid "Exif tag"
+msgstr ""
+
+msgid "XMP tag"
+msgstr ""
+
+msgid "IPTC-IIM tag"
+msgstr ""
+
+msgid "`Title / Object Name`_"
+msgstr ""
+
+msgid "Xmp.dc.title"
+msgstr ""
+
+msgid "Iptc.Application2.ObjectName"
+msgstr ""
+
+msgid "Headline_"
+msgstr ""
+
+msgid "Xmp.photoshop.Headline"
+msgstr ""
+
+msgid "Iptc.Application2.Headline"
+msgstr ""
+
+msgid "`Description / Caption`_"
+msgstr ""
+
+msgid "Exif.Image.ImageDescription"
+msgstr ""
+
+msgid "Xmp.dc.description"
+msgstr ""
+
+msgid "Iptc.Application2.Caption"
+msgstr ""
+
+msgid "`Alt Text`_"
+msgstr ""
+
+msgid "Xmp.iptc.AltTextAccessibility"
+msgstr ""
+
+msgid "`Extended Description`_"
+msgstr ""
+
+msgid "Xmp.iptc.ExtDescrAccessibility"
+msgstr ""
+
+msgid "Keywords_"
+msgstr ""
+
+msgid "Xmp.dc.subject"
+msgstr ""
+
+msgid "Iptc.Application2.Keywords"
+msgstr ""
+
+msgid "Rating_"
+msgstr ""
+
+msgid "Xmp.xmp.Rating"
+msgstr ""
+
+msgid "Creator_"
+msgstr ""
+
+msgid "Exif.Image.Artist"
+msgstr ""
+
+msgid "Xmp.dc.creator"
+msgstr ""
+
+msgid "Iptc.Application2.Byline"
+msgstr ""
+
+msgid "`Creator's Jobtitle`_"
+msgstr ""
+
+msgid "Xmp.photoshop.AuthorsPosition"
+msgstr ""
+
+msgid "Iptc.Application2.BylineTitle"
+msgstr ""
+
+msgid "`Credit Line`_"
+msgstr ""
+
+msgid "Xmp.photoshop.Credit"
+msgstr ""
+
+msgid "Iptc.Application2.Credit"
+msgstr ""
+
+msgid "`Copyright Notice`_"
+msgstr ""
+
+msgid "Exif.Image.Copyright"
+msgstr ""
+
+msgid "Xmp.dc.rights"
+msgstr ""
+
+msgid "Iptc.Application2.Copyright"
+msgstr ""
+
+msgid "`Rights: Usage Terms`_"
+msgstr ""
+
+msgid "Xmp.xmpRights.UsageTerms"
+msgstr ""
+
+msgid "`Rights: Web Statement`_"
+msgstr ""
+
+msgid "Xmp.xmpRights.WebStatement"
+msgstr ""
+
+msgid "Instructions_"
+msgstr ""
+
+msgid "Xmp.photoshop.Instructions"
+msgstr ""
+
+msgid "Iptc.Application2.SpecialInstructions"
+msgstr ""
+
+msgid "`Contact Information`_"
+msgstr ""
+
+msgid "Xmp.plus.Licensor"
+msgstr ""
+
+msgid "Iptc.Application2.Contact"
+msgstr ""
+
+msgid "`Date / time Taken`_"
+msgstr ""
+
+msgid "Exif.Photo.DateTimeOriginal Exif.Photo.SubSecTimeOriginal"
+msgstr ""
+
+msgid "Xmp.photoshop.DateCreated"
+msgstr ""
+
+msgid "Iptc.Application2.DateCreated Iptc.Application2.TimeCreated"
+msgstr ""
+
+msgid "Date / time Digitised"
+msgstr ""
+
+msgid "Exif.Photo.DateTimeDigitized Exif.Photo.SubSecTimeDigitized"
+msgstr ""
+
+msgid "Xmp.xmp.CreateDate"
+msgstr ""
+
+msgid "Iptc.Application2.DigitizationDate Iptc.Application2.DigitizationTime"
+msgstr ""
+
+msgid "Date / time Modified"
+msgstr ""
+
+msgid "Exif.Image.DateTime Exif.Photo.SubSecTime"
+msgstr ""
+
+msgid "Xmp.xmp.ModifyDate"
+msgstr ""
+
+msgid "Orientation"
+msgstr ""
+
+msgid "Exif.Image.Orientation"
+msgstr ""
+
+msgid "Camera"
+msgstr ""
+
+msgid "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
+msgstr ""
+
+msgid "Lens"
+msgstr ""
+
+msgid ""
+"Exif.Photo.LensMake Exif.Photo.LensModel Exif.Photo.LensSerialNumber "
+"Exif.Photo.LensSpecification"
+msgstr ""
+
+msgid "Focal length"
+msgstr ""
+
+msgid "Exif.Photo.FocalLength"
+msgstr ""
+
+msgid "35mm equiv"
+msgstr ""
+
+msgid "Exif.Photo.FocalLengthIn35mmFilm"
+msgstr ""
+
+msgid "Aperture"
+msgstr ""
+
+msgid "Exif.Photo.FNumber Exif.Photo.ApertureValue"
+msgstr ""
+
+msgid "`Image Regions`_"
+msgstr ""
+
+msgid "Xmp.iptcExt.ImageRegion"
+msgstr ""
+
+msgid "Latitude_, longitude_"
+msgstr ""
+
+msgid ""
+"Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLatitudeRef "
+"Exif.GPSInfo.GPSLongitude Exif.GPSInfo.GPSLongitudeRef"
+msgstr ""
+
+msgid "Altitude_"
+msgstr ""
+
+msgid "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
+msgstr ""
+
+msgid "`Camera address`_"
+msgstr ""
+
+msgid ""
+"Xmp.iptcExt.LocationCreated Xmp.iptc.Location Xmp.photoshop.City "
+"Xmp.photoshop.State Xmp.photoshop.Country Xmp.iptc.CountryCode"
+msgstr ""
+
+msgid ""
+"Iptc.Application2.SubLocation Iptc.Application2.City "
+"Iptc.Application2.ProvinceState Iptc.Application2.CountryName "
+"Iptc.Application2.CountryCode"
+msgstr ""
+
+msgid "`Subject address`_"
+msgstr ""
+
+msgid "Xmp.iptcExt.LocationShown"
+msgstr ""
+
+msgid "Thumbnail image"
+msgstr ""
+
+msgid ""
+"Exif.Thumbnail.Compression Exif.Thumbnail.ImageWidth "
+"Exif.Thumbnail.ImageLength"
+msgstr ""
+
+msgid "Secondary tags"
+msgstr ""
+
+msgid ""
+"Photini may read information from these tags and merge it with information "
+"from the primary tags. These tags are deleted when the corresponding primary"
+" tags are saved."
+msgstr ""
+
+msgid "Title / Object Name"
+msgstr ""
+
+msgid "Exif.Image.XPTitle"
+msgstr ""
+
+msgid "Description / Caption"
+msgstr ""
+
+msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
+msgstr ""
+
+msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
+msgstr ""
+
+msgid "Keywords"
+msgstr ""
+
+msgid "Exif.Image.XPKeywords"
+msgstr ""
+
+msgid "Rating"
+msgstr ""
+
+msgid "Exif.Image.Rating Exif.Image.RatingPercent"
+msgstr ""
+
+msgid "Xmp.MicrosoftPhoto.Rating"
+msgstr ""
+
+msgid "Creator"
+msgstr ""
+
+msgid "Exif.Image.XPAuthor"
+msgstr ""
+
+msgid "Xmp.tiff.Artist"
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "Xmp.tiff.Copyright"
+msgstr ""
+
+msgid "Contact Information"
+msgstr ""
+
+msgid "Xmp.iptc.CreatorContactInfo"
+msgstr ""
+
+msgid "Date / time Taken"
+msgstr ""
+
+msgid "Exif.Image.DateTimeOriginal"
+msgstr ""
+
+msgid "Xmp.exif.DateTimeOriginal"
+msgstr ""
+
+msgid "Xmp.exif.DateTimeDigitized"
+msgstr ""
+
+msgid "Xmp.tiff.DateTime"
+msgstr ""
+
+msgid "Exif.Image.LensInfo"
+msgstr ""
+
+msgid "Xmp.aux.Lens"
+msgstr ""
+
+msgid "Exif.Image.FocalLength"
+msgstr ""
+
+msgid "Exif.Image.FNumber Exif.Image.ApertureValue"
+msgstr ""
+
+msgid "Xmp.xmp.Thumbnails[n]/xapGImg"
+msgstr ""
+
+msgid "XMP only tags"
+msgstr ""
+
+msgid ""
+"These tags are read if present, but are only written if the file format "
+"doesn't support Exif, e.g. an XMP sidecar."
+msgstr ""
+
+msgid "Xmp.tiff.Orientation"
+msgstr ""
+
+msgid ""
+"Xmp.exifEX.LensMake Xmp.exifEX.LensModel Xmp.exifEX.LensSerialNumber "
+"Xmp.exifEX.LensSpecification"
+msgstr ""
+
+msgid "Xmp.exif.FocalLength"
+msgstr ""
+
+msgid "Xmp.exif.FocalLengthIn35mmFilm"
+msgstr ""
+
+msgid "Xmp.exif.FNumber Xmp.exif.ApertureValue"
+msgstr ""
+
+msgid "Latitude, longitude"
+msgstr ""
+
+msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
+msgstr ""
+
+msgid "Altitude"
+msgstr ""
+
+msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
+msgstr ""
+
+msgid "Xmp.xmp.Thumbnails[n]/xmpGImg"
+msgstr ""
+
+msgid "Read only tags"
+msgstr ""
+
+msgid ""
+"Photini may read information from these tags and merge it with information "
+"from the primary tags. These tags are not deleted when the corresponding "
+"primary tags are saved."
+msgstr ""
+
+msgid "Xmp.video.StreamName"
+msgstr ""
+
+msgid "Xmp.video.Information"
+msgstr ""
+
+msgid "Time zone offset[1]"
+msgstr ""
+
+msgid "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
+msgstr ""
+
+msgid "Xmp.video.TimeZone"
+msgstr ""
+
+msgid "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
+msgstr ""
+
+msgid ""
+"Xmp.video.DateTimeOriginal Xmp.video.CreateDate Xmp.video.CreationDate "
+"Xmp.video.DateUTC Xmp.video.MediaCreateDate Xmp.video.TrackCreateDate"
+msgstr ""
+
+msgid ""
+"Xmp.video.ModificationDate Xmp.video.MediaModifyDate "
+"Xmp.video.TrackModifyDate"
+msgstr ""
+
+msgid ""
+"Exif.Image.CameraSerialNumber Exif.Image.UniqueCameraModel "
+"Exif.Canon.ModelID Exif.Canon.SerialNumber Exif.Fujifilm.SerialNumber "
+"Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType "
+"Exif.OlympusEq.SerialNumber Exif.Pentax.ModelID Exif.Pentax.SerialNumber"
+msgstr ""
+
+msgid "Xmp.aux.SerialNumber Xmp.video.Make Xmp.video.Model"
+msgstr ""
+
+msgid ""
+"Exif.Canon.LensModel Exif.CanonCs.Lens Exif.CanonCs.LensType "
+"Exif.Nikon3.Lens Exif.NikonLd1.LensIDNumber Exif.NikonLd2.LensIDNumber "
+"Exif.NikonLd3.LensIDNumber Exif.OlympusEq.LensModel "
+"Exif.OlympusEq.LensSerialNumber"
+msgstr ""
+
+msgid "Image Regions"
+msgstr ""
+
+msgid "Exif.Photo.SubjectArea"
+msgstr ""
+
+msgid "Xmp.video.GPSCoordinates"
+msgstr ""
+
+msgid "Exif.SubImage*"
+msgstr ""
+
+msgid ""
+"[1] The time zone offset is not directly presented to the user. It is "
+"applied to the Date / time Taken, Date / time Digitised and Date / time "
+"Modified fields if no other time zone information is available."
+msgstr ""
+
+msgid "Technical metadata"
+msgstr ""
+
+msgid ""
+"The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you to "
+"edit 'technical' information about your photographs, such as the date & time"
+" they were taken and the lens that was used (if your camera has "
+"interchangable lenses). You can also set the image orientation, which is "
+"useful if your camera doesn't set it correctly. (This often happens to me "
+"when taking pictures looking almost straight up or down.) I also like to set"
+" the time zone of all my pictures, especially when I'm holidaying in another"
+" country."
+msgstr ""
+
+msgid ""
+"The GUI shows three date/time entries - ``taken``, ``digitised`` and "
+"``modified``. These are often the same, and are linked by the ``link ...`` "
+"check boxes. These allow you to change all three when you change the "
+"``taken`` date/time."
+msgstr ""
+
+msgid ""
+"You may wish to unlink the three entries and adjust the dates or times "
+"separately. For example, you could use the ``modified`` entry to note when "
+"you have edited the metadata with Photini. If you scan some old photographs "
+"you should set the ``taken`` entry to when the photographs were taken and "
+"the ``digitised`` entry to when you scanned them."
+msgstr ""
+
+msgid ""
+"The date can be picked from a calendar widget that pops up when you click on"
+" the down arrow in a date/time entry. Clicking on any of the numbers allows "
+"them to be adjusted with your keyboard up & down arrow keys. You can also "
+"double click on any of the numbers to select it and type a new value in "
+"directly. Selecting all the numbers, e.g. with ``Ctrl+A``, allows them to be"
+" deleted which removes the date & time metadata from the photograph(s)."
+msgstr ""
+
+msgid ""
+"To the right of each date/time is a widget to adjust the time zone. The time"
+" a photograph was taken is assumed to be \"local time\". The time zone "
+"records how many hours & minutes offset from UTC (or GMT) the local time "
+"zone was when the photograph was taken, digitised or modified."
+msgstr ""
+
+msgid ""
+"The ``Adjust times`` field allows a constant offset to be applied to the "
+"``taken`` time stamps of several pictures at once. (The other time stamps "
+"are also adjusted if the ``link ...`` boxes are checked.) This can be useful"
+" if you are in a different time zone to your camera's setting or you forgot "
+"to set your camera's clock before a day's shooting! Set the required offset "
+"hours, minutes & seconds, then use the ``+`` or ``-`` button to add or "
+"subtract that amount from each selected picture's timestamp."
+msgstr ""
+
+msgid ""
+"You can also offset the time zone. In this example my camera clock was set "
+"to British Summer Time (+01:00) but records timestamps without zone "
+"information. I was on holiday in mainland Europe (+02:00) so I need to add 1"
+" hour to each timestamp and 2 hours to the time zone. The ``Adjust times`` "
+"values are stored in Photini's configuration file, so each day's photos can "
+"be given the same offset with just one button click."
+msgstr ""
+
+msgid ""
+"Below each date/time is a slider that allows you to set the precision. At "
+"its maximum value the time is shown to a precision of 1 millisecond. Cameras"
+" that can take more than one photograph per second need this precision! "
+"Moving the slider to the left removes parts of the date & time. This is "
+"useful for scans of old photographs where, for example, you might only know "
+"the year and month it was taken in. Setting the precision allows you to "
+"record this uncertainty."
+msgstr ""
+
+msgid ""
+"The ``Orientation`` value sets the required rotation or reflection to "
+"display the image. Note that this does not actually transform the image "
+"data. Image display programs should rotate or reflect the image according to"
+" the orientation metadata, but not all of them do."
+msgstr ""
+
+msgid ""
+"The ``Camera`` dropdown list shows the camera model and serial number, if "
+"known. You can choose a different camera from the list, or click on "
+"``<new>`` to add another camera."
+msgstr ""
+
+msgid ""
+"It is quite common for the maker's name to appear in the model name, as "
+"shown here, but it doesn't have to. The serial number is optional, but could"
+" be useful if you have more than one of the same model of camera."
+msgstr ""
+
+msgid ""
+"After changing the camera you may see this warning message. The makernote_ "
+"is a block of proprietary data stored in a photograph's Exif metadata. If "
+"you change the camera maker then other software (such as the libexiv2 "
+"package used by Photini) may no longer be able to decode the makernote. "
+"Deleting the makernote prevents any such errors, but if you have any "
+"proprietary software that uses the makernote it may no longer work "
+"correctly."
+msgstr ""
+
+msgid ""
+"The ``Lens model`` dropdown list allows you to change the lens specification"
+" stored in the image metadata. This should not usually be changed for "
+"cameras with non-removable lenses, but may be useful if you have an SLR that"
+" you use with lenses that its electronics doesn't recognise."
+msgstr ""
+
+msgid ""
+"This is particularly useful if you use your camera with 3rd party lenses "
+"and/or telescopes via a T-thread adaptor. My adaptor identifies itself to "
+"the camera as a 50mm f/1.8 lens. Here I've used it with my 500mm mirror lens"
+" to take some pictures of the moon."
+msgstr ""
+
+msgid ""
+"Selecting ``<new>`` from the dropdown list allows me to enter details of my "
+"mirror lens. As it is not a zoom lens there is no need to fill in the "
+"maximum focal length details. Only the ``Model name`` and ``Minimum focal "
+"length`` are required information."
+msgstr ""
+
+msgid ""
+"The data you enter is stored in the Photini configuration file so you can "
+"easily apply it to images in future by selecting the lens you have defined "
+"from the dropdown list."
+msgstr ""
+
+msgid ""
+"When the lens model is changed Photini offers the option to adjust the focal"
+" length and aperture used for each image, if the current values are "
+"inconsistent with the new lens. In this case I definitely do want to update "
+"these parameters so I click on ``Yes``."
+msgstr ""
+
+msgid ""
+"When the mouse pointer is held over the lens model dropdown for a few "
+"seconds a \"tooltip\" shows the focal length and aperture details of the "
+"lens. This can be useful if they're not obvious from the lens model name."
+msgstr ""
+
+msgid ""
+"To remove a lens from the list right-click on the list to bring up its "
+"context menu. This includes options to delete any lens but the one currently"
+" in use."
+msgstr ""
+
+msgid ""
+"The ``35mm equiv`` field shows the \"`35mm equivalent focal length "
+"<https://en.wikipedia.org/wiki/35_mm_equivalent_focal_length>`_\" of the "
+"actual focal length. These two numbers are related by the camera's \"`crop "
+"factor <https://en.wikipedia.org/wiki/Crop_factor>`_\". Some cameras store "
+"both focal length numbers in the image metadata. In this case both numbers "
+"are shown normally. If the 35mm equivalent focal length is not present "
+"Photini attempts to calculate it from the actual focal length and other "
+"metadata. These calculated values are shown in faint text."
+msgstr ""
+
+msgid ""
+"If you know your camera's crop factor you can correct Photini's calculation "
+"by typing in the correct 35mm equivalent focal length. Photini will then "
+"store the crop factor for that camera model in its config file for future "
+"use."
+msgstr ""
+
+msgid ""
+"If you don't want to store the 35mm equivalent focal length you entered in "
+"the photograph's metadata you can undo the edit by reloading the metadata. "
+"Right-click on the thumbnail and select ``reload file`` from the context "
+"menu."
+msgstr ""
+
+msgid ""
+"Now the 35mm equivalent focal length is computed using the correct crop "
+"factor."
+msgstr ""
+
+msgid "Video file handling"
+msgstr ""
+
+msgid ""
+"Although designed primarily for use with still images Photini can also be "
+"used with video files. The :doc:`image_selector` ``Open images`` dialogue "
+"normally shows image files only (``.jpg``, ``.gif``, etc.) but has a drop "
+"down selector to choose video files (``.mov``, ``.mp4``, etc.) instead, or "
+"all file types."
+msgstr ""
+
+msgid ""
+"The Exiv2_ metadata library cannot write to video files, so Photini will "
+"always use XMP sidecars for the metadata you write. Video files can also be "
+"rather large, so rewriting them could take some time. Photini can read some "
+"metadata from video files if you have installed FFmpeg_ on your computer. "
+"(See :ref:`installation - optional dependencies<installation-optional>`.)"
+msgstr ""
+
+msgid ""
+"Most video files don't have thumbnails, but Photini may be able to create "
+"one if you have FFmpeg_ installed on your computer. Right-click on the file "
+"and choose ``regenerate thumbnail`` from the popup menu. If Photini is able "
+"to generate a thumbnail it will store it in the XMP sidecar file."
+msgstr ""
+
+msgid ""
+"The :doc:`flickr` tab can upload video files, but expect it to be slow. "
+"Video files can be very large."
+msgstr ""
+
+msgid "Change Log"
+msgstr ""
+
+msgid "GNU Free Documentation License"
+msgstr ""
+
+msgid ""
+"The Photini documentation is licensed under the GNU Free Documentation "
+"License."
+msgstr ""
+
+msgid "Miscellaneous"
+msgstr ""
+
+msgid "GNU General Public License"
+msgstr ""
+
+msgid "The Photini software is licensed under the GNU General Public License."
+msgstr ""
+
+msgid "Installation"
+msgstr ""
+
+msgid ""
+"Installation of Photini is done in two parts - first install Python, then "
+"use Python to install and run Photini."
+msgstr ""
+
+msgid "Installing Python"
+msgstr ""
+
+msgid ""
+"Python_ is absolutely essential to run Photini. It is already installed on "
+"many computers, but on Windows you will probably need to install it "
+"yourself."
+msgstr ""
+
+msgid "Linux/MacOS"
+msgstr ""
+
+msgid ""
+"Python should already be installed, but make sure you have Python |nbsp| 3. "
+"Open a terminal window and run the ``python3`` command::"
+msgstr ""
+
+msgid ""
+"Note that the command is ``python3``. On many machines the ``python`` "
+"command still runs Python |nbsp| 2. If you do not have Python |nbsp| 3 "
+"installed then use your operating system's package manager to install it."
+msgstr ""
+
+msgid "You should also check what version of pip_ is installed::"
+msgstr ""
+
+msgid ""
+"Most Linux systems suppress pip's normal version check, but I recommend "
+"upgrading pip anyway::"
+msgstr ""
+
+msgid ""
+"Note that pip has installed the new version in ``/home/jim/.local`` as "
+"normal users can't write to ``/usr``. (Don't be tempted to get round this by"
+" using ``sudo`` to run pip. ``/usr`` should only be written by the operating"
+" system's package manager.) You may need to log out and then log in again to"
+" update your PATH settings."
+msgstr ""
+
+msgid "Running ``pip --version`` again shows the new version::"
+msgstr ""
+
+msgid "Windows"
+msgstr ""
+
+msgid ""
+"I suggest reading `Using Python on Windows`_ before you begin. Go to "
+"https://www.python.org/downloads/windows/ and choose a suitable Python "
+"|nbsp| 3 installer. Use the 64-bit stable release with the highest version "
+"number that will run on your version of Windows. Beware of using very new "
+"releases though, as some dependencies may not have been updated to work with"
+" the latest Python."
+msgstr ""
+
+msgid ""
+"When you run the Python installer make sure you select the \"add Python to "
+"PATH\" option. If you customise your installation then make sure you still "
+"select \"pip\". If you would like other users to be able to run Photini then"
+" you need to install Python for all users (in the \"Advanced Options\" part "
+"of customised installation)."
+msgstr ""
+
+msgid ""
+"After installing Python, start a command window such as ``cmd.exe``. Now try"
+" running pip_::"
+msgstr ""
+
+msgid ""
+"As suggested, you should upgrade pip now. (If you installed Python for all "
+"users you will need to run the shell as administrator.) Note that ``pip`` "
+"must be run as ``python -m pip`` when upgrading itself::"
+msgstr ""
+
+msgid "Installing Photini"
+msgstr ""
+
+msgid ""
+"Before installing Photini you need to decide if you are installing it for a "
+"single user or for multiple users. Multi-user installations use a Python "
+"`virtual environment`_ to create a self contained installation that can "
+"easily be shared. Using a virtual environment has other advantages, such as "
+"easy uninstallation, so you could also use it for a single user "
+"installation."
+msgstr ""
+
+msgid ""
+"Linux & MacOS users have another decision to make - whether to install "
+"Photini's dependencies with pip_ or with the operating system's package "
+"manager. For a good introduction to the advantages and disadvantages of each"
+" I suggest reading `Managing Python packages the right way`_. All of "
+"Photini's dependencies can be installed with pip_, but I recommend "
+"installing PySide6 / PySide2 / PyQt6 / PyQt5 (whichever is available) with "
+"the package manager to ensure you install all of its system libraries and "
+"plugins, and so that you get the same GUI style as other Qt based "
+"applications."
+msgstr ""
+
+msgid "Virtual environment"
+msgstr ""
+
+msgid ""
+"If you are using a virtual environment you should set it up now. I use the "
+"name ``photini`` and create it in my home directory:"
+msgstr ""
+
+msgid ""
+"Note that pip may need to be updated again from within the virtual "
+"environment. The Linux/MacOS option ``--system-site-packages`` makes "
+"packages installed with the system package manager (e.g. PySide6 / PySide2 /"
+" PyQt6 / PyQt5) available within the virtual environment. You should stay in"
+" this virtual environment while installing and testing Photini."
+msgstr ""
+
+msgid "Initial installation"
+msgstr ""
+
+msgid ""
+"The ``photini-configure`` post installation script can be used to install "
+"most dependencies and configure Photini to use them."
+msgstr ""
+
+msgid "Firstly install Photini with pip_:"
+msgstr ""
+
+msgid "Now run the ``photini-configure`` command to choose which Qt package to use:"
+msgstr ""
+
+msgid ""
+"The command asks a series of questions, then runs pip_ to install any extra "
+"dependencies that are needed, then updates your Photini configuration file."
+msgstr ""
+
+msgid "Test the installation"
+msgstr ""
+
+msgid "Now you should be able to run photini:"
+msgstr ""
+
+msgid ""
+"Photini should run successfully, but it lists some optional dependencies "
+"that are not installed. These provide additional features, for example the "
+"Flickr uploader, that not all users will need to install."
+msgstr ""
+
+msgid "Missing system packages"
+msgstr ""
+
+msgid ""
+"On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run "
+"if you've installed PySide2 or PySide6 with pip_ instead of the system's "
+"package manager. In this case it may be worth doing a web search for the "
+"error messages you get. For example, failing to load a Qt plugin (on Debian)"
+" can be cured by installing just one system package (``libxcb-xinerama0``) "
+"but the error message doesn't tell you that!"
+msgstr ""
+
+msgid "Optional dependencies"
+msgstr ""
+
+msgid ""
+"Most of the dependencies required for Photini's optional features can also "
+"be installed with ``photini-configure``:"
+msgstr ""
+
+msgid ""
+"Photini's spelling checker may require some other files to be installed. See"
+" the `pyenchant documentation`_ for platform specific instructions."
+msgstr ""
+
+msgid ""
+"One optional dependency that cannot be installed with pip_ or ``photini-"
+"configure`` is FFmpeg_. This is used to read metadata from video files. "
+"Linux & MacOS users can install it with the system package manager, but "
+"installing it on Windows is non-trivial."
+msgstr ""
+
+msgid "Start menu / application menu"
+msgstr ""
+
+msgid ""
+"Although you can run Photini from a command shell, most users would probably"
+" prefer to use the start/application menu or a desktop icon. These can be "
+"installed with the ``photini-post-install`` command:"
+msgstr ""
+
+msgid "Additional users"
+msgstr ""
+
+msgid ""
+"If you have installed Photini in a virtual environment then other users "
+"should be able to run the ``photini`` command using its full path. (On "
+"Windows you will need to share the virtual environment top level directory "
+"first.)"
+msgstr ""
+
+msgid ""
+"This is not a very convenient way to run Photini, so most users will want to"
+" add it to their start/application menu:"
+msgstr ""
+
+msgid ""
+"To install Photini menu shortcuts for all users you can run the post install"
+" command as root (Linux) or in a command window run as administrator "
+"(Windows). It is important to use the full path to the post install command:"
+msgstr ""
+
+msgid "Uninstalling Photini"
+msgstr ""
+
+msgid ""
+"Before removing Photini you should use the ``photini-post-install`` command "
+"to remove it from the start/application menu:"
+msgstr ""
+
+msgid ""
+"If you used a virtual environment you can simply delete the top level "
+"directory created when setting up the virtual environment. Otherwise you can"
+" use pip to uninstall Photini and as many of its dependencies as you want to"
+" remove:"
+msgstr ""
+
+msgid "Updating Photini"
+msgstr ""
+
+msgid ""
+"When a new release of Photini is issued you can easily update your "
+"installation with pip_:"
+msgstr ""
+
+msgid ""
+"The ``-U`` option tells pip to update Photini to the latest available "
+"version."
+msgstr ""
+
+msgid ""
+"If you upgrade Python you shouldn't need to reinstall Photini or its "
+"dependencies if only the patch level changes (e.g. 3.8.9 to 3.8.10). After a"
+" more significant Python upgrade (e.g. 3.7.x to 3.8.y) you will need to do a"
+" fresh installation of Photini and its dependencies."
+msgstr ""
+
+msgid "Dependency details"
+msgstr ""
+
+msgid ""
+"These lists of dependencies may be useful to Linux or MacOS users who prefer"
+" to use their system package manager to install them instead of pip_. Note "
+"that in some cases you have a choice of packages, as discussed in the notes "
+"below each table."
+msgstr ""
+
+msgid ""
+"Different operating systems have different names for the same packages. If "
+"you run into problems, please let me know (email jim@jim-easterbrook.me.uk) "
+"and once we've worked out what needs to be done I'll be able to improve "
+"these instructions."
+msgstr ""
+
+msgid "Essential dependencies"
+msgstr ""
+
+msgid "These are all required for Photini to be usable."
+msgstr ""
+
+msgid "Package"
+msgstr ""
+
+msgid "Minimum version"
+msgstr ""
+
+msgid "Typical Linux package name"
+msgstr ""
+
+msgid "PyPI package name"
+msgstr ""
+
+msgid "Python_"
+msgstr ""
+
+msgid "3.6"
+msgstr ""
+
+msgid "``python3``"
+msgstr ""
+
+msgid "PyQt_ [1]"
+msgstr ""
+
+msgid "5.11"
+msgstr ""
+
+msgid "``python3-qt5`` or ``python3-pyqt5`` or ``python310-PyQt6``"
+msgstr ""
+
+msgid "PySide2_ [1]"
+msgstr ""
+
+msgid "5.11.0"
+msgstr ""
+
+msgid "``python3-pyside2``"
+msgstr ""
+
+msgid "PySide2"
+msgstr ""
+
+msgid "PySide6_ [1]"
+msgstr ""
+
+msgid "6.2.0"
+msgstr ""
+
+msgid "``python3-pyside6``"
+msgstr ""
+
+msgid "PySide6"
+msgstr ""
+
+msgid "QtWebEngine_ [2]"
+msgstr ""
+
+msgid "``python3-pyside2.qtwebengine`` or ``python310-PyQt6-WebEngine``"
+msgstr ""
+
+msgid "PyQtWebEngine"
+msgstr ""
+
+msgid "`python-exiv2`_"
+msgstr ""
+
+msgid "0.14.0"
+msgstr ""
+
+msgid "exiv2"
+msgstr ""
+
+msgid "appdirs"
+msgstr ""
+
+msgid "1.3"
+msgstr ""
+
+msgid "``python3-appdirs``"
+msgstr ""
+
+msgid "requests_"
+msgstr ""
+
+msgid "2.4"
+msgstr ""
+
+msgid "``python3-requests``"
+msgstr ""
+
+msgid "requests"
+msgstr ""
+
+msgid ""
+"[1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI "
+"framework. Photini can use any of them (although PySide2 is preferred), so "
+"you can install whichever one you prefer that is available for your "
+"operating system. If more than one of them is installed you can choose which"
+" one Photini uses by editing its :ref:`configuration file <configuration-"
+"pyqt>` or by running ``photini-configure``."
+msgstr ""
+
+msgid ""
+"[2] Photini needs the Python interface to QtWebEngine_. This is included in "
+"PySide6_ and some PyQt_ or PySide2_ installations, otherwise you need to "
+"install a separate package. The ``photini-configure`` command will tell you "
+"if it's missing."
+msgstr ""
+
+msgid ""
+"Some of Photini's features are optional - if you don't install these "
+"packages Photini will work but the relevant feature will not be available. "
+"Linux package manager names will probably have ``python-`` or ``python3-`` "
+"prefixes."
+msgstr ""
+
+msgid "Feature"
+msgstr ""
+
+msgid "Dependencies"
+msgstr ""
+
+msgid "Spell check[1]"
+msgstr ""
+
+msgid "pyenchant_ 2.0+"
+msgstr ""
+
+msgid "Flickr upload"
+msgstr ""
+
+msgid "`requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+"
+msgstr ""
+
+msgid "Ipernity upload"
+msgstr ""
+
+msgid "`requests-toolbelt`_ 0.9+, keyring_ 7.0+"
+msgstr ""
+
+msgid "Pixelfed upload"
+msgstr ""
+
+msgid "Google Photos upload"
+msgstr ""
+
+msgid "`requests-oauthlib`_ 1.0+, keyring_ 7.0+"
+msgstr ""
+
+msgid "Thumbnail creation[2]"
+msgstr ""
+
+msgid "FFmpeg_, Pillow_ 2.0+"
+msgstr ""
+
+msgid "Import photos from camera[3]"
+msgstr ""
+
+msgid "`python3-gphoto2`_ 1.8+"
+msgstr ""
+
+msgid "Import GPS logger file"
+msgstr ""
+
+msgid "gpxpy_ 1.3.5+"
+msgstr ""
+
+msgid ""
+"[1] Pyenchant requires a C library and dictionaries to be installed. See the"
+" `pyenchant documentation`_ for detailed instructions."
+msgstr ""
+
+msgid ""
+"[2] Photini can create thumbnail images using PyQt, but better quality ones "
+"can be made by installing Pillow. FFmpeg is needed to generate thumbnails "
+"for video files, but it can also make them for some still image formats."
+msgstr ""
+
+msgid ""
+"[3]Photini can import pictures from any directory on your computer (e.g. a "
+"memory card) but on Linux and MacOS systems it can also import directly from"
+" a camera if python-gphoto2 is installed."
+msgstr ""
+
+msgid "Special installations"
+msgstr ""
+
+msgid ""
+"There are some circumstances where installing Photini from the Python "
+"Package Index (PyPI_) with pip_ is not suitable. If you need easy access to "
+"the source files, for example to work on translating the user interface into"
+" another language, then you should install the development version."
+msgstr ""
+
+msgid "Development version"
+msgstr ""
+
+msgid ""
+"To install the development version you can use git to clone the `GitHub "
+"repository <https://github.com/jim-easterbrook/Photini>`_ or download it as "
+"a .zip or .tar.gz file and then unpack it. Then set your working directory "
+"to the Photini top level directory before continuing."
+msgstr ""
+
+msgid ""
+"You can run Photini without installing it, using the ``run_photini.py`` "
+"script::"
+msgstr ""
+
+msgid ""
+"This can be useful during development as the script should also work within "
+"an IDE."
+msgstr ""
+
+msgid "The development version can be built and installed using pip::"
+msgstr ""
+
+msgid ""
+"If you'd like to test or use one of Photini's translation files you will "
+"need to update and compile the translations before installing or running "
+"Photini::"
+msgstr ""
+
+msgid ""
+"This requires the Qt \"linguist\" software to be installed. See :ref"
+":`localisation-program-testing` for more information about using "
+"translations."
+msgstr ""
+
+msgid "Troubleshooting"
+msgstr ""
+
+msgid ""
+"If you ever have problems running Photini the first thing to do is to run it"
+" in a command window. If you installed Photini in a `virtual environment`_ "
+"then activate that environment, for example:"
+msgstr ""
+
+msgid ""
+"Start the Photini program as follows. If it fails to run you should get some"
+" diagnostic information:"
+msgstr ""
+
+msgid ""
+"Note the use of the ``-v`` option to increase the verbosity of Photini's "
+"message logging. This option can be repeated for even more verbosity."
+msgstr ""
+
+msgid ""
+"To find out what version of Photini and some of its dependencies you are "
+"using, run it with the ``--version`` option:"
+msgstr ""
+
+msgid ""
+"This information is useful if you need to email me (jim@jim-"
+"easterbrook.me.uk) with any problems you have running Photini."
+msgstr ""
+
+msgid "Mailing list"
+msgstr ""
+
+msgid ""
+"For more general discussion of Photini (e.g. release announcements, "
+"questions about using it, problems with installing, etc.) there is an email "
+"list or forum hosted on Google Groups. You can view previous messages and "
+"ask to join the group at https://groups.google.com/forum/#!forum/photini."
+msgstr ""
+
+msgid ""
+"If you would like to have a local copy of the Photini documentation, and "
+"have downloaded or cloned the source files, you can install Sphinx_ and "
+"associated packages and then \"compile\" the documentation::"
+msgstr ""
+
+msgid ""
+"Open ``doc/html/index.html`` with a web browser to read the local "
+"documentation."
+msgstr ""
+
+msgid "Introduction"
+msgstr ""
+
+msgid ""
+"A free, easy to use, digital photograph metadata (Exif, IPTC, XMP) editing "
+"application for Linux, Windows and MacOS."
+msgstr ""
+
+msgid ""
+"\"Metadata\" is said to mean \"data about data\". In the context of digital "
+"photographs this means information that isn't essential in order to display "
+"the image, but tells you something about it. For example a title and "
+"description of the scene or the date & time and the GPS coordinates of the "
+"camera's position when the picture was taken."
+msgstr ""
+
+msgid ""
+"\"[Photini] doesn't try to be an all-singing, all-dancing image management "
+"powerhouse - it just lets you add information to photos, quickly and "
+"easily.\""
+msgstr ""
+
+msgid "`Linux Format`_ magazine, January 2013"
+msgstr ""
+
+msgid "Why is it called Photini? Read my `blog post`_ on how I chose a name."
+msgstr ""
+
+msgid "Contents"
+msgstr ""
+
+msgid "Features"
+msgstr ""
+
+msgid "Easy to use graphical interface."
+msgstr ""
+
+msgid "Set photo title, description, keywords, copyright and creator fields."
+msgstr ""
+
+msgid "Some support for video files."
+msgstr ""
+
+msgid "Spell checking of some fields (optional)."
+msgstr ""
+
+msgid "Can set metadata for multiple images simultaneously."
+msgstr ""
+
+msgid ""
+"Can adjust picture date & time and time zone (of multiple images "
+"simultaneously)."
+msgstr ""
+
+msgid ""
+"Reads Exif, IPTC and XMP metadata, writes all three to maximise "
+"compatibility with other software."
+msgstr ""
+
+msgid "Writes metadata to image files or to XMP \"sidecar\" files."
+msgstr ""
+
+msgid "Can import photographs from many digital cameras."
+msgstr ""
+
+msgid ""
+"Upload to Flickr_ or `Google Photos`_ or Ipernity_ or Pixelfed_ with reuse "
+"of metadata."
+msgstr ""
+
+msgid "Geotagging - search map to find named places."
+msgstr ""
+
+msgid "Choice of map providers - instantly switch to compare details."
+msgstr ""
+
+msgid "Drag and drop images on to map to set GPS location."
+msgstr ""
+
+msgid "Or set GPS location using data exported by a tracker app."
+msgstr ""
+
+msgid "Edit coordinates if required, or clear to unset GPS data."
+msgstr ""
+
+msgid "Convert GPS coordinates to street address."
+msgstr ""
+
+msgid "Suggestions for further development welcome."
+msgstr ""
+
+msgid "Photini requires at least the following:"
+msgstr ""
+
+msgid "Python3: http://python.org/"
+msgstr ""
+
+msgid ""
+"PyQt5, PyQt6, PySide2, or PySide6: "
+"http://www.riverbankcomputing.co.uk/software/pyqt/ or "
+"https://doc.qt.io/qtforpython/"
+msgstr ""
+
+msgid "python-exiv2: https://pypi.org/project/exiv2/"
+msgstr ""
+
+msgid ""
+"For a full list of dependencies, please see the `installation "
+"documentation`_."
+msgstr ""
+
+msgid "Getting help"
+msgstr ""
+
+msgid ""
+"If you encounter any problems installing or running Photini, please email "
+"jim@jim-easterbrook.me.uk and I'll respond as soon as I can. There is also "
+"an email list or forum for discussions about Photini at "
+"https://groups.google.com/forum/#!forum/photini. If you discover a bug and "
+"have a GitHub account then please file a bug report on the GitHub "
+"`\"issues\" page`_."
+msgstr ""
+
+msgid "Localisation"
+msgstr ""
+
+msgid ""
+"Work has begun on providing Photini in multiple languages. I rely on users "
+"to do the translation, as I am not fluent in any language other than "
+"English. The project uses an online translation service called Weblate_. If "
+"you'd like to help translate Photini, please join the `Photini team on "
+"Hosted Weblate`_. For more details, see the `localisation documentation`_."
+msgstr ""
+
+msgid "Licence"
+msgstr ""
+
+msgid "Photini - a simple photo metadata editor."
+msgstr ""
+
+msgid "http://github.com/jim-easterbrook/Photini"
+msgstr ""
+
+msgid "Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+msgstr ""
+
+msgid "Catalan translation by Joan Juvanteny"
+msgstr ""
+
+msgid "Czech translation by Pavel Fric"
+msgstr ""
+
+msgid "French translation by Nathan, J. Lavoie"
+msgstr ""
+
+msgid "German translation by Jan Rimmek, J. Lavoie, Ettore Atalan"
+msgstr ""
+
+msgid "Korean translation by Soohyeon Park"
+msgstr ""
+
+msgid "Norwegian Bokmål translation by Allan Nordhøy"
+msgstr ""
+
+msgid "Polish translation by Dawid Głaz"
+msgstr ""
+
+msgid "Spanish translation by Esteban Martinena, Cristos Ruiz"
+msgstr ""
+
+msgid ""
+"This program is free software: you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) "
+"any later version."
+msgstr ""
+
+msgid ""
+"This program is distributed in the hope that it will be useful, but WITHOUT "
+"ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+"FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+"more details."
+msgstr ""
+
+msgid ""
+"You should have received a copy of the GNU General Public License along with"
+" this program.  If not, see http://www.gnu.org/licenses/."
+msgstr ""
+
+msgid "Service terms and conditions"
+msgstr ""
+
+msgid ""
+"Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and "
+"`Google Privacy Policy`_."
+msgstr ""
+
+msgid ""
+"Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of "
+"Use`_ and `Microsoft Privacy Statement`_."
+msgstr ""
+
+msgid ""
+"Use of the Mapbox map tab is subject to the `Mapbox terms of service`_ and "
+"`Mapbox privacy policy`_."
+msgstr ""
+
+msgid ""
+"The Flickr upload tab uses the Flickr API but is not endorsed or certified "
+"by Flickr."
+msgstr ""
+
+msgid "Privacy statement"
+msgstr ""
+
+msgid ""
+"Photini does not directly gather any information from its users, but the "
+"online services it can use (maps and uploaders) may do so. You should read "
+"these services' privacy policies before using them."
+msgstr ""
+
+msgid ""
+"Photini stores user preferences in a text file on the user's computer. The "
+"default location of this file is ``$HOME/.config/photini/`` (Linux), "
+"``$HOME/Library/Preferences/photini`` (MacOS), or "
+"``%USERPROFILE%\\AppData\\Local\\photini\\`` (Windows). OAuth_ access tokens"
+" for the uploader tabs are securely stored on the user's computer using "
+"`Python keyring`_."
+msgstr ""
+
+msgid "Documentation licence"
+msgstr ""
+
+msgid ""
+"Permission is granted to copy, distribute and/or modify the Photini "
+"documentation under the terms of the GNU Free Documentation License, Version"
+" 1.3 or any later version published by the Free Software Foundation; with no"
+" Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy "
+"of the license is included in the documentation section entitled \"GNU Free "
+"Documentation License\"."
+msgstr ""
+
+msgid "\"Localisation\""
+msgstr ""
+
+msgid ""
+"Photini can be made easier to use for people who don't speak English. There "
+"are two parts to this -- the text used within the program and the "
+"documentation. I rely on users to do the translation as I can not write any "
+"other language with any fluency. You can use an online service (Weblate_ or "
+"Transifex_) or a suitable text editor installed on your computer."
+msgstr ""
+
+msgid "Translating the program text"
+msgstr ""
+
+msgid ""
+"If your computer is configured to use a language other than English, and "
+"Photini has already been translated into that language, then Photini should "
+"use the translation automatically. For example, this is what it might look "
+"like if your computer is configured to use Spanish."
+msgstr ""
+
+msgid ""
+"If you'd like to help by translating Photini into another language, or by "
+"improving an existing translation, this is what you need to do."
+msgstr ""
+
+msgid "Translation status"
+msgstr ""
+
+msgid "Translation progress so far"
+msgstr ""
+
+msgid "Online translation"
+msgstr ""
+
+msgid ""
+"The main advantages of online translation are that you don't need to install"
+" any software on your computer (apart from a web browser) and that several "
+"people can work on the same language. Each person can contribute as much or "
+"as little effort as they wish."
+msgstr ""
+
+msgid ""
+"Please read the :ref:`notes <localisation-program-notes>` below for things "
+"to be aware of when translating the program strings."
+msgstr ""
+
+msgid "Weblate"
+msgstr ""
+
+msgid ""
+"Weblate_ is an online translation service that provides free support for "
+"open source projects such as Photini. Its main advantage over Transifex is "
+"that most strings have a screenshot associated with them to show the context"
+" where the string is used. Follow the link to Weblate_ and click on "
+"\"Register\". From there you can create a free account and sign in. I "
+"recommend using one of the authentication services (e.g. GitHub or Google) "
+"so you don't have to invent yet another user name and password."
+msgstr ""
+
+msgid ""
+"Back at the Photini project page, click on the \"GUI\" component, then click"
+" on a language to work on, or \"Start new translation\" if your language is "
+"not listed. Clicking on \"Browse\" shows a list of strings and their "
+"translations. You can then click on a string to edit its translation."
+msgstr ""
+
+msgid ""
+"When you've finished working on a translation there's no need to do anything"
+" further. Weblate automatically pushes the translation to GitHub, where I "
+"can merge it into the main repository branch. You might like to :ref:`test "
+"your translation <localisation-program-testing>` though."
+msgstr ""
+
+msgid "Transifex"
+msgstr ""
+
+msgid ""
+"Transifex_ is another online translation service with free support for open "
+"source projects. Follow the link to Transifex_ and click on \"Help Translate"
+" \"Photini\"\". From there you can create a free account and sign in. I "
+"recommend using one of the authentication services (e.g. GitHub or Google) "
+"so you don't have to invent yet another user name and password."
+msgstr ""
+
+msgid ""
+"Back at the Transifex Photini page click on \"Languages\" to show all the "
+"languages currently being translated to. If your language is not included in"
+" the list you can ask for it to be added by clicking on \"request "
+"language\". Each language is represented by a code, e.g. nl or en_CA. The "
+"longer codes are usually regional or national variations of a common "
+"language. You should choose the common language if it’s not already "
+"available in Photini, moving on to the variations once the common language "
+"is done. Once your language is added you can ask to join the language team "
+"and then start translating."
+msgstr ""
+
+msgid ""
+"Click on your language, then click on \"src..en/photini.ts (master)\" to "
+"work on the Photini GUI strings."
+msgstr ""
+
+msgid ""
+"When you've finished working on a translation there's no need to do anything"
+" further. Transifex automatically pushes the translation to GitHub, where I "
+"can merge it into the main repository branch. You might like to :ref:`test "
+"your translation <localisation-program-testing>` though."
+msgstr ""
+
+msgid "Offline translation"
+msgstr ""
+
+msgid ""
+"Translating Photini on your own computer will probably require extra "
+"software to be installed, but may be easier as you can see the program "
+"source where translations are used."
+msgstr ""
+
+msgid ""
+"Start by downloading the development version of Photini by cloning the "
+"GitHub repository (see :ref:`installation-photini`). You will also need to "
+"install ``pyside6-lupdate``. This is part of the ``PySide6`` package "
+"installable with ``pip``."
+msgstr ""
+
+msgid ""
+"The program strings are stored in files with names like "
+"``src/lang/nl/photini.ts``, where ``nl`` is the code for the Dutch language."
+" First you should update (or initialise if they don't exist) the translation"
+" files with the current program strings::"
+msgstr ""
+
+msgid "Now you can open a translation file in your chosen editor, for example::"
+msgstr ""
+
+msgid ""
+"You can use any text editor for your translations, but a special purpose "
+"translation editor is preferable. The `Qt Linguist`_ program is ideal, but "
+"any editor that understands the ``.ts`` file format used for the program "
+"strings should be acceptable."
+msgstr ""
+
+msgid ""
+"Please read the :ref:`notes <localisation-program-notes>` below for things "
+"to be aware of when translating the program strings. When you've finished "
+"your translation, or done a significant chunk of it, please email it to me "
+"(jim@jim-easterbrook.me.uk). You might like to :ref:`test your translation "
+"<localisation-program-testing>` first."
+msgstr ""
+
+msgid "Things to be aware of"
+msgstr ""
+
+msgid "String length"
+msgstr ""
+
+msgid ""
+"Many of the strings to be translated have to fit into buttons on the GUI, so"
+" your translation should not be much longer than the English original. If "
+"the English text is using abbreviations then the translation probably needs "
+"to as well."
+msgstr ""
+
+msgid "Words with special meanings"
+msgstr ""
+
+msgid ""
+"Some of Photini's GUI elements such as ``Title / Object Name`` are named "
+"after the metadata items in the Exif, XMP or IPTC specifications. If "
+"information about these standards is available in your language it may help "
+"with translating these words."
+msgstr ""
+
+msgid "Formatting strings"
+msgstr ""
+
+msgid ""
+"In Python curly braces are used to include other data in a string. For "
+"example, ``File \"{file_name}\" has {size} bytes and exceeds {service}'s "
+"limit of {max_size} bytes.`` includes the file name & size and a size limit "
+"set by a service such as Flickr. You should take care not to change what's "
+"inside the braces, but you can reorder them if it's appropriate for your "
+"language."
+msgstr ""
+
+msgid "Carriage returns"
+msgstr ""
+
+msgid ""
+"Some of Photini's buttons split their labels over two or more lines to stop "
+"the button being too wide. You should split your translation in similar size"
+" pieces so it has the same number of lines."
+msgstr ""
+
+msgid "HTML markup"
+msgstr ""
+
+msgid ""
+"Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML"
+" markup which must be copied to your translated string. Some strings such as"
+" ``<multiple values>`` are not HTML. The angle brackets ``<>`` are used to "
+"indicate data with a special meaning. These strings should usually be "
+"translated."
+msgstr ""
+
+msgid "Keyboard shortcuts"
+msgstr ""
+
+msgid ""
+"Some strings include a single ampersand character ``&`` immediately before a"
+" letter that is used as a keyboard shortcut. You should choose a suitable "
+"letter in your translation and place the ampersand appropriately."
+msgstr ""
+
+msgid "Plural forms"
+msgstr ""
+
+msgid ""
+"Translations can accommodate the many ways that languages handle plurals. "
+"For example in English we write \"0 files, 1 file, 2 files\". Weblate_ has a"
+" separate translation for each plural form. Other translation editors should"
+" also handle plural forms."
+msgstr ""
+
+msgid "Testing your translation"
+msgstr ""
+
+msgid ""
+"You need a copy of the Photini source files to test your translation with. "
+"You can download or clone this from GitHub (see :ref:`installation-"
+"photini`)."
+msgstr ""
+
+msgid ""
+"If you've been working online then you can download your translation with "
+"Weblate's \"Files\" menu. It will have the wrong default name so, for "
+"example, make sure you save ``photini-gui-fr.ts`` as "
+"``src/lang/fr/photini.ts``."
+msgstr ""
+
+msgid ""
+"The translation file needs to be \"compiled\" (converted from ``.ts`` format"
+" to ``.qm`` format) before it can be used by the Photini program. This "
+"requires the ``pyside6-lrelease`` program, which is part of the ``PySide6`` "
+"package on PyPI."
+msgstr ""
+
+msgid "You can easily update and compile all the language files::"
+msgstr ""
+
+msgid "Now you can install Photini with your new translation(s)::"
+msgstr ""
+
+msgid ""
+"Photini should use your new language if your computer's ``LANG`` environment"
+" variable is set appropriately. You can force this when running Photini from"
+" the command line::"
+msgstr ""
+
+msgid "Photini should now be using your translations."
+msgstr ""
+
+msgid "Translating the documentation"
+msgstr ""
+
+msgid ""
+"Translating Photini's documentation is a lot more work than translating the "
+"program itself. The `\"Read the Docs\" <https://readthedocs.org/>`_ web site"
+" can host multiple languages, and I would welcome the chance to add "
+"documentation of Photini in other languages. However, translating the "
+"program strings is a much higher priority."
+msgstr ""
+
+msgid ""
+"This uses Transifex_ as described above. The documentation strings are in "
+"resources with names like \"src..gettext/manual.pot (master)\"."
+msgstr ""
+
+msgid ""
+"See the :ref:`notes <localisation-documentation-notes>` below for things to "
+"be aware of when translating the documentation."
+msgstr ""
+
+msgid ""
+"The documentation translation uses ``.po`` files as specified by the `GNU "
+"gettext <https://www.gnu.org/software/gettext/>`_ project. You can open the "
+"translation file in any editor, but a translation tool is best. For "
+"example::"
+msgstr ""
+
+msgid ""
+"The Photini documentation is written in `reStructuredText "
+"<http://docutils.sourceforge.net/rst.html>`_. This is a markup language that"
+" looks very like plain text, but uses certain characters to give extra "
+"meaning to some parts. You need to take extra care when the string to be "
+"translated includes such markup. The markup often needs to be preceded or "
+"followed by a space or other punctuation. Take care to copy spaces and "
+"punctuation from the English source."
+msgstr ""
+
+msgid "Double backquotes ``````"
+msgstr ""
+
+msgid ""
+"These often mark words that are used in the Photini GUI. You may wish to "
+"include the English equivalent in brackets after your translation to help "
+"users read the documentation as the screen grabs are all from the English "
+"version. For example, the English ````Orientation```` could appear in a "
+"German translation as ````Ausrichtung (Orientation)````."
+msgstr ""
+
+msgid "Special characters, e.g. ``(|hazard|)``"
+msgstr ""
+
+msgid "These refer to Unicode symbols and should not be translated."
+msgstr ""
+
+msgid "Short cross references, e.g. ``:doc:`tags```"
+msgstr ""
+
+msgid "These should not be translated."
+msgstr ""
+
+msgid "Long cross references, e.g. ``:ref:`installation <installation-optional>```"
+msgstr ""
+
+msgid ""
+"The text within the ``<>`` characters should not be translated, but it may "
+"be appropriate to translate the preceding link text."
+msgstr ""
+
+msgid "Short external links, e.g. ```Google Photos`_``"
+msgstr ""
+
+msgid ""
+"If you need to translate the text you can transform the short link into a "
+"long one. For example, the English ```Google Photos`_`` could appear in a "
+"Korean translation as ```Google 포토 <Google Photos_>`_``. Note the "
+"underscores ``_`` and backquotes ````` - they are vital!"
+msgstr ""
+
+msgid "Long external links, e.g. ```Flickr <http://www.flickr.com/>`_``"
+msgstr ""
+
+msgid ""
+"The url within the ``<>`` characters should not be translated, but it may be"
+" appropriate to translate the preceding link text."
+msgstr ""
+
+msgid ""
+"If you install Sphinx_ (See :ref:`installation <installation-"
+"documentation>`) you can build a local copy of the documentation using your "
+"translation. For example, to build Dutch documentation::"
+msgstr ""
+
+msgid ""
+"Open ``doc/html/index.html`` with a web browser to read the translated "
+"documentation."
+msgstr ""
+
+msgid "Further reading"
+msgstr ""
+
+msgid ""
+"The best explanation of what should be put in each metadata field I've found"
+" is the `Guide to Photo Metadata Fields <http://www.photometadata.org/META-"
+"Resources-Field-Guide-to-Metadata>`_."
+msgstr ""
+
+msgid ""
+"`Google Maps JavaScript API "
+"<https://developers.google.com/maps/documentation/javascript/tutorial>`_."
+msgstr ""
+
+msgid ""
+"`Bing Maps V8 Web Control <https://docs.microsoft.com/en-us/bingmaps/v8-web-"
+"control/>`_."
+msgstr ""
+
+msgid ""
+"`Leaflet, an open-source JavaScript library for mobile-friendly interactive "
+"maps <http://leafletjs.com/index.html>`_."
+msgstr ""
+
+msgid "Typical workflow"
+msgstr ""
+
+msgid ""
+"This is a suggestion for how to use Photini. It roughly reflects what I do, "
+"but is just a guideline for beginners. As you gain experience you may choose"
+" to do things differently. There is no requirement to fill in all the "
+"metadata fields, nor to do them in any particular order. You might like to "
+"adjust the order of Photini's tabs to reflect your preferred workflow. See "
+":ref:`configuration-tabs` for more detail."
+msgstr ""
+
+msgid "Make a backup copy"
+msgstr ""
+
+msgid ""
+"Before editing any of your images' metadata you should make a backup copy. "
+"Even if I could guarantee that Photini was bug free and would never corrupt "
+"an image file, you still might have a power cut or other computer failure at"
+" just the wrong time and ruin a photograph you can never take again. Before "
+"you start, please make a backup copy of your photographs."
+msgstr ""
+
+msgid "Load images"
+msgstr ""
+
+msgid ""
+"Select the ``File`` menu ``Open images`` item (keyboard shortcut "
+"``Ctrl+O``). This opens a file selection dialog with which you can navigate "
+"to your image folder and select one or more image files to open. If you "
+"prefer, you can \"drag and drop\" image files from a file manager window to "
+"the Photini editor's image selector."
+msgstr ""
+
+msgid ""
+"Photini doesn't set a limit to the number of files you can open "
+"simultaneously, but it's probably sensible not to open more than 30 or 40, "
+"depending on the memory capacity and processing power of your computer. I "
+"usually load all the photographs taken on one day, or in one place."
+msgstr ""
+
+msgid ""
+"Each image file is shown as a thumbnail image in the lower half of the "
+"Photini editor GUI. You can adjust the space allocated to this area by "
+"clicking and dragging the bar between it and the upper tab area. The "
+"thumbnails can be made larger or smaller with the ``thumbnail size`` slider."
+" Choose a size that allows you to see a reasonable number of images, yet "
+"still tell one from another. Double click on any thumbnail to view the full "
+"size image in your default picture viewing program."
+msgstr ""
+
+msgid "Set ownership"
+msgstr ""
+
+msgid ""
+"I usually start by setting the copyright notice and other information on the"
+" ``Ownership metadata`` tab. I select all the images with the keyboard "
+"shortcut ``Ctrl+A``, then click the ``Apply template`` button. Then I switch"
+" to the ``Descriptive metadata`` tab."
+msgstr ""
+
+msgid "Set descriptive metadata"
+msgstr ""
+
+msgid ""
+"If all your selected pictures have the same title then type it into the "
+"``Title / Object Name`` field now. Otherwise it's time to start selecting "
+"single images, or groups of images, and filling in the remaining text "
+"fields."
+msgstr ""
+
+msgid ""
+"The ``Keywords`` field expects a list of words or short phrases, separated "
+"by semi-colon (;) characters."
+msgstr ""
+
+msgid "Save your work so far"
+msgstr ""
+
+msgid ""
+"As you proceed it's a good idea to save the images that have new metadata "
+"with the ``File`` menu ``Save images with new data`` item (keyboard shortcut"
+" ``Ctrl+S``). Any images with unsaved metadata have thumbnails marked with a"
+" warning symbol (|hazard|)."
+msgstr ""
+
+msgid "Set geolocation"
+msgstr ""
+
+msgid ""
+"Amongst the commonly used image metadata items are the latitude and "
+"longitude of the position from which the photograph was taken. (Some people "
+"argue that it should be the position of the subject of the photograph, but "
+"what about photographs of the Moon?) Photini makes it easy to set the "
+"latitude and longitude of any photograph by dragging and dropping it onto a "
+"map."
+msgstr ""
+
+msgid ""
+"There are currently three map tabs in the Photini editor, each of which gets"
+" maps (or aerial photographs) from a different provider: Google, Microsoft "
+"Bing, and Mapbox. (Each of these providers has terms and conditions you "
+"should read and accept before using their maps.) The maps differ in "
+"appearance, and show different levels of detail for different parts of the "
+"world. You should use the one that you like best, but it's very easy to "
+"switch to another at any time."
+msgstr ""
+
+msgid ""
+"You may be able use the map's navigation and zoom controls to find the area "
+"you want, but usually you will need to use the search box. Click on ``<new "
+"search>`` and type in a search term such as the name of a town. Note that "
+"the search is biased towards the current map location, so you might want to "
+"zoom out and pan to the right continent before searching. Type a search term"
+" into the box and hit return. A list of results should appear very soon, "
+"from which you can choose the one you want. Each map provider has its own "
+"search engine, so if you can't find the place you are looking for it might "
+"be worth trying a different provider."
+msgstr ""
+
+msgid ""
+"Now zoom in and drag the map to home in on the place where your photographs "
+"were taken. Select one or more images that have a particular location and "
+"drag them onto the map. A marker should appear on the map and the latitude "
+"and longitude values will be displayed below the search box. The marker can "
+"be dragged around the map to adjust its position - you may find it easier to"
+" select the map's aerial or satellite option, at the highest zoom available,"
+" to set the exact position. Each image that has had a location set has its "
+"thumbnail marked with a flag symbol (|flag|)."
+msgstr ""
+

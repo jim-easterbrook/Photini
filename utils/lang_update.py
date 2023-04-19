@@ -86,10 +86,7 @@ def extract_doc_strings(root):
     src_dir = os.path.join(root, 'src', 'doc')
     dst_dir = os.path.join(root, 'src', 'lang', 'templates', 'gettext')
     doctree_dir = os.path.join(root, 'doctrees', 'gettext')
-    confoverrides = {
-        'gettext_uuid': False,
-        'gettext_location': not args.strip,
-        }
+    confoverrides = {'gettext_location': not args.strip}
     app = Sphinx(src_dir, src_dir, dst_dir, doctree_dir, 'gettext',
                  confoverrides=confoverrides, freshenv=True,
                  warningiserror=True)
