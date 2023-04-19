@@ -153,13 +153,12 @@ class LensList(DropdownEdit):
         return lens_model.get_name()
 
 
-class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
+class IntSpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
     def __init__(self, key, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple_values()
         self._key = key
         super(IntSpinBox, self).__init__(*arg, **kw)
-        AugmentSpinBox.__init__(self)
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
@@ -201,7 +200,7 @@ class CalendarWidget(QtWidgets.QCalendarWidget):
         return super(CalendarWidget, self).showEvent(event)
 
 
-class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
+class DateTimeEdit(AugmentDateTime, QtWidgets.QDateTimeEdit):
     def __init__(self, key, *arg, **kw):
         self.default_value = QtCore.QDateTime(
             QtCore.QDate.currentDate(), QtCore.QTime())
@@ -213,7 +212,6 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
-        AugmentDateTime.__init__(self)
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
@@ -265,13 +263,12 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentDateTime):
                          ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
 
 
-class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
+class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
     def __init__(self, key, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple()
         self._key = key
         super(TimeZoneWidget, self).__init__(*arg, **kw)
-        AugmentSpinBox.__init__(self)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)

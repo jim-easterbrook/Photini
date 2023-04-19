@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools >= 59.6"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Photini"
+description = "Simple photo metadata editor"
+readme = "README.rst"
+license = {text = "GPLv3+"}
+authors = [{name = "Jim Easterbrook", email = "jim@jim-easterbrook.me.uk"}]
+keywords = ["Exif", "IPTC", "XMP"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Graphics",
+]
+dependencies = [
+  "appdirs >= 1.3",
+  "cachetools >= 3.0",
+  "chardet >= 3.0",
+  "exiv2 >= 0.14",
+  "requests >= 2.4",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+flickr = [
+    "requests-oauthlib >= 1.0", "requests-toolbelt >= 0.9", "keyring >= 7.0"]
+google = ["requests-oauthlib >= 1.0", "keyring >= 7.0"]
+importer = ["gphoto2 >= 1.8; platform_system != 'Windows'"]
+ipernity = ["requests-toolbelt >= 0.9", "keyring >= 7.0"]
+pixelfed = [
+    "requests-oauthlib >= 1.0", "requests-toolbelt >= 0.9", "keyring >= 7.0"]
+spelling = ["pyenchant >= 2.0"]
+# the following are intended for use by the photini-configure script
+PySide2 = ["PySide2 >= 5.11"]
+PySide6 = ["PySide6 >= 6.2"]
+gpxpy = ["gpxpy >= 1.3.5"]
+Pillow = ["Pillow >= 2.0"]
+
+[project.urls]
+homepage = "https://github.com/jim-easterbrook/Photini"
+documentation = "https://photini.readthedocs.io/"
+repository = "https://github.com/jim-easterbrook/Photini"
+changelog = "https://github.com/jim-easterbrook/Photini/blob/main/CHANGELOG.txt"
+
+[project.scripts]
+photini-configure = "photini.scripts:configure"
+photini-post-install = "photini.scripts:post_install"
+
+[project.gui-scripts]
+photini = "photini.editor:main"
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.dynamic]
+version = {attr = "photini.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["doc*", "lang*"]

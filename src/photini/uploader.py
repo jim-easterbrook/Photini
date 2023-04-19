@@ -384,7 +384,6 @@ class AlbumList(QtWidgets.QWidget):
         self.layout().setSpacing(0)
         self.layout().setSizeConstraint(
             QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
-        self.setAutoFillBackground(False)
         self.album_widgets = []
         self.max_selected = max_selected
         self.checked_widgets = []
@@ -492,7 +491,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         group.layout().addWidget(QtWidgets.QLabel(label))
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(scrollarea.Shape.NoFrame)
-        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
         self.widget['albums'] = AlbumList(max_selected=max_selected)
         scrollarea.setWidget(self.widget['albums'])
         group.layout().addWidget(scrollarea)

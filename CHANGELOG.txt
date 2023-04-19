@@ -16,6 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2023.4.0:
+  1/ Add "image regions" tab.
+  2/ Connect image regions to Flickr / Ipernity "notes".
+  3/ Add GPS coordinates to location / address data.
+  4/ Improved XMP metadata handling.
+  5/ Other minor improvements and bug fixes.
+
 Changes in v2023.2.0:
   1/ Add Pixelfed / Mastodon uploader.
   2/ GPX importer sets altitude as well as latitude & longitude.

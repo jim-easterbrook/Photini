@@ -89,7 +89,8 @@ version = __version__
 if 'LANG' in os.environ:
     language = os.environ['LANG'].split('_')[0]
 locale_dirs = ['../lang']
-gettext_uuid = True
+gettext_uuid = False
+gettext_compact = 'documentation'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:

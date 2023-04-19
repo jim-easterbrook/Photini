@@ -704,11 +704,11 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
 
 
 class AugmentSpinBoxBase(WidgetMixin):
-    def __init__(self):
+    def __init__(self, *arg, **kw):
         self._is_multiple = False
         self._prefix = ''
         self._suffix = ''
-        super(AugmentSpinBoxBase, self).__init__()
+        super(AugmentSpinBoxBase, self).__init__(*arg, **kw)
         if self.isRightToLeft():
             self.setAlignment(
                 Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -820,13 +820,12 @@ class AugmentSpinBox(AugmentSpinBoxBase):
         self.setSuffix(suffix)
 
 
-class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
+class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
     def __init__(self, *args, **kwds):
         self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
         self.default_value = ''
         self.multiple = multiple_values()
         super(LatLongDisplay, self).__init__(*args, **kwds)
-        AugmentSpinBox.__init__(self)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
@@ -879,10 +878,12 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
         if len(parts) > 2:
             return QtGui.QValidator.State.Invalid, text, pos
         result = self.lat_validator.validate(parts[0], pos)[0]
-        if len(parts) > 1:
-            result = min(result, self.lng_validator.validate(parts[1], pos)[0])
-        else:
-            result = min(result, QtGui.QValidator.State.Intermediate)
+        if result != QtGui.QValidator.State.Invalid and len(parts) > 1:
+            lng_result = self.lng_validator.validate(parts[1], pos)[0]
+            if lng_result == QtGui.QValidator.State.Invalid:
+                result = lng_result
+            elif result == QtGui.QValidator.State.Acceptable:
+                result = lng_result
         return result, text, pos
 
     @catch_all
@@ -934,13 +935,12 @@ class LatLongDisplay(QtWidgets.QAbstractSpinBox, AugmentSpinBox):
             self.set_value(choices and choices.pop())
 
 
-class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
+class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):
     def __init__(self, key, *arg, **kw):
         self._key = key
         self.default_value = 0
         self.multiple = multiple_values()
         super(DoubleSpinBox, self).__init__(*arg, **kw)
-        AugmentSpinBox.__init__(self)
         self.setSingleStep(0.1)
         self.setDecimals(4)
         lim = (2 ** 31) - 1
