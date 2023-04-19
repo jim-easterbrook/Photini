@@ -29,14 +29,6 @@ from sphinx.application import Sphinx
 args = None
 
 
-def html_escape(match):
-    text = match.group(0)
-    text = text.replace('\xa0', '&#xa0;')
-    text = text.replace('"', '&quot;')
-    text = text.replace("'", '&apos;')
-    return text
-
-
 def extract_program_strings(root):
     src_dir = os.path.join(root, 'src', 'photini')
     dst_dir = os.path.join(root, 'src', 'lang')
@@ -74,16 +66,6 @@ def extract_program_strings(root):
         result = subprocess.call(cmd)
         if result:
             return result
-    # process pylupdate output
-    for path in outputs:
-        if not os.path.exists(path):
-            continue
-        with open(path, 'r') as f:
-            text = f.read()
-        # HTML escape some characters
-        text = re.sub('>.+?<', html_escape, text, flags=re.DOTALL)
-        with open(path, 'w') as f:
-            f.write(text)
     return 0
 
 
