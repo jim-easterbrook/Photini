@@ -3,15 +3,19 @@
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
+# Translators:
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-04-19 09:10+0100\n"
-"PO-Revision-Date: 2023-04-19 09:19+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2023-04-19 08:54+0000\n"
+"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023\n"
 "Language: nb\n"
-"Language-Team: nb <LL@li.org>\n"
+"Language-Team: Norwegian Bokmål (https://app.transifex.com/jim-"
+"easterbrook/teams/32598/nb/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -19,7 +23,7 @@ msgstr ""
 "Generated-By: Babel 2.11.0\n"
 
 msgid "Photini documentation"
-msgstr ""
+msgstr "Photini-dokumentasjon"
 
 msgid ""
 "Welcome to the documentation of Photini, an easy to use photograph metadata "
@@ -1827,7 +1831,7 @@ msgid "Exif.Image.Orientation"
 msgstr ""
 
 msgid "Camera"
-msgstr ""
+msgstr "Kamera"
 
 msgid "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
 msgstr ""
@@ -1841,19 +1845,19 @@ msgid ""
 msgstr ""
 
 msgid "Focal length"
-msgstr ""
+msgstr "Brennvidde"
 
 msgid "Exif.Photo.FocalLength"
 msgstr ""
 
 msgid "35mm equiv"
-msgstr ""
+msgstr "35 mm-ekvivalent"
 
 msgid "Exif.Photo.FocalLengthIn35mmFilm"
 msgstr ""
 
 msgid "Aperture"
-msgstr ""
+msgstr "Blenderåpning"
 
 msgid "Exif.Photo.FNumber Exif.Photo.ApertureValue"
 msgstr ""
@@ -1916,13 +1920,13 @@ msgid ""
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr ""
+msgstr "Navn/objektnavn"
 
 msgid "Exif.Image.XPTitle"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr ""
+msgstr "Beskrivelse/undertekst"
 
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr ""
@@ -1931,13 +1935,13 @@ msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Nøkkelord"
 
 msgid "Exif.Image.XPKeywords"
 msgstr ""
 
 msgid "Rating"
-msgstr ""
+msgstr "Vurdering"
 
 msgid "Exif.Image.Rating Exif.Image.RatingPercent"
 msgstr ""
@@ -2028,7 +2032,7 @@ msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr ""
 
 msgid "Altitude"
-msgstr ""
+msgstr "Høyde"
 
 msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 msgstr ""
@@ -3024,7 +3028,7 @@ msgid ""
 msgstr ""
 
 msgid "Licence"
-msgstr ""
+msgstr "Lisens"
 
 msgid "Photini - a simple photo metadata editor."
 msgstr ""
