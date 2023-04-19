@@ -3,16 +3,20 @@
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
 #
+# Translators:
+# alessio Cadore <alessiocadore@gmail.com>, 2023
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-04-19 09:10+0100\n"
-"PO-Revision-Date: 2023-04-19 09:19+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: it\n"
-"Language-Team: it <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"PO-Revision-Date: 2023-04-19 08:54+0000\n"
+"Last-Translator: alessio Cadore <alessiocadore@gmail.com>, 2023\n"
+"Language: it@qtfiletype\n"
+"Language-Team: Italian (QT FILETYPE) (https://app.transifex.com/jim-"
+"easterbrook/teams/32598/it@qtfiletype/)\n"
+"Plural-Forms: nplurals=2; plural=n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1916,13 +1920,13 @@ msgid ""
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr ""
+msgstr "Titolo / Nome Oggetto"
 
 msgid "Exif.Image.XPTitle"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr ""
+msgstr "Descrizione"
 
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr ""
