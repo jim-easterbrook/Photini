@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-22  Jim Easterbrook.
+   Copyright (C)  2012-23  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Geotagging
@@ -99,14 +99,33 @@ After zooming in on the red track points the photograph can be dragged to the ma
 .. image:: ../images/screenshot_224.png
 
 Alternatively, the ``Set coords from GPX`` button can be used to set the latitude and longitude of all the selected photographs to the nearest (in time) GPX track point.
+Note that this also sets the altitude if your GPX file has altitude data.
+This can be disabled in Photini's :doc:`configuration <configuration>`.
 
-.. image:: ../images/screenshot_225.png
-
-Sometimes GPS receivers lose accuracy, so some GPX file points can be wrong by over 100 metres.
-In this case the ``Set coords from GPX`` button is not very useful.
+The usefulness of GPX data depends on the accuracy of your GPS tracker, and on your camera's clock accuracy.
+You might want to adjust the timestamps in the :doc:`technical metadata <technical_metadata>` tab first.
 
 When you've finished with the GPX track points they can be removed from the map with the ``Remove GPX data`` button.
 
+Altitude considerations
+-----------------------
+
+The definition and measurement of altitude is made more complicated by the Earth not being exactly spherical, and its gravitational field not being completely uniform.
+The GPS system uses a "World Geodetic System" known as `WGS 84`_.
+This has had several `Earth Gravitational Models`_ (EGM) over the years, each of which has improved the accuracy of altitude data.
+
+The GPS tracking app I use on my phone has an option to apply "EGM96 correction", which changes the altitude by 45 m at my home in the UK.
+If your app has a similar option I recommend you enable it.
+
+Bing Maps' altitude is corrected using the "EGM2008" model, according to their documentation.
+Google Maps uses "local mean sea level".
+They don't cite a standard and may be using their own measurements, or combining data from several sources.
+
+I do not know which of these, if any, is correct for the GPS altitude in a photograph's Exif data.
+
+.. _Earth Gravitational Models:
+    https://en.wikipedia.org/wiki/Earth_Gravitational_Model
 .. _gpxpy:         https://github.com/tkrajina/gpxpy
 .. _GPX:           https://en.wikipedia.org/wiki/GPS_Exchange_Format
 .. _UTC:           https://en.wikipedia.org/wiki/Coordinated_Universal_Time
+.. _WGS 84:        https://en.wikipedia.org/wiki/World_Geodetic_System#WGS_84

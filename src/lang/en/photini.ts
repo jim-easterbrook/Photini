@@ -264,6 +264,14 @@
         <source>Always delete</source>
         <translation></translation>
     </message>
+    <message>
+        <source>set altitude</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>GPX importer</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>

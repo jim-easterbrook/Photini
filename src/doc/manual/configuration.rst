@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-22  Jim Easterbrook.
+   Copyright (C)  2012-23  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Configuration
@@ -28,11 +28,13 @@ Sidecar files allow metadata to be stored without needing to write to the actual
 If you deselect "write to image file" then sidecars will always be created.
 Otherwise, you can choose to have them always created (storing data in parallel with the image file), only created when necessary (e.g. an image file is write protected), or deleted when possible (if metadata can be copied to the image file the sidecar is deleted).
 
-Finally there are options to adjust file timestamps.
+Next there are options to adjust file timestamps.
 "Keep original" leaves image files' timestamps unchanged.
 "Set to when photo was taken" changes files' timestamps to the date & time taken (as shown on the technical tab).
 "Set to when the file is saved" sets files' timestamps to when you save the file with Photini, like most other computer programs do.
 You may find these options useful if you often use a file browser to sort files by date.
+
+If you have installed gpxpy_ then there is a final option to determine if the altitude is included when a GPX file is used to set pictures' GPS data.
 
 .. _configuration-spell:
 
@@ -198,6 +200,8 @@ To enable BMFF file reading, edit the configuration file and set the ``enable_bm
 
 .. _Exiv2 warning:
     https://github.com/exiv2/exiv2#support-for-bmff-files-cr3-heif-heic-and-avif
+.. _gpxpy:
+    https://github.com/tkrajina/gpxpy
 .. _IPTC standard:
     http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
 .. _LibreOffice dictionaries:

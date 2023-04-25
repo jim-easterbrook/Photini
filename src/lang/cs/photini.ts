@@ -268,6 +268,14 @@
         <source>Always delete</source>
         <translation>Vždy smazat</translation>
     </message>
+    <message>
+        <source>set altitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GPX importer</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>

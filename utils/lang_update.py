@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -118,6 +118,8 @@ def extract_doc_strings(root):
             cmd = ['pybabel', 'update', '--input-file', in_file,
                    '--output-file', out_file, '--locale', locale,
                    '--width', '79', '--init-missing']
+            if args.purge:
+                cmd.append('--ignore-obsolete')
             result = subprocess.call(cmd)
             if result:
                 return result
