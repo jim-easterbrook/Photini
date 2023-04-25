@@ -552,7 +552,7 @@ class PhotiniMap(QtWidgets.QWidget):
             gps = dict(image.metadata.gps_info)
             gps['exif:GPSLatitude'] = nearest.latitude
             gps['exif:GPSLongitude'] = nearest.longitude
-            gps['exif:GPSAltitude'] = nearest.elevation
+            gps['exif:GPSAltitude'] = round(nearest.elevation, 1)
             gps['method'] = 'GPS'
             image.metadata.gps_info = gps
             changed = True
