@@ -1490,6 +1490,17 @@ class MD_GPSinfo(MD_Structure):
         return any(self[k] for k in ('exif:GPSLatitude', 'exif:GPSLongitude',
                                      'exif:GPSAltitude'))
 
+    def __eq__(self, other):
+        if isinstance(other, MD_GPSinfo):
+            return not self.__ne__(other)
+        return super(MD_GPSinfo, self).__eq__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, MD_GPSinfo):
+            return any(self[k] != other[k] for k in (
+                'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
+        return super(MD_GPSinfo, self).__ne__(other)
+
 
 class MD_Aperture(MD_Rational):
     # store FNumber and APEX aperture as fractions
