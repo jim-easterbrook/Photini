@@ -536,6 +536,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @catch_all
     def set_from_gpx(self):
         selected_images = self.app.image_list.get_selected_images()
+        set_altitude = self.app.config_store.get('map', 'gpx_altitude', True)
         changed = False
         for image in selected_images:
             if not image.metadata.date_taken:
@@ -552,7 +553,10 @@ class PhotiniMap(QtWidgets.QWidget):
             gps = dict(image.metadata.gps_info)
             gps['exif:GPSLatitude'] = nearest.latitude
             gps['exif:GPSLongitude'] = nearest.longitude
-            gps['exif:GPSAltitude'] = round(nearest.elevation, 1)
+            if set_altitude and nearest.elevation is not None:
+                gps['exif:GPSAltitude'] = round(nearest.elevation, 1)
+            else:
+                gps['exif:GPSAltitude'] = None
             gps['method'] = 'GPS'
             image.metadata.gps_info = gps
             changed = True
