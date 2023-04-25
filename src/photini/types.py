@@ -875,6 +875,8 @@ class MD_LangAlt(MD_Value, dict):
         value = dict((k, v) for (k, v) in value.items() if v)
         if default_lang:
             self.default_lang = default_lang
+            if self.DEFAULT in value and self.default_lang not in value:
+                value[self.default_lang] = value[self.DEFAULT]
         elif isinstance(value, MD_LangAlt):
             self.default_lang = value.default_lang
         else:
@@ -1487,6 +1489,17 @@ class MD_GPSinfo(MD_Structure):
     def __bool__(self):
         return any(self[k] for k in ('exif:GPSLatitude', 'exif:GPSLongitude',
                                      'exif:GPSAltitude'))
+
+    def __eq__(self, other):
+        if isinstance(other, MD_GPSinfo):
+            return not self.__ne__(other)
+        return super(MD_GPSinfo, self).__eq__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, MD_GPSinfo):
+            return any(self[k] != other[k] for k in (
+                'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
+        return super(MD_GPSinfo, self).__ne__(other)
 
 
 class MD_Aperture(MD_Rational):
