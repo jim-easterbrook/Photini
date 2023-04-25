@@ -264,6 +264,14 @@
         <source>Set to when file is saved</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>set altitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GPX importer</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>

@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -29,7 +28,8 @@ translate = QtCore.QCoreApplication.translate
 class EditSettings(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
         super(EditSettings, self).__init__(*arg, **kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.app = QtWidgets.QApplication.instance()
+        self.config_store = self.app.config_store
         self.setWindowTitle(translate('EditSettings', 'Photini: settings'))
         self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
@@ -129,6 +129,14 @@ class EditSettings(QtWidgets.QDialog):
         button_group.addButton(button)
         button.setChecked(keep_time=='now')
         panel.layout().addRow('', button)
+        # import GPX altitude
+        if self.app.gpx_importer:
+            self.gpx_altitude = QtWidgets.QCheckBox(
+                translate('EditSettings', 'set altitude'))
+            self.gpx_altitude.setChecked(
+                self.config_store.get('map', 'gpx_altitude', True))
+            panel.layout().addRow(
+                translate('EditSettings', 'GPX importer'), self.gpx_altitude)
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
@@ -172,4 +180,7 @@ class EditSettings(QtWidgets.QDialog):
         else:
             keep_time = 'now'
         self.config_store.set('files', 'preserve_timestamps', keep_time)
+        if self.app.gpx_importer:
+            self.config_store.set(
+                'map', 'gpx_altitude', self.gpx_altitude.isChecked())
         return self.accept()
