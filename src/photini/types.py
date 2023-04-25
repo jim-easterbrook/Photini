@@ -1369,13 +1369,19 @@ class MD_Coordinate(MD_Rational):
         return '{:d},{:.8f}'.format(degrees, minutes), pstv
 
     def contains(self, this, other):
-        return abs(float(other) - float(this)) < 0.0000001
+        return abs(float(other) - float(this)) < 0.0000005
 
     def compact_form(self):
         return round(float(self), 6)
 
     def __str__(self):
         return '{:.6f}'.format(float(self))
+
+    def __eq__(self, other):
+        return self.contains(self, other)
+
+    def __ne__(self, other):
+        return not self.contains(self, other)
 
 
 class MD_Latitude(MD_Coordinate):
@@ -1491,15 +1497,13 @@ class MD_GPSinfo(MD_Structure):
                                      'exif:GPSAltitude'))
 
     def __eq__(self, other):
-        if isinstance(other, MD_GPSinfo):
-            return not self.__ne__(other)
-        return super(MD_GPSinfo, self).__eq__(other)
+        return not self.__ne__(other)
 
     def __ne__(self, other):
-        if isinstance(other, MD_GPSinfo):
-            return any(self[k] != other[k] for k in (
-                'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
-        return super(MD_GPSinfo, self).__ne__(other)
+        if not isinstance(other, MD_GPSinfo):
+            other = MD_GPSinfo(other)
+        return any(self[k] != other[k] for k in (
+            'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
 
 
 class MD_Aperture(MD_Rational):
