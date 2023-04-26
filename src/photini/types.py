@@ -1369,6 +1369,8 @@ class MD_Coordinate(MD_Rational):
         return '{:d},{:.8f}'.format(degrees, minutes), pstv
 
     def contains(self, this, other):
+        if other is None:
+            return False
         return abs(float(other) - float(this)) < 0.0000005
 
     def compact_form(self):
