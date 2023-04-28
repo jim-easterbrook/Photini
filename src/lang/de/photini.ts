@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie (eine) global eindeutige Bezeichnung(en) für den Ort ein. Trennen Sie sie mit dem Zeichen »;«.</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
@@ -270,11 +270,11 @@
     </message>
     <message>
         <source>set altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhe festlegen</translation>
     </message>
     <message>
         <source>GPX importer</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX-Importprogramm</translation>
     </message>
 </context>
 <context>
