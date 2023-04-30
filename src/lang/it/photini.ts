@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci i dettagli su una posizione mostrata in questa immagine.</translation>
     </message>
     <message>
         <source>Address lookup powered by OpenCage</source>
@@ -37,27 +37,27 @@
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Geodata © Collaboratori di OpenStreetMap</translation>
     </message>
     <message>
         <source>Enter a full name of the location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci un nome completo della posizione.</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome della sottolocalità.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome della città.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome della provincia o dello stato.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome del paese.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
