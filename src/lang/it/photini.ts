@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci i dettagli su una posizione mostrata in questa immagine.</translation>
     </message>
     <message>
         <source>Address lookup powered by OpenCage</source>
@@ -37,35 +37,35 @@
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Geodata © Collaboratori di OpenStreetMap</translation>
     </message>
     <message>
         <source>Enter a full name of the location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci un nome completo della posizione.</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome della sottolocalità.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome della città.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome della provincia o dello stato.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il nome del paese.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation>Immettere il codice paese ISO 3166 di 2 o 3 lettere del paese.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
+        <translation>Immettere il nome dell&apos;area geografica del mondo.</translation>
     </message>
     <message>
         <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
@@ -73,11 +73,11 @@
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
+        <translation>Altitudine della posizione in metri.</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Street</source>
@@ -85,31 +85,31 @@
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Città</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="unfinished"></translation>
+        <translation>Provincia</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Paese</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished"></translation>
+        <translation>Regione</translation>
     </message>
     <message>
         <source>Location ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID posizione</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Altitudine</translation>
     </message>
     <message>
         <source>subject {idx}</source>
-        <translation type="unfinished"></translation>
+        <translation>soggetto {idx}</translation>
     </message>
 </context>
 <context>
@@ -120,22 +120,22 @@
     </message>
     <message>
         <source>Photini photo metadata editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor di metadati fotografici di Photini</translation>
     </message>
     <message>
         <source>test new features or API versions</source>
-        <translation type="unfinished"></translation>
+        <translation>testare nuove funzionalità o versioni dell&apos;API</translation>
     </message>
     <message>
         <source>increase number of logging messages</source>
-        <translation type="unfinished"></translation>
+        <translation>aumentare il numero di messaggi di registrazione</translation>
     </message>
 </context>
 <context>
     <name>DescriptiveTab</name>
     <message>
         <source>reject</source>
-        <translation type="unfinished"></translation>
+        <translation>rifiutare</translation>
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
@@ -151,7 +151,7 @@
     </message>
     <message>
         <source>Title / Object Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Titolo / Nome oggetto</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
@@ -167,7 +167,7 @@
     </message>
     <message>
         <source>Keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>Parole chiave</translation>
     </message>
     <message>
         <source>Rating</source>
@@ -191,18 +191,18 @@
     </message>
     <message>
         <source>Alt Text (Accessibility)</source>
-        <translation type="unfinished"></translation>
+        <translation>Testo alternativo (accessibilità)</translation>
     </message>
     <message>
         <source>Extended Description (Accessibility)</source>
-        <translation type="unfinished"></translation>
+        <translation>Descrizione estesa (accessibilità)</translation>
     </message>
 </context>
 <context>
     <name>EditSettings</name>
     <message>
         <source>Photini: settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: impostazioni</translation>
     </message>
     <message>
         <source>Always write</source>
@@ -214,19 +214,19 @@
     </message>
     <message>
         <source>Write if exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Scrivi se esiste</translation>
     </message>
     <message>
         <source>Always delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina sempre</translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra limiti di lunghezza IPTC-IIM</translation>
     </message>
     <message>
         <source>Always create</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea sempre</translation>
     </message>
     <message>
         <source>Sidecar files</source>
@@ -234,23 +234,23 @@
     </message>
     <message>
         <source>Create if necessary</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea se necessario</translation>
     </message>
     <message>
         <source>Delete when possible</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina quando possibile</translation>
     </message>
     <message>
         <source>(when possible)</source>
-        <translation type="unfinished"></translation>
+        <translation>(quando possibile)</translation>
     </message>
     <message>
         <source>Write to image file</source>
-        <translation type="unfinished"></translation>
+        <translation>Scrivi su file immagine</translation>
     </message>
     <message>
         <source>Keep original</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni l&apos;originale</translation>
     </message>
     <message>
         <source>File timestamps</source>
@@ -258,15 +258,15 @@
     </message>
     <message>
         <source>Set to when photo was taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostato su quando è stata scattata la foto</translation>
     </message>
     <message>
         <source>Set to when file is saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostare su quando il file viene salvato</translation>
     </message>
     <message>
         <source>set altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>imposta l&apos;altitudine</translation>
     </message>
     <message>
         <source>GPX importer</source>
@@ -277,15 +277,15 @@
     <name>FlickrTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo tu</translation>
     </message>
     <message>
         <source>Friends &amp; family</source>
-        <translation type="unfinished"></translation>
+        <translation>Amici &amp; familiari</translation>
     </message>
     <message>
         <source>People you follow</source>
-        <translation type="unfinished"></translation>
+        <translation>Persone che segui</translation>
     </message>
     <message>
         <source>Any Flickr member</source>
@@ -305,15 +305,15 @@
     </message>
     <message>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation>Privato</translation>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Amici</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Famiglia</translation>
     </message>
     <message>
         <source>Viewing privacy</source>
@@ -329,7 +329,7 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenza</translation>
     </message>
     <message>
         <source>Safe</source>
