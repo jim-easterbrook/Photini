@@ -20,6 +20,7 @@ import logging
 import re
 
 from photini.pyqt import *
+from photini.pyqt import qt_version_info
 from photini.types import MD_LangAlt
 
 logger = logging.getLogger(__name__)
@@ -381,7 +382,9 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
             self.setPlainText(str(value))
 
     def get_value(self):
-        return self.toPlainText()
+        if qt_version_info < (5, 9):
+            return self.toPlainText()
+        return self.document().toRawText()
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
