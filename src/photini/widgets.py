@@ -384,7 +384,9 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
     def get_value(self):
         if qt_version_info < (5, 9):
             return self.toPlainText()
-        return self.document().toRawText()
+        value = self.document().toRawText()
+        value = value.replace('\u2029', '\n')
+        return value
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
