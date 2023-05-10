@@ -869,6 +869,8 @@ class MD_LangAlt(MD_Value, dict):
     def __init__(self, value=None, default_lang=None, strip=True):
         if isinstance(value, str):
             value = {self.DEFAULT: value}
+        elif isinstance(value, MD_LangAlt):
+            default_lang = default_lang or value.default_lang
         value = value or {}
         if strip:
             value = dict((k, v.strip()) for (k, v) in value.items())
@@ -877,8 +879,6 @@ class MD_LangAlt(MD_Value, dict):
             self.default_lang = default_lang
             if self.DEFAULT in value and self.default_lang not in value:
                 value[self.default_lang] = value[self.DEFAULT]
-        elif isinstance(value, MD_LangAlt):
-            self.default_lang = value.default_lang
         else:
             self.default_lang = self.identify_default(value)
         if self.default_lang != self.DEFAULT and self.DEFAULT in value:
