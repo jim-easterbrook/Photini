@@ -20,6 +20,7 @@ import importlib
 import logging
 from optparse import OptionParser
 import os
+import platform
 import site
 import subprocess
 import sys
@@ -38,7 +39,10 @@ def configure(argv=None):
     install_extras = []
     ## Qt library choice is complicated
     print('Which Qt package would you like to use?')
-    packages = ['PyQt5', 'PyQt6', 'PySide2', 'PySide6']
+    packages = ['PyQt5', 'PySide2']
+    if platform.system() != 'Windows' or platform.release() not in ('7', '8'):
+        # Qt6 is not available for Windows < 10
+        packages += ['PyQt6', 'PySide6']
     # get installed Qt packages
     installed = []
     choices = {}
