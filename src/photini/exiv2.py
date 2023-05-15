@@ -288,12 +288,29 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
 
-    def get_exif_comment(self, tag, value):
+    def get_exif_comment(self, tag, datum):
+        type_id = datum.typeId()
+        if type_id == exiv2.TypeId.undefined:
+            value = datum.value(exiv2.TypeId.comment)
+            type_id = exiv2.TypeId.comment
+        else:
+            value = datum.value()
         # ignore Exiv2's comment decoding, Python is better at unicode
         data = memoryview(value.data())
         if not any(data):
             return None
-        charset = value.charsetId()
+        if type_id == exiv2.TypeId.comment:
+            charset = value.charsetId()
+        else:
+            charset = bytes(data[:8]).decode('ASCII')
+            if charset == 'ASCII':
+                charset = exiv2.CharsetId.ascii
+            elif charset == 'JIS':
+                charset = exiv2.CharsetId.jis
+            elif charset == 'UNICODE':
+                charset = exiv2.CharsetId.unicode
+            else:
+                charset = exiv2.CharsetId.undefined
         raw_value = data[8:]
         if charset == exiv2.CharsetId.ascii:
             encodings = ('ascii',)
@@ -352,12 +369,11 @@ class MetadataHandler(object):
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
             # use Exiv2's "interpreted string"
             return datum._print()
-        type_id = datum.typeId()
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
-            value = datum.value(exiv2.TypeId.comment)
-            return self.get_exif_comment(tag, value)
+            return self.get_exif_comment(tag, datum)
         value = datum.value()
+        type_id = datum.typeId()
         if type_id == exiv2.TypeId.asciiString:
             return value.toString()
         if type_id in (exiv2.TypeId.unsignedByte, exiv2.TypeId.undefined):
