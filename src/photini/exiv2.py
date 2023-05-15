@@ -292,25 +292,23 @@ class MetadataHandler(object):
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.undefined:
             value = datum.value(exiv2.TypeId.comment)
-            type_id = exiv2.TypeId.comment
-        else:
-            value = datum.value()
-        # ignore Exiv2's comment decoding, Python is better at unicode
-        data = memoryview(value.data())
-        if not any(data):
-            return None
-        if type_id == exiv2.TypeId.comment:
+            data = memoryview(value.data())
             charset = value.charsetId()
         else:
-            charset = bytes(data[:8]).decode('ASCII')
-            if charset == 'ASCII':
+            value = datum.value(exiv2.TypeId.undefined)
+            data = bytearray(len(value))
+            value.copy(data, exiv2.ByteOrder.invalidByteOrder)
+            if data[:5] == b'ASCII':
                 charset = exiv2.CharsetId.ascii
-            elif charset == 'JIS':
+            elif data[:3] == b'JIS':
                 charset = exiv2.CharsetId.jis
-            elif charset == 'UNICODE':
+            elif data[:7] == b'UNICODE':
                 charset = exiv2.CharsetId.unicode
             else:
                 charset = exiv2.CharsetId.undefined
+        # ignore Exiv2's comment decoding, Python is better at unicode
+        if not any(data):
+            return None
         raw_value = data[8:]
         if charset == exiv2.CharsetId.ascii:
             encodings = ('ascii',)
