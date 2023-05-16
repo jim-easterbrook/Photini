@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en" sourcelanguage="en_GB">
+<TS version="2.1" language="en_GB" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -109,6 +109,11 @@
     </message>
     <message>
         <source>Altitude</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
         <translation></translation>
     </message>
 </context>
@@ -826,7 +831,7 @@
         <translation></translation>
     </message>
     <message>
-        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a comma.</source>
+        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation></translation>
     </message>
 </context>
@@ -1217,6 +1222,11 @@
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
         <translation></translation>
     </message>
 </context>
@@ -1658,6 +1668,16 @@
     </message>
     <message>
         <source>Precision</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>ƒ/</source>
+        <comment>lens aperture</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source> mm</source>
+        <comment>millimetres focal length</comment>
         <translation></translation>
     </message>
 </context>

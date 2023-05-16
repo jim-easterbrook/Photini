@@ -223,7 +223,8 @@ class PhotiniMap(QtWidgets.QWidget):
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 1, 0)
         self.widgets['alt'] = DoubleSpinBox('exif:GPSAltitude')
-        self.widgets['alt'].set_suffix(' m')
+        self.widgets['alt'].set_suffix(
+            translate('PhotiniMap', ' m', 'metres altitude'))
         self.widgets['alt'].new_value.connect(self.new_value)
         left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
@@ -638,7 +639,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @catch_all
     def marker_drag(self, lat, lng):
-        self.widgets['latlon'].set_value('{:.6f}, {:.6f}'.format(lat, lng))
+        self.widgets['latlon'].set_value((lat, lng))
 
     @catch_all
     def marker_drag_end(self, lat, lng, marker_id):

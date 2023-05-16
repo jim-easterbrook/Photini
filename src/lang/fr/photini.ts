@@ -115,6 +115,11 @@
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CLIHelp</name>
@@ -878,7 +883,7 @@
         <translation>Lat, lon</translation>
     </message>
     <message>
-        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a comma.</source>
+        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1318,6 +1323,11 @@
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;répéter la recherche&gt;</translation>
+    </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1767,6 +1777,16 @@
     <message>
         <source>Remove &quot;{name}&quot;</source>
         <translation type="vanished">Supprimer «&#xa0;{name}&#xa0;»</translation>
+    </message>
+    <message>
+        <source>ƒ/</source>
+        <comment>lens aperture</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> mm</source>
+        <comment>millimetres focal length</comment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

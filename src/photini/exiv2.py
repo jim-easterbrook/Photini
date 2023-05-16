@@ -288,12 +288,27 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
 
-    def get_exif_comment(self, tag, value):
+    def get_exif_comment(self, tag, datum):
+        type_id = datum.typeId()
+        if type_id == exiv2.TypeId.undefined:
+            value = datum.value(exiv2.TypeId.comment)
+            data = memoryview(value.data())
+            charset = value.charsetId()
+        else:
+            value = datum.value(exiv2.TypeId.undefined)
+            data = bytearray(len(value))
+            value.copy(data, exiv2.ByteOrder.invalidByteOrder)
+            if data[:5] == b'ASCII':
+                charset = exiv2.CharsetId.ascii
+            elif data[:3] == b'JIS':
+                charset = exiv2.CharsetId.jis
+            elif data[:7] == b'UNICODE':
+                charset = exiv2.CharsetId.unicode
+            else:
+                charset = exiv2.CharsetId.undefined
         # ignore Exiv2's comment decoding, Python is better at unicode
-        data = memoryview(value.data())
         if not any(data):
             return None
-        charset = value.charsetId()
         raw_value = data[8:]
         if charset == exiv2.CharsetId.ascii:
             encodings = ('ascii',)
@@ -352,12 +367,11 @@ class MetadataHandler(object):
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
             # use Exiv2's "interpreted string"
             return datum._print()
-        type_id = datum.typeId()
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
-            value = datum.value(exiv2.TypeId.comment)
-            return self.get_exif_comment(tag, value)
+            return self.get_exif_comment(tag, datum)
         value = datum.value()
+        type_id = datum.typeId()
         if type_id == exiv2.TypeId.asciiString:
             return value.toString()
         if type_id in (exiv2.TypeId.unsignedByte, exiv2.TypeId.undefined):
@@ -534,6 +548,9 @@ class MetadataHandler(object):
         elif type_id == exiv2.TypeId.asciiString:
             value = exiv2.AsciiValue(value)
         elif type_id == exiv2.TypeId.comment:
+            # only comment value Photini writes is GPS processing method
+            # which is certain to be ASCII
+            value = 'charset=Ascii ' + value
             value = exiv2.CommentValue(value)
         elif type_id == exiv2.TypeId.unsignedShort:
             value = exiv2.UShortValue(value)
