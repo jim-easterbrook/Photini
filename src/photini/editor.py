@@ -541,6 +541,7 @@ def main(argv=None):
     version += '\n  Python ' + sys.version
     version += '\n  ' + exiv2_version
     version += '\n  ' + qt_version
+    version += ', locale ' + locale.bcp47Name()
     if spelling_version:
         version += '\n  ' + spelling_version
     if ffmpeg_version:

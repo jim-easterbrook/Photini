@@ -111,6 +111,11 @@
         <source>subject {idx}</source>
         <translation>soggetto {idx}</translation>
     </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CLIHelp</name>
@@ -652,7 +657,7 @@
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Solo tu</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
@@ -720,11 +725,11 @@
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Amici</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Famiglia</translation>
     </message>
     <message>
         <source>see the photo</source>
@@ -744,7 +749,7 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Licenza</translation>
     </message>
     <message>
         <source>Synchronise</source>
@@ -826,7 +831,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a comma.</source>
+        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -883,7 +888,7 @@
     <name>MenuBar</name>
     <message>
         <source>Photini photo metadata editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editor di metadati fotografici di Photini</translation>
     </message>
     <message>
         <source>File</source>
@@ -1050,7 +1055,7 @@
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Città</translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1074,7 +1079,7 @@
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paese</translation>
     </message>
     <message>
         <source>Creator / Licensor Contact Information</source>
@@ -1134,7 +1139,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nome</translation>
     </message>
     <message>
         <source>URL</source>
@@ -1185,7 +1190,7 @@
     <name>PhotiniMap</name>
     <message>
         <source>Altitude</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Altitudine</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
@@ -1217,6 +1222,11 @@
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1320,7 +1330,7 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Licenza</translation>
     </message>
     <message>
         <source>New collection</source>
@@ -1399,7 +1409,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nome</translation>
     </message>
     <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
@@ -1658,6 +1668,16 @@
     </message>
     <message>
         <source>Precision</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ƒ/</source>
+        <comment>lens aperture</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> mm</source>
+        <comment>millimetres focal length</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>

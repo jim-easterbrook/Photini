@@ -53,6 +53,9 @@ These values are editable, so you can set the location of photographs directly, 
 You can also adjust the location by dragging the marker on the map.
 To clear a photograph's location data just delete the coordinates.
 
+In Photini version 2023.5.0 and later the coordinates are separated by a space.
+Older versions used a comma (as shown in these screenshots) but this causes problems with locales that use a decimal comma instead of a decimal point.
+
 .. image:: ../images/screenshot_136.png
 
 When several photographs have location metadata Photini will pan the map (and zoom out if required) to ensure all the selected images are shown on the map.

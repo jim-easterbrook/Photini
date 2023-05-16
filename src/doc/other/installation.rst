@@ -594,6 +594,7 @@ requests_                      2.4                ``python3-requests``          
 
 [1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI framework.
 Photini can use any of them (although PySide2 is preferred), so you can install whichever one you prefer that is available for your operating system.
+(Note that PyQt6 and PySide6 are not compatible with Windows versions earlier than Windows 10.)
 If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>` or by running ``photini-configure``.
 
 [2] Photini needs the Python interface to QtWebEngine_.

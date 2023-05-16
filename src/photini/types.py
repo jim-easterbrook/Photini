@@ -256,6 +256,7 @@ class MD_DateTime(MD_Dict):
             if match:
                 unparsed, sub_sec_string = match.groups()
         if sub_sec_string:
+            sub_sec_string = sub_sec_string.strip()
             microsecond = int((sub_sec_string + '000000')[:6])
         else:
             microsecond = 0
@@ -297,7 +298,7 @@ class MD_DateTime(MD_Dict):
             precision = self['precision']
         fmt = ''.join(self._fmt_elements[:precision])
         datetime_string = self['datetime'].strftime(fmt)
-        if precision > 6:
+        if precision > 6 and datetime_string[-3:] == '000':
             # truncate subsecond to 3 digits
             datetime_string = datetime_string[:-3]
         if precision > 3 and time_zone and self['tz_offset'] is not None:
@@ -869,6 +870,8 @@ class MD_LangAlt(MD_Value, dict):
     def __init__(self, value=None, default_lang=None, strip=True):
         if isinstance(value, str):
             value = {self.DEFAULT: value}
+        elif isinstance(value, MD_LangAlt):
+            default_lang = default_lang or value.default_lang
         value = value or {}
         if strip:
             value = dict((k, v.strip()) for (k, v) in value.items())
@@ -877,8 +880,6 @@ class MD_LangAlt(MD_Value, dict):
             self.default_lang = default_lang
             if self.DEFAULT in value and self.default_lang not in value:
                 value[self.default_lang] = value[self.DEFAULT]
-        elif isinstance(value, MD_LangAlt):
-            self.default_lang = value.default_lang
         else:
             self.default_lang = self.identify_default(value)
         if self.default_lang != self.DEFAULT and self.DEFAULT in value:
@@ -1369,13 +1370,21 @@ class MD_Coordinate(MD_Rational):
         return '{:d},{:.8f}'.format(degrees, minutes), pstv
 
     def contains(self, this, other):
-        return abs(float(other) - float(this)) < 0.0000001
+        if other is None:
+            return False
+        return abs(float(other) - float(this)) < 0.0000005
 
     def compact_form(self):
         return round(float(self), 6)
 
     def __str__(self):
         return '{:.6f}'.format(float(self))
+
+    def __eq__(self, other):
+        return self.contains(self, other)
+
+    def __ne__(self, other):
+        return not self.contains(self, other)
 
 
 class MD_Latitude(MD_Coordinate):
@@ -1491,15 +1500,13 @@ class MD_GPSinfo(MD_Structure):
                                      'exif:GPSAltitude'))
 
     def __eq__(self, other):
-        if isinstance(other, MD_GPSinfo):
-            return not self.__ne__(other)
-        return super(MD_GPSinfo, self).__eq__(other)
+        return not self.__ne__(other)
 
     def __ne__(self, other):
-        if isinstance(other, MD_GPSinfo):
-            return any(self[k] != other[k] for k in (
-                'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
-        return super(MD_GPSinfo, self).__ne__(other)
+        if not isinstance(other, MD_GPSinfo):
+            other = MD_GPSinfo(other)
+        return any(self[k] != other[k] for k in (
+            'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
 
 
 class MD_Aperture(MD_Rational):
