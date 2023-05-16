@@ -439,7 +439,13 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().setSpacing(0)
         # offset value
         self.offset = QtWidgets.QTimeEdit()
-        self.offset.setDisplayFormat("'h:'hh 'm:'mm 's:'ss")
+        self.offset.setDisplayFormat("'{}:'HH' {}:'mm' {}:'ss".format(
+            translate('TechnicalTab', 'h',
+                      'single letter abbreviation of "hours"'),
+            translate('TechnicalTab', 'm',
+                      'single letter abbreviation of "minutes"'),
+            translate('TechnicalTab', 's',
+                      'single letter abbreviation of "seconds"')))
         self.layout().addWidget(self.offset)
         self.layout().addSpacing(spacing)
         # time zone
