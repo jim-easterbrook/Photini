@@ -314,8 +314,13 @@ class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
         if not text.strip():
             return 0
         hours, sep, minutes = text.partition(':')
-        hours = int(hours)
+        hours, OK = self.locale().toInt(hours)
+        if not OK:
+            return 0
         if minutes:
+            minutes, OK = self.locale().toInt(minutes)
+            if not OK:
+                minutes = 0
             minutes = int(15.0 * round(float(minutes) / 15.0))
             if hours < 0:
                 minutes = -minutes
@@ -328,11 +333,11 @@ class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
         if value is None:
             return ''
         if value < 0:
-            sign = '-'
+            sign = self.locale().negativeSign()
             value = -value
         else:
-            sign = '+'
-        return '{}{:02d}:{:02d}'.format(sign, value // 60, value % 60)
+            sign = self.locale().positiveSign()
+        return sign + QtCore.QTime(value // 60, value % 60).toString('hh:mm')
 
 
 class PrecisionSlider(Slider):
