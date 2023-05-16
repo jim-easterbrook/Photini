@@ -256,6 +256,7 @@ class MD_DateTime(MD_Dict):
             if match:
                 unparsed, sub_sec_string = match.groups()
         if sub_sec_string:
+            sub_sec_string = sub_sec_string.strip()
             microsecond = int((sub_sec_string + '000000')[:6])
         else:
             microsecond = 0
