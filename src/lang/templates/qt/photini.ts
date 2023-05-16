@@ -111,6 +111,11 @@
         <source>subject {idx}</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CLIHelp</name>
@@ -822,7 +827,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a comma.</source>
+        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1213,6 +1218,11 @@
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1654,6 +1664,16 @@
     </message>
     <message>
         <source>Precision</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ƒ/</source>
+        <comment>lens aperture</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> mm</source>
+        <comment>millimetres focal length</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>

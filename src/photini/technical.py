@@ -314,8 +314,13 @@ class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
         if not text.strip():
             return 0
         hours, sep, minutes = text.partition(':')
-        hours = int(hours)
+        hours, OK = self.locale().toInt(hours)
+        if not OK:
+            return 0
         if minutes:
+            minutes, OK = self.locale().toInt(minutes)
+            if not OK:
+                minutes = 0
             minutes = int(15.0 * round(float(minutes) / 15.0))
             if hours < 0:
                 minutes = -minutes
@@ -328,11 +333,11 @@ class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
         if value is None:
             return ''
         if value < 0:
-            sign = '-'
+            sign = self.locale().negativeSign()
             value = -value
         else:
-            sign = '+'
-        return '{}{:02d}:{:02d}'.format(sign, value // 60, value % 60)
+            sign = self.locale().positiveSign()
+        return sign + QtCore.QTime(value // 60, value % 60).toString('hh:mm')
 
 
 class PrecisionSlider(Slider):
@@ -601,10 +606,12 @@ class NewLensDialog(NewItemDialog):
             self.lens_spec[key] = DoubleSpinBox(key)
             self.lens_spec[key].setMinimum(0.0)
             if key.endswith('_fn'):
-                self.lens_spec[key].set_prefix('ƒ/')
+                self.lens_spec[key].set_prefix(translate(
+                    'TechnicalTab', 'ƒ/', 'lens aperture'))
             else:
                 self.lens_spec[key].setSingleStep(1.0)
-                self.lens_spec[key].set_suffix(' mm')
+                self.lens_spec[key].set_suffix(translate(
+                    'TechnicalTab', ' mm', 'millimetres focal length'))
             self.panel.layout().addRow(label, self.lens_spec[key])
 
     def get_value(self):
@@ -717,21 +724,24 @@ class TabWidget(QtWidgets.QWidget):
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox('focal_length')
         self.widgets['focal_length'].setMinimum(0.0)
-        self.widgets['focal_length'].set_suffix(' mm')
+        self.widgets['focal_length'].set_suffix(translate(
+            'TechnicalTab', ' mm', 'millimetres focal length'))
         self.widgets['focal_length'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
                                     self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = IntSpinBox('focal_length_35')
         self.widgets['focal_length_35'].setMinimum(0)
-        self.widgets['focal_length_35'].set_suffix(' mm')
+        self.widgets['focal_length_35'].set_suffix(translate(
+            'TechnicalTab', ' mm', 'millimetres focal length'))
         self.widgets['focal_length_35'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
                                     self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = DoubleSpinBox('aperture')
         self.widgets['aperture'].setMinimum(0.0)
-        self.widgets['aperture'].set_prefix('ƒ/')
+        self.widgets['aperture'].set_prefix(translate(
+            'TechnicalTab', 'ƒ/', 'lens aperture'))
         self.widgets['aperture'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Aperture'),
                                     self.widgets['aperture'])
