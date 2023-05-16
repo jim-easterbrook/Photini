@@ -1680,6 +1680,21 @@
         <comment>millimetres focal length</comment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>h</source>
+        <comment>single letter abbreviation of &quot;hours&quot;</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>m</source>
+        <comment>single letter abbreviation of &quot;minutes&quot;</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>s</source>
+        <comment>single letter abbreviation of &quot;seconds&quot;</comment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UploaderTabsAll</name>
