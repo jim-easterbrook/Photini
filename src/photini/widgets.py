@@ -838,10 +838,10 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         self.setButtonSymbols(self.ButtonSymbols.NoButtons)
         self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.setFixedWidth(width_for_text(self, '8' * 23))
+        self.setFixedWidth(width_for_text(self, '8' * 22))
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
-            ' decimal numbers separated by a comma.')))
+            ' decimal numbers separated by a space.')))
 
     @catch_all
     def focusOutEvent(self, event):
@@ -879,7 +879,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
     def validate(self, text, pos):
         if not text:
             return QtGui.QValidator.State.Acceptable, text, pos
-        parts = [x.strip() for x in text.split(',')]
+        parts = text.split()
         if len(parts) > 2:
             return QtGui.QValidator.State.Invalid, text, pos
         result = self.lat_validator.validate(parts[0], pos)[0]
@@ -893,18 +893,27 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
 
     @catch_all
     def fixup(self, value):
-        value = value.split(',')
-        if len(value) != 2 or not all(value):
+        value = self.text_to_value(value)
+        if len(value) != 2:
             return
-        value = [float(x) for x in value]
         value[0] = min(max(value[0], -90.0), 90.0)
         value[1] = ((value[1] + 180.0) % 360.0) - 180.0
-        self.lineEdit().setText('{:f}, {:f}'.format(*value))
+        self.lineEdit().setText(self.value_to_text(value))
+
+    def text_to_value(self, text):
+        value = [self.locale().toDouble(x) for x in text.split()]
+        if not all(x[1] for x in value):
+            # float conversion failed
+            return []
+        return [x[0] for x in value]
+
+    def value_to_text(self, value):
+        return ' '.join(self.locale().toString(float(x), 'f', 6) for x in value)
 
     def get_value(self):
-        value = self.text() or None
-        if value and self.hasAcceptableInput():
-            value = [float(x) for x in value.split(',')]
+        value = self.text_to_value(self.text())
+        if len(value) != 2:
+            return None
         return value
 
     def get_value_dict(self):
@@ -917,7 +926,9 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         if not value:
             self.clear()
         else:
-            self.lineEdit().setText(str(value))
+            if not isinstance(value, str):
+                value = self.value_to_text(value)
+            self.lineEdit().setText(value)
 
     def set_value_list(self, values):
         choices = set()
@@ -931,7 +942,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
                 lat = value['exif:GPSLatitude']
                 lon = value['exif:GPSLongitude']
                 if lat and lon:
-                    choices.add('{}, {}'.format(lat, lon))
+                    choices.add(self.value_to_text((lat, lon)))
                     continue
             choices.add(None)
         if len(choices) > 1:
@@ -976,4 +987,8 @@ class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):
     @catch_all
     def textFromValue(self, value):
         # don't use QDoubleSpinBox's fixed number of decimals
-        return str(round(float(value), self.decimals()))
+        decimals = self.decimals()
+        value = round(float(value), decimals)
+        while decimals > 1 and round(value, decimals - 1) == value:
+            decimals -= 1
+        return self.locale().toString(value, 'f', decimals)
