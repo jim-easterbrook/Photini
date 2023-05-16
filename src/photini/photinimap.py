@@ -638,7 +638,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @catch_all
     def marker_drag(self, lat, lng):
-        self.widgets['latlon'].set_value('{:.6f}, {:.6f}'.format(lat, lng))
+        self.widgets['latlon'].set_value((lat, lng))
 
     @catch_all
     def marker_drag_end(self, lat, lng, marker_id):
