@@ -81,7 +81,7 @@
     </message>
     <message>
         <source>Street</source>
-        <translation type="unfinished"></translation>
+        <translation>Via</translation>
     </message>
     <message>
         <source>City</source>
@@ -121,7 +121,7 @@
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilizzo: %prog [opzioni] [nome_file, ...]</translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
@@ -144,11 +144,11 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;preferiti&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Metadati descrittivi</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -164,11 +164,11 @@
     </message>
     <message>
         <source>Headline</source>
-        <translation type="unfinished"></translation>
+        <translation>Titolo</translation>
     </message>
     <message>
         <source>Description / Caption</source>
-        <translation type="unfinished"></translation>
+        <translation>Descrizione / Didascalia</translation>
     </message>
     <message>
         <source>Keywords</source>
@@ -176,7 +176,7 @@
     </message>
     <message>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Valutazione</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
@@ -1457,7 +1457,7 @@
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descrizione</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
@@ -1469,19 +1469,19 @@
     </message>
     <message>
         <source>New rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo rettangolo</translation>
     </message>
     <message>
         <source>New circle</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo cerchio</translation>
     </message>
     <message>
         <source>New point</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo punto</translation>
     </message>
     <message>
         <source>New polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo poligono</translation>
     </message>
     <message>
         <source>Delete region</source>
@@ -1500,51 +1500,51 @@
     </message>
     <message>
         <source>Model name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome modello</translation>
     </message>
     <message>
         <source>Serial number</source>
-        <translation type="unfinished"></translation>
+        <translation>Numero di serie</translation>
     </message>
     <message>
         <source>Photini: define camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: definisci macchina fotografica</translation>
     </message>
     <message>
         <source>Photini: define lens</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: definisci lenti</translation>
     </message>
     <message>
         <source>Minimum focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Lunghezza focale minima</translation>
     </message>
     <message>
         <source>Aperture at min. focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Apertura al min. lunghezza focale</translation>
     </message>
     <message>
         <source>Maximum focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Lunghezza focale massima</translation>
     </message>
     <message>
         <source>Aperture at max. focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Apertura al max. lunghezza focale</translation>
     </message>
     <message>
         <source>&amp;Technical metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Metadati tecnici</translation>
     </message>
     <message>
         <source>Date and time</source>
-        <translation type="unfinished"></translation>
+        <translation>Data e ora</translation>
     </message>
     <message>
         <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Collegamento &apos;preso&apos; e &apos;digitalizzato&apos;</translation>
     </message>
     <message>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Lunghezza focale minima</translation>
     </message>
     <message>
         <source>Taken</source>
@@ -1552,11 +1552,11 @@
     </message>
     <message>
         <source>Digitised</source>
-        <translation type="unfinished"></translation>
+        <translation>Digitalizzato</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Modificato</translation>
     </message>
     <message>
         <source>Adjust times</source>
@@ -1564,68 +1564,68 @@
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>Altro</translation>
     </message>
     <message>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Orientamento</translation>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Camera</translation>
     </message>
     <message>
         <source>Lens model</source>
-        <translation type="unfinished"></translation>
+        <translation>Modello di lente</translation>
     </message>
     <message>
         <source>Focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Lunghezza focale</translation>
     </message>
     <message>
         <source>35mm equiv</source>
-        <translation type="unfinished"></translation>
+        <translation>35 mm equiv</translation>
     </message>
     <message>
         <source>Aperture</source>
-        <translation type="unfinished"></translation>
+        <translation>Apertura</translation>
     </message>
     <message>
         <source>Photini: maker name change</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: cambio nome creatore</translation>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
-        <translation type="unfinished"></translation>
+        <translation>La modifica del nome del produttore invaliderà le informazioni sul produttore Exif.</translation>
     </message>
     <message>
         <source>Do you want to delete the Exif makernote?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vuoi eliminare il makernote Exif?</translation>
     </message>
     <message>
         <source>min</source>
-        <translation type="unfinished"></translation>
+        <translation>min</translation>
     </message>
     <message>
         <source>max</source>
-        <translation type="unfinished"></translation>
+        <translation>max</translation>
     </message>
     <message>
         <source>Max aperture</source>
-        <translation type="unfinished"></translation>
+        <translation>Massima apertura</translation>
     </message>
     <message>
         <source>Update aperture &amp; focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiorna apertura e lunghezza focale</translation>
     </message>
     <message>
         <source>Adjust image aperture and focal length to agree with lens specification?</source>
-        <translation type="unfinished"></translation>
+        <translation>Regolare l&apos;apertura dell&apos;immagine e la lunghezza focale per concordare con le specifiche dell&apos;obiettivo?</translation>
     </message>
     <message>
         <source>normal</source>
         <comment>orientation dropdown, no transformation</comment>
-        <translation type="unfinished"></translation>
+        <translation>normale</translation>
     </message>
     <message>
         <source>Remove &quot;{camera_or_lens}&quot;</source>
@@ -1654,105 +1654,105 @@
     <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
-        <translation type="unfinished"></translation>
+        <translation>ruota -90°</translation>
     </message>
     <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
-        <translation type="unfinished"></translation>
+        <translation>ruota +90°</translation>
     </message>
     <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
-        <translation type="unfinished"></translation>
+        <translation>ruota 180°</translation>
     </message>
     <message>
         <source>Precision</source>
-        <translation type="unfinished"></translation>
+        <translation>Precisione</translation>
     </message>
     <message>
         <source>ƒ/</source>
         <comment>lens aperture</comment>
-        <translation type="unfinished"></translation>
+        <translation>ƒ/</translation>
     </message>
     <message>
         <source> mm</source>
         <comment>millimetres focal length</comment>
-        <translation type="unfinished"></translation>
+        <translation> mm</translation>
     </message>
     <message>
         <source>h</source>
         <comment>single letter abbreviation of &quot;hours&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>h</translation>
     </message>
     <message>
         <source>m</source>
         <comment>single letter abbreviation of &quot;minutes&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>m</translation>
     </message>
     <message>
         <source>s</source>
         <comment>single letter abbreviation of &quot;seconds&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>s</translation>
     </message>
 </context>
 <context>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiudi finestra</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ora puoi chiudere questa finestra del browser.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation type="unfinished"></translation>
+        <translation>Login</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="unfinished"></translation>
+        <translation>Logout</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi agli album</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvia caricamento</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferma caricamento</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: caricamento in corso</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file &quot;{file_name}&quot; ha {size} byte e supera il limite di {service} di {max_size} byte.</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; upload failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento del file &quot;{file_name}&quot; non riuscito.</translation>
     </message>
     <message>
         <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file {file_name} è già stato caricato su {service}. Come vorresti aggiornarlo?</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {service}?</source>
-        <translation type="unfinished"></translation>
+        <translation>Quale file immagine corrisponde a questa immagine su {service}?</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation type="unfinished"></translation>
+        <translation>Se chiudi ora, il caricamento verrà interrotto.</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: tipo incompatibile</translation>
     </message>
     <message>
         <source>Skip</source>
@@ -1760,110 +1760,110 @@
     </message>
     <message>
         <source>Upload to {service} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il caricamento su {service} non è terminato.</translation>
     </message>
     <message>
         <source>Logged in as {user} on {service}</source>
-        <translation type="unfinished"></translation>
+        <translation>Accesso eseguito come {user} su {service}</translation>
     </message>
     <message>
         <source>Not logged in to {service}</source>
-        <translation type="unfinished"></translation>
+        <translation>Non hai effettuato l&apos;accesso a {service}</translation>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: troppo grande</translation>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>File troppo grande.</translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Desideri ridimensionarlo?</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di immagine incompatibile.</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation type="unfinished"></translation>
+        <translation>In corso</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: errore di caricamento</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: autorizzazione</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
+        <translation>Autorizzazione richiesta</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilizza il tuo browser web per autorizzare Photini, quindi chiudi questa finestra di dialogo.</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file &quot;{file_name}&quot; ha {size} pixel e supera il limite di {service} di {max_size} pixel.</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file &quot;{file_name}&quot; è di tipo &quot;{file_type}&quot;, che {service} potrebbe non essere gestito correttamente.</translation>
     </message>
     <message>
         <source>Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorresti convertirlo in JPEG?</translation>
     </message>
     <message>
         <source>Would you like to upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vuoi caricarlo comunque?</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Sostituisci foto</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="unfinished"></translation>
+        <translation>Sostituisci immagine</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Carica come nuova foto</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna immagine caricata</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un immagine</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna corrispondenza</translation>
     </message>
     <message>
         <source>Create new album</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea nuovo album</translation>
     </message>
 </context>
 <context>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;multiplo&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;valori multipli&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;nuovo&gt;</translation>
     </message>
 </context>
 </TS>
