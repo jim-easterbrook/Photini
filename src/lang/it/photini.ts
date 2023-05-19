@@ -148,7 +148,7 @@
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation>&amp;Metadati descrittivi</translation>
+        <translation type="unfinished">Metadati &amp;descrittivi</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -298,7 +298,7 @@
     </message>
     <message>
         <source>&amp;Flickr upload</source>
-        <translation>&amp;Carica su Flickr</translation>
+        <translation>Carica su &amp;Flickr</translation>
     </message>
     <message>
         <source>Flickr</source>
@@ -437,7 +437,7 @@
     <name>GooglePhotosTab</name>
     <message>
         <source>Google &amp;Photos upload</source>
-        <translation>Google &amp;Carica foto</translation>
+        <translation>&amp;Google Carica foto</translation>
     </message>
     <message>
         <source>Google Photos</source>
@@ -510,7 +510,6 @@
         <translation>
             <numerusform>Ricarica file</numerusform>
             <numerusform>Ricarica i file</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -518,7 +517,6 @@
         <translation>
             <numerusform>Rigenera miniatura</numerusform>
             <numerusform>Rigenera miniature</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -526,7 +524,6 @@
         <translation>
             <numerusform>Chiudi file</numerusform>
             <numerusform>Chiudi i file</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -653,7 +650,6 @@
         <translation>
             <numerusform>%n file selezionato</numerusform>
             <numerusform>%n file selezionati</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -709,7 +705,7 @@
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation>&amp;Caricamento Ipernity</translation>
+        <translation>Caricamento &amp;Ipernity</translation>
     </message>
     <message>
         <source>Ipernity</source>
@@ -987,7 +983,7 @@
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation>&amp;Metadati di proprietà</translation>
+        <translation>Metadati di &amp;proprietà</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1258,7 +1254,7 @@
     </message>
     <message>
         <source>&amp;Pixelfed upload</source>
-        <translation>&amp;Caricamento Pixelfed</translation>
+        <translation>Caricamento &amp;Pixelfed</translation>
     </message>
     <message>
         <source>Caption</source>
@@ -1536,7 +1532,7 @@
     </message>
     <message>
         <source>&amp;Technical metadata</source>
-        <translation>&amp;Metadati tecnici</translation>
+        <translation>Metadati &amp;tecnici</translation>
     </message>
     <message>
         <source>Date and time</source>
