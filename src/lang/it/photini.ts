@@ -148,7 +148,7 @@
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation type="unfinished">Metadati &amp;descrittivi</translation>
+        <translation>&amp;Metadati descrittivi</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
