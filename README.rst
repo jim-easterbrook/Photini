@@ -97,6 +97,7 @@ Licence
 | Czech translation by Pavel Fric
 | French translation by Nathan, J. Lavoie
 | German translation by Jan Rimmek, J. Lavoie, Ettore Atalan
+| Italian translation by "albanobattistella"
 | Korean translation by Soohyeon Park
 | Norwegian Bokmål translation by Allan Nordhøy
 | Polish translation by Dawid Głaz
