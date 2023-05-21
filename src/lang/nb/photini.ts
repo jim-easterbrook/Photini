@@ -1532,7 +1532,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Image &amp;Regions</source>
+        <source>Image &amp;regions</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

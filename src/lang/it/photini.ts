@@ -1489,7 +1489,11 @@
     </message>
     <message>
         <source>Image &amp;Regions</source>
-        <translation>Immagine &amp;Regioni</translation>
+        <translation type="vanished">Immagine &amp;Regioni</translation>
+    </message>
+    <message>
+        <source>Image &amp;regions</source>
+        <translation>Immagine &amp;regioni</translation>
     </message>
 </context>
 <context>

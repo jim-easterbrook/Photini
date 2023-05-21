@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -357,7 +356,6 @@ class PrecisionSlider(Slider):
         if value >= 4:
             value += 1
         self.value_changed.emit(value)
-        self.emit_value()
 
     def get_value(self):
         value = super(PrecisionSlider, self).get_value()

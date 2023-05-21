@@ -1488,7 +1488,7 @@
         <translation></translation>
     </message>
     <message>
-        <source>Image &amp;Regions</source>
+        <source>Image &amp;regions</source>
         <translation></translation>
     </message>
 </context>
