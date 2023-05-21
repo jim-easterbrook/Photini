@@ -52,8 +52,24 @@ class QTabBar(QtWidgets.QTabBar):
     @catch_all
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
-        size.setWidth(max(size.width(), width_for_text(self, 'x' * 10)))
+        if '\n' in self.tabText(index):
+            size.setHeight(size.height() + self.fontMetrics().lineSpacing())
         return size
+
+
+class QTabWidget(QtWidgets.QTabWidget):
+    @catch_all
+    def resizeEvent(self, event):
+        self.adjust_size()
+        super(QTabWidget, self).resizeEvent(event)
+
+    def adjust_size(self):
+        for idx in range(self.count()):
+            self.setTabText(idx, self.tabText(idx).replace('\n', ' '))
+        if self.tabBar().sizeHint().width() <= self.width():
+            return
+        for idx in range(self.count()):
+            self.setTabText(idx, wrap_text(self, self.tabText(idx), 2))
 
 
 class ConfigStore(BaseConfigStore, QtCore.QObject):
@@ -409,9 +425,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget = QtWidgets.QSplitter()
         self.central_widget.setOrientation(Qt.Orientation.Vertical)
         self.central_widget.setChildrenCollapsible(False)
-        self.tabs = QtWidgets.QTabWidget()
+        self.tabs = QTabWidget()
         self.tabs.setTabBar(QTabBar())
-        self.tabs.setElideMode(Qt.TextElideMode.ElideRight)
         self.tabs.currentChanged.connect(self.new_tab)
         self.tabs.setMovable(True)
         self.tabs.tabBar().tabMoved.connect(self.tab_moved)
@@ -453,6 +468,7 @@ class MainWindow(QtWidgets.QMainWindow):
             idx = self.tabs.addTab(tab['object'], tab['label'])
             self.tabs.setTabToolTip(idx, tab['name'])
             self.tabs.tabBar().setTabData(idx, module)
+        self.tabs.adjust_size()
         self.tabs.blockSignals(was_blocked)
         if current:
             self.tabs.setCurrentWidget(current)

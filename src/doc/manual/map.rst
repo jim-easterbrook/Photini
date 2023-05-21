@@ -34,15 +34,15 @@ You may get more useful results by switching to a different map tab.
 
 .. image:: ../images/screenshot_133.png
 
+.. image:: ../images/screenshot_134.png
+
 Having found the right town, you can then zoom in and pan around to find the exact location where your photograph was taken.
 Using aerial / satellite imagery can help with this.
 
-.. image:: ../images/screenshot_134.png
+.. image:: ../images/screenshot_135.png
 
 Now you can drag and drop your photograph onto the map to set its location.
 To set the same location on multiple images, select them all and then drag and drop one of them.
-
-.. image:: ../images/screenshot_135.png
 
 .. |flag| unicode:: U+02690
 
@@ -54,7 +54,7 @@ You can also adjust the location by dragging the marker on the map.
 To clear a photograph's location data just delete the coordinates.
 
 In Photini version 2023.5.0 and later the coordinates are separated by a space.
-Older versions used a comma (as shown in these screenshots) but this causes problems with locales that use a decimal comma instead of a decimal point.
+Older versions used a comma but this causes problems with locales that use a decimal comma instead of a decimal point.
 
 .. image:: ../images/screenshot_136.png
 
@@ -62,15 +62,15 @@ When several photographs have location metadata Photini will pan the map (and zo
 Selected images are shown with coloured markers.
 Unselected images are shown with grey markers.
 
+.. image:: ../images/screenshot_137.png
+
 The ``Get altitude from map`` button sets the photograph's altitude (in metres) from its latitude and longitude, using data from the map provider.
 Not all map providers have altitude data, and the accuracy varies quite a lot.
 You can edit the value to correct it.
 
-.. image:: ../images/screenshot_137.png
+.. image:: ../images/screenshot_138.png
 
 Selecting another map tab will show the same location but with data and imagery from a different provider.
-
-.. image:: ../images/screenshot_138.png
 
 .. image:: ../images/screenshot_139.png
 
@@ -98,6 +98,7 @@ These are points with time stamps around the time the photograph was taken.
 .. image:: ../images/screenshot_223.png
 
 After zooming in on the red track points the photograph can be dragged to the map as usual.
+(If you're wondering why there are pairs of circles on the map, it's because we walked there and back along roughly the same route.)
 
 .. image:: ../images/screenshot_224.png
 

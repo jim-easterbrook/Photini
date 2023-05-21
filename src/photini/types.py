@@ -222,7 +222,7 @@ class MD_DateTime(MD_Dict):
     def truncate_datetime(cls, date_time, precision):
         return date_time.replace(**dict(cls._replace[:7 - precision]))
 
-    _tz_re = re.compile(r'(.*?)([+-])(\d{1,2}):?(\d{1,2})$')
+    _tz_re = re.compile(r'(.*?[T ].*?)([+-])(\d{1,2}):?(\d{1,2})$')
     _subsec_re = re.compile(r'(.*?)\.(\d+)$')
     _time_re = re.compile(r'(.*?)[T ](\d{1,2}):?(\d{1,2})?:?(\d{1,2})?$')
     _date_re = re.compile(r'(\d{1,4})[:-]?(\d{1,2})?[:-]?(\d{1,2})?$')

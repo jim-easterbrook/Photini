@@ -887,7 +887,7 @@ class RegionTabs(QtWidgets.QTabWidget):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('RegionsTab', 'Image &Regions')
+        return translate('RegionsTab', 'Image &regions')
 
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)

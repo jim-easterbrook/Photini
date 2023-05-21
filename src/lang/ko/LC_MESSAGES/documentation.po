@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-16 12:48+0100\n"
+"POT-Creation-Date: 2023-05-21 10:47+0100\n"
 "PO-Revision-Date: 2023-04-19 08:54+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023\n"
 "Language: ko\n"
@@ -1531,9 +1531,8 @@ msgstr ""
 
 msgid ""
 "In Photini version 2023.5.0 and later the coordinates are separated by a "
-"space. Older versions used a comma (as shown in these screenshots) but this "
-"causes problems with locales that use a decimal comma instead of a decimal "
-"point."
+"space. Older versions used a comma but this causes problems with locales "
+"that use a decimal comma instead of a decimal point."
 msgstr ""
 
 msgid ""
@@ -1594,8 +1593,9 @@ msgstr "사진을 선택하면 최대 4개의 트랙 포인트가 빨간색으�
 
 msgid ""
 "After zooming in on the red track points the photograph can be dragged to "
-"the map as usual."
-msgstr "빨간색 트랙 포인트를 확대한 후 평소와 같이 사진을 지도로 드래그할 수 있습니다."
+"the map as usual. (If you're wondering why there are pairs of circles on the"
+" map, it's because we walked there and back along roughly the same route.)"
+msgstr ""
 
 #, fuzzy
 msgid ""
@@ -3633,6 +3633,10 @@ msgstr ""
 msgid "German translation by Jan Rimmek, J. Lavoie, Ettore Atalan"
 msgstr ""
 
+#, fuzzy
+msgid "Italian translation by \"albanobattistella\""
+msgstr "카탈로니아어 번역 by Joan Juvanteny"
+
 msgid "Korean translation by Soohyeon Park"
 msgstr ""
 
@@ -4386,4 +4390,20 @@ msgstr ""
 #~ " :ref:`configuration file <configuration-pyqt>` "
 #~ "or by running ``photini-configure``."
 #~ msgstr ""
+
+#~ msgid ""
+#~ "In Photini version 2023.5.0 and later "
+#~ "the coordinates are separated by a "
+#~ "space. Older versions used a comma "
+#~ "(as shown in these screenshots) but "
+#~ "this causes problems with locales that "
+#~ "use a decimal comma instead of a "
+#~ "decimal point."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "After zooming in on the red track "
+#~ "points the photograph can be dragged "
+#~ "to the map as usual."
+#~ msgstr "빨간색 트랙 포인트를 확대한 후 평소와 같이 사진을 지도로 드래그할 수 있습니다."
 

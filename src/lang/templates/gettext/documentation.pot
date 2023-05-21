@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2023.5.0\n"
+"Project-Id-Version: Photini 2023.5.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-16 12:48+0100\n"
+"POT-Creation-Date: 2023-05-21 10:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -649,7 +649,7 @@ msgstr ""
 msgid "The location coordinates are shown in the ``Lat, long:`` box. These values are editable, so you can set the location of photographs directly, e.g. by copying and pasting from another one. You can also adjust the location by dragging the marker on the map. To clear a photograph's location data just delete the coordinates."
 msgstr ""
 
-msgid "In Photini version 2023.5.0 and later the coordinates are separated by a space. Older versions used a comma (as shown in these screenshots) but this causes problems with locales that use a decimal comma instead of a decimal point."
+msgid "In Photini version 2023.5.0 and later the coordinates are separated by a space. Older versions used a comma but this causes problems with locales that use a decimal comma instead of a decimal point."
 msgstr ""
 
 msgid "When several photographs have location metadata Photini will pan the map (and zoom out if required) to ensure all the selected images are shown on the map. Selected images are shown with coloured markers. Unselected images are shown with grey markers."
@@ -676,7 +676,7 @@ msgstr ""
 msgid "Selecting a photograph shows up to four track points in red. These are points with time stamps around the time the photograph was taken."
 msgstr ""
 
-msgid "After zooming in on the red track points the photograph can be dragged to the map as usual."
+msgid "After zooming in on the red track points the photograph can be dragged to the map as usual. (If you're wondering why there are pairs of circles on the map, it's because we walked there and back along roughly the same route.)"
 msgstr ""
 
 msgid "Alternatively, the ``Set coords from GPX`` button can be used to set the latitude and longitude of all the selected photographs to the nearest (in time) GPX track point. Note that this also sets the altitude if your GPX file has altitude data. This can be disabled in Photini's :doc:`configuration <configuration>`."
@@ -1931,6 +1931,9 @@ msgid "French translation by Nathan, J. Lavoie"
 msgstr ""
 
 msgid "German translation by Jan Rimmek, J. Lavoie, Ettore Atalan"
+msgstr ""
+
+msgid "Italian translation by \"albanobattistella\""
 msgstr ""
 
 msgid "Korean translation by Soohyeon Park"

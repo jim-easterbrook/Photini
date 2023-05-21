@@ -1585,6 +1585,10 @@
     </message>
     <message>
         <source>Image &amp;Regions</source>
+        <translation type="vanished">Bild&amp;regionen</translation>
+    </message>
+    <message>
+        <source>Image &amp;regions</source>
         <translation>Bild&amp;regionen</translation>
     </message>
 </context>
