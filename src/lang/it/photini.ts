@@ -148,7 +148,7 @@
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation type="unfinished">Metadati &amp;descrittivi</translation>
+        <translation>Metadati &amp;descrittivi</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -1489,7 +1489,11 @@
     </message>
     <message>
         <source>Image &amp;Regions</source>
-        <translation>Immagine &amp;Regioni</translation>
+        <translation type="vanished">Immagine &amp;Regioni</translation>
+    </message>
+    <message>
+        <source>Image &amp;regions</source>
+        <translation>Immagine &amp;regioni</translation>
     </message>
 </context>
 <context>
