@@ -335,25 +335,33 @@ class MetadataHandler(object):
             if charset != exiv2.CharsetId.undefined:
                 logger.warning('%s: %s: unknown charset', self._name, tag)
                 raw_value = data
+        result = None
         for encoding in encodings:
             result = self.decode_string(tag, raw_value, encoding)
             if result:
-                return result
-        detector = chardet.universaldetector.UniversalDetector()
-        for i in range(0, len(raw_value), 100):
-            detector.feed(raw_value[i:i+100])
-            if detector.done:
                 break
-        detector.close()
-        encoding = detector.result['encoding']
-        if encoding:
-            result = self.decode_string(tag, raw_value, encoding)
-            if result:
-                return result
-        logger.error(
-            '%s: %s: %d bytes binary data will be deleted when metadata'
-            ' is saved', self._name, tag, value.size())
-        return None
+        else:
+            detector = chardet.universaldetector.UniversalDetector()
+            for i in range(0, len(raw_value), 100):
+                detector.feed(raw_value[i:i+100])
+                if detector.done:
+                    break
+            detector.close()
+            encoding = detector.result['encoding']
+            if encoding:
+                result = self.decode_string(tag, raw_value, encoding)
+        if result and '\0' in result:
+            # terminating NULLs are allowed
+            result = result.strip('\0')
+            if '\0' in result:
+                # NULLs within the string are not allowed
+                result = None
+        if not result:
+            logger.error(
+                '%s: %s: %d bytes binary data will be deleted when metadata'
+                ' is saved', self._name, tag, value.size())
+            return None
+        return result
 
     def get_exif_value(self, tag):
         datum = self._exifData.findKey(exiv2.ExifKey(tag))
