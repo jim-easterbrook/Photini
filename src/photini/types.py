@@ -690,10 +690,10 @@ class MD_Structure(MD_Value, dict):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
+        file_value = file_value or {}
         if isinstance(file_value, (list, tuple)):
             # "legacy" list of string values
             file_value = dict(zip(cls.legacy_keys, file_value))
-        file_value = file_value or {}
         for key, value in file_value.items():
             file_value[key] = cls.get_type(key, value).from_exiv2(value, tag)
         return cls(file_value)
