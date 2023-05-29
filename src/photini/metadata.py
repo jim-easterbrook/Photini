@@ -235,9 +235,9 @@ class ImageMetadata(MetadataHandler):
         for tag in self.get_all_tags():
             if tag in saved_tags:
                 continue
-            if tag in ('Exif.Image.GPSTag', 'Exif.MakerNote.ByteOrder',
-                       'Exif.MakerNote.Offset', 'Exif.Photo.MakerNote',
-                       'Exif.Image.IPTCNAA'):
+            if tag in ('Exif.Image.ExifTag', 'Exif.Image.GPSTag',
+                       'Exif.MakerNote.ByteOrder', 'Exif.MakerNote.Offset',
+                       'Exif.Photo.MakerNote', 'Exif.Image.IPTCNAA'):
                 # some tags disappear with good reason
                 continue
             family, group, tagname = tag.split('.', 2)
