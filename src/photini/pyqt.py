@@ -166,6 +166,11 @@ if qt_version_info >= (6, 0):
     else:
         os.environ['QT_IMAGEIO_MAXALLOC'] = '256'
 
+# suppress QtWebEngine info logging
+if qt_version_info >= (6, 0):
+    QtCore.QLoggingCategory(
+        'qt.webenginecontext').setFilterRules('*.info=false')
+
 # set network proxy
 QtNetwork.QNetworkProxyFactory.setUseSystemConfiguration(True)
 

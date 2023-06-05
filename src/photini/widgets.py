@@ -994,3 +994,13 @@ class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):
         while decimals > 1 and round(value, decimals - 1) == value:
             decimals -= 1
         return self.locale().toString(value, 'f', decimals)
+
+
+class AltitudeDisplay(DoubleSpinBox):
+    def __init__(self, *args, **kwds):
+        super(AltitudeDisplay, self).__init__('exif:GPSAltitude', *args, **kwds)
+        self.set_suffix(translate('AltitudeDisplay', ' m', 'metres altitude'))
+        self.setToolTip('<p>{}</p>'.format(translate(
+            'AltitudeDisplay', 'Altitude of the location in metres.')))
+        self.label = QtWidgets.QLabel(translate('AltitudeDisplay', 'Altitude'))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)

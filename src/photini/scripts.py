@@ -53,18 +53,16 @@ def configure(argv=None):
         cmd = [sys.executable, '-c', '"import {}.QtCore"'.format(package)]
         if subprocess.run(' '.join(cmd), shell=True,
                           stderr=subprocess.DEVNULL).returncode == 0:
-            installed.append(package)
             status = 'installed'
             # check for QtWebEngine
             cmd = [sys.executable,
                    '-c', '"import {}.QtWebEngineWidgets"'.format(package)]
             if subprocess.run(' '.join(cmd), shell=True,
-                              stderr=subprocess.DEVNULL).returncode != 0:
+                              stderr=subprocess.DEVNULL).returncode == 0:
+                installed.append(package)
+            else:
                 status += ', WebEngine not installed'
         else:
-            if 'PyQt' in package:
-                # can't install PyQt5 or PyQt6 with pip
-                continue
             status = 'not installed'
         if package == config.get('pyqt', 'qt_lib'):
             default = str(n)

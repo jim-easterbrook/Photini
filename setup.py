@@ -32,6 +32,8 @@ extras_require = {
     'pixelfed' : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'spelling' : ['pyenchant'],
     # the following are intended for use by the photini-configure script
+    'PyQt5'    : ['PyQt5', 'PyQtWebEngine'],
+    'PyQt6'    : ['PyQt6', 'PyQt6-WebEngine'],
     'PySide2'  : ['PySide2'],
     'PySide6'  : ['PySide6'],
     'gpxpy'    : ['gpxpy'],
@@ -49,7 +51,8 @@ extras_require['win10'] = extras_require['win7']
 min_version = {
     'appdirs': '1.3', 'cachetools': '3.0', 'chardet': '3.0', 'exiv2': '0.14',
     'gphoto2': '1.8.0', 'gpxpy': '1.3.5', 'keyring': '7.0', 'Pillow': '2.0.0',
-    'pyenchant': '2.0', 'PyQt5': '5.9', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
+    'pyenchant': '2.0', 'PyQt5': '5.9', 'PyQtWebEngine': '5.12', 'PyQt6': '6.2',
+    'PyQt6-WebEngine': '6.2', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
     'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
     }
 
