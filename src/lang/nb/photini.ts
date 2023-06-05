@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="unfinished">Høyde</translation>
+        <translation type="obsolete">Høyde</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -100,10 +100,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -115,10 +111,21 @@
         <source>Region</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>AltitudeDisplay</name>
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation>Høyde</translation>
     </message>
 </context>
 <context>
@@ -1234,7 +1241,7 @@
     <name>PhotiniMap</name>
     <message>
         <source>Altitude</source>
-        <translation>Høyde</translation>
+        <translation type="vanished">Høyde</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
@@ -1267,11 +1274,6 @@
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;gjenta søk&gt;</translation>
-    </message>
-    <message>
-        <source> m</source>
-        <comment>metres altitude</comment>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

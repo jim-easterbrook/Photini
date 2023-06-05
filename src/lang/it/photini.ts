@@ -73,7 +73,7 @@
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation>Altitudine della posizione in metri.</translation>
+        <translation type="vanished">Altitudine della posizione in metri.</translation>
     </message>
     <message>
         <source>Name</source>
@@ -105,7 +105,7 @@
     </message>
     <message>
         <source>Altitude</source>
-        <translation>Altitudine</translation>
+        <translation type="vanished">Altitudine</translation>
     </message>
     <message>
         <source>subject {idx}</source>
@@ -114,7 +114,23 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
+        <translation type="vanished"> m</translation>
+    </message>
+</context>
+<context>
+    <name>AltitudeDisplay</name>
+    <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
         <translation> m</translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation>Altitudine della posizione in metri.</translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation>Altitudine</translation>
     </message>
 </context>
 <context>
@@ -1190,7 +1206,7 @@
     <name>PhotiniMap</name>
     <message>
         <source>Altitude</source>
-        <translation>Altitudine</translation>
+        <translation type="vanished">Altitudine</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
@@ -1227,7 +1243,7 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation> m</translation>
+        <translation type="vanished"> m</translation>
     </message>
 </context>
 <context>
