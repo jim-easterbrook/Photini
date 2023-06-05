@@ -12,10 +12,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished">Nom</translation>
     </message>
@@ -45,7 +41,7 @@
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="unfinished">Altitude</translation>
+        <translation type="obsolete">Altitude</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -115,10 +111,21 @@
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
+</context>
+<context>
+    <name>AltitudeDisplay</name>
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation>Altitude</translation>
     </message>
 </context>
 <context>
@@ -1290,7 +1297,7 @@
     <name>PhotiniMap</name>
     <message>
         <source>Altitude</source>
-        <translation>Altitude</translation>
+        <translation type="vanished">Altitude</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
@@ -1323,11 +1330,6 @@
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;répéter la recherche&gt;</translation>
-    </message>
-    <message>
-        <source> m</source>
-        <comment>metres altitude</comment>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

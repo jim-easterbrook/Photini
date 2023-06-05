@@ -76,10 +76,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Altitude of the location in metres.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation></translation>
     </message>
@@ -107,13 +103,20 @@
         <source>Location ID</source>
         <translation></translation>
     </message>
-    <message>
-        <source>Altitude</source>
-        <translation></translation>
-    </message>
+</context>
+<context>
+    <name>AltitudeDisplay</name>
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Altitude</source>
         <translation></translation>
     </message>
 </context>
@@ -1189,10 +1192,6 @@
 <context>
     <name>PhotiniMap</name>
     <message>
-        <source>Altitude</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Get altitude from map</source>
         <translation></translation>
     </message>
@@ -1222,11 +1221,6 @@
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source> m</source>
-        <comment>metres altitude</comment>
         <translation></translation>
     </message>
 </context>

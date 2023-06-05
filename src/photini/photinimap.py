@@ -29,7 +29,7 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (
     QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, qt_version_info)
-from photini.widgets import ComboBox, DoubleSpinBox, LatLongDisplay
+from photini.widgets import AltitudeDisplay, ComboBox, LatLongDisplay
 
 
 logger = logging.getLogger(__name__)
@@ -219,12 +219,8 @@ class PhotiniMap(QtWidgets.QWidget):
         self.widgets['latlon'].new_value.connect(self.new_latlon)
         left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
-        label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))
-        label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        left_side.addWidget(label, 1, 0)
-        self.widgets['alt'] = DoubleSpinBox('exif:GPSAltitude')
-        self.widgets['alt'].set_suffix(
-            translate('PhotiniMap', ' m', 'metres altitude'))
+        self.widgets['alt'] = AltitudeDisplay()
+        left_side.addWidget(self.widgets['alt'].label, 1, 0)
         self.widgets['alt'].new_value.connect(self.new_value)
         left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):

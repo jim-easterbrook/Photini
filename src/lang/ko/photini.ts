@@ -76,10 +76,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -109,12 +105,23 @@
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="unfinished">고도</translation>
+        <translation type="obsolete">고도</translation>
     </message>
+</context>
+<context>
+    <name>AltitudeDisplay</name>
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude</source>
+        <translation>고도</translation>
     </message>
 </context>
 <context>
@@ -1186,7 +1193,7 @@
     <name>PhotiniMap</name>
     <message>
         <source>Altitude</source>
-        <translation>고도</translation>
+        <translation type="vanished">고도</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
@@ -1218,11 +1225,6 @@
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> m</source>
-        <comment>metres altitude</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -28,8 +28,8 @@ from photini.metadata import ImageMetadata
 from photini.photinimap import GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
-from photini.widgets import (
-    CompactButton, DoubleSpinBox, LatLongDisplay, LangAltWidget, SingleLineEdit)
+from photini.widgets import (AltitudeDisplay, CompactButton, LatLongDisplay,
+                             LangAltWidget, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -207,11 +207,7 @@ class LocationInfo(QtWidgets.QScrollArea):
             self.members[key].new_value.connect(self.editing_finished)
         self.members['latlon'] = LatLongDisplay()
         self.members['latlon'].new_value.connect(self.editing_finished)
-        self.members['alt'] = DoubleSpinBox('exif:GPSAltitude')
-        self.members['alt'].set_suffix(
-            translate('AddressTab', ' m', 'metres altitude'))
-        self.members['alt'].setToolTip('<p>{}</p>'.format(
-            translate('AddressTab', 'Altitude of the location in metres.')))
+        self.members['alt'] = AltitudeDisplay()
         self.members['alt'].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
@@ -235,9 +231,7 @@ class LocationInfo(QtWidgets.QScrollArea):
         layout.addWidget(self.members['LocationId'], 6, 1, 1, 5)
         layout.addWidget(self.members['latlon'].label, 7, 0)
         layout.addWidget(self.members['latlon'], 7, 1)
-        label = QtWidgets.QLabel(translate('AddressTab', 'Altitude'))
-        label.setAlignment(Qt.AlignmentFlag.AlignRight)
-        layout.addWidget(label, 7, 2)
+        layout.addWidget(self.members['alt'].label, 7, 2)
         self.members['alt'].setFixedWidth(self.members['latlon'].width())
         layout.addWidget(self.members['alt'], 7, 3)
         layout.setColumnStretch(4, 1)
