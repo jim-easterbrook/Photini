@@ -29,7 +29,7 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (
     QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, qt_version_info)
-from photini.widgets import AltitudeDisplay, ComboBox, LatLongDisplay
+from photini.widgets import AltitudeDisplay, ComboBox, Label, LatLongDisplay
 
 
 logger = logging.getLogger(__name__)
@@ -231,8 +231,7 @@ class PhotiniMap(QtWidgets.QWidget):
         else:
             self.widgets['get_altitude'] = None
         # search
-        label = QtWidgets.QLabel(translate('PhotiniMap', 'Search'))
-        label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        label = Label(translate('PhotiniMap', 'Search'))
         left_side.addWidget(label, 3, 0)
         self.widgets['search'] = ComboBox()
         self.widgets['search'].setEditable(True)
