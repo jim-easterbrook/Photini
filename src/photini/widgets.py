@@ -688,9 +688,11 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
                         break
         if lang in self.value:
             lang = self.value.find_key(lang)
-        else:
+        elif self.value:
             # use the default for this value
             lang = self.value.default_lang
+        else:
+            self.value = MD_LangAlt(default_lang=lang)
         # set language drop down
         self.lang.set_values(
             [self.labeled_lang(x) for x in self.value.languages()],
