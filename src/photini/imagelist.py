@@ -340,8 +340,9 @@ class Image(QtWidgets.QFrame):
 class ScrollArea(QtWidgets.QScrollArea):
     dropped_images = QtSignal(list)
 
-    def __init__(self, parent=None):
+    def __init__(self, image_list=None, parent=None):
         super(ScrollArea, self).__init__(parent)
+        self.image_list = image_list
         self.setWidgetResizable(True)
         self.setAcceptDrops(True)
         widget = QtWidgets.QWidget()
@@ -351,7 +352,6 @@ class ScrollArea(QtWidgets.QScrollArea):
         # adopt some layout methods & signals
         self.add_widget = self.thumbs.addWidget
         self.remove_widget = self.thumbs.removeWidget
-        self.multi_row_changed = self.thumbs.multi_row_changed
 
     @catch_all
     def ensureWidgetVisible(self, widget):
@@ -390,14 +390,18 @@ class ScrollArea(QtWidgets.QScrollArea):
         margins = self.contentsMargins()
         self.setMinimumHeight(min_height + margins.top() + margins.bottom())
 
+    @QtSlot()
+    @catch_all
+    def multi_row_changed(self):
+        if self.image_list.last_selected:
+            self.ensureWidgetVisible(self.image_list.last_selected)
+
 
 class ThumbsLayout(QtWidgets.QLayout):
     """Multi-row fixed-width or single-row variable-width grid of
     thumbnail widgets, according to height.
 
     """
-    multi_row_changed = QtSignal()
-
     def __init__(self, scroll_area=None, **kw):
         super(ThumbsLayout, self).__init__(**kw)
         self.scroll_area = scroll_area
@@ -459,7 +463,7 @@ class ThumbsLayout(QtWidgets.QLayout):
             if multi_row != self.multi_row:
                 self.multi_row = multi_row
                 # make selected item visible after redrawing has finished
-                QtCore.QTimer.singleShot(0, self.multi_row_changed.emit)
+                QtCore.QTimer.singleShot(0, self.scroll_area.multi_row_changed)
             if multi_row:
                 columns = max((view_width - width_hint) // item_w, 1)
                 rows = (len(self.item_list) + columns - 1) // columns
@@ -506,10 +510,8 @@ class ImageList(QtWidgets.QWidget):
         # thumbnail display
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.scroll_area = ScrollArea()
+        self.scroll_area = ScrollArea(image_list=self)
         self.scroll_area.dropped_images.connect(self.open_file_list)
-        self.scroll_area.multi_row_changed.connect(
-            self._ensure_selected_visible)
         self.layout().addWidget(self.scroll_area)
         QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.MoveToPreviousChar,
                          self.scroll_area, self.move_to_prev_thumb)
@@ -675,12 +677,6 @@ class ImageList(QtWidgets.QWidget):
     def _new_sort_order(self):
         self._sort_thumbnails()
         self.sort_order_changed.emit()
-
-    @QtSlot()
-    @catch_all
-    def _ensure_selected_visible(self):
-        if self.last_selected:
-            self.scroll_area.ensureWidgetVisible(self.last_selected)
 
     def _sort_thumbnails(self):
         sort_date = self.sort_date.isChecked()

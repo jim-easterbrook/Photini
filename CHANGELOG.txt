@@ -16,6 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2023.5.2:
+  1/ Fix crash with PySide6 v6.5.1 when opening a file.
+
+Changes in v2023.5.1:
+  1/ Tab labels use two lines instead of eliding to fit width.
+  2/ Ignore NULL bytes in some phone images' Exif comment values.
+  3/ Italian localisation is complete.
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2023.5.0:
   1/ Latitude & longitude values no longer have comma separator.
   2/ All numeric values are localised, e.g. to use decimal comma.
