@@ -72,10 +72,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -104,16 +100,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Altitude</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>subject {idx}</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>AltitudeDisplay</name>
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1185,10 +1188,6 @@
 <context>
     <name>PhotiniMap</name>
     <message>
-        <source>Altitude</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Get altitude from map</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1218,11 +1217,6 @@
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> m</source>
-        <comment>metres altitude</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
