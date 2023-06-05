@@ -118,7 +118,7 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation type="unfinished"></translation>
+        <translation> m</translation>
     </message>
 </context>
 <context>
