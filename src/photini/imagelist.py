@@ -997,6 +997,8 @@ class ImageList(QtWidgets.QWidget):
         self._inc_selection(1, extend_selection=True)
 
     def _inc_selection(self, inc, extend_selection=False):
+        if not self.images:
+            return
         if self.last_selected:
             idx = self.images.index(self.last_selected)
             idx = (idx + inc) % len(self.images)
