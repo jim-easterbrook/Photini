@@ -53,7 +53,6 @@ Before a new release of Photini::
    git pull                             # fetch new content
    python3 utils/lang_update.py         # update from source
    python3 utils/build_lang.py          # "compile" language files
-   python3 utils/localise_desktop.py    # update Linux .desktop file
 
 Plurals
 -------
