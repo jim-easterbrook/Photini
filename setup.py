@@ -16,103 +16,52 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
-import os
 from setuptools import setup
 from setuptools import __version__ as setuptools_version
 
-
-# list dependency packages
-install_requires = ['appdirs', 'cachetools', 'chardet', 'exiv2', 'requests']
-extras_require = {
-    'basic'    : ['PySide2'],
-    'flickr'   : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
-    'google'   : ['requests-oauthlib', 'keyring'],
-    'importer' : ['gphoto2; platform_system != "Windows"'],
-    'ipernity' : ['requests-toolbelt', 'keyring'],
-    'pixelfed' : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
-    'spelling' : ['pyenchant'],
-    # the following are intended for use by the photini-configure script
-    'PyQt5'    : ['PyQt5', 'PyQtWebEngine'],
-    'PyQt6'    : ['PyQt6', 'PyQt6-WebEngine'],
-    'PySide2'  : ['PySide2'],
-    'PySide6'  : ['PySide6'],
-    'gpxpy'    : ['gpxpy'],
-    'Pillow'   : ['Pillow'],
-    }
-extras_require['extras'] = list(
-    set(extras_require['flickr']) | set(extras_require['google']) |
-    set(extras_require['importer']) | set(extras_require['ipernity']) |
-    set(extras_require['spelling']) | set(['gpxpy', 'Pillow']))
-extras_require['win7'] = list(
-    set(extras_require['basic']) | set(extras_require['extras']))
-extras_require['win10'] = extras_require['win7']
-
-# add version numbers
-min_version = {
-    'appdirs': '1.3', 'cachetools': '3.0', 'chardet': '3.0', 'exiv2': '0.14',
-    'gphoto2': '1.8.0', 'gpxpy': '1.3.5', 'keyring': '7.0', 'Pillow': '2.0.0',
-    'pyenchant': '2.0', 'PyQt5': '5.9', 'PyQtWebEngine': '5.12', 'PyQt6': '6.2',
-    'PyQt6-WebEngine': '6.2', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
-    'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
-    }
-
-def add_version(package):
-    package, sep, marker = package.partition(';')
-    return '{} >= {}'.format(package, min_version[package]) + sep + marker
-
-for option in extras_require:
-    extras_require[option] = [add_version(x) for x in extras_require[option]]
-install_requires = [add_version(x) for x in install_requires]
-
-package_data = []
-for root, dirs, files in os.walk('src/photini/data/'):
-    package_data += [
-        os.path.join(root.replace('src/photini/', ''), x) for x in files]
-url = 'https://github.com/jim-easterbrook/Photini'
-
 if tuple(map(int, setuptools_version.split('.'))) >= (61, 0):
-    # use metadata from pyproject.toml
+    # use metadata from pyproject.toml directly
     setup()
 else:
+    import os
+
+    # get metadata from pyproject.toml
+    import toml
+    metadata = toml.load('pyproject.toml')
+
     # read current version info without importing package
     with open('src/photini/__init__.py') as f:
         exec(f.read())
 
-    with open('README.rst') as ldf:
+    with open(metadata['project']['readme']) as ldf:
         long_description = ldf.read()
 
-    setup(name = 'Photini',
+    package_data = []
+    for root, dirs, files in os.walk('src/photini/data/'):
+        package_data += [
+            os.path.join(root.replace('src/photini/', ''), x) for x in files]
+
+    setup(name = metadata['project']['name'],
           version = __version__,
-          author = 'Jim Easterbrook',
-          author_email = 'jim@jim-easterbrook.me.uk',
-          url = url,
-          download_url = url + '/archive/' + __version__ + '.tar.gz',
-          description = 'Simple photo metadata editor',
+          author = metadata['project']['authors'][0]['name'],
+          author_email = metadata['project']['authors'][0]['email'],
+          url = metadata['project']['urls']['homepage'],
+          description = metadata['project']['description'],
           long_description = long_description,
-          classifiers = [
-              'Development Status :: 5 - Production/Stable',
-              'Environment :: Win32 (MS Windows)',
-              'Environment :: X11 Applications :: Qt',
-              'Intended Audience :: End Users/Desktop',
-              'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-              'Operating System :: OS Independent',
-              'Programming Language :: Python :: 3',
-              'Topic :: Multimedia :: Graphics',
-              ],
-          license = 'GPLv3+',
+          classifiers = metadata['project']['classifiers'],
+          license = metadata['project']['license']['text'],
           packages = ['photini'],
           package_dir = {'' : 'src'},
           package_data = {'photini' : package_data},
           entry_points = {
               'console_scripts' : [
-                  'photini-configure = photini.scripts:configure',
-                  'photini-post-install = photini.scripts:post_install',
-                  ],
+                  '{} = {}'.format(k, v)
+                  for k, v in metadata['project']['scripts'].items()],
               'gui_scripts' : [
-                  'photini = photini.editor:main',
-                  ],
+                  '{} = {}'.format(k, v)
+                  for k, v in metadata['project']['gui-scripts'].items()],
               },
-          install_requires = install_requires,
-          extras_require = extras_require,
-          zip_safe = False,
+          install_requires = metadata['project']['dependencies'],
+          extras_require = metadata['project']['optional-dependencies'],
+          zip_safe = metadata['tool']['setuptools']['zip-safe'],
           )
