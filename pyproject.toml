@@ -17,7 +17,7 @@
 #  <http://www.gnu.org/licenses/>.
 
 [build-system]
-requires = ["setuptools >= 59.6", "toml"]
+requires = ["setuptools >= 59.6", "setuptools_scm[toml]>=6.2", "toml"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -81,9 +81,10 @@ photini = "photini.editor:main"
 [tool.setuptools]
 zip-safe = false
 
-[tool.setuptools.dynamic]
-version = {attr = "photini.__version__"}
-
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["doc*", "lang*"]
+
+[tool.setuptools_scm]
+write_to = "src/photini/_version.py"
+version_scheme = "post-release"

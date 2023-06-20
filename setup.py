@@ -29,10 +29,6 @@ else:
     import toml
     metadata = toml.load('pyproject.toml')
 
-    # read current version info without importing package
-    with open('src/photini/__init__.py') as f:
-        exec(f.read())
-
     with open(metadata['project']['readme']) as ldf:
         long_description = ldf.read()
 
@@ -42,7 +38,6 @@ else:
             os.path.join(root.replace('src/photini/', ''), x) for x in files]
 
     setup(name = metadata['project']['name'],
-          version = __version__,
           author = metadata['project']['authors'][0]['name'],
           author_email = metadata['project']['authors'][0]['email'],
           url = metadata['project']['urls']['homepage'],
