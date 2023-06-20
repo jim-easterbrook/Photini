@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import os
 import subprocess
 import sys
@@ -30,7 +28,7 @@ def main(argv=None):
     lang_dir = os.path.join(root, 'src', 'photini', 'data', 'lang')
     translator = QtCore.QTranslator()
     cmd = []
-    for name in os.listdir(lang_dir):
+    for name in sorted(os.listdir(lang_dir)):
         lang = name.split('.')[1]
         if lang == 'en':
             continue
@@ -41,9 +39,9 @@ def main(argv=None):
         if text:
             cmd += ['--set-key=GenericName[{}]'.format(lang),
                     '--set-value={}'.format(text.strip())]
-        text = translator.translate('MenuBar',
-                                    'An easy to use digital photograph metadata'
-                                    ' (Exif, IPTC, XMP) editing application.')
+        text = translator.translate(
+            'MenuBar', 'An easy to use digital photograph metadata (Exif, IPTC,'
+            ' XMP) editing application.')
         if text:
             cmd += ['--set-key=Comment[{}]'.format(lang),
                     '--set-value={}'.format(text.strip())]
