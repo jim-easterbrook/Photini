@@ -47,14 +47,16 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-flickr = [
-    "requests-oauthlib >= 1.0", "requests-toolbelt >= 0.9", "keyring >= 7.0"]
-google = ["requests-oauthlib >= 1.0", "keyring >= 7.0"]
+flickr = ["photini[keyring,requests-oauthlib,requests-toolbelt]"]
+google = ["photini[keyring,requests-oauthlib]"]
 importer = ["gphoto2 >= 1.8; platform_system != 'Windows'"]
-ipernity = ["requests-toolbelt >= 0.9", "keyring >= 7.0"]
-pixelfed = [
-    "requests-oauthlib >= 1.0", "requests-toolbelt >= 0.9", "keyring >= 7.0"]
+ipernity = ["photini[keyring,requests-toolbelt]"]
+pixelfed = ["photini[keyring,requests-oauthlib,requests-toolbelt]"]
 spelling = ["pyenchant >= 2.0"]
+# set versions of common packages
+keyring = ["keyring >= 7.0"]
+requests-oauthlib = ["requests-oauthlib >= 1.0"]
+requests-toolbelt = ["requests-toolbelt >= 0.9"]
 # the following are intended for use by the photini-configure script
 PyQt5 = ["PyQt5 >= 5.9", "PyQtWebEngine >= 5.12"]
 PyQt6 = ["PyQt6 >= 6.2", "PyQt6-WebEngine >= 6.2"]
