@@ -1,8 +1,9 @@
-# ignore setuptools' idea of what should be included
-exclude *
-recursive-exclude * *
-
-# add the minimum needed to install Photini
-include CHANGELOG.txt LICENSE.txt MANIFEST.in pyproject.toml README.rst setup.py
-recursive-include src/photini *
-global-exclude *~ *.pyc
+# setuptools-scm automatically includes everything that's in git
+# ignore stuff that's not required to build photini
+recursive-exclude .github *
+recursive-exclude .tx *
+recursive-exclude src/doc *
+recursive-exclude src/lang *
+recursive-exclude src/Photini.egg-info *
+recursive-exclude utils *
+exclude .gitignore .readthedocs.yaml transifex.yml src/run_photini.py
