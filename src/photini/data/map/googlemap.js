@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -45,11 +45,11 @@ function loadMap(lat, lng, zoom)
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
     var anchor = new google.maps.Point(11, 35);
-    icon_on = {anchor: anchor, url: '../map_pin_red.png'};
-    icon_off = {anchor: anchor, url: '../map_pin_grey.png'};
+    icon_on = {anchor: anchor, url: 'pin_red.png'};
+    icon_off = {anchor: anchor, url: 'pin_grey.png'};
     anchor = new google.maps.Point(5, 5);
-    gpsBlueCircle = {anchor: anchor, url: '../map_circle_blue.png'};
-    gpsRedCircle = {anchor: anchor, url: '../map_circle_red.png'};
+    gpsBlueCircle = {anchor: anchor, url: 'circle_blue.png'};
+    gpsRedCircle = {anchor: anchor, url: 'circle_red.png'};
     python.initialize_finished();
 }
 

@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2018-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2018-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -51,13 +51,13 @@ function loadMap(lat, lng, zoom)
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
     icon_on = new L.Icon({
-        iconUrl: '../map_pin_red.png', iconSize: [25, 35], iconAnchor: [11, 35]});
+        iconUrl: 'pin_red.png', iconSize: [25, 35], iconAnchor: [11, 35]});
     icon_off = new L.Icon({
-        iconUrl: '../map_pin_grey.png', iconSize: [25, 35], iconAnchor: [11, 35]});
+        iconUrl: 'pin_grey.png', iconSize: [25, 35], iconAnchor: [11, 35]});
     gpsBlueCircle = new L.Icon({
-        iconUrl: '../map_circle_blue.png', iconSize: [11, 11], iconAnchor: [5, 5]});
+        iconUrl: 'circle_blue.png', iconSize: [11, 11], iconAnchor: [5, 5]});
     gpsRedCircle = new L.Icon({
-        iconUrl: '../map_circle_red.png', iconSize: [11, 11], iconAnchor: [5, 5]});
+        iconUrl: 'circle_red.png', iconSize: [11, 11], iconAnchor: [5, 5]});
     python.new_status({version: L.version});
     python.initialize_finished();
     newBounds();
