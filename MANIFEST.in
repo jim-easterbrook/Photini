@@ -7,3 +7,6 @@ recursive-exclude src/lang *
 recursive-exclude src/Photini.egg-info *
 recursive-exclude utils *
 exclude .gitignore .readthedocs.yaml transifex.yml src/run_photini.py
+
+# add customised build stuff
+recursive-include custom_build *.py
