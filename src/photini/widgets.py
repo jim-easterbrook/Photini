@@ -82,16 +82,15 @@ class ComboBox(QtWidgets.QComboBox):
 class Label(QtWidgets.QLabel):
     def __init__(self, *args, lines=1, layout=None, **kwds):
         super(Label, self).__init__(*args, **kwds)
-        if lines == 1:
-            return
-        self.setText(wrap_text(self, self.text(), lines))
-        if not layout:
-            return
+        layout = layout or QtWidgets.QFormLayout()
         # match text alignment to form layout
         align_h = (layout.labelAlignment()
                    & Qt.AlignmentFlag.AlignHorizontal_Mask)
         align_v = self.alignment() & Qt.AlignmentFlag.AlignVertical_Mask
         self.setAlignment(align_h | align_v)
+        if lines == 1:
+            return
+        self.setText(wrap_text(self, self.text(), lines))
         # Qt internally makes labels in form layouts 7/4 as tall, which
         # is too much for multi=line labels
         height = self.sizeHint().height() * ((lines * 4) + 3) // (lines * 4)
@@ -838,8 +837,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
         self.setButtonSymbols(self.ButtonSymbols.NoButtons)
-        self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
-        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.label = Label(translate('LatLongDisplay', 'Lat, long'))
         self.setFixedWidth(width_for_text(self, '8' * 22))
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
@@ -1002,5 +1000,4 @@ class AltitudeDisplay(DoubleSpinBox):
         self.set_suffix(translate('AltitudeDisplay', ' m', 'metres altitude'))
         self.setToolTip('<p>{}</p>'.format(translate(
             'AltitudeDisplay', 'Altitude of the location in metres.')))
-        self.label = QtWidgets.QLabel(translate('AltitudeDisplay', 'Altitude'))
-        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.label = Label(translate('AltitudeDisplay', 'Altitude'))

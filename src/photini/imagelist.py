@@ -985,10 +985,12 @@ class ImageList(QtWidgets.QWidget):
         self._inc_selection(1)
 
     def move_to_first_thumb(self):
-        self.select_image(self.images[0])
+        if self.images:
+            self.select_image(self.images[0])
 
     def move_to_last_thumb(self):
-        self.select_image(self.images[-1])
+        if self.images:
+            self.select_image(self.images[-1])
 
     def select_prev_thumb(self):
         self._inc_selection(-1, extend_selection=True)
@@ -997,6 +999,8 @@ class ImageList(QtWidgets.QWidget):
         self._inc_selection(1, extend_selection=True)
 
     def _inc_selection(self, inc, extend_selection=False):
+        if not self.images:
+            return
         if self.last_selected:
             idx = self.images.index(self.last_selected)
             idx = (idx + inc) % len(self.images)
