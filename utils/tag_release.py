@@ -46,8 +46,14 @@ def main(argv=None):
     # tag local git repos
     message = 'Photini-' + version + '\n\n'
     with open('CHANGELOG.txt') as cl:
-        while not cl.readline().startswith('Changes'):
-            pass
+        while True:
+            line = cl.readline().strip()
+            if line.startswith('Changes'):
+                break
+        cl_version = re.search(r'(\d{4}\.\d{1,2}\.\d)', line)
+        if not (cl_version and cl_version.group(1) == version):
+            print('Changelog line "{}" version wrong or missing'.format(line))
+            return 1
         while True:
             line = cl.readline().strip()
             if not line:
