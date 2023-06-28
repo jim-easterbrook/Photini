@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2020  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2020-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -20,29 +20,47 @@ from datetime import date
 import re
 import sys
 
-# requires GitPython - 'sudo pip install gitpython'
-import git
-
-
-# read version info without importing package
-with open('src/photini/__init__.py') as f:
-    exec(f.read())
+import git      # GitPython package
 
 
 def main(argv=None):
-    message = 'Photini-' + __version__ + '\n\n'
+    # get GitHub repo information
+    repo = git.Repo()
+    # get latest release tag
+    latest = 0
+    for tag in repo.tags:
+        if tag.commit.committed_date > latest:
+            tag_name = str(tag)
+            if re.match(r'\d{4}\.\d{1,2}\.\d', tag_name):
+                latest = tag.commit.committed_date
+                last_release = tag_name
+    # set current version number
+    last_release = tuple(int(x) for x in last_release.split('.'))
+    major, minor, micro = last_release[:3]
+    today = date.today()
+    if today.year == major and today.month == minor:
+        micro += 1
+    else:
+        micro = 0
+    version = '{:4d}.{:d}.{:d}'.format(today.year, today.month, micro)
+    # tag local git repos
+    message = 'Photini-' + version + '\n\n'
     with open('CHANGELOG.txt') as cl:
-        while not cl.readline().startswith('Changes'):
-            pass
+        while True:
+            line = cl.readline().strip()
+            if line.startswith('Changes'):
+                break
+        cl_version = re.search(r'(\d{4}\.\d{1,2}\.\d)', line)
+        if not (cl_version and cl_version.group(1) == version):
+            print('Changelog line "{}" version wrong or missing'.format(line))
+            return 1
         while True:
             line = cl.readline().strip()
             if not line:
                 break
             message += line + '\n'
-    repo = git.Repo()
-    tag = repo.create_tag(__version__, message=message)
-    remote = repo.remotes.origin
-    remote.push(tags=True)
+    tag = repo.create_tag(version, message=message)
+    return 0
 
 
 if __name__ == "__main__":
