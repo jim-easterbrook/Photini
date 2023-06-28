@@ -28,8 +28,8 @@ from photini.metadata import ImageMetadata
 from photini.photinimap import GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
-from photini.widgets import (AltitudeDisplay, CompactButton, LatLongDisplay,
-                             LangAltWidget, SingleLineEdit)
+from photini.widgets import (AltitudeDisplay, CompactButton, Label,
+                             LatLongDisplay, LangAltWidget, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -218,8 +218,7 @@ class LocationInfo(QtWidgets.QScrollArea):
                                   translate('AddressTab', 'Country'),
                                   translate('AddressTab', 'Region'),
                                   translate('AddressTab', 'Location ID'))):
-            label = QtWidgets.QLabel(text)
-            label.setAlignment(Qt.AlignmentFlag.AlignRight)
+            label = Label(text)
             layout.addWidget(label, j, 0)
         layout.addWidget(self.members['LocationName'], 0, 1, 1, 5)
         layout.addWidget(self.members['Sublocation'], 1, 1, 1, 5)

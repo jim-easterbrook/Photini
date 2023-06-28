@@ -29,7 +29,7 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (
     QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, qt_version_info)
-from photini.widgets import AltitudeDisplay, ComboBox, LatLongDisplay
+from photini.widgets import AltitudeDisplay, ComboBox, Label, LatLongDisplay
 
 
 logger = logging.getLogger(__name__)
@@ -196,11 +196,10 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
-        name = self.__module__.split('.')[-1]
         self.script_dir = pkg_resources.resource_filename(
-            'photini', 'data/' + name + '/')
+            'photini', 'data/map/')
         self.drag_icon = QtGui.QPixmap(
-            os.path.join(self.script_dir, '../map_pin_grey.png'))
+            os.path.join(self.script_dir, 'pin_grey.png'))
         self.drag_hotspot = 11, 35
         self.search_string = None
         self.map_loaded = 0     # not loaded
@@ -231,8 +230,7 @@ class PhotiniMap(QtWidgets.QWidget):
         else:
             self.widgets['get_altitude'] = None
         # search
-        label = QtWidgets.QLabel(translate('PhotiniMap', 'Search'))
-        label.setAlignment(Qt.AlignmentFlag.AlignRight)
+        label = Label(translate('PhotiniMap', 'Search'))
         left_side.addWidget(label, 3, 0)
         self.widgets['search'] = ComboBox()
         self.widgets['search'].setEditable(True)
@@ -299,7 +297,7 @@ class PhotiniMap(QtWidgets.QWidget):
     </style>
 {initialize}
 {head}
-    <script type="text/javascript" src="script.js"></script>
+    <script type="text/javascript" src="{script}.js"></script>
   </head>
   <body ondragstart="return false">
     <div id="mapDiv"></div>
@@ -323,7 +321,8 @@ class PhotiniMap(QtWidgets.QWidget):
       }}
     </script>'''
         initialize = initialize.format(lat=lat, lng=lng, zoom=zoom)
-        page = page.format(initialize=initialize, head=self.get_head())
+        page = page.format(initialize=initialize, head=self.get_head(),
+                           script=self.__module__.split('.')[-1])
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir))

@@ -31,9 +31,9 @@ pip-log.txt
 
 # Extras
 MANIFEST
-photini.pro
 /doc
 /doctrees
 /src/lang/en/LC_MESSAGES
 /utils/make_icons/*.pam
 /src/photini/data/lang
+/src/photini/_version.py
