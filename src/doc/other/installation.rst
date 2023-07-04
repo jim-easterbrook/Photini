@@ -33,7 +33,7 @@ It is already installed on many computers, but on Windows you will probably need
 
         You should also check what version of pip_ is installed::
 
-            jim@mint:~$ pip --version
+            jim@mint:~$ pip3 --version
             pip 20.0.2 from /usr/lib/python3/dist-packages/pip (python 3.8)
 
         Most Linux systems suppress pip's normal version check, but I recommend upgrading pip anyway::
@@ -64,7 +64,7 @@ It is already installed on many computers, but on Windows you will probably need
         I suggest reading `Using Python on Windows`_ before you begin.
         Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer.
         Use the 64-bit stable release with the highest version number that will run on your version of Windows.
-        Beware of using very new releases though, as some dependencies may not have been updated to work with the latest Python.
+        Beware of using very new releases though, as some of Photini's dependencies may not have been updated to work with the latest Python.
 
         When you run the Python installer make sure you select the "add Python to PATH" option.
         If you customise your installation then make sure you still select "pip".
@@ -128,14 +128,23 @@ I use the name ``photini`` and create it in my home directory:
         (photini) C:\Users\Jim>python -m pip install -U pip
 
 Note that pip may need to be updated again from within the virtual environment.
-The Linux/MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment.
+The Linux / MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment.
 You should stay in this virtual environment while installing and testing Photini.
+
+Qt package
+^^^^^^^^^^
+
+Photini uses the Qt_ Framework for its graphical user interface.
+There are two current versions of Qt (Qt5 and Qt6) and each has two Python interfaces (PyQt and PySide).
+Hence there are four Python Qt packages - PyQt5, PyQt6, PySide2, and PySide6.
+Photini works with any one of these, but there isn't one of them that works on all platforms.
+For example, Qt6 does not work on Windows versions earlier than Windows |nbsp| 10.
+
+After installing Photini the ``photini-configure`` command can be used to choose a Qt package.
+This allows you to try each until you find one that works satisfactorily on your computer.
 
 Initial installation
 ^^^^^^^^^^^^^^^^^^^^
-
-.. versionadded:: 2022.9.0
-    The ``photini-configure`` post installation script can be used to install most dependencies and configure Photini to use them.
 
 Firstly install Photini with pip_:
 
@@ -185,6 +194,31 @@ Firstly install Photini with pip_:
              ------------------------------------ 140.4/140.4 kB 461.5 kB/s eta 0:00:00
         Installing collected packages: exiv2, appdirs, urllib3, idna, charset-normalizer, certifi, cachetools, requests, photini
         Successfully installed appdirs-1.4.4 cachetools-5.2.0 certifi-2022.9.24 charset-normalizer-2.1.1 exiv2-0.11.3 idna-3.4 photini-2022.9.0 requests-2.28.1 urllib3-1.26.12
+
+Photini's optional dependencies can be included in the installation by listing them as "extras" in the pip command.
+For example, if you want to be able to upload to Flickr and Ipernity:
+
+.. tabs::
+    .. code-tab:: none Linux/MacOS
+
+        (photini) jim@mint:~$ pip3 install "photini[flickr,ipernity]"
+    .. code-tab:: none Windows
+
+        C:\Users\Jim>pip install photini[flickr,ipernity]
+
+Note that the extras' names are not case-sensitive.
+
+.. versionadded:: 2023.7.0
+    You can install all of Photini's optional dependencies by adding an ``all`` extra.
+    You can also install any of the Qt packages as extras:
+
+.. tabs::
+    .. code-tab:: none Linux/MacOS
+
+        (photini) jim@mint:~$ pip3 install "photini[all,pyqt5,pyside6]"
+    .. code-tab:: none Windows
+
+        C:\Users\Jim>pip install photini[all,pyqt5,pyside6]
 
 Now run the ``photini-configure`` command to choose which Qt package to use:
 
@@ -268,7 +302,7 @@ These provide additional features, for example the Flickr uploader, that not all
 Missing system packages
 """""""""""""""""""""""
 
-On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run if you've installed PySide2 or PySide6 with pip_ instead of the system's package manager.
+On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run if you've installed a Qt package with pip_ instead of the system's package manager.
 In this case it may be worth doing a web search for the error messages you get.
 For example, failing to load a Qt plugin (on Debian) can be cured by installing just one system package (``libxcb-xinerama0``) but the error message doesn't tell you that!
 
@@ -394,7 +428,7 @@ Linux & MacOS users can install it with the system package manager, but installi
 Start menu / application menu
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Although you can run Photini from a command shell, most users would probably prefer to use the start/application menu or a desktop icon.
+Although you can run Photini from a command shell, most users would probably prefer to use the start / application menu or a desktop icon.
 These can be installed with the ``photini-post-install`` command:
 
 .. tabs::
@@ -430,7 +464,7 @@ If you have installed Photini in a virtual environment then other users should b
 
         C:\Users\Sarah>..\Jim\photini\Scripts\photini.exe
 
-This is not a very convenient way to run Photini, so most users will want to add it to their start/application menu:
+This is not a very convenient way to run Photini, so most users will want to add it to their start / application menu:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
@@ -476,7 +510,7 @@ It is important to use the full path to the post install command:
 Uninstalling Photini
 ^^^^^^^^^^^^^^^^^^^^
 
-Before removing Photini you should use the ``photini-post-install`` command to remove it from the start/application menu:
+Before removing Photini you should use the ``photini-post-install`` command to remove it from the start / application menu:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
@@ -762,6 +796,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _PyQt:              http://www.riverbankcomputing.co.uk/software/pyqt/
 .. _PySide2:           https://pypi.org/project/PySide2/
 .. _PySide6:           https://pypi.org/project/PySide6/
+.. _Qt:                https://wiki.qt.io/About_Qt
 .. _QtWebEngine:       https://wiki.qt.io/QtWebEngine
 .. _requests:          http://python-requests.org/
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/

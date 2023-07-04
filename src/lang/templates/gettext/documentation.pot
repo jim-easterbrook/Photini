@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2023.5.1\n"
+"Project-Id-Version: Photini 2023.5.2.post32\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-21 10:47+0100\n"
+"POT-Creation-Date: 2023-07-04 13:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1462,7 +1462,7 @@ msgstr ""
 msgid "Windows"
 msgstr ""
 
-msgid "I suggest reading `Using Python on Windows`_ before you begin. Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer. Use the 64-bit stable release with the highest version number that will run on your version of Windows. Beware of using very new releases though, as some dependencies may not have been updated to work with the latest Python."
+msgid "I suggest reading `Using Python on Windows`_ before you begin. Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer. Use the 64-bit stable release with the highest version number that will run on your version of Windows. Beware of using very new releases though, as some of Photini's dependencies may not have been updated to work with the latest Python."
 msgstr ""
 
 msgid "When you run the Python installer make sure you select the \"add Python to PATH\" option. If you customise your installation then make sure you still select \"pip\". If you would like other users to be able to run Photini then you need to install Python for all users (in the \"Advanced Options\" part of customised installation)."
@@ -1489,16 +1489,31 @@ msgstr ""
 msgid "If you are using a virtual environment you should set it up now. I use the name ``photini`` and create it in my home directory:"
 msgstr ""
 
-msgid "Note that pip may need to be updated again from within the virtual environment. The Linux/MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment. You should stay in this virtual environment while installing and testing Photini."
+msgid "Note that pip may need to be updated again from within the virtual environment. The Linux / MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment. You should stay in this virtual environment while installing and testing Photini."
+msgstr ""
+
+msgid "Qt package"
+msgstr ""
+
+msgid "Photini uses the Qt_ Framework for its graphical user interface. There are two current versions of Qt (Qt5 and Qt6) and each has two Python interfaces (PyQt and PySide). Hence there are four Python Qt packages - PyQt5, PyQt6, PySide2, and PySide6. Photini works with any one of these, but there isn't one of them that works on all platforms. For example, Qt6 does not work on Windows versions earlier than Windows |nbsp| 10."
+msgstr ""
+
+msgid "After installing Photini the ``photini-configure`` command can be used to choose a Qt package. This allows you to try each until you find one that works satisfactorily on your computer."
 msgstr ""
 
 msgid "Initial installation"
 msgstr ""
 
-msgid "The ``photini-configure`` post installation script can be used to install most dependencies and configure Photini to use them."
+msgid "Firstly install Photini with pip_:"
 msgstr ""
 
-msgid "Firstly install Photini with pip_:"
+msgid "Photini's optional dependencies can be included in the installation by listing them as \"extras\" in the pip command. For example, if you want to be able to upload to Flickr and Ipernity:"
+msgstr ""
+
+msgid "Note that the extras' names are not case-sensitive."
+msgstr ""
+
+msgid "You can install all of Photini's optional dependencies by adding an ``all`` extra. You can also install any of the Qt packages as extras:"
 msgstr ""
 
 msgid "Now run the ``photini-configure`` command to choose which Qt package to use:"
@@ -1519,7 +1534,7 @@ msgstr ""
 msgid "Missing system packages"
 msgstr ""
 
-msgid "On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run if you've installed PySide2 or PySide6 with pip_ instead of the system's package manager. In this case it may be worth doing a web search for the error messages you get. For example, failing to load a Qt plugin (on Debian) can be cured by installing just one system package (``libxcb-xinerama0``) but the error message doesn't tell you that!"
+msgid "On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run if you've installed a Qt package with pip_ instead of the system's package manager. In this case it may be worth doing a web search for the error messages you get. For example, failing to load a Qt plugin (on Debian) can be cured by installing just one system package (``libxcb-xinerama0``) but the error message doesn't tell you that!"
 msgstr ""
 
 msgid "Optional dependencies"
@@ -1537,7 +1552,7 @@ msgstr ""
 msgid "Start menu / application menu"
 msgstr ""
 
-msgid "Although you can run Photini from a command shell, most users would probably prefer to use the start/application menu or a desktop icon. These can be installed with the ``photini-post-install`` command:"
+msgid "Although you can run Photini from a command shell, most users would probably prefer to use the start / application menu or a desktop icon. These can be installed with the ``photini-post-install`` command:"
 msgstr ""
 
 msgid "Additional users"
@@ -1546,7 +1561,7 @@ msgstr ""
 msgid "If you have installed Photini in a virtual environment then other users should be able to run the ``photini`` command using its full path. (On Windows you will need to share the virtual environment top level directory first.)"
 msgstr ""
 
-msgid "This is not a very convenient way to run Photini, so most users will want to add it to their start/application menu:"
+msgid "This is not a very convenient way to run Photini, so most users will want to add it to their start / application menu:"
 msgstr ""
 
 msgid "To install Photini menu shortcuts for all users you can run the post install command as root (Linux) or in a command window run as administrator (Windows). It is important to use the full path to the post install command:"
@@ -1555,7 +1570,7 @@ msgstr ""
 msgid "Uninstalling Photini"
 msgstr ""
 
-msgid "Before removing Photini you should use the ``photini-post-install`` command to remove it from the start/application menu:"
+msgid "Before removing Photini you should use the ``photini-post-install`` command to remove it from the start / application menu:"
 msgstr ""
 
 msgid "If you used a virtual environment you can simply delete the top level directory created when setting up the virtual environment. Otherwise you can use pip to uninstall Photini and as many of its dependencies as you want to remove:"
