@@ -28,7 +28,10 @@ import sys
 import pkg_resources
 
 from photini.configstore import BaseConfigStore
-from photini.pyqt import QtCore
+try:
+    from photini.pyqt import QtCore
+except ImportError:
+    QtCore = None
 
 
 logger = logging.getLogger(__name__)
@@ -172,24 +175,25 @@ def post_install(argv=None):
         cmd += ['--set-key=Exec', '--set-value={} %F'.format(exec_path)]
         cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
         # add translations
-        lang_dir = pkg_resources.resource_filename('photini', 'data/lang')
-        translator = QtCore.QTranslator()
-        for name in sorted(os.listdir(lang_dir)):
-            lang = name.split('.')[1]
-            if not translator.load('photini.' + lang, lang_dir):
-                print('load failed:', lang)
-                continue
-            text = translator.translate(
-                'MenuBar', 'Photini photo metadata editor')
-            if text:
-                cmd += ['--set-key=GenericName[{}]'.format(lang),
-                        '--set-value={}'.format(text.strip())]
-            text = translator.translate(
-                'MenuBar', 'An easy to use digital photograph metadata (Exif, IPTC,'
-                ' XMP) editing application.')
-            if text:
-                cmd += ['--set-key=Comment[{}]'.format(lang),
-                        '--set-value={}'.format(text.strip())]
+        if QtCore:
+            lang_dir = pkg_resources.resource_filename('photini', 'data/lang')
+            translator = QtCore.QTranslator()
+            for name in sorted(os.listdir(lang_dir)):
+                lang = name.split('.')[1]
+                if not translator.load('photini.' + lang, lang_dir):
+                    print('load failed:', lang)
+                    continue
+                text = translator.translate(
+                    'MenuBar', 'Photini photo metadata editor')
+                if text:
+                    cmd += ['--set-key=GenericName[{}]'.format(lang),
+                            '--set-value={}'.format(text.strip())]
+                text = translator.translate(
+                    'MenuBar', 'An easy to use digital photograph metadata'
+                    ' (Exif, IPTC, XMP) editing application.')
+                if text:
+                    cmd += ['--set-key=Comment[{}]'.format(lang),
+                            '--set-value={}'.format(text.strip())]
         cmd.append(pkg_resources.resource_filename(
             'photini', 'data/linux/photini.desktop'))
         print(' \\\n  '.join(cmd))
