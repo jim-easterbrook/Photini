@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2023.7.1:
+  1/ Fix bug setting file dates before 1970 on Windows.
+
 Changes in v2023.7.0:
   1/ Enabled installation of PyQt5 & PyQt6 with pip and photini-configure.
   2/ Fix crash if using arrow key navigation when no pictures loaded.
