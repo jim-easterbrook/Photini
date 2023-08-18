@@ -111,7 +111,7 @@ class GpxImporter(QtCore.QObject):
         if hi < len(self.display_points) - 1:
             hi += 1
         # remove points too far away in time
-        threshold = timedelta(minutes=30)
+        threshold = timedelta(seconds=60)
         while lo <= hi and utc_time - self.display_points[lo][0] > threshold:
             lo += 1
         while lo <= hi and self.display_points[hi][0] - utc_time > threshold:
