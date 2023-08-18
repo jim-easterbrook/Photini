@@ -430,6 +430,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if 'set_from_gpx' in self.widgets:
             self.widgets['set_from_gpx'].setEnabled(
                 bool(selection) and bool(self.app.gpx_importer.display_points))
+            self.widgets['clear_gpx'].setEnabled(
+                bool(self.app.gpx_importer.display_points))
         self.redraw_gps_track(selection)
         self.update_display(selection, adjust_map=adjust_map)
 
