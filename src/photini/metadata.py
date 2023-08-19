@@ -219,6 +219,7 @@ class ImageMetadata(MetadataHandler):
         if self.xmp_only:
             self.clear_exif()
             self.clear_iptc()
+            self.clear_xmp_av()
         elif write_iptc:
             self.set_iptc_encoding()
         else:
