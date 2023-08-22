@@ -88,7 +88,6 @@ class MetadataHandler(object):
         if self.xmp_only:
             self.clear_exif()
             self.clear_iptc()
-            self.clear_xmp_av()
         # remove old software tag
         tag = 'Exif.Image.ProcessingSoftware'
         if (tag in self._exifData
@@ -257,12 +256,6 @@ class MetadataHandler(object):
     def clear_iptc(self):
         self._iptcData.clear()
         self._image.clearIptcData()
-
-    def clear_xmp_av(self):
-        # delete Exiv2's 'audio' and 'video' tags from sidecar file
-        for tag in list(self.get_xmp_tags()):
-            if tag.split('.')[1] in ('audio', 'video'):
-                self.clear_xmp_tag(tag)
 
     def get_exif_tags(self):
         for datum in self._exifData:
