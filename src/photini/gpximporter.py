@@ -92,7 +92,7 @@ class GpxImporter(QtCore.QObject):
         for gpx in self.gpx.values():
             for location in gpx.get_location_at(utc_time):
                 if abs(location.time - utc_time).total_seconds() < 60:
-                    result += location
+                    result.append(location)
         return result
 
     def nearest(self, utc_time):
