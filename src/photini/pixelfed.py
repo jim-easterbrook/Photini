@@ -250,8 +250,8 @@ class PixelfedUser(UploaderUser):
             if not self.instance_config:
                 yield 'connected', False
             self.new_instance_config.emit(self.instance_config)
-            widgets['status'].highlighter.length_check = self.instance_config[
-                'configuration']['statuses']['max_characters']
+            widgets['status'].set_length(self.instance_config[
+                'configuration']['statuses']['max_characters'])
             version = self.instance_config['version']
             logger.info('server version "%s"', version)
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
@@ -564,7 +564,8 @@ class TabWidget(PhotiniUploader):
         self.widget['auto_status'].clicked.connect(self.auto_status)
         sub_grid.addWidget(self.widget['auto_status'], 0, 2)
         self.widget['status'] = MultiLineEdit(
-            'status', spell_check=True, length_check=1000, length_always=True)
+            'status', spell_check=True,
+            length_check=1000, length_always=True, length_bytes=False)
         policy = self.widget['status'].sizePolicy()
         policy.setVerticalStretch(1)
         self.widget['status'].setSizePolicy(policy)
@@ -573,7 +574,7 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(sub_grid)
         self.widget['spoiler_text'] = SingleLineEdit(
             'spoiler_text', spell_check=True,
-            length_check=140, length_always=True)
+            length_check=140, length_always=True, length_bytes=False)
         self.widget['spoiler_text'].textChanged.connect(self.new_spoiler_text)
         group.layout().addRow(
             translate('PixelfedTab', 'Spoiler'), self.widget['spoiler_text'])
@@ -816,11 +817,13 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('PixelfedTab', 'Create new collection'))
         dialog.setLayout(FormLayout())
-        title = SingleLineEdit('title', spell_check=True,
-                               length_check=50, length_always=True)
+        title = SingleLineEdit(
+            'title', spell_check=True,
+            length_check=50, length_always=True, length_bytes=False)
         dialog.layout().addRow(translate('PixelfedTab', 'Title'), title)
-        description = MultiLineEdit('description', spell_check=True,
-                                    length_check=500, length_always=True)
+        description = MultiLineEdit(
+            'description', spell_check=True,
+            length_check=500, length_always=True, length_bytes=False)
         dialog.layout().addRow(
             translate('PixelfedTab', 'Description'), description)
         visibility = DropDownSelector(
