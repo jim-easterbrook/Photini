@@ -268,6 +268,7 @@ class PhotiniMap(QtWidgets.QWidget):
         # create handler for calls from JavaScript
         self.call_handler = CallHandler(parent=self)
         self.widgets['map'] = MapWebView(self.call_handler)
+        self.widgets['map'].setUrl(QtCore.QUrl(''))
         self.widgets['map'].drop_text.connect(self.drop_text)
         self.widgets['map'].setAcceptDrops(False)
         self.layout().addWidget(self.widgets['map'])
