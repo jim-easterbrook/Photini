@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -90,7 +90,9 @@ class GpxImporter(QtCore.QObject):
         # return track point(s) nearest given time stamp
         result = []
         for gpx in self.gpx.values():
-            result += gpx.get_location_at(utc_time)
+            for location in gpx.get_location_at(utc_time):
+                if abs(location.time - utc_time).total_seconds() < 60:
+                    result.append(location)
         return result
 
     def nearest(self, utc_time):
@@ -109,7 +111,7 @@ class GpxImporter(QtCore.QObject):
         if hi < len(self.display_points) - 1:
             hi += 1
         # remove points too far away in time
-        threshold = timedelta(minutes=30)
+        threshold = timedelta(seconds=60)
         while lo <= hi and utc_time - self.display_points[lo][0] > threshold:
             lo += 1
         while lo <= hi and self.display_points[hi][0] - utc_time > threshold:

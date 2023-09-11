@@ -29,13 +29,12 @@ import pkg_resources
 from photini import __version__, build
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
-from photini.ffmpeg import ffmpeg_version
 from photini.imagelist import ImageList
-from photini.loggerwindow import LoggerWindow
-from photini.metadata import exiv2_version, ImageMetadata
+from photini.loggerwindow import full_version_info, LoggerWindow
+from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.pyqt import QtNetwork, qt_version, qt_version_info
-from photini.spelling import SpellCheck, spelling_version
+from photini.pyqt import QtNetwork, qt_version_info
+from photini.spelling import SpellCheck
 
 try:
     from photini.gpximporter import GpxImporter
@@ -553,19 +552,7 @@ def main(argv=None):
         app.installTranslator(translator)
         translator = QtCore.QTranslator(parent=app)
     # parse remaining arguments
-    version = 'Photini ' + __version__ + ', build ' + build
-    version += '\n  Python ' + sys.version
-    version += '\n  ' + exiv2_version
-    version += '\n  ' + qt_version
-    version += ', locale ' + locale.bcp47Name()
-    if spelling_version:
-        version += '\n  ' + spelling_version
-    if ffmpeg_version:
-        version += '\n  ' + ffmpeg_version
-    version += '\n  available styles: {}'.format(
-        ', '.join(QtWidgets.QStyleFactory.keys()))
-    version += '\n  using style: {}'.format(
-        QtWidgets.QApplication.style().objectName())
+    version = full_version_info()
     parser = OptionParser(
         usage=translate('CLIHelp', 'Usage: %prog [options] [file_name, ...]'),
         version=version,

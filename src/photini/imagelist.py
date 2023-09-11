@@ -189,7 +189,7 @@ class Image(QtWidgets.QFrame):
             logger.error(ex)
             return None
         # scale PIL image
-        pil_im.thumbnail((w, h), PIL.ANTIALIAS)
+        pil_im.thumbnail((w, h), PIL.LANCZOS)
         # save image to memory
         data = io.BytesIO()
         pil_im.save(data, 'JPEG')
