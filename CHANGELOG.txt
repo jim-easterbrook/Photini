@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2023.10.0:
+  1/ Fix segfaults with some TIF files and some Qt versions. (#211)
+  2/ Fix missing _version file when using run_photini.py. (#210)
+  3/ Fix Pillow filter name error.
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2023.7.1:
   1/ Fix bug setting file dates before 1970 on Windows.
 
