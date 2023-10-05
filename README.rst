@@ -144,34 +144,35 @@ Documentation licence
 Permission is granted to copy, distribute and/or modify the Photini documentation under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the documentation section entitled "GNU Free Documentation License".
 
-.. _blog post:     http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html
+.. _blog post:
+      https://www.jim-easterbrook.me.uk/2012/10/photini-whats-in-a-name/
 .. _Flickr:        http://www.flickr.com/
 .. _Google Photos: https://photos.google.com/
 .. _Google Maps Terms of Use:
-                   http://www.google.com/help/terms_maps.html
+      http://www.google.com/help/terms_maps.html
 .. _Google Privacy Policy:
-                   http://www.google.com/policies/privacy/
+      http://www.google.com/policies/privacy/
 .. _installation documentation:
-                   http://photini.readthedocs.io/en/latest/other/installation.html
+      http://photini.readthedocs.io/en/latest/other/installation.html
 .. _Ipernity:      http://www.ipernity.com/
 .. _"issues" page: https://github.com/jim-easterbrook/Photini/issues
 .. _Linux Format:  http://www.linuxformat.com/archives?issue=166
 .. _localisation documentation:
-                   http://photini.readthedocs.io/en/latest/other/localisation.html
+      http://photini.readthedocs.io/en/latest/other/localisation.html
 .. _Mapbox terms of service:
-                   https://www.mapbox.com/tos/
+      https://www.mapbox.com/tos/
 .. _Mapbox privacy policy:
-                   https://www.mapbox.com/privacy/
+      https://www.mapbox.com/privacy/
 .. _Microsoft Bing Maps Terms of Use:
-                   http://www.microsoft.com/maps/assets/docs/terms.aspx
+      http://www.microsoft.com/maps/assets/docs/terms.aspx
 .. _Microsoft Privacy Statement:
-                   http://www.microsoft.com/en-us/privacystatement/
+      http://www.microsoft.com/en-us/privacystatement/
 .. _OAuth:         http://oauth.net/
 .. _OpenStreetMap licence:
-                   http://www.openstreetmap.org/copyright
+      http://www.openstreetmap.org/copyright
 .. _Photini team on Hosted Weblate:
-                   https://hosted.weblate.org/projects/photini/
+      https://hosted.weblate.org/projects/photini/
 .. _Pixelfed:      https://pixelfed.org/
 .. _Python keyring:
-                   https://pypi.python.org/pypi/keyring#what-is-python-keyring-lib
+      https://pypi.python.org/pypi/keyring#what-is-python-keyring-lib
 .. _Weblate:       https://hosted.weblate.org
