@@ -29,16 +29,16 @@ client_id = OTkxMTQ2MzkyMzc1LWdyOXRjcTc1NWZvbXRqNGUxazQ5NzNmM2FjbWlvN29tLmFwcHMu
 client_secret = dnkwV3UtYWVmMmlYeTJXZ2lVaUZDOFlB
 
 [googlemap]
-api_key = QUl6YVN5Q2NISHlUa0FxRzRTZ0tmTmZDOEpaN2JDckNrMkVOdi04
+api_key = QUl6YVN5RFlfLW5OWnVTOWlYaF81cFJmd2s0QnhRQnZQbU1xUGVB
 
 [bingmap]
-api_key = QWdUaFUwT2R5ZVNtTHdjMVZzUm9kLVZrRVhic0tPTlQtaWNhdzJFQWhXMXZjaEdkM19SRXdtWXZfRkp3SzhaVw==
+api_key = QXJrdkh0eHhrU29kVnRndzdiV2ZlYUh0ZXVUNzZObHRpZ2d6cS1Ba3RiQm04b0prLWxxTE9sZTZMQUJlY09YXw==
 
 [opencage]
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=
 
 [mapboxmap]
-api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc1p6ZHhaR0ZyWkRCdE5Ya3pjM0Y1Y2poM2JYZDNaemtpZlEuUGloRzRqNXJsNVJmUVN3MjF3VzVYUQ==
+api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc2JHOTFabTFwT1RBd2VEQXpabkEwT1hweGNIazBlVEVpZlEuSWxhZTdQWnVaQ2E2OG5TTjBUTHdRdw==
 
 [pixelfed pixelfed.de]
 client_id = NDIyNjQ=

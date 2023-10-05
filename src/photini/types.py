@@ -545,6 +545,7 @@ class MD_Thumbnail(MD_Dict):
         image = reader.read()
         if image.isNull():
             raise RuntimeError(reader.errorString())
+        image.buf = buf
         return fmt, image
 
     @staticmethod

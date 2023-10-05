@@ -39,8 +39,12 @@ def build_lang():
                 os.stat(dst_file).st_mtime >= os.stat(src_file).st_mtime):
             continue
         print('compiling {} -> {}'.format(src_file, dst_file))
-        subprocess.check_call([
-            'lrelease-qt5', '-silent', src_file, '-qm', dst_file])
+        try:
+            subprocess.check_call([
+                'lrelease-qt5', '-silent', src_file, '-qm', dst_file])
+        except FileNotFoundError as ex:
+            print('FAIL:', str(ex))
+            return
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):

@@ -84,7 +84,7 @@ class OpenCage(GeocoderBase):
             'neighbourhood', 'city_block', 'quarter', 'suburb', 'district',
             'borough', 'city_district', 'commercial', 'industrial', 'houses',
             'subdivision', 'village', 'town', 'municipality', 'city',
-            'partial_postcode', 'postcode'),
+            'postal_city', 'partial_postcode', 'postcode'),
         'Iptc4xmpExt:Sublocation': (
             'house_number', 'street_number', 'house', 'public_building',
             'building', 'residential', 'water', 'road', 'pedestrian', 'path',

@@ -90,6 +90,7 @@ class FlickrSession(UploaderSession):
             page += 1
 
     def upload_image(self, url, data, fileobj, image_type):
+        self.open_connection()
         # get the headers (without 'photo') from a dummy Request, an idea
         # I've stolen from https://github.com/sybrenstuvel/flickrapi
         request = requests.Request('POST', url, auth=self.auth, data=data)

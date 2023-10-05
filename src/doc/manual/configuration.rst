@@ -198,6 +198,10 @@ To enable BMFF file reading, edit the configuration file and set the ``enable_bm
    [metadata]
    enable_bmff = True
 
+Note that this only affects Photini's ability to read and write BMFF metadata.
+Reading image data (for thumbnails or the image regions tab) will probably need a Qt plugin to be installed.
+This should be easy if you installed PyQt or PySide with your operating system's package manager, but is probably impossible if you installed PyQt or PySide with pip.
+
 .. _Exiv2 warning:
     https://github.com/exiv2/exiv2#support-for-bmff-files-cr3-heif-heic-and-avif
 .. _gpxpy:

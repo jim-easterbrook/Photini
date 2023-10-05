@@ -268,6 +268,7 @@ class PhotiniMap(QtWidgets.QWidget):
         # create handler for calls from JavaScript
         self.call_handler = CallHandler(parent=self)
         self.widgets['map'] = MapWebView(self.call_handler)
+        self.widgets['map'].setUrl(QtCore.QUrl(''))
         self.widgets['map'].drop_text.connect(self.drop_text)
         self.widgets['map'].setAcceptDrops(False)
         self.layout().addWidget(self.widgets['map'])
@@ -430,6 +431,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if 'set_from_gpx' in self.widgets:
             self.widgets['set_from_gpx'].setEnabled(
                 bool(selection) and bool(self.app.gpx_importer.display_points))
+            self.widgets['clear_gpx'].setEnabled(
+                bool(self.app.gpx_importer.display_points))
         self.redraw_gps_track(selection)
         self.update_display(selection, adjust_map=adjust_map)
 

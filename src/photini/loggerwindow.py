@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -19,12 +19,34 @@
 import logging
 import logging.handlers
 import os
+import sys
 
+from photini import __version__, build
+from photini.ffmpeg import ffmpeg_version
+from photini.metadata import exiv2_version
 from photini.pyqt import (
-    catch_all, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
+    catch_all, QtCore, QtSignal, QtSlot, QtWidgets, qt_version, width_for_text)
+from photini.spelling import spelling_version
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+def full_version_info():
+    version = 'Photini ' + __version__ + ', build ' + build
+    version += '\n  Python ' + sys.version
+    version += '\n  ' + exiv2_version
+    version += '\n  ' + qt_version
+    version += ', locale ' + QtCore.QLocale.system().bcp47Name()
+    if spelling_version:
+        version += '\n  ' + spelling_version
+    if ffmpeg_version:
+        version += '\n  ' + ffmpeg_version
+    version += '\n  available styles: {}'.format(
+        ', '.join(QtWidgets.QStyleFactory.keys()))
+    version += '\n  using style: {}'.format(
+        QtWidgets.QApplication.style().objectName())
+    return version
 
 
 class StreamProxy(QtCore.QObject):
@@ -110,7 +132,11 @@ class LoggerWindow(QtWidgets.QWidget):
         file_name = file_name[0]
         if file_name:
             with open(file_name, 'w') as of:
+                of.write('==== version info ====\n')
+                of.write(full_version_info())
+                of.write('\n==== messages ====\n')
                 of.write(self.text.toPlainText())
+                of.write('\n==== end ====\n')
 
     @QtSlot(str)
     @catch_all
