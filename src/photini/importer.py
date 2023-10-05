@@ -27,6 +27,7 @@ import sys
 
 try:
     import gphoto2 as gp
+    gp_version_info = tuple(map(int, gp.__version__.split('.')))
 except ImportError:
     gp = None
 
@@ -127,16 +128,20 @@ class CameraSource(object):
             camera.exit()
 
     def _list_files(self, camera, path='/'):
-        result = []
         # get files
-        for name, value in camera.folder_list_files(path):
-            base, ext = os.path.splitext(name)
-            if ext.lower() in self.image_types:
-                result.append(os.path.join(path, name))
+        if gp_version_info >= (2, 4):
+            result = [os.path.join(path, x)
+                      for x in camera.folder_list_files(path).keys()
+                      if os.path.splitext(x)[1].lower() in self.image_types]
+        else:
+            result = [os.path.join(path, x)
+                      for x, y in camera.folder_list_files(path)
+                      if os.path.splitext(x)[1].lower() in self.image_types]
         # get folders
-        folders = []
-        for name, value in camera.folder_list_folders(path):
-            folders.append(name)
+        if gp_version_info >= (2, 4):
+            folders = list(camera.folder_list_folders(path).keys())
+        else:
+            folders = [x for x, y in camera.folder_list_folders(path)]
         # recurse over subfolders
         for name in folders:
             result.extend(self._list_files(camera, os.path.join(path, name)))

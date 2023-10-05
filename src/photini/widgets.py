@@ -235,7 +235,8 @@ class DropDownSelector(ComboBox, WidgetMixin):
 
 
 class TextHighlighter(QtGui.QSyntaxHighlighter):
-    def __init__(self, spelling, length, length_always, multi_string, parent):
+    def __init__(self, spelling, length, length_always, length_bytes,
+                 multi_string, parent):
         super(TextHighlighter, self).__init__(parent)
         self.config_store = QtWidgets.QApplication.instance().config_store
         if spelling:
@@ -250,43 +251,47 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
         else:
             self.spell_check = None
         if length:
-            self.length_check = length
-            self.length_always = length_always
-            self.length_formatter = QtGui.QTextCharFormat()
-            self.length_formatter.setUnderlineColor(Qt.GlobalColor.blue)
-            self.length_formatter.setUnderlineStyle(
+            self._length = {
+                'length': length, 'always': length_always,
+                'bytes': length_bytes, 'formatter': QtGui.QTextCharFormat()}
+            self._length['formatter'].setUnderlineColor(Qt.GlobalColor.blue)
+            self._length['formatter'].setUnderlineStyle(
                 QtGui.QTextCharFormat.UnderlineStyle.SingleUnderline)
             if multi_string:
                 # treat each keyword separately
-                self.pattern = re.compile(r'\s*(.+?)(;|$)')
+                self._length['regex'] = re.compile(r'\s*(.+?)(;|$)')
             else:
                 # treat the entire block as one
-                self.pattern = re.compile(r'(.+)')
+                self._length['regex'] = re.compile(r'(.+)')
         else:
-            self.length_check = None
+            self._length = None
 
     @catch_all
     def highlightBlock(self, text):
         if not text:
-            if self.length_check:
+            if self._length:
                 self.setCurrentBlockState(self.previousBlockState())
             return
-        if self.length_check:
-            length_warning = self.length_always or self.config_store.get(
+        if self._length:
+            length_warning = self._length['always'] or self.config_store.get(
                 'files', 'length_warning', True)
             if length_warning:
                 consumed = max(self.previousBlockState(), 0)
-                max_len = max(self.length_check - consumed, 0)
-                for match in self.pattern.finditer(text):
+                max_len = max(self._length['length'] - consumed, 0)
+                for match in self._length['regex'].finditer(text):
                     start = match.start(1)
                     end = match.end(1)
-                    truncated = text[start:end].encode('utf-8')
+                    truncated = text[start:end]
+                    if self._length['bytes']:
+                        truncated = truncated.encode('utf-8')
                     consumed += len(truncated)
                     truncated = truncated[:max_len]
-                    start += len(truncated.decode('utf-8', errors='ignore'))
+                    if self._length['bytes']:
+                        truncated = truncated.decode('utf-8', errors='ignore')
+                    start += len(truncated)
                     if start < end:
-                        self.setFormat(start, end - start,
-                                       self.length_formatter)
+                        self.setFormat(
+                            start, end - start, self._length['formatter'])
                 self.setCurrentBlockState(max(consumed, 0))
         if self.spell_check:
             for word, start, end in self.find_words(text):
@@ -296,7 +301,8 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
     def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, length_always=False, min_width=None, **kw):
+                 multi_string=False, length_always=False, length_bytes=True,
+                 min_width=None, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
         if min_width:
             self.setMinimumWidth(width_for_text(self, 'x' * min_width))
@@ -308,8 +314,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
         self._is_multiple = False
         self.spell_check = spell_check
         self.highlighter = TextHighlighter(
-            spell_check, length_check, length_always, multi_string,
-            self.document())
+            spell_check, length_check, length_always, length_bytes,
+            multi_string, self.document())
 
     @catch_all
     def focusOutEvent(self, event):
@@ -370,6 +376,9 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
         height = QtWidgets.QLineEdit().sizeHint().height()
         height += (rows - 1) * self.fontMetrics().lineSpacing()
         self.setMaximumHeight(height)
+
+    def set_length(self, length):
+        self.highlighter._length['length'] = length
 
     def set_value(self, value):
         if self._is_multiple:

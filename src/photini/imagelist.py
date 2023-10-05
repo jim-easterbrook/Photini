@@ -20,6 +20,7 @@ from datetime import datetime
 import io
 import logging
 import os
+import time
 
 try:
     import PIL.Image as PIL
@@ -188,7 +189,7 @@ class Image(QtWidgets.QFrame):
             logger.error(ex)
             return None
         # scale PIL image
-        pil_im.thumbnail((w, h), PIL.ANTIALIAS)
+        pil_im.thumbnail((w, h), PIL.LANCZOS)
         # save image to memory
         data = io.BytesIO()
         pil_im.save(data, 'JPEG')
@@ -913,9 +914,16 @@ class ImageList(QtWidgets.QWidget):
         with Busy():
             for image in images:
                 if keep_time == 'taken' and image.metadata.date_taken:
-                    file_times = (
-                        image.file_times[0],
-                        image.metadata.date_taken['datetime'].timestamp())
+                    date_taken = image.metadata.date_taken['datetime']
+                    try:
+                        date_taken = date_taken.timestamp()
+                    except Exception:
+                        # probably a negative value on Windows
+                        epoch = time.gmtime(0)
+                        epoch = datetime(
+                            epoch.tm_year, epoch.tm_mon, epoch.tm_mday)
+                        date_taken = (date_taken - epoch).total_seconds()
+                    file_times = image.file_times[0], date_taken
                 elif keep_time == 'keep':
                     file_times = image.file_times
                 else:
