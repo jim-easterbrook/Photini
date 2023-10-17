@@ -1387,19 +1387,19 @@
     <name>RegionsTab</name>
     <message>
         <source>Delete vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar vértice</translation>
     </message>
     <message>
         <source>New vertex</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo vértice</translation>
     </message>
     <message>
         <source>Unreadable image format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato de imagen ilegible</translation>
     </message>
     <message>
         <source>pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>píxel</translation>
     </message>
     <message>
         <source>A pixel of a digital image setting an absolute value.</source>
@@ -1407,7 +1407,7 @@
     </message>
     <message>
         <source>relative</source>
-        <translation type="unfinished"></translation>
+        <translation>relativo</translation>
     </message>
     <message>
         <source>Relative part of the size of an image along the x- or the y-axis.</source>
@@ -1415,7 +1415,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
@@ -1427,7 +1427,7 @@
     </message>
     <message>
         <source>Identifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Identificador</translation>
     </message>
     <message>
         <source>Unit used for measuring dimensions of the boundary of a region.</source>
@@ -1443,7 +1443,7 @@
     </message>
     <message>
         <source>Role</source>
-        <translation type="unfinished"></translation>
+        <translation>Rol</translation>
     </message>
     <message>
         <source>The semantic type of what is shown inside the region. The value SHOULD be taken from a Controlled Vocabulary.</source>
@@ -1451,7 +1451,7 @@
     </message>
     <message>
         <source>Content type</source>
-        <translation type="unfinished">Tipo de contenido</translation>
+        <translation>Tipo de contenido</translation>
     </message>
     <message>
         <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
@@ -1459,11 +1459,11 @@
     </message>
     <message>
         <source>Person shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Persona indicada</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Descripción</translation>
+        <translation>Descripción</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
@@ -1475,23 +1475,23 @@
     </message>
     <message>
         <source>New rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo rectángulo</translation>
     </message>
     <message>
         <source>New circle</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo círculo</translation>
     </message>
     <message>
         <source>New point</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo punto</translation>
     </message>
     <message>
         <source>New polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo polígono</translation>
     </message>
     <message>
         <source>Delete region</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar región</translation>
     </message>
     <message>
         <source>Image &amp;regions</source>
@@ -1502,19 +1502,19 @@
     <name>TechnicalTab</name>
     <message>
         <source>min</source>
-        <translation type="unfinished"></translation>
+        <translation>min</translation>
     </message>
     <message>
         <source>max</source>
-        <translation type="unfinished"></translation>
+        <translation>max</translation>
     </message>
     <message>
         <source>Focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Distancia focal</translation>
     </message>
     <message>
         <source>Max aperture</source>
-        <translation type="unfinished"></translation>
+        <translation>Apertura máxima</translation>
     </message>
     <message>
         <source>Photini: define lens</source>
@@ -1582,7 +1582,7 @@
     </message>
     <message>
         <source>Update aperture &amp; focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizar apertura y distancia focal</translation>
     </message>
     <message>
         <source>Adjust image aperture and focal length to agree with lens specification?</source>
@@ -1590,27 +1590,27 @@
     </message>
     <message>
         <source>Minimum focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Distancia focal mínima</translation>
     </message>
     <message>
         <source>Aperture at min. focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Apertura en distancia focal mínima</translation>
     </message>
     <message>
         <source>Maximum focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Distancia focal máxima</translation>
     </message>
     <message>
         <source>Aperture at max. focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>Apertura en distancia focal máxima</translation>
     </message>
     <message>
         <source>35mm equiv</source>
-        <translation type="unfinished"></translation>
+        <translation>equivalente a 35mm</translation>
     </message>
     <message>
         <source>Aperture</source>
-        <translation type="unfinished"></translation>
+        <translation>Apertura</translation>
     </message>
     <message>
         <source>Photini: define camera</source>
@@ -1618,7 +1618,7 @@
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Cámara</translation>
     </message>
     <message>
         <source>Photini: maker name change</source>
@@ -1674,32 +1674,32 @@
     </message>
     <message>
         <source>Precision</source>
-        <translation type="unfinished"></translation>
+        <translation>Precisión</translation>
     </message>
     <message>
         <source>ƒ/</source>
         <comment>lens aperture</comment>
-        <translation type="unfinished"></translation>
+        <translation>ƒ/</translation>
     </message>
     <message>
         <source> mm</source>
         <comment>millimetres focal length</comment>
-        <translation type="unfinished"></translation>
+        <translation> mm</translation>
     </message>
     <message>
         <source>h</source>
         <comment>single letter abbreviation of &quot;hours&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>h</translation>
     </message>
     <message>
         <source>m</source>
         <comment>single letter abbreviation of &quot;minutes&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>m</translation>
     </message>
     <message>
         <source>s</source>
         <comment>single letter abbreviation of &quot;seconds&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>s</translation>
     </message>
 </context>
 <context>
@@ -1710,15 +1710,15 @@
     </message>
     <message>
         <source>Upload to {service} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Subida a {service} no ha finalizado.</translation>
     </message>
     <message>
         <source>Logged in as {user} on {service}</source>
-        <translation type="unfinished"></translation>
+        <translation>Conectado como {user} en {service}</translation>
     </message>
     <message>
         <source>Not logged in to {service}</source>
-        <translation type="unfinished"></translation>
+        <translation>No conectado a {service}</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
@@ -1726,7 +1726,7 @@
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de imagen incompatible.</translation>
     </message>
     <message>
         <source>Progress</source>
@@ -1750,27 +1750,27 @@
     </message>
     <message>
         <source>Close window</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerrar ventana</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Puedes cerrar esta ventana del navegador.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar sesión</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerrar sesión</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir a álbumes</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Parar subida</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
@@ -1782,7 +1782,7 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Saltar</translation>
     </message>
     <message>
         <source>Photini: too large</source>
@@ -1790,7 +1790,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo demasiado grande.</translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
@@ -1830,15 +1830,15 @@
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Reemplazar foto</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="unfinished"></translation>
+        <translation>Reemplazar imagen</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Subir como nueva foto</translation>
     </message>
     <message>
         <source>No image upload</source>
@@ -1846,15 +1846,15 @@
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar una imagen</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="unfinished"></translation>
+        <translation>Sin coincidencias</translation>
     </message>
     <message>
         <source>Create new album</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un nuevo álbum</translation>
     </message>
 </context>
 <context>
@@ -1869,7 +1869,7 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;nuevo&gt;</translation>
     </message>
 </context>
 </TS>
