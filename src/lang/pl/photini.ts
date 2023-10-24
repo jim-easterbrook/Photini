@@ -5,7 +5,7 @@
     <name>AddressTab</name>
     <message>
         <source>&amp;Address</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Adres</translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Delete location</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń lokalizację</translation>
     </message>
     <message>
         <source>camera</source>
@@ -77,27 +77,27 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Street</source>
-        <translation type="unfinished"></translation>
+        <translation>Ulica</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Miasto</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="unfinished"></translation>
+        <translation>Prowincja</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Kraj</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished"></translation>
+        <translation>Region</translation>
     </message>
     <message>
         <source>Location ID</source>
@@ -109,7 +109,7 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation type="unfinished"></translation>
+        <translation> m</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
@@ -143,11 +143,11 @@
     <name>DescriptiveTab</name>
     <message>
         <source>reject</source>
-        <translation type="unfinished"></translation>
+        <translation>odrzuć</translation>
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;ulubione&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -167,7 +167,7 @@
     </message>
     <message>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocena</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -242,7 +242,7 @@
     </message>
     <message>
         <source>IPTC-IIM metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Metadane IPTC-IIM</translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
@@ -250,7 +250,7 @@
     </message>
     <message>
         <source>Keep original</source>
-        <translation type="unfinished"></translation>
+        <translation>Zachowaj oryginalne</translation>
     </message>
     <message>
         <source>File timestamps</source>
@@ -305,7 +305,7 @@
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronizuj</translation>
     </message>
     <message>
         <source>New album</source>
@@ -361,19 +361,19 @@
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation>Publiczne</translation>
     </message>
     <message>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation>Prywatne</translation>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyjaciele</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Rodzina</translation>
     </message>
     <message>
         <source>Viewing privacy</source>
@@ -389,19 +389,19 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencja</translation>
     </message>
     <message>
         <source>Safe</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezpieczny</translation>
     </message>
     <message>
         <source>Moderate</source>
-        <translation type="unfinished"></translation>
+        <translation>Umiarkowany</translation>
     </message>
     <message>
         <source>Restricted</source>
-        <translation type="unfinished"></translation>
+        <translation>Ograniczony</translation>
     </message>
     <message>
         <source>Safety level</source>
@@ -518,7 +518,7 @@
     </message>
     <message>
         <source>undo</source>
-        <translation type="unfinished"></translation>
+        <translation>cofnij</translation>
     </message>
     <message>
         <source>old value</source>
@@ -680,11 +680,11 @@
     </message>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakty</translation>
     </message>
     <message>
         <source>Everyone</source>
-        <translation type="unfinished"></translation>
+        <translation>Każdy</translation>
     </message>
     <message>
         <source>Copyright (all rights reserved)</source>
@@ -740,11 +740,11 @@
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyjaciele</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Rodzina</translation>
     </message>
     <message>
         <source>see the photo</source>
@@ -764,11 +764,11 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencja</translation>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronizuj</translation>
     </message>
     <message>
         <source>New album</source>
@@ -819,12 +819,12 @@
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Język</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Język: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -1042,11 +1042,11 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres URL</translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
@@ -1086,11 +1086,11 @@
     </message>
     <message>
         <source>Instructions</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrukcje</translation>
     </message>
     <message>
         <source>Email(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Adres(y) e-mail</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
@@ -1098,7 +1098,7 @@
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Numer(y) telefonu</translation>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
@@ -1106,7 +1106,7 @@
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Miasto</translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1122,7 +1122,7 @@
     </message>
     <message>
         <source>State/Province</source>
-        <translation type="unfinished"></translation>
+        <translation>Państwo/Prowincja</translation>
     </message>
     <message>
         <source>Enter the country name for the address of the person that created this image.</source>
@@ -1130,7 +1130,7 @@
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>Kraj</translation>
     </message>
     <message>
         <source>Creator / Licensor Contact Information</source>
@@ -1154,7 +1154,7 @@
     </message>
     <message>
         <source>Rights</source>
-        <translation type="unfinished"></translation>
+        <translation>Prawa</translation>
     </message>
     <message>
         <source>Enter the work email address for the person that created this image, such as name@domain.com.</source>
@@ -1209,7 +1209,7 @@
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Szukaj</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
@@ -1252,11 +1252,11 @@
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Inny</translation>
+        <translation>Inna</translation>
     </message>
     <message>
         <source>Pixelfed</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixelfed</translation>
     </message>
     <message>
         <source>&amp;Pixelfed upload</source>
@@ -1268,7 +1268,7 @@
     </message>
     <message>
         <source>Generate</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj</translation>
     </message>
     <message>
         <source>Spoiler</source>
@@ -1276,7 +1276,7 @@
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation>Publiczne</translation>
     </message>
     <message>
         <source>Unlisted</source>
@@ -1336,7 +1336,7 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencja</translation>
     </message>
     <message>
         <source>New collection</source>
@@ -1352,15 +1352,15 @@
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Tytuł</translation>
+        <translation>Tytuł</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Opis</translation>
+        <translation>Opis</translation>
     </message>
     <message>
         <source>Draft</source>
-        <translation type="unfinished"></translation>
+        <translation>Szkic</translation>
     </message>
     <message>
         <source>Collection visibility</source>
@@ -1399,7 +1399,7 @@
     </message>
     <message>
         <source>pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>piksel</translation>
     </message>
     <message>
         <source>A pixel of a digital image setting an absolute value.</source>
@@ -1415,7 +1415,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
@@ -1427,7 +1427,7 @@
     </message>
     <message>
         <source>Identifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator</translation>
     </message>
     <message>
         <source>Unit used for measuring dimensions of the boundary of a region.</source>
@@ -1443,7 +1443,7 @@
     </message>
     <message>
         <source>Role</source>
-        <translation type="unfinished"></translation>
+        <translation>Funkcja</translation>
     </message>
     <message>
         <source>The semantic type of what is shown inside the region. The value SHOULD be taken from a Controlled Vocabulary.</source>
@@ -1463,7 +1463,7 @@
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Opis</translation>
+        <translation>Opis</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
@@ -1506,7 +1506,7 @@
     </message>
     <message>
         <source>max</source>
-        <translation type="unfinished"></translation>
+        <translation>maks</translation>
     </message>
     <message>
         <source>Focal length</source>
@@ -1618,7 +1618,7 @@
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Aparat</translation>
     </message>
     <message>
         <source>Photini: maker name change</source>
@@ -1674,32 +1674,32 @@
     </message>
     <message>
         <source>Precision</source>
-        <translation type="unfinished"></translation>
+        <translation>Precyzja</translation>
     </message>
     <message>
         <source>ƒ/</source>
         <comment>lens aperture</comment>
-        <translation type="unfinished"></translation>
+        <translation>ƒ/</translation>
     </message>
     <message>
         <source> mm</source>
         <comment>millimetres focal length</comment>
-        <translation type="unfinished"></translation>
+        <translation> mm</translation>
     </message>
     <message>
         <source>h</source>
         <comment>single letter abbreviation of &quot;hours&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>h</translation>
     </message>
     <message>
         <source>m</source>
         <comment>single letter abbreviation of &quot;minutes&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>m</translation>
     </message>
     <message>
         <source>s</source>
         <comment>single letter abbreviation of &quot;seconds&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>s</translation>
     </message>
 </context>
 <context>
@@ -1770,7 +1770,7 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomiń</translation>
     </message>
     <message>
         <source>Logged in as {user} on {service}</source>
@@ -1873,7 +1873,7 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;nowe&gt;</translation>
     </message>
 </context>
 </TS>
