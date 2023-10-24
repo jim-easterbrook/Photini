@@ -530,9 +530,10 @@
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Regenerar miniatura</numerusform>
+            <numerusform>Regenerar miniaturas</numerusform>
+            <numerusform>Regenerar miniaturas</numerusform>
         </translation>
     </message>
     <message>
@@ -541,16 +542,18 @@
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Recargar archivo</numerusform>
+            <numerusform>Recargar archivos</numerusform>
+            <numerusform>Recargar archivos</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Cerrar archivo</numerusform>
+            <numerusform>Cerrar archivos</numerusform>
+            <numerusform>Cerrar archivos</numerusform>
         </translation>
     </message>
     <message>
@@ -658,9 +661,10 @@
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n archivo seleccionado</numerusform>
+            <numerusform>%n archivos seleccionados</numerusform>
+            <numerusform>%n archivos seleccionados</numerusform>
         </translation>
     </message>
 </context>
@@ -764,7 +768,7 @@
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation>Sincronizar</translation>
     </message>
     <message>
         <source>New album</source>
@@ -788,7 +792,7 @@
     </message>
     <message>
         <source>Change album membership</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar membresía de álbum</translation>
     </message>
     <message>
         <source>Replace image region notes</source>
@@ -869,7 +873,7 @@
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda y consulta de altitud proporcionado por Bing</translation>
     </message>
 </context>
 <context>
@@ -881,18 +885,18 @@
     <message>
         <source>Search and altitude lookup powered by Google</source>
         <comment>Do not translate &quot;powered by Google&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda y consulta de altitud powered by Google</translation>
     </message>
 </context>
 <context>
     <name>MapTabMapbox</name>
     <message>
         <source>Search powered by Mapbox</source>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda proporcionada por Mapbox</translation>
     </message>
     <message>
         <source>Map (&amp;Mapbox)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa (&amp;Mapbox)</translation>
     </message>
 </context>
 <context>
@@ -998,7 +1002,7 @@
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el nombre de la persona que creó esta imagen.</translation>
     </message>
     <message>
         <source>All rights reserved</source>
@@ -1050,7 +1054,7 @@
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Metadatos de propiedad</translation>
     </message>
     <message>
         <source>Creator</source>
@@ -1058,19 +1062,19 @@
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el cargo de trabajo de la persona que figura en el campo Creador.</translation>
     </message>
     <message>
         <source>Creator&apos;s Jobtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargo del creador</translation>
     </message>
     <message>
         <source>Enter who should be credited when this image is published.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce a quién debería darse crédito cuando se publique esta imagen.</translation>
     </message>
     <message>
         <source>Credit Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Línea de crédito</translation>
     </message>
     <message>
         <source>Copyright Notice</source>
@@ -1078,7 +1082,7 @@
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce instrucciones sobre como se puede usar legalmente esta imagen.</translation>
     </message>
     <message>
         <source>Enter information about embargoes, or other restrictions not covered by the Rights Usage Terms field.</source>
@@ -1102,7 +1106,7 @@
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce la ciudad de la dirección de la persona que creó esta imagen.</translation>
     </message>
     <message>
         <source>City</source>
@@ -1110,7 +1114,7 @@
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el código postal de la dirección de la persona que creó esta imagen.</translation>
     </message>
     <message>
         <source>Postal Code</source>
@@ -1118,7 +1122,7 @@
     </message>
     <message>
         <source>Enter the state for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el estado de la dirección de la persona que creó esta imagen.</translation>
     </message>
     <message>
         <source>State/Province</source>
@@ -1126,7 +1130,7 @@
     </message>
     <message>
         <source>Enter the country name for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el país de la dirección de la persona que creó esta imagen.</translation>
     </message>
     <message>
         <source>Country</source>
@@ -1138,7 +1142,7 @@
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
-        <translation type="unfinished"></translation>
+        <translation>Usa %Y para poner el año en el que se tomó la fotografía.</translation>
     </message>
     <message>
         <source>Usage Terms</source>
@@ -1146,7 +1150,7 @@
     </message>
     <message>
         <source>Open link to &quot;{licence}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir enlace a &quot;{licence}&quot;</translation>
     </message>
     <message>
         <source>Web Statement</source>
@@ -1170,27 +1174,27 @@
     </message>
     <message>
         <source>Enter address detail (e.g. flat number or room number) for the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el detalle de la dirección (p.e., número o domicilio) para la persona que creó esta imagen.</translation>
     </message>
     <message>
         <source>Detail Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalles de dirección</translation>
     </message>
     <message>
         <source>Enter street address for the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce la dirección de calle de la persona que creó esta imagen.</translation>
     </message>
     <message>
         <source>Street Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección de calle</translation>
     </message>
     <message>
         <source>Photini: ownership template</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: plantilla de propiedad</translation>
     </message>
     <message>
         <source>Initialise template</source>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar plantilla</translation>
     </message>
     <message>
         <source>Edit template</source>
@@ -1240,11 +1244,11 @@
     <name>PixelfedTab</name>
     <message>
         <source>Photini: choose instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: elegir instancia</translation>
     </message>
     <message>
         <source>Choose an instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Elegir una instancia</translation>
     </message>
     <message>
         <source>Which Pixelfed instance hosts your account?</source>
@@ -1336,31 +1340,31 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia</translation>
     </message>
     <message>
         <source>New collection</source>
-        <translation type="unfinished"></translation>
+        <translation>Nueva colección</translation>
     </message>
     <message>
         <source>Add to collections</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir a colecciones</translation>
     </message>
     <message>
         <source>Create new collection</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear nueva colección</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Título</translation>
+        <translation>Título</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Descripción</translation>
+        <translation>Descripción</translation>
     </message>
     <message>
         <source>Draft</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrador</translation>
     </message>
     <message>
         <source>Collection visibility</source>
@@ -1431,7 +1435,7 @@
     </message>
     <message>
         <source>Unit used for measuring dimensions of the boundary of a region.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unidad usada para medir las dimensiones del límite de una región.</translation>
     </message>
     <message>
         <source>Boundary unit</source>
@@ -1467,7 +1471,7 @@
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce una &quot;leyenda&quot; describiendo el quién, qué y por qué de lo que describing the who, what, and why of what is happening in this region.</translation>
     </message>
     <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
