@@ -100,8 +100,8 @@ Licence
 | Italian translation by "albanobattistella"
 | Korean translation by Soohyeon Park
 | Norwegian Bokmål translation by Allan Nordhøy
-| Polish translation by Dawid Głaz
-| Spanish translation by Esteban Martinena, Cristos Ruiz
+| Polish translation by Dawid Głaz, Eryk Michalak
+| Spanish translation by Esteban Martinena, Cristos Ruiz, Kamborio
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as

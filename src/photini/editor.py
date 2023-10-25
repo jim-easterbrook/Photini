@@ -269,8 +269,8 @@ class MenuBar(QtWidgets.QMenuBar):
 <table width="100%"><tr>
 <td align="center" width="70%">
 <h1>Photini</h1>
-<h3>version {0}</h3>
-<h4>build {1}</h4>
+<h3>version: {0}</h3>
+<h4>build: {1}</h4>
 </td>
 <td align="center"><img src="{2}" /></td>
 </tr></table>
