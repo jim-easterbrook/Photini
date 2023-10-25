@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2023.7.1.post18\n"
+"Project-Id-Version: Photini 2023.10.0.post23\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-05 16:51+0100\n"
+"POT-Creation-Date: 2023-10-25 15:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1468,13 +1468,58 @@ msgstr ""
 msgid "I suggest reading `Using Python on Windows`_ before you begin. Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer. Use the 64-bit stable release with the highest version number that will run on your version of Windows. Beware of using very new releases though, as some of Photini's dependencies may not have been updated to work with the latest Python."
 msgstr ""
 
-msgid "When you run the Python installer make sure you select the \"add Python to PATH\" option. If you customise your installation then make sure you still select \"pip\". If you would like other users to be able to run Photini then you need to install Python for all users (in the \"Advanced Options\" part of customised installation)."
+msgid "The first main installer screen should have an option to customise the installation. I recommend choosing this and selection the following options."
 msgstr ""
 
-msgid "After installing Python, start a command window such as ``cmd.exe``. Now try running pip_::"
+msgid "Documentation: If you are installing Python only to run Photini then you don't really need the Python documentation."
 msgstr ""
 
-msgid "As suggested, you should upgrade pip now. (If you installed Python for all users you will need to run the shell as administrator.) Note that ``pip`` must be run as ``python -m pip`` when upgrading itself::"
+msgid "pip: You definitely need this!"
+msgstr ""
+
+msgid "tcl/tk and IDLE: You don't need this unless you want to edit Python files."
+msgstr ""
+
+msgid "Python test suite: not needed."
+msgstr ""
+
+msgid "py launcher: I recommend installing the launcher for all users."
+msgstr ""
+
+msgid "Install for all users: this is essential if you'd like to share one installation of Photini between two or more users. I also recommend it for single users as it helps keep your Python installation separate from your Photini installation."
+msgstr ""
+
+msgid "Associate files with Python: recommended."
+msgstr ""
+
+msgid "Create shortcuts for installed applications: optional."
+msgstr ""
+
+msgid "Add Python to environment variables: I don't recommend this. The py launcher (previous screen) is a cleaner way to run Python than adding things to your PATH environment variable."
+msgstr ""
+
+msgid "Precompile standard library: recommended."
+msgstr ""
+
+msgid "Download debugging symbols: not needed."
+msgstr ""
+
+msgid "Download debug binaries: not needed."
+msgstr ""
+
+msgid "After installing Python, start a command window such as ``cmd.exe``. Now try running the ``py`` launcher::"
+msgstr ""
+
+msgid "This shows that Python 3.8 is installed and available."
+msgstr ""
+
+msgid "Now try running pip_. Note the use of ``py`` to run pip, instead of requiring the Python scripts directory to be on your PATH::"
+msgstr ""
+
+msgid "This shows that ``pip`` is installed in ``c:\\program files\\python38\\lib\\site-packages``, which is only writeable with administrator privileges."
+msgstr ""
+
+msgid "If you install packages with ``pip`` as a normal user (i.e. without administrator privileges) it will put them under your \"roaming\" application data directory, e.g. ``c:\\users\\jim\\appdata\\roaming\\python\\python38\\site-packages``. I think this is a curious choice of location and strongly recommend using a \"virtual environment\" to install Photini and its dependencies in your choice of location."
 msgstr ""
 
 msgid "Installing Photini"
@@ -1492,7 +1537,13 @@ msgstr ""
 msgid "If you are using a virtual environment you should set it up now. I use the name ``photini`` and create it in my home directory:"
 msgstr ""
 
-msgid "Note that pip may need to be updated again from within the virtual environment. The Linux / MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment. You should stay in this virtual environment while installing and testing Photini."
+msgid "Note that pip may need to be updated again from within the virtual environment. The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment."
+msgstr ""
+
+msgid "Note that after activating the virtual environment the ``py`` command is not used. Python, pip, and other Python based commands are run directly. After creating the virtual environment you should update ``pip`` as shown above. This ensures that the latest version will be used to install Photini."
+msgstr ""
+
+msgid "You should stay in this virtual environment while installing and testing Photini."
 msgstr ""
 
 msgid "Qt package"
@@ -1960,10 +2011,10 @@ msgstr ""
 msgid "Norwegian Bokmål translation by Allan Nordhøy"
 msgstr ""
 
-msgid "Polish translation by Dawid Głaz"
+msgid "Polish translation by Dawid Głaz, Eryk Michalak"
 msgstr ""
 
-msgid "Spanish translation by Esteban Martinena, Cristos Ruiz"
+msgid "Spanish translation by Esteban Martinena, Cristos Ruiz, Kamborio"
 msgstr ""
 
 msgid "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
