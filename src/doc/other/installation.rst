@@ -19,7 +19,7 @@ Python_ is absolutely essential to run Photini.
 It is already installed on many computers, but on Windows you will probably need to install it yourself.
 
 .. tabs::
-    .. tab:: Linux/MacOS
+    .. group-tab:: Linux/MacOS
 
         Python should already be installed, but make sure you have Python |nbsp| 3.
         Open a terminal window and run the ``python3`` command::
@@ -59,7 +59,7 @@ It is already installed on many computers, but on Windows you will probably need
             pip 23.1.2 from /home/jim/.local/lib/python3.8/site-packages/pip (python 3.8)
 
 
-    .. tab:: Windows
+    .. group-tab:: Windows
 
         I suggest reading `Using Python on Windows`_ before you begin.
         Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer.
@@ -69,13 +69,13 @@ It is already installed on many computers, but on Windows you will probably need
         .. image:: ../images/screenshot_090.png
 
         The first main installer screen should have an option to customise the installation.
-        I recommend choosing this and selection the following options.
+        I recommend choosing this and selecting the following options.
 
         .. image:: ../images/screenshot_091.png
 
         * Documentation: If you are installing Python only to run Photini then you don't really need the Python documentation.
         * pip: You definitely need this!
-        * tcl/tk and IDLE: You don't need this unless you want to edit Python files.
+        * tcl/tk and IDLE: not needed unless you want to edit Python files.
         * Python test suite: not needed.
         * py launcher: I recommend installing the launcher for all users.
 
@@ -117,13 +117,16 @@ It is already installed on many computers, but on Windows you will probably need
 
         If you install packages with ``pip`` as a normal user (i.e. without administrator privileges) it will put them under your "roaming" application data directory, e.g. ``c:\users\jim\appdata\roaming\python\python38\site-packages``.
         I think this is a curious choice of location and strongly recommend using a "virtual environment" to install Photini and its dependencies in your choice of location.
+        
+        The following instructions assume a virtual environment is in use and activated.
+        If you don't use a virtual environment then replace ``python`` with ``py`` and ``pip`` with ``py -m pip``.
 
 Installing Photini
 ------------------
 
 Before installing Photini you need to decide if you are installing it for a single user or for multiple users.
 Multi-user installations use a Python `virtual environment`_ to create a self contained installation that can easily be shared.
-Using a virtual environment has other advantages, such as easy uninstallation, so you could also use it for a single user installation.
+Using a virtual environment has other advantages, such as easy uninstallation, so I recommend using it for a single user installation.
 
 Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager.
 For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_.
@@ -133,10 +136,11 @@ Virtual environment
 ^^^^^^^^^^^^^^^^^^^
 
 If you are using a virtual environment you should set it up now.
+You can create a virtual environment in any writeable directory.
 I use the name ``photini`` and create it in my home directory:
 
 .. tabs::
-    .. tab:: Linux/MacOS
+    .. group-tab:: Linux/MacOS
 
         ::
 
@@ -152,10 +156,10 @@ I use the name ``photini`` and create it in my home directory:
                   Successfully uninstalled pip-20.0.2
             Successfully installed pip-23.1.2
 
-        Note that pip may need to be updated again from within the virtual environment.
         The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment.
+        Note that pip may need to be updated again from within the virtual environment.
 
-    .. tab:: Windows
+    .. group-tab:: Windows
 
         ::
 
@@ -175,7 +179,7 @@ I use the name ``photini`` and create it in my home directory:
                   Successfully uninstalled pip-21.1.1
             Successfully installed pip-23.3.1
 
-        Note that after activating the virtual environment the ``py`` command is not used.
+        Note that after activating the virtual environment the ``py`` command is not needed.
         Python, pip, and other Python based commands are run directly.
         After creating the virtual environment you should update ``pip`` as shown above.
         This ensures that the latest version will be used to install Photini.
@@ -754,7 +758,8 @@ Otherwise you can use pip to uninstall Photini and as many of its dependencies a
 Updating Photini
 ----------------
 
-When a new release of Photini is issued you can easily update your installation with pip_:
+When a new release of Photini is issued you can easily update your installation with pip_.
+If you installed Photini in a virtual environment then you need to activate the virtual environment before upgrading:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
@@ -887,6 +892,7 @@ If you installed Photini in a `virtual environment`_ then activate that environm
     .. code-tab:: none Windows
 
         C:\Users\Jim>c:\Users\Jim\photini\Scripts\activate.bat
+
         (photini) C:\Users\Jim>
 
 Start the Photini program as follows.
@@ -898,7 +904,7 @@ If it fails to run you should get some diagnostic information:
         jim@brains:~$ python3 -m photini -v
     .. code-tab:: none Windows
 
-        C:\Users\Jim>python -m photini -v
+        (photini) C:\Users\Jim>python -m photini -v
 
 Note the use of the ``-v`` option to increase the verbosity of Photini's message logging.
 This option can be repeated for even more verbosity.
@@ -921,12 +927,12 @@ To find out what version of Photini and some of its dependencies you are using, 
           using style: qt5ct-style
     .. code-tab:: none Windows
 
-        C:\Users\Jim>python -m photini --version
+        (photini) C:\Users\Jim>python -m photini --version
         ffmpeg or ffprobe not found
-        Photini 2023.7.0, build release
+        Photini 2023.10.0, build release
           Python 3.8.10 (tags/v3.8.10:3d8993a, May  3 2021, 11:48:03) [MSC v.1928 64 bit (AMD64)]
           python-exiv2 0.14.1, exiv2 0.27.7
-          PyQt 5.15.9, Qt 5.15.2, locale en-GB
+          PyQt 5.15.10, Qt 5.15.2, locale en-GB
           PyEnchant 3.2.2
           available styles: windowsvista, Windows, Fusion
           using style: windowsvista

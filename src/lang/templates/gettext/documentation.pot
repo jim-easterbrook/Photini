@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.10.0.post23\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-25 15:44+0100\n"
+"POT-Creation-Date: 2023-10-26 11:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1468,7 +1468,7 @@ msgstr ""
 msgid "I suggest reading `Using Python on Windows`_ before you begin. Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer. Use the 64-bit stable release with the highest version number that will run on your version of Windows. Beware of using very new releases though, as some of Photini's dependencies may not have been updated to work with the latest Python."
 msgstr ""
 
-msgid "The first main installer screen should have an option to customise the installation. I recommend choosing this and selection the following options."
+msgid "The first main installer screen should have an option to customise the installation. I recommend choosing this and selecting the following options."
 msgstr ""
 
 msgid "Documentation: If you are installing Python only to run Photini then you don't really need the Python documentation."
@@ -1477,7 +1477,7 @@ msgstr ""
 msgid "pip: You definitely need this!"
 msgstr ""
 
-msgid "tcl/tk and IDLE: You don't need this unless you want to edit Python files."
+msgid "tcl/tk and IDLE: not needed unless you want to edit Python files."
 msgstr ""
 
 msgid "Python test suite: not needed."
@@ -1522,10 +1522,13 @@ msgstr ""
 msgid "If you install packages with ``pip`` as a normal user (i.e. without administrator privileges) it will put them under your \"roaming\" application data directory, e.g. ``c:\\users\\jim\\appdata\\roaming\\python\\python38\\site-packages``. I think this is a curious choice of location and strongly recommend using a \"virtual environment\" to install Photini and its dependencies in your choice of location."
 msgstr ""
 
+msgid "The following instructions assume a virtual environment is in use and activated. If you don't use a virtual environment then replace ``python`` with ``py`` and ``pip`` with ``py -m pip``."
+msgstr ""
+
 msgid "Installing Photini"
 msgstr ""
 
-msgid "Before installing Photini you need to decide if you are installing it for a single user or for multiple users. Multi-user installations use a Python `virtual environment`_ to create a self contained installation that can easily be shared. Using a virtual environment has other advantages, such as easy uninstallation, so you could also use it for a single user installation."
+msgid "Before installing Photini you need to decide if you are installing it for a single user or for multiple users. Multi-user installations use a Python `virtual environment`_ to create a self contained installation that can easily be shared. Using a virtual environment has other advantages, such as easy uninstallation, so I recommend using it for a single user installation."
 msgstr ""
 
 msgid "Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager. For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_. All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 / PySide2 / PyQt6 / PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins, and so that you get the same GUI style as other Qt based applications."
@@ -1534,13 +1537,13 @@ msgstr ""
 msgid "Virtual environment"
 msgstr ""
 
-msgid "If you are using a virtual environment you should set it up now. I use the name ``photini`` and create it in my home directory:"
+msgid "If you are using a virtual environment you should set it up now. You can create a virtual environment in any writeable directory. I use the name ``photini`` and create it in my home directory:"
 msgstr ""
 
-msgid "Note that pip may need to be updated again from within the virtual environment. The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment."
+msgid "The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment. Note that pip may need to be updated again from within the virtual environment."
 msgstr ""
 
-msgid "Note that after activating the virtual environment the ``py`` command is not used. Python, pip, and other Python based commands are run directly. After creating the virtual environment you should update ``pip`` as shown above. This ensures that the latest version will be used to install Photini."
+msgid "Note that after activating the virtual environment the ``py`` command is not needed. Python, pip, and other Python based commands are run directly. After creating the virtual environment you should update ``pip`` as shown above. This ensures that the latest version will be used to install Photini."
 msgstr ""
 
 msgid "You should stay in this virtual environment while installing and testing Photini."
@@ -1633,7 +1636,7 @@ msgstr ""
 msgid "Updating Photini"
 msgstr ""
 
-msgid "When a new release of Photini is issued you can easily update your installation with pip_:"
+msgid "When a new release of Photini is issued you can easily update your installation with pip_. If you installed Photini in a virtual environment then you need to activate the virtual environment before upgrading:"
 msgstr ""
 
 msgid "The ``-U`` option tells pip to update Photini to the latest available version."
