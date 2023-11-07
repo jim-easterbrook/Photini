@@ -198,15 +198,16 @@ class IpernitySession(UploaderSession):
                 if rsp is None:
                     return 'Failed to delete note'
         # add new notes
-        for note in params['notes']:
-            if (note['is_person']
-                    and note['content'] == self.user_data['realname']):
-                note['member_id'] = self.user_data['user_id']
-            del note['is_person']
-            rsp = self.api_call(
-                'doc.notes.add', post=True, doc_id=doc_id, **note)
-            if rsp is None:
-                return 'Failed to add note'
+        if 'notes' in params:
+            for note in params['notes']:
+                if (note['is_person']
+                        and note['content'] == self.user_data['realname']):
+                    note['member_id'] = self.user_data['user_id']
+                del note['is_person']
+                rsp = self.api_call(
+                    'doc.notes.add', post=True, doc_id=doc_id, **note)
+                if rsp is None:
+                    return 'Failed to add note'
         return ''
 
     def upload_files(self, upload_list):
