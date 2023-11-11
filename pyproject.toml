@@ -70,7 +70,7 @@ PyQt6 = ["PyQt6 >= 6.2", "PyQt6-WebEngine >= 6.2",
 ]
 PySide2 = ["PySide2 >= 5.11"]
 PySide6 = ["PySide6 >= 6.2"]
-gpxpy = ["gpxpy >= 1.3.5, < 1.6"]
+gpxpy = ["gpxpy >= 1.3.5, != 1.6.0"]
 Pillow = ["Pillow >= 2.0"]
 
 [project.urls]

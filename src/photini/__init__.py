@@ -19,6 +19,6 @@
 """Full documentation is at https://photini.readthedocs.io/"""
 
 from photini._version import version as __version__
+from photini._version import version_tuple as __version_tuple__
 
-__version__, _sep, build = __version__.partition('+')
-build = build or 'release'
+__version__ = __version__.partition('+')[0]
