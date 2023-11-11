@@ -26,7 +26,7 @@ import warnings
 
 import pkg_resources
 
-from photini import __version__, build
+from photini import __version__
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
 from photini.imagelist import ImageList
@@ -269,16 +269,15 @@ class MenuBar(QtWidgets.QMenuBar):
 <table width="100%"><tr>
 <td align="center" width="70%">
 <h1>Photini</h1>
-<h3>version: {0}</h3>
-<h4>build: {1}</h4>
+<h3>version: {}</h3>
 </td>
-<td align="center"><img src="{2}" /></td>
+<td align="center"><img src="{}" /></td>
 </tr></table>
 <p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
 jim@jim-easterbrook.me.uk</a><br /><br />
-{3}<br />
-{4}</p>
-""".format(__version__, build,
+{}<br />
+{}</p>
+""".format(__version__,
            pkg_resources.resource_filename(
                'photini', 'data/icons/photini_128.png'),
            translate('MenuBar', 'An easy to use digital photograph metadata'
