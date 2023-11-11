@@ -49,7 +49,7 @@ It is already installed on many computers, but on Windows you will probably need
 
         Note that pip has installed the new version in ``/home/jim/.local`` as normal users can't write to ``/usr``.
         (Don't be tempted to get round this by using ``sudo`` to run pip.
-        ``/usr`` should only be written by the operating system's package manager.)
+        ``/usr/lib/python3/dist-packages`` should only be written by the operating system's package manager.)
         You may need to log out and then log in again to update your PATH settings.
         (On some Linux distributions you can simply run ``source ~/.profile`` instead of logging out & in.)
 
@@ -185,6 +185,7 @@ I use the name ``photini`` and create it in my home directory:
         This ensures that the latest version will be used to install Photini.
 
 You should stay in this virtual environment while installing and testing Photini.
+After that Photini can be run without activating the virtual environment.
 
 Qt package
 ^^^^^^^^^^
@@ -597,7 +598,6 @@ This is not a very convenient way to run Photini, so most users will want to add
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        sarah@mint:~$ /home/jim/photini/bin/photini-post-install
         sarah@mint:~$ /home/jim/photini/bin/photini-post-install 
         desktop-file-install \
           --dir=/home/sarah/.local/share/applications \

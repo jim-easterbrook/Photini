@@ -21,7 +21,7 @@ import logging.handlers
 import os
 import sys
 
-from photini import __version__, build
+from photini._version import version as photini_version
 from photini.ffmpeg import ffmpeg_version
 from photini.metadata import exiv2_version
 from photini.pyqt import (
@@ -33,7 +33,7 @@ translate = QtCore.QCoreApplication.translate
 
 
 def full_version_info():
-    version = 'Photini ' + __version__ + ', build: ' + build
+    version = 'Photini ' + photini_version
     version += '\n  Python ' + sys.version
     version += '\n  ' + exiv2_version
     version += '\n  ' + qt_version

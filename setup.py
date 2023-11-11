@@ -19,7 +19,7 @@
 from setuptools import setup
 from setuptools import __version__ as setuptools_version
 
-if tuple(map(int, setuptools_version.split('.'))) >= (61, 0):
+if tuple(map(int, setuptools_version.split('.')[:2])) >= (61, 0):
     # use metadata from pyproject.toml directly
     setup()
 else:
