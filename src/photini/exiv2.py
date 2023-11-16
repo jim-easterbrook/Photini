@@ -374,7 +374,7 @@ class MetadataHandler(object):
                    'Exif.NikonLd2.LensIDNumber',
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
             # use Exiv2's "interpreted string"
-            return datum._print()
+            return datum._print(self._exifData)
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
             return self.get_exif_comment(tag, datum)
