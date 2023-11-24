@@ -27,7 +27,6 @@ import chardet
 
 logger = logging.getLogger(__name__)
 
-exiv2_version_info = tuple(map(int, exiv2.version().split('.')))
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.version())
 
@@ -38,7 +37,7 @@ class MetadataHandler(object):
         exiv2.LogMsg.setLevel(
             max(exiv2.LogMsg.debug, min(exiv2.LogMsg.error, 4 - verbosity)))
         exiv2.XmpParser.initialize()
-        if config_store and exiv2_version_info >= (0, 27, 4):
+        if config_store and exiv2.testVersion(0, 27, 4):
             exiv2.enableBMFF(config_store.get('metadata', 'enable_bmff', False))
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
@@ -111,7 +110,7 @@ class MetadataHandler(object):
                 if '.0x' in key:
                     # unknown key type
                     continue
-                raw_value = memoryview(datum.value().data())
+                raw_value = datum.value().data()
                 if self.decode_string(key, raw_value, 'utf-8') is not None:
                     # no need to do anything
                     continue
@@ -199,8 +198,8 @@ class MetadataHandler(object):
         # final byte.
         if 'Iptc.Envelope.CharacterSet' not in self._iptcData:
             return None
-        iptc_charset_code = memoryview(
-            self._iptcData['Iptc.Envelope.CharacterSet'].value().data())
+        iptc_charset_code = self._iptcData[
+            'Iptc.Envelope.CharacterSet'].value().data()
         if len(iptc_charset_code) >= 3 and iptc_charset_code[0] == 0x1b:
             intermediate = iptc_charset_code[1:-1]
             final = iptc_charset_code[-1]
@@ -292,7 +291,7 @@ class MetadataHandler(object):
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.undefined:
             value = datum.value(exiv2.TypeId.comment)
-            data = memoryview(value.data())
+            data = value.data()
             charset = value.charsetId()
         else:
             value = datum.value(exiv2.TypeId.undefined)
@@ -487,7 +486,7 @@ class MetadataHandler(object):
         data = thumb.copy()
         if data:
             logger.info('%s: trying thumbnail', self._name)
-            yield memoryview(data.data()), 'thumbnail'
+            yield data, 'thumbnail'
         # try preview images
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
@@ -501,7 +500,7 @@ class MetadataHandler(object):
                 logger.info('%s: trying preview %dx%d', self._name,
                             props[idx].width_, props[idx].height_)
                 image = preview_manager.getPreviewImage(props[idx])
-                yield memoryview(image.pData()), 'preview ' + str(idx)
+                yield image.pData(), 'preview ' + str(idx)
 
     def select_xmp_thumbnail(self, file_value):
         if not file_value:
@@ -520,14 +519,14 @@ class MetadataHandler(object):
                 # try this one before any others
                 logger.info('%s: trying xmp thumb %dx%d', self._name,
                             candidate['width'], candidate['height'])
-                yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
+                yield candidate['image'], 'xmp thumb ' + str(n)
             else:
                 candidates.append(candidate)
         # Xmp spec says first thumbnail is default, so just try them in order
         for n, candidate in enumerate(candidates):
             logger.info('%s: trying xmp thumb %dx%d', self._name,
                         candidate['width'], candidate['height'])
-            yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
+            yield candidate['image'], 'xmp thumb ' + str(n)
 
     def get_previews(self):
         preview_manager = exiv2.PreviewManager(self._image)
@@ -536,7 +535,7 @@ class MetadataHandler(object):
         while idx:
             idx -= 1
             image = preview_manager.getPreviewImage(props[idx])
-            yield memoryview(image.pData())
+            yield image.pData()
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)

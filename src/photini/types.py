@@ -533,9 +533,11 @@ class MD_Thumbnail(MD_Dict):
 
     @staticmethod
     def image_from_data(data):
-        # PyQt5 seems to be the only thing that can use memoryviews
-        if isinstance(data, memoryview) and (
-                using_pyside or qt_version_info >= (6, 0)):
+        # PySide insists on bytes, can't use buffer interface
+        if using_pyside and not isinstance(data, bytes):
+            data = bytes(data)
+        # PyQt6 can't use memoryviews
+        elif qt_version_info >= (6, 0) and isinstance(data, memoryview):
             data = bytes(data)
         buf = QtCore.QBuffer()
         buf.setData(data)
