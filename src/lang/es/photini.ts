@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>subject {idx}</source>
-        <translation type="unfinished"></translation>
+        <translation>asunto {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -195,7 +195,7 @@
     </message>
     <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
-        <translation type="unfinished"></translation>
+        <translation>Una descripción textual más detallada del propósito y significado de una imagen que detalla la información proporcionada por la propiedad Texto alternativo (accesibilidad). Esta propiedad no tiene limitación de caracteres y no es obligatoria si el campo Texto alternativo (accesibilidad) describe suficientemente la imagen.</translation>
     </message>
     <message>
         <source>Alt Text (Accessibility)</source>
