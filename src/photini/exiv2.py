@@ -298,23 +298,23 @@ class MetadataHandler(object):
             data = bytearray(len(value))
             value.copy(data, exiv2.ByteOrder.invalidByteOrder)
             if data[:5] == b'ASCII':
-                charset = exiv2.CharsetId.ascii
+                charset = exiv2.CommentValue.CharsetId.ascii
             elif data[:3] == b'JIS':
-                charset = exiv2.CharsetId.jis
+                charset = exiv2.CommentValue.CharsetId.jis
             elif data[:7] == b'UNICODE':
-                charset = exiv2.CharsetId.unicode
+                charset = exiv2.CommentValue.CharsetId.unicode
             else:
-                charset = exiv2.CharsetId.undefined
+                charset = exiv2.CommentValue.CharsetId.undefined
         # ignore Exiv2's comment decoding, Python is better at unicode
         if not any(data):
             return None
         raw_value = data[8:]
-        if charset == exiv2.CharsetId.ascii:
+        if charset == exiv2.CommentValue.CharsetId.ascii:
             encodings = ('ascii',)
-        elif charset == exiv2.CharsetId.jis:
+        elif charset == exiv2.CommentValue.CharsetId.jis:
             # Exif standard says JIS X208-1990, but doesn't say what encoding
             encodings = ('iso2022_jp', 'euc_jp', 'shift_jis', 'cp932')
-        elif charset == exiv2.CharsetId.unicode:
+        elif charset == exiv2.CommentValue.CharsetId.unicode:
             # Exif refers to 1991 unicode, which predates UTF-8.
             # Check for BOM.
             if raw_value[:3] == b'\xef\xbb\xbf':
@@ -331,7 +331,7 @@ class MetadataHandler(object):
                 encodings = ('utf_16_be', 'utf_16_le', 'utf_8')
         else:
             encodings = ()
-            if charset != exiv2.CharsetId.undefined:
+            if charset != exiv2.CommentValue.CharsetId.undefined:
                 logger.warning('%s: %s: unknown charset', self._name, tag)
                 raw_value = data
         result = None
@@ -459,18 +459,18 @@ class MetadataHandler(object):
             elif tag == 'Xmp.xmp.Thumbnails' and ':image' in key:
                 # don't copy large string to unicode
                 value = value.data()
-            elif value.xmpStruct() == exiv2.XmpStruct.xsStruct:
+            elif value.xmpStruct() == exiv2.XmpValue.XmpStruct.xsStruct:
                 value = {}
             else:
                 array_type = value.xmpArrayType()
-                if array_type == exiv2.XmpArrayType.xaNone:
+                if array_type == exiv2.XmpValue.XmpArrayType.xaNone:
                     value = str(value)
                 else:
                     value = []
                     type_id = {
-                        exiv2.XmpArrayType.xaAlt: exiv2.TypeId.xmpAlt,
-                        exiv2.XmpArrayType.xaBag: exiv2.TypeId.xmpBag,
-                        exiv2.XmpArrayType.xaSeq: exiv2.TypeId.xmpSeq,
+                        exiv2.XmpValue.XmpArrayType.xaAlt: exiv2.TypeId.xmpAlt,
+                        exiv2.XmpValue.XmpArrayType.xaBag: exiv2.TypeId.xmpBag,
+                        exiv2.XmpValue.XmpArrayType.xaSeq: exiv2.TypeId.xmpSeq,
                         }[array_type]
             self.set_xmp_type(key, type_id)
             self.set_item(result, key, value)
@@ -500,7 +500,7 @@ class MetadataHandler(object):
                 logger.info('%s: trying preview %dx%d', self._name,
                             props[idx].width_, props[idx].height_)
                 image = preview_manager.getPreviewImage(props[idx])
-                yield image.pData(), 'preview ' + str(idx)
+                yield image, 'preview ' + str(idx)
 
     def select_xmp_thumbnail(self, file_value):
         if not file_value:
@@ -534,8 +534,7 @@ class MetadataHandler(object):
         idx = len(props)
         while idx:
             idx -= 1
-            image = preview_manager.getPreviewImage(props[idx])
-            yield image.pData()
+            yield preview_manager.getPreviewImage(props[idx])
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
@@ -577,49 +576,33 @@ class MetadataHandler(object):
         datum = self._exifData[tag]
         datum.setValue(value)
 
-    # maximum length of Iptc data
-    _max_bytes = {
-        'Iptc.Application2.Byline'             :   32,
-        'Iptc.Application2.BylineTitle'        :   32,
-        'Iptc.Application2.Caption'            : 2000,
-        'Iptc.Application2.City'               :   32,
-        'Iptc.Application2.Contact'            :  128,
-        'Iptc.Application2.Copyright'          :  128,
-        'Iptc.Application2.CountryCode'        :    3,
-        'Iptc.Application2.CountryName'        :   64,
-        'Iptc.Application2.Credit'             :   32,
-        'Iptc.Application2.Headline'           :  256,
-        'Iptc.Application2.Keywords'           :   64,
-        'Iptc.Application2.ObjectName'         :   64,
-        'Iptc.Application2.Program'            :   32,
-        'Iptc.Application2.ProgramVersion'     :   10,
-        'Iptc.Application2.ProvinceState'      :   32,
-        'Iptc.Application2.SpecialInstructions':  256,
-        'Iptc.Application2.SubLocation'        :   32,
-        'Iptc.Envelope.CharacterSet'           :   32,
-        }
+    @staticmethod
+    def iptc_max_len(tag_name):
+        family, group, tag = tag_name.split('.')
+        if family != 'Iptc':
+            return None
+        if group == 'Application2':
+            data_sets = exiv2.IptcDataSets.application2RecordList()
+        else:
+            data_sets = exiv2.IptcDataSets.envelopeRecordList()
+        for data_set in data_sets:
+            # case insensitive as Iptc Sublocation is SubLocation in Exiv2
+            if data_set.name_.lower() == tag.lower():
+                return data_set.maxbytes_
+        return None
 
     @classmethod
     def max_bytes(cls, name):
-        # try IPTC-IIM key
-        tag = 'Iptc.Application2.' + name
-        if tag in cls._max_bytes:
-            return cls._max_bytes[tag]
-        # try Photini metadata item
-        result = None
-        if name in cls._tag_list:
-            for mode, tag in cls._tag_list[name]:
-                if mode == 'WA' and tag in cls._max_bytes:
-                    if result:
-                        result = min(result, cls._max_bytes[tag])
-                    else:
-                        result = cls._max_bytes[tag]
-        return result
+        for mode, tag in cls._tag_list[name]:
+            if mode == 'WA' and tag.startswith('Iptc'):
+                return cls.iptc_max_len(tag)
+        return None
 
     @classmethod
     def truncate_iptc(cls, tag, value):
-        if tag in cls._max_bytes:
-            value = value.encode('utf-8')[:cls._max_bytes[tag]]
+        max_bytes = cls.iptc_max_len(tag)
+        if max_bytes:
+            value = value.encode('utf-8')[:max_bytes]
             value = value.decode('utf-8', errors='ignore')
         return value
 
@@ -684,9 +667,9 @@ class MetadataHandler(object):
             self.clear_xmp_tag(tag, children_only=True)
             # create array
             array_type = {
-                exiv2.TypeId.xmpAlt: exiv2.XmpArrayType.xaAlt,
-                exiv2.TypeId.xmpBag: exiv2.XmpArrayType.xaBag,
-                exiv2.TypeId.xmpSeq: exiv2.XmpArrayType.xaSeq,
+                exiv2.TypeId.xmpAlt: exiv2.XmpValue.XmpArrayType.xaAlt,
+                exiv2.TypeId.xmpBag: exiv2.XmpValue.XmpArrayType.xaBag,
+                exiv2.TypeId.xmpSeq: exiv2.XmpValue.XmpArrayType.xaSeq,
                 }[type_id]
             tmp = exiv2.XmpTextValue()
             tmp.setXmpArrayType(array_type)
@@ -719,9 +702,9 @@ class MetadataHandler(object):
         type_id = value.typeId()
         if type_id == exiv2.TypeId.xmpText:
             # can be a struct or array
-            if value.xmpStruct() == exiv2.XmpStruct.xsStruct:
+            if value.xmpStruct() == exiv2.XmpValue.XmpStruct.xsStruct:
                 self.clear_xmp_struct(tag)
-            elif value.xmpArrayType() != exiv2.XmpArrayType.xaNone:
+            elif value.xmpArrayType() != exiv2.XmpValue.XmpArrayType.xaNone:
                 self.clear_xmp_array(tag)
         if children_only:
             return datum
