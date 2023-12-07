@@ -67,7 +67,7 @@ class OpenCage(GeocoderBase):
             5000 * rate['limit'] // max(rate['remaining'], 1))
         return rsp['results']
 
-    # Map OpenCage address components to IPTC address heirarchy. There
+    # Map OpenCage address components to IPTC address hierarchy. There
     # are many possible components (user generated data) so any
     # unrecognised ones are put in 'Iptc4xmpExt:Sublocation'. See
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml

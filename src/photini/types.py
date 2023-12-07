@@ -496,7 +496,7 @@ class MD_DateTime(MD_Dict):
 
 
 class MD_LensSpec(MD_Dict):
-    # simple class to store lens "specificaton"
+    # simple class to store lens "specification"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
     _quiet = True
 
@@ -1591,7 +1591,7 @@ class CountryCode(MD_UnmergableString):
 
 
 class MD_Location(MD_Structure):
-    # stores IPTC defined location heirarchy
+    # stores IPTC defined location hierarchy
     item_type = {
         'Iptc4xmpExt:City': MD_String,
         'Iptc4xmpExt:CountryCode': CountryCode,
