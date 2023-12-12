@@ -422,6 +422,9 @@ class MD_DateTime(MD_Dict):
             tz_offset = self['tz_offset']
             if tz_offset is None:
                 tz_hr, tz_min = 0, 0
+            elif tz_offset < 0:
+                tz_offset = -tz_offset
+                tz_hr, tz_min = -(tz_offset // 60), -(tz_offset % 60)
             else:
                 tz_hr, tz_min = tz_offset // 60, tz_offset % 60
             time_value = (

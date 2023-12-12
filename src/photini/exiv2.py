@@ -32,6 +32,26 @@ exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
 
 
 class MetadataHandler(object):
+    # static data about keys known to Exiv2
+    data_sets = {}
+
+    @classmethod
+    def get_info(cls, tag_name):
+        family, group, tag = tag_name.split('.')
+        if family != 'Iptc':
+            return {}
+        if group not in cls.data_sets:
+            # get static info once, as it's computed each time
+            if group == 'Application2':
+                cls.data_sets[group] = exiv2.IptcDataSets.application2RecordList()
+            elif group == 'Envelope':
+                cls.data_sets[group] = exiv2.IptcDataSets.envelopeRecordList()
+        for data_set in cls.data_sets[group]:
+            # case insensitive as Iptc Sublocation is SubLocation in Exiv2
+            if data_set['name'].lower() == tag.lower():
+                return data_set
+        return {}
+
     @classmethod
     def initialise(cls, config_store, verbosity):
         exiv2.LogMsg.setLevel(
@@ -401,9 +421,9 @@ class MetadataHandler(object):
         type_id = datum.typeId()
         value = datum.value()
         if type_id == exiv2.TypeId.date:
-            return dict(value.getDate())
+            return value.getDate()
         if type_id == exiv2.TypeId.time:
-            return dict(value.getTime())
+            return value.getTime()
         return value.toString()
 
     def get_iptc_value(self, tag):
@@ -576,19 +596,11 @@ class MetadataHandler(object):
         datum = self._exifData[tag]
         datum.setValue(value)
 
-    @staticmethod
-    def iptc_max_len(tag_name):
-        family, group, tag = tag_name.split('.')
-        if family != 'Iptc':
-            return None
-        if group == 'Application2':
-            data_sets = exiv2.IptcDataSets.application2RecordList()
-        else:
-            data_sets = exiv2.IptcDataSets.envelopeRecordList()
-        for data_set in data_sets:
-            # case insensitive as Iptc Sublocation is SubLocation in Exiv2
-            if data_set.name_.lower() == tag.lower():
-                return data_set.maxbytes_
+    @classmethod
+    def iptc_max_len(cls, tag_name):
+        data_set = cls.get_info(tag_name)
+        if 'maxbytes' in data_set:
+            return data_set['maxbytes']
         return None
 
     @classmethod
