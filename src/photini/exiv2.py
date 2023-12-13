@@ -34,23 +34,28 @@ exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
 class MetadataHandler(object):
     # static data about keys known to Exiv2
     data_sets = {}
+    md_info = {}
 
     @classmethod
     def get_info(cls, tag_name):
+        if tag_name in cls.md_info:
+            return cls.md_info[tag_name]
         family, group, tag = tag_name.split('.')
-        if family != 'Iptc':
-            return {}
-        if group not in cls.data_sets:
-            # get static info once, as it's computed each time
-            if group == 'Application2':
-                cls.data_sets[group] = exiv2.IptcDataSets.application2RecordList()
-            elif group == 'Envelope':
-                cls.data_sets[group] = exiv2.IptcDataSets.envelopeRecordList()
-        for data_set in cls.data_sets[group]:
-            # case insensitive as Iptc Sublocation is SubLocation in Exiv2
-            if data_set['name'].lower() == tag.lower():
-                return data_set
-        return {}
+        if family == 'Iptc':
+            if group not in cls.data_sets:
+                # get static info once, as it's computed each time
+                if group == 'Application2':
+                    cls.data_sets[group] = exiv2.IptcDataSets.application2RecordList()
+                elif group == 'Envelope':
+                    cls.data_sets[group] = exiv2.IptcDataSets.envelopeRecordList()
+            for data_set in cls.data_sets[group]:
+                # case insensitive as Iptc Sublocation is SubLocation in Exiv2
+                if data_set['name'].lower() == tag.lower():
+                    cls.md_info[tag_name] = data_set
+                    break
+        if tag_name not in cls.md_info:
+            cls.md_info[tag_name] = {}
+        return cls.md_info[tag_name]
 
     @classmethod
     def initialise(cls, config_store, verbosity):
@@ -309,12 +314,11 @@ class MetadataHandler(object):
 
     def get_exif_comment(self, tag, datum):
         type_id = datum.typeId()
-        if type_id == exiv2.TypeId.undefined:
-            value = datum.value(exiv2.TypeId.comment)
+        value = datum.value()
+        if isinstance(value, exiv2.CommentValue):
             data = value.data()
             charset = value.charsetId()
         else:
-            value = datum.value(exiv2.TypeId.undefined)
             data = bytearray(len(value))
             value.copy(data, exiv2.ByteOrder.invalidByteOrder)
             if data[:5] == b'ASCII':
@@ -605,9 +609,18 @@ class MetadataHandler(object):
 
     @classmethod
     def max_bytes(cls, name):
+        result = []
         for mode, tag in cls._tag_list[name]:
-            if mode == 'WA' and tag.startswith('Iptc'):
-                return cls.iptc_max_len(tag)
+            if mode == 'WA' and tag.split('.')[0] == 'Iptc':
+                if tag in cls._multi_tags:
+                    for sub_tag in cls._multi_tags[tag]:
+                        if sub_tag:
+                            result.append(cls.iptc_max_len(sub_tag))
+                else:
+                    result.append(cls.iptc_max_len(tag))
+        result = [x for x in result if x]
+        if result:
+            return min(result)
         return None
 
     @classmethod
