@@ -422,6 +422,9 @@ class MD_DateTime(MD_Dict):
             tz_offset = self['tz_offset']
             if tz_offset is None:
                 tz_hr, tz_min = 0, 0
+            elif tz_offset < 0:
+                tz_offset = -tz_offset
+                tz_hr, tz_min = -(tz_offset // 60), -(tz_offset % 60)
             else:
                 tz_hr, tz_min = tz_offset // 60, tz_offset % 60
             time_value = (
@@ -533,9 +536,8 @@ class MD_Thumbnail(MD_Dict):
 
     @staticmethod
     def image_from_data(data):
-        # PyQt5 seems to be the only thing that can use memoryviews
-        if isinstance(data, memoryview) and (
-                using_pyside or qt_version_info >= (6, 0)):
+        # PySide insists on bytes, can't use buffer interface
+        if using_pyside and not isinstance(data, bytes):
             data = bytes(data)
         buf = QtCore.QBuffer()
         buf.setData(data)

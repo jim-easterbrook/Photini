@@ -27,18 +27,42 @@ import chardet
 
 logger = logging.getLogger(__name__)
 
-exiv2_version_info = tuple(map(int, exiv2.version().split('.')))
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.version())
 
 
 class MetadataHandler(object):
+    # static data about keys known to Exiv2
+    data_sets = {}
+    md_info = {}
+
+    @classmethod
+    def get_info(cls, tag_name):
+        if tag_name in cls.md_info:
+            return cls.md_info[tag_name]
+        family, group, tag = tag_name.split('.')
+        if family == 'Iptc':
+            if group not in cls.data_sets:
+                # get static info once, as it's computed each time
+                if group == 'Application2':
+                    cls.data_sets[group] = exiv2.IptcDataSets.application2RecordList()
+                elif group == 'Envelope':
+                    cls.data_sets[group] = exiv2.IptcDataSets.envelopeRecordList()
+            for data_set in cls.data_sets[group]:
+                # case insensitive as Iptc Sublocation is SubLocation in Exiv2
+                if data_set['name'].lower() == tag.lower():
+                    cls.md_info[tag_name] = data_set
+                    break
+        if tag_name not in cls.md_info:
+            cls.md_info[tag_name] = {}
+        return cls.md_info[tag_name]
+
     @classmethod
     def initialise(cls, config_store, verbosity):
         exiv2.LogMsg.setLevel(
             max(exiv2.LogMsg.debug, min(exiv2.LogMsg.error, 4 - verbosity)))
         exiv2.XmpParser.initialize()
-        if config_store and exiv2_version_info >= (0, 27, 4):
+        if config_store and exiv2.testVersion(0, 27, 4):
             exiv2.enableBMFF(config_store.get('metadata', 'enable_bmff', False))
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
@@ -111,7 +135,7 @@ class MetadataHandler(object):
                 if '.0x' in key:
                     # unknown key type
                     continue
-                raw_value = memoryview(datum.value().data())
+                raw_value = datum.value().data()
                 if self.decode_string(key, raw_value, 'utf-8') is not None:
                     # no need to do anything
                     continue
@@ -199,8 +223,8 @@ class MetadataHandler(object):
         # final byte.
         if 'Iptc.Envelope.CharacterSet' not in self._iptcData:
             return None
-        iptc_charset_code = memoryview(
-            self._iptcData['Iptc.Envelope.CharacterSet'].value().data())
+        iptc_charset_code = self._iptcData[
+            'Iptc.Envelope.CharacterSet'].value().data()
         if len(iptc_charset_code) >= 3 and iptc_charset_code[0] == 0x1b:
             intermediate = iptc_charset_code[1:-1]
             final = iptc_charset_code[-1]
@@ -290,32 +314,31 @@ class MetadataHandler(object):
 
     def get_exif_comment(self, tag, datum):
         type_id = datum.typeId()
-        if type_id == exiv2.TypeId.undefined:
-            value = datum.value(exiv2.TypeId.comment)
-            data = memoryview(value.data())
+        value = datum.value()
+        if isinstance(value, exiv2.CommentValue):
+            data = value.data()
             charset = value.charsetId()
         else:
-            value = datum.value(exiv2.TypeId.undefined)
             data = bytearray(len(value))
             value.copy(data, exiv2.ByteOrder.invalidByteOrder)
             if data[:5] == b'ASCII':
-                charset = exiv2.CharsetId.ascii
+                charset = exiv2.CommentValue.CharsetId.ascii
             elif data[:3] == b'JIS':
-                charset = exiv2.CharsetId.jis
+                charset = exiv2.CommentValue.CharsetId.jis
             elif data[:7] == b'UNICODE':
-                charset = exiv2.CharsetId.unicode
+                charset = exiv2.CommentValue.CharsetId.unicode
             else:
-                charset = exiv2.CharsetId.undefined
+                charset = exiv2.CommentValue.CharsetId.undefined
         # ignore Exiv2's comment decoding, Python is better at unicode
         if not any(data):
             return None
         raw_value = data[8:]
-        if charset == exiv2.CharsetId.ascii:
+        if charset == exiv2.CommentValue.CharsetId.ascii:
             encodings = ('ascii',)
-        elif charset == exiv2.CharsetId.jis:
+        elif charset == exiv2.CommentValue.CharsetId.jis:
             # Exif standard says JIS X208-1990, but doesn't say what encoding
             encodings = ('iso2022_jp', 'euc_jp', 'shift_jis', 'cp932')
-        elif charset == exiv2.CharsetId.unicode:
+        elif charset == exiv2.CommentValue.CharsetId.unicode:
             # Exif refers to 1991 unicode, which predates UTF-8.
             # Check for BOM.
             if raw_value[:3] == b'\xef\xbb\xbf':
@@ -332,7 +355,7 @@ class MetadataHandler(object):
                 encodings = ('utf_16_be', 'utf_16_le', 'utf_8')
         else:
             encodings = ()
-            if charset != exiv2.CharsetId.undefined:
+            if charset != exiv2.CommentValue.CharsetId.undefined:
                 logger.warning('%s: %s: unknown charset', self._name, tag)
                 raw_value = data
         result = None
@@ -374,7 +397,7 @@ class MetadataHandler(object):
                    'Exif.NikonLd2.LensIDNumber',
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
             # use Exiv2's "interpreted string"
-            return datum._print()
+            return datum._print(self._exifData)
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
             return self.get_exif_comment(tag, datum)
@@ -402,9 +425,9 @@ class MetadataHandler(object):
         type_id = datum.typeId()
         value = datum.value()
         if type_id == exiv2.TypeId.date:
-            return dict(value.getDate())
+            return value.getDate()
         if type_id == exiv2.TypeId.time:
-            return dict(value.getTime())
+            return value.getTime()
         return value.toString()
 
     def get_iptc_value(self, tag):
@@ -460,18 +483,18 @@ class MetadataHandler(object):
             elif tag == 'Xmp.xmp.Thumbnails' and ':image' in key:
                 # don't copy large string to unicode
                 value = value.data()
-            elif value.xmpStruct() == exiv2.XmpStruct.xsStruct:
+            elif value.xmpStruct() == exiv2.XmpValue.XmpStruct.xsStruct:
                 value = {}
             else:
                 array_type = value.xmpArrayType()
-                if array_type == exiv2.XmpArrayType.xaNone:
+                if array_type == exiv2.XmpValue.XmpArrayType.xaNone:
                     value = str(value)
                 else:
                     value = []
                     type_id = {
-                        exiv2.XmpArrayType.xaAlt: exiv2.TypeId.xmpAlt,
-                        exiv2.XmpArrayType.xaBag: exiv2.TypeId.xmpBag,
-                        exiv2.XmpArrayType.xaSeq: exiv2.TypeId.xmpSeq,
+                        exiv2.XmpValue.XmpArrayType.xaAlt: exiv2.TypeId.xmpAlt,
+                        exiv2.XmpValue.XmpArrayType.xaBag: exiv2.TypeId.xmpBag,
+                        exiv2.XmpValue.XmpArrayType.xaSeq: exiv2.TypeId.xmpSeq,
                         }[array_type]
             self.set_xmp_type(key, type_id)
             self.set_item(result, key, value)
@@ -487,7 +510,7 @@ class MetadataHandler(object):
         data = thumb.copy()
         if data:
             logger.info('%s: trying thumbnail', self._name)
-            yield memoryview(data.data()), 'thumbnail'
+            yield data, 'thumbnail'
         # try preview images
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
@@ -501,7 +524,7 @@ class MetadataHandler(object):
                 logger.info('%s: trying preview %dx%d', self._name,
                             props[idx].width_, props[idx].height_)
                 image = preview_manager.getPreviewImage(props[idx])
-                yield memoryview(image.pData()), 'preview ' + str(idx)
+                yield image, 'preview ' + str(idx)
 
     def select_xmp_thumbnail(self, file_value):
         if not file_value:
@@ -520,14 +543,14 @@ class MetadataHandler(object):
                 # try this one before any others
                 logger.info('%s: trying xmp thumb %dx%d', self._name,
                             candidate['width'], candidate['height'])
-                yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
+                yield candidate['image'], 'xmp thumb ' + str(n)
             else:
                 candidates.append(candidate)
         # Xmp spec says first thumbnail is default, so just try them in order
         for n, candidate in enumerate(candidates):
             logger.info('%s: trying xmp thumb %dx%d', self._name,
                         candidate['width'], candidate['height'])
-            yield memoryview(candidate['image']), 'xmp thumb ' + str(n)
+            yield candidate['image'], 'xmp thumb ' + str(n)
 
     def get_previews(self):
         preview_manager = exiv2.PreviewManager(self._image)
@@ -535,8 +558,7 @@ class MetadataHandler(object):
         idx = len(props)
         while idx:
             idx -= 1
-            image = preview_manager.getPreviewImage(props[idx])
-            yield memoryview(image.pData())
+            yield preview_manager.getPreviewImage(props[idx])
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
@@ -578,49 +600,34 @@ class MetadataHandler(object):
         datum = self._exifData[tag]
         datum.setValue(value)
 
-    # maximum length of Iptc data
-    _max_bytes = {
-        'Iptc.Application2.Byline'             :   32,
-        'Iptc.Application2.BylineTitle'        :   32,
-        'Iptc.Application2.Caption'            : 2000,
-        'Iptc.Application2.City'               :   32,
-        'Iptc.Application2.Contact'            :  128,
-        'Iptc.Application2.Copyright'          :  128,
-        'Iptc.Application2.CountryCode'        :    3,
-        'Iptc.Application2.CountryName'        :   64,
-        'Iptc.Application2.Credit'             :   32,
-        'Iptc.Application2.Headline'           :  256,
-        'Iptc.Application2.Keywords'           :   64,
-        'Iptc.Application2.ObjectName'         :   64,
-        'Iptc.Application2.Program'            :   32,
-        'Iptc.Application2.ProgramVersion'     :   10,
-        'Iptc.Application2.ProvinceState'      :   32,
-        'Iptc.Application2.SpecialInstructions':  256,
-        'Iptc.Application2.SubLocation'        :   32,
-        'Iptc.Envelope.CharacterSet'           :   32,
-        }
+    @classmethod
+    def iptc_max_len(cls, tag_name):
+        data_set = cls.get_info(tag_name)
+        if 'maxbytes' in data_set:
+            return data_set['maxbytes']
+        return None
 
     @classmethod
     def max_bytes(cls, name):
-        # try IPTC-IIM key
-        tag = 'Iptc.Application2.' + name
-        if tag in cls._max_bytes:
-            return cls._max_bytes[tag]
-        # try Photini metadata item
-        result = None
-        if name in cls._tag_list:
-            for mode, tag in cls._tag_list[name]:
-                if mode == 'WA' and tag in cls._max_bytes:
-                    if result:
-                        result = min(result, cls._max_bytes[tag])
-                    else:
-                        result = cls._max_bytes[tag]
-        return result
+        result = []
+        for mode, tag in cls._tag_list[name]:
+            if mode == 'WA' and tag.split('.')[0] == 'Iptc':
+                if tag in cls._multi_tags:
+                    for sub_tag in cls._multi_tags[tag]:
+                        if sub_tag:
+                            result.append(cls.iptc_max_len(sub_tag))
+                else:
+                    result.append(cls.iptc_max_len(tag))
+        result = [x for x in result if x]
+        if result:
+            return min(result)
+        return None
 
     @classmethod
     def truncate_iptc(cls, tag, value):
-        if tag in cls._max_bytes:
-            value = value.encode('utf-8')[:cls._max_bytes[tag]]
+        max_bytes = cls.iptc_max_len(tag)
+        if max_bytes:
+            value = value.encode('utf-8')[:max_bytes]
             value = value.decode('utf-8', errors='ignore')
         return value
 
@@ -685,9 +692,9 @@ class MetadataHandler(object):
             self.clear_xmp_tag(tag, children_only=True)
             # create array
             array_type = {
-                exiv2.TypeId.xmpAlt: exiv2.XmpArrayType.xaAlt,
-                exiv2.TypeId.xmpBag: exiv2.XmpArrayType.xaBag,
-                exiv2.TypeId.xmpSeq: exiv2.XmpArrayType.xaSeq,
+                exiv2.TypeId.xmpAlt: exiv2.XmpValue.XmpArrayType.xaAlt,
+                exiv2.TypeId.xmpBag: exiv2.XmpValue.XmpArrayType.xaBag,
+                exiv2.TypeId.xmpSeq: exiv2.XmpValue.XmpArrayType.xaSeq,
                 }[type_id]
             tmp = exiv2.XmpTextValue()
             tmp.setXmpArrayType(array_type)
@@ -720,9 +727,9 @@ class MetadataHandler(object):
         type_id = value.typeId()
         if type_id == exiv2.TypeId.xmpText:
             # can be a struct or array
-            if value.xmpStruct() == exiv2.XmpStruct.xsStruct:
+            if value.xmpStruct() == exiv2.XmpValue.XmpStruct.xsStruct:
                 self.clear_xmp_struct(tag)
-            elif value.xmpArrayType() != exiv2.XmpArrayType.xaNone:
+            elif value.xmpArrayType() != exiv2.XmpValue.XmpArrayType.xaNone:
                 self.clear_xmp_array(tag)
         if children_only:
             return datum

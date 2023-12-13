@@ -7,11 +7,9 @@ source_file   = src/lang/templates/gettext/documentation.pot
 type          = PO
 minimum_perc  = 0
 resource_name = src..gettext/documentation.pot (transifex)
-lang_map    = cs@qtfiletype: cs, fr@qtfiletype: fr, it@qtfiletype: it, pl@qtfiletype: pl, es@qtfiletype: es
 
 [o:jim-easterbrook:p:photini:r:c549995fe0a7316739fcc02815e84316]
 file_filter = src/lang/<lang>/photini.ts
 source_file = src/lang/en/photini.ts
 source_lang = en
-lang_map    = cs@qtfiletype: cs, fr@qtfiletype: fr, it@qtfiletype: it, pl@qtfiletype: pl, es@qtfiletype: es
 

@@ -25,8 +25,10 @@ import mimetypes
 import os
 import re
 
+import exiv2
+
 from photini import __version__
-from photini.exiv2 import MetadataHandler, exiv2_version, exiv2_version_info
+from photini.exiv2 import MetadataHandler
 from photini.ffmpeg import FFmpeg
 from photini.types import *
 
@@ -573,7 +575,7 @@ class SidecarMetadata(ImageMetadata):
         return None
 
     def clear_dates(self):
-        if exiv2_version_info < (1, 0, 0):
+        if not exiv2.testVersion(1, 0, 0):
             # workaround for bug in exiv2 xmp timestamp altering
             # see https://github.com/Exiv2/exiv2/issues/1998
             for name in ('date_digitised', 'date_modified', 'date_taken'):

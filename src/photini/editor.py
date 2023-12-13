@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import importlib
+import locale
 import logging
 from optparse import OptionParser
 import os
@@ -546,8 +547,9 @@ def main(argv=None):
         app.installTranslator(translator)
         translator = QtCore.QTranslator(parent=app)
     # localised translation, if it exists
-    locale = QtCore.QLocale.system()
-    if translator.load(locale, 'photini', '.', lang_dir):
+    locale.setlocale(locale.LC_ALL, '')
+    qt_locale = QtCore.QLocale.system()
+    if translator.load(qt_locale, 'photini', '.', lang_dir):
         app.installTranslator(translator)
         translator = QtCore.QTranslator(parent=app)
     # parse remaining arguments
