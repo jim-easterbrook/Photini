@@ -757,7 +757,7 @@
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation>&amp;Ipernity-Hochladen</translation>
+        <translation>&amp;Ipernity Hochladen</translation>
     </message>
     <message>
         <source>Replace image region notes</source>
@@ -1071,7 +1071,7 @@
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation>&amp;Eigentümerschaft-Metadaten</translation>
+        <translation>&amp;Eigentümerschaft Metadaten</translation>
     </message>
     <message>
         <source>Creator</source>
