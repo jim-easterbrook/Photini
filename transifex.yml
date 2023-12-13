@@ -1,12 +1,4 @@
 git:
-  settings:
-    language_mapping:
-      cs@qtfiletype: cs
-      fr@qtfiletype: fr
-      it@qtfiletype: it
-      pl@qtfiletype: pl
-      es@qtfiletype: es
-
   filters:
   - filter_type: file
     file_format: QT
