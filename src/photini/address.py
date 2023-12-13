@@ -67,7 +67,7 @@ class OpenCage(GeocoderBase):
             5000 * rate['limit'] // max(rate['remaining'], 1))
         return rsp['results']
 
-    # Map OpenCage address components to IPTC address heirarchy. There
+    # Map OpenCage address components to IPTC address hierarchy. There
     # are many possible components (user generated data) so any
     # unrecognised ones are put in 'Iptc4xmpExt:Sublocation'. See
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
@@ -202,7 +202,8 @@ class LocationInfo(QtWidgets.QScrollArea):
                     'AddressTab', 'Enter globally unique identifier(s) of the'
                     ' location. Separate them with ";" characters.'))):
             self.members[key] = SingleLineEdit(
-                'Iptc4xmpExt:' + key, length_check=ImageMetadata.max_bytes(key))
+                'Iptc4xmpExt:' + key, length_check=ImageMetadata.iptc_max_len(
+                    'Iptc.Application2.' + key))
             self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
             self.members[key].new_value.connect(self.editing_finished)
         self.members['latlon'] = LatLongDisplay()
