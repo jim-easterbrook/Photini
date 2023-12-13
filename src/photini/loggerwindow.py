@@ -23,7 +23,7 @@ import sys
 
 from photini._version import version as photini_version
 from photini.ffmpeg import ffmpeg_version
-from photini.metadata import exiv2_version
+from photini.exiv2 import exiv2_version
 from photini.pyqt import (
     catch_all, QtCore, QtSignal, QtSlot, QtWidgets, qt_version, width_for_text)
 from photini.spelling import spelling_version

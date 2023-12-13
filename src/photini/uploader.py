@@ -111,15 +111,11 @@ class UploaderSession(QtCore.QObject):
         if convert:
             exiv_image, image_type = convert(image)
             exiv_io = exiv_image.io()
-            exiv_io.open()
-            fileobj = AbortableFileReader(
-                io.BytesIO(exiv_io.mmap()), exiv_io.size())
+            fileobj = AbortableFileReader(io.BytesIO(exiv_io), exiv_io.size())
             try:
                 yield image_type, fileobj
             finally:
                 fileobj.close()
-                exiv_io.munmap()
-                exiv_io.close()
         else:
             fileobj = AbortableFileReader(
                 open(image.path, 'rb'), os.stat(image.path).st_size)
@@ -577,16 +573,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         if dst['image']:
             return dst
         exiv_io = dst['data'].io()
-        exiv_io.open()
-        data = exiv_io.mmap()
         if PIL:
             # use Pillow for good quality
-            dst['image'] = PIL.open(io.BytesIO(data))
+            dst['image'] = PIL.open(io.BytesIO(exiv_io))
             dst['width'], dst['height'] = dst['image'].size
         else:
             # use Qt, lower quality but available
             buf = QtCore.QBuffer()
-            buf.setData(bytes(data))
+            buf.setData(exiv_io)
             reader = QtGui.QImageReader(buf)
             reader.setAutoTransform(False)
             im = reader.read()
@@ -595,8 +589,6 @@ class PhotiniUploader(QtWidgets.QWidget):
             dst['image'] = im
             dst['width'] = dst['image'].width()
             dst['height'] = dst['image'].height()
-        exiv_io.munmap()
-        exiv_io.close()
         return dst
 
     def image_to_data(self, src, mime_type=None, max_size=None):

@@ -66,7 +66,7 @@ class CameraList(DropdownEdit):
     def __init__(self, *args, **kwds):
         super(CameraList, self).__init__(*args, **kwds)
         values = [('', None)]
-        # read cameras from config, updating if neccessary
+        # read cameras from config, updating if necessary
         sections = []
         for section in self.app.config_store.config.sections():
             if not section.startswith('camera '):
@@ -108,7 +108,7 @@ class LensList(DropdownEdit):
     def __init__(self, *args, **kwds):
         super(LensList, self).__init__(*args, **kwds)
         values = [('', None)]
-        # read lenses from config, updating if neccessary
+        # read lenses from config, updating if necessary
         self.app.config_store.delete('technical', 'lenses')
         for section in self.app.config_store.config.sections():
             if not section.startswith('lens '):

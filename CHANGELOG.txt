@@ -102,7 +102,7 @@ Changes in v2022.5.0:
   7/ Other minor improvements and bug fixes.
 
 Changes in v2022.3.2:
-  1/ Fix urllib import error porblem on some systems.
+  1/ Fix urllib import error problem on some systems.
   2/ Fix non-existing cache directory error.
 
 Changes in v2022.3.1:

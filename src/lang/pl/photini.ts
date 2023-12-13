@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="pl" sourcelanguage="en_GB">
+<?xml version='1.0' encoding='utf-8'?>
+<TS language="pl" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -72,7 +71,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
+        <source>Enter globally unique identifier(s) of the location. Separate them with ";" characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -182,11 +181,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <source>Enter a "caption" describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with ";" characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -455,7 +454,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File "{file_name}" is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -534,7 +533,7 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -546,7 +545,7 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
@@ -554,7 +553,7 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -648,7 +647,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove &quot;{source_name}&quot;</source>
+        <source>Remove "{source_name}"</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -665,7 +664,7 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -823,7 +822,7 @@
     </message>
     <message>
         <source>Lang: </source>
-        <comment>Short abbreviation of &quot;Language: &quot;</comment>
+        <comment>Short abbreviation of "Language: "</comment>
         <translation>Język: </translation>
     </message>
     <message>
@@ -884,7 +883,7 @@
     </message>
     <message>
         <source>Search and altitude lookup powered by Google</source>
-        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <comment>Do not translate "powered by Google"</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -978,7 +977,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <source>This program is released with a GNU General Public License. For details click the "{details}" button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -993,7 +992,7 @@
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as "©2008 Jane Doe".</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1061,7 +1060,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Creator&apos;s Jobtitle</source>
+        <source>Creator's Jobtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1145,7 +1144,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open link to &quot;{licence}&quot;</source>
+        <source>Open link to "{licence}"</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1379,7 +1378,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; does not have any &quot;alt text&quot; for accessibility. Would you like to upload it anyway?</source>
+        <source>File "{file_name}" does not have any "alt text" for accessibility. Would you like to upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1454,7 +1453,7 @@
         <translation type="unfinished">Typ zawartości</translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
+        <source>Enter the names of people shown in this region. Separate multiple entries with ";" characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1466,7 +1465,7 @@
         <translation>Opis</translation>
     </message>
     <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
+        <source>Enter a "caption" describing the who, what, and why of what is happening in this region.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1525,11 +1524,11 @@
         <translation>Nazwa modelu</translation>
     </message>
     <message>
-        <source>Maker&apos;s name</source>
+        <source>Maker's name</source>
         <translation>Nazwa Makera</translation>
     </message>
     <message>
-        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <source>Remove "{camera_or_lens}"</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1545,12 +1544,12 @@
         <translation>Data i czas</translation>
     </message>
     <message>
-        <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
-        <translation>Link &apos;taken&apos; i&apos;digitised&apos;</translation>
+        <source>Link 'taken' and 'digitised'</source>
+        <translation>Link 'taken' i'digitised'</translation>
     </message>
     <message>
-        <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
-        <translation>Link &apos;digitised&apos; i &apos;modified&apos;</translation>
+        <source>Link 'digitised' and 'modified'</source>
+        <translation>Link 'digitised' i 'modified'</translation>
     </message>
     <message>
         <source>Taken</source>
@@ -1688,17 +1687,17 @@
     </message>
     <message>
         <source>h</source>
-        <comment>single letter abbreviation of &quot;hours&quot;</comment>
+        <comment>single letter abbreviation of "hours"</comment>
         <translation>h</translation>
     </message>
     <message>
         <source>m</source>
-        <comment>single letter abbreviation of &quot;minutes&quot;</comment>
+        <comment>single letter abbreviation of "minutes"</comment>
         <translation>m</translation>
     </message>
     <message>
         <source>s</source>
-        <comment>single letter abbreviation of &quot;seconds&quot;</comment>
+        <comment>single letter abbreviation of "seconds"</comment>
         <translation>s</translation>
     </message>
 </context>
@@ -1749,11 +1748,11 @@
         <translation>Zamknięcie w tej chwili zakończy wysyłanie.</translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <source>File "{file_name}" has {size} bytes and exceeds {service}'s limit of {max_size} bytes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <source>File "{file_name}" upload failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1809,11 +1808,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
+        <source>File "{file_name}" has {size} pixels and exceeds {service}'s limit of {max_size} pixels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
+        <source>File "{file_name}" is of type "{file_type}", which {service} may not handle correctly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

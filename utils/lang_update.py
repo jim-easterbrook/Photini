@@ -51,16 +51,25 @@ def extract_program_strings(root):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
-    # change Transifex language
+    # remove extra plurals not used by Qt
+    numerus_count = {'cs': 3, 'es': 2, 'fr': 2, 'it': 2, 'pl': 3}
     for path in outputs:
-        if not os.path.exists(path):
+        if 'templates' in path or not os.path.exists(path):
+            continue
+        language = os.path.basename(os.path.dirname(path))
+        if language not in numerus_count:
             continue
         tree = ET.parse(path)
         xml = tree.getroot()
-        language = xml.get('language', default='')
-        if '@' not in language:
-            continue
-        xml.set('language', language.split('@')[0])
+        for context in xml.iter('context'):
+            for message in context.iter('message'):
+                if message.get('numerus'):
+                    translation = message.find('translation')
+                    numerusforms = translation.findall('numerusform')
+                    extra = len(numerusforms) - numerus_count[language]
+                    if extra > 0:
+                        for i in range(extra):
+                            translation.remove(numerusforms.pop())
         tree.write(path, encoding='utf-8',
                    xml_declaration=True, short_empty_elements=False)
     # run pylupdate
@@ -78,6 +87,31 @@ def extract_program_strings(root):
         result = subprocess.call(cmd)
         if result:
             return result
+    if args.qt:
+        return 0
+    # restore extra plurals not used by Qt
+    numerus_count = {'cs': 4, 'es': 3, 'fr': 3, 'it': 3, 'pl': 4}
+    unused = ET.Element('numerusform')
+    unused.text = 'Unused'
+    for path in outputs:
+        if 'templates' in path or not os.path.exists(path):
+            continue
+        language = os.path.basename(os.path.dirname(path))
+        if language not in numerus_count:
+            continue
+        tree = ET.parse(path)
+        xml = tree.getroot()
+        for context in xml.iter('context'):
+            for message in context.iter('message'):
+                if message.get('numerus'):
+                    translation = message.find('translation')
+                    numerusforms = translation.findall('numerusform')
+                    missing = numerus_count[language] - len(numerusforms)
+                    if missing > 0:
+                        for i in range(missing):
+                            translation.append(unused)
+        tree.write(path, encoding='utf-8',
+                   xml_declaration=True, short_empty_elements=False)
     return 0
 
 
@@ -139,6 +173,8 @@ def main(argv=None):
                         help='language code, e.g. nl or cs_CZ')
     parser.add_argument('-p', '--purge', action='store_true',
                         help='remove obsolete strings')
+    parser.add_argument('-q', '--qt', action='store_true',
+                        help='prepare files for Qt linguist')
     parser.add_argument('-s', '--strip', action='store_true',
                         help='remove line numbers')
     args = parser.parse_args()
