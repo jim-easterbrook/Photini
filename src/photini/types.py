@@ -594,7 +594,7 @@ class MD_Thumbnail(MD_Dict):
         if not data:
             fmt = 'JPEG'
             data = self.data_from_image(self['image'], max_size=2**32)
-        data = codecs.encode(data, 'base64_codec').decode('ascii')
+        data = codecs.encode(memoryview(data), 'base64_codec').decode('ascii')
         return [{
             'xmpGImg:width': str(self['w']),
             'xmpGImg:height': str(self['h']),
