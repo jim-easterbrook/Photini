@@ -132,8 +132,14 @@ class MetadataHandler(object):
                                           exiv2.TypeId.string):
                     continue
                 key = datum.key()
+                if key in ('Iptc.Envelope.CharacterSet', 'Exif.Image.IPTCNAA'):
+                    continue
                 if '.0x' in key:
                     # unknown key type
+                    continue
+                family, group, tagname = key.split('.', 2)
+                if family == 'Exif' and exiv2.ExifTags.isMakerGroup(group):
+                    # don't transcode maker note stuff
                     continue
                 raw_value = datum.value().data()
                 if self.decode_string(key, raw_value, 'utf-8') is not None:
