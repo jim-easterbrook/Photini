@@ -236,7 +236,7 @@ class MD_DateTime(MD_Dict):
         """
         if not datetime_string:
             return cls([])
-        unparsed = datetime_string
+        unparsed = datetime_string.strip()
         precision = 7
         # extract time zone
         match = cls._tz_re.match(unparsed)
