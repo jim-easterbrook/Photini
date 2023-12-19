@@ -108,6 +108,7 @@ class FFMPEGMetadata(object):
         except RuntimeError as ex:
             logger.error(str(ex))
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
         return None
 
@@ -593,6 +594,7 @@ class SidecarMetadata(ImageMetadata):
         try:
             return cls(path=path)
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
             return None
 
@@ -603,6 +605,7 @@ class SidecarMetadata(ImageMetadata):
             cls.create_sc(sc_path, image_md)
             return cls(path=sc_path)
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
             return None
 

@@ -295,9 +295,9 @@ class MetadataHandler(object):
             yield datum.key()
 
     @classmethod
-    def open_old(cls, *arg, quiet=False, **kw):
+    def open_old(cls, path, *arg, quiet=False, **kw):
         try:
-            return cls(*arg, **kw)
+            return cls(path, *arg, **kw)
         except exiv2.Exiv2Error as ex:
             # expected if unrecognised file format
             if quiet:
@@ -306,6 +306,7 @@ class MetadataHandler(object):
                 logger.warning(str(ex))
             return None
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
             return None
 
