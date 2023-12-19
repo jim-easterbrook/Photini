@@ -243,9 +243,7 @@ class ImageMetadata(MetadataHandler):
                 # some tags disappear with good reason
                 continue
             family, group, tagname = tag.split('.', 2)
-            if family == 'Exif' and group[:5] in (
-                    'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
-                    'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):
+            if family == 'Exif' and exiv2.ExifTags.isMakerGroup(group):
                 # maker note tags are often not saved
                 logger.warning('%s: tag not saved: %s', self._name, tag)
                 continue
@@ -269,6 +267,8 @@ class ImageMetadata(MetadataHandler):
             '', 'Exif.Canon.ModelID', 'Exif.Canon.SerialNumber'),
         'Exif.CanonCs.Lens*': ('', 'Exif.CanonCs.LensType',
                                '', 'Exif.CanonCs.Lens'),
+        'Exif.CanonLe.LensSerialNumber*': (
+            '', '', 'Exif.CanonLe.LensSerialNumber'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.GPSInfo.GPS*': (
             'Exif.GPSInfo.GPSVersionID', 'Exif.GPSInfo.GPSProcessingMethod',
@@ -286,17 +286,29 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.BodySerialNumber'),
         'Exif.Image.UniqueCameraModel*': (
             '', 'Exif.Image.UniqueCameraModel', 'Exif.Image.CameraSerialNumber'),
-        'Exif.Nikon3.Lens*': ('', '', '', 'Exif.Nikon3.Lens'),
+        'Exif.Minolta.LensID*': ('', 'Exif.Minolta.LensID'),
+        'Exif.Nikon3.Lens*': (
+            '', 'Exif.Nikon3.LensType', '', 'Exif.Nikon3.Lens'),
         'Exif.Nikon3.SerialNumber*': ('', '', 'Exif.Nikon3.SerialNumber'),
         'Exif.NikonLd1.LensIDNumber*': ('', 'Exif.NikonLd1.LensIDNumber'),
         'Exif.NikonLd2.LensIDNumber*': ('', 'Exif.NikonLd2.LensIDNumber'),
         'Exif.NikonLd3.LensIDNumber*': ('', 'Exif.NikonLd3.LensIDNumber'),
+        'Exif.NikonLd4.LensIDNumber*': ('', 'Exif.NikonLd4.LensIDNumber'),
         'Exif.OlympusEq.Camera*': (
             '', 'Exif.OlympusEq.CameraType', 'Exif.OlympusEq.SerialNumber'),
         'Exif.OlympusEq.LensModel*': (
             '', 'Exif.OlympusEq.LensModel', 'Exif.OlympusEq.LensSerialNumber'),
+        'Exif.OlympusEq.Lens2*': (
+            '', 'Exif.OlympusEq.LensType', ''),
+        'Exif.Olympus2.Camera*': (
+            '', 'Exif.Olympus2.CameraID', ''),
+        'Exif.Panasonic.InternalSerialNumber*': (
+            '', '', 'Exif.Panasonic.InternalSerialNumber'),
+        'Exif.Pentax.LensType*': ('', 'Exif.Pentax.LensType'),
         'Exif.Pentax.ModelID*': (
             '', 'Exif.Pentax.ModelID', 'Exif.Pentax.SerialNumber'),
+        'Exif.PentaxDng.LensType*': ('', 'Exif.PentaxDng.LensType'),
+        'Exif.PentaxDng.ModelID*': ('', 'Exif.PentaxDng.ModelID'),
         'Exif.Photo.DateTimeDigitized*': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
         'Exif.Photo.DateTimeOriginal*': (
@@ -306,6 +318,12 @@ class ImageMetadata(MetadataHandler):
         'Exif.Photo.Lens*': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber', 'Exif.Photo.LensSpecification'),
+        'Exif.Sigma.SerialNumber*': (
+            '', '', 'Exif.Sigma.SerialNumber'),
+        'Exif.Sony1.LensID*': ('', 'Exif.Sony1.LensID'),
+        'Exif.Sony1.SonyModelID*': ('', 'Exif.Sony1.SonyModelID'),
+        'Exif.Sony2.LensID*': ('', 'Exif.Sony2.LensID'),
+        'Exif.Sony2.SonyModelID*': ('', 'Exif.Sony2.SonyModelID'),
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
@@ -356,7 +374,13 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Fujifilm.SerialNumber*'),
                             ('WN', 'Exif.Nikon3.SerialNumber*'),
                             ('WN', 'Exif.OlympusEq.Camera*'),
+                            ('WN', 'Exif.Olympus2.Camera*'),
+                            ('WN', 'Exif.Panasonic.InternalSerialNumber*'),
+                            ('WN', 'Exif.PentaxDng.ModelID*'),
                             ('WN', 'Exif.Pentax.ModelID*'),
+                            ('WN', 'Exif.Sigma.SerialNumber*'),
+                            ('WN', 'Exif.Sony1.SonyModelID*'),
+                            ('WN', 'Exif.Sony2.SonyModelID*'),
                             ('WN', 'Xmp.aux.SerialNumber*'),
                             ('W0', 'Xmp.video.Make*')),
         'contact_info'   : (('WA', 'Xmp.plus.Licensor'),
@@ -430,11 +454,19 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.Lens*'),
                             ('WN', 'Exif.Canon.LensModel*'),
                             ('WN', 'Exif.CanonCs.Lens*'),
-                            ('WN', 'Exif.OlympusEq.LensModel*'),
-                            ('WN', 'Exif.Nikon3.Lens*'),
+                            ('WN', 'Exif.CanonLe.LensSerialNumber*'),
+                            ('WN', 'Exif.Minolta.LensID*'),
                             ('WN', 'Exif.NikonLd1.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd2.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd3.LensIDNumber*'),
+                            ('WN', 'Exif.NikonLd4.LensIDNumber*'),
+                            ('WN', 'Exif.Nikon3.Lens*'),
+                            ('WN', 'Exif.OlympusEq.LensModel*'),
+                            ('WN', 'Exif.OlympusEq.Lens2*'),
+                            ('WN', 'Exif.Pentax.LensType*'),
+                            ('WN', 'Exif.PentaxDng.LensType*'),
+                            ('WN', 'Exif.Sony1.LensID*'),
+                            ('WN', 'Exif.Sony2.LensID*'),
                             ('W0', 'Xmp.aux.Lens*')),
         'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
@@ -527,9 +559,13 @@ class ImageMetadata(MetadataHandler):
         for key in self.get_all_tags():
             family, group, tag = key.split('.', 2)
             if tag in ('PixelXDimension', 'ImageWidth'):
-                widths[key] = int(self.get_value(key))
+                value = self.get_value(key)
+                if value:
+                    widths[key] = int(value)
             elif tag in ('PixelYDimension', 'ImageLength'):
-                heights[key] = int(self.get_value(key))
+                value = self.get_value(key)
+                if value:
+                    heights[key] = int(value)
         for kx in widths:
             if 'ImageWidth' in kx:
                 ky = kx.replace('ImageWidth', 'ImageLength')
