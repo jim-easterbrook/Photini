@@ -393,7 +393,12 @@ class MetadataHandler(object):
         return result
 
     def get_exif_value(self, tag):
-        datum = self._exifData.findKey(exiv2.ExifKey(tag))
+        try:
+            key = exiv2.ExifKey(tag)
+        except exiv2.Exiv2Error:
+            # old versions of libexiv2 don't recognise newer tags
+            return None
+        datum = self._exifData.findKey(key)
         if datum == self._exifData.end():
             return None
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
