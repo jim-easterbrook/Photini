@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -119,7 +119,7 @@ function plotGPS(points)
         var latlng = new Microsoft.Maps.Location(points[i][0], points[i][1]);
         var id = points[i][2];
         var marker = new Microsoft.Maps.Pushpin(latlng, {
-            icon: 'circle_blue.png',
+            icon: circle_blue_url,
             anchor: new Microsoft.Maps.Point(5, 5)});
         marker.metadata = {id: id};
         layers[2].add(marker);
@@ -132,7 +132,7 @@ function enableGPS(ids)
     for (var i = 0; i < markers.length; i++)
     {
         var marker = markers[i];
-        marker.setOptions({icon: 'circle_blue.png'});
+        marker.setOptions({icon: circle_blue_url});
         layers[2].add(marker);
     }
     layers[3].clear();
@@ -143,7 +143,7 @@ function enableGPS(ids)
         if (ids.includes(marker.metadata.id))
         {
             layers[2].remove(marker);
-            marker.setOptions({icon: 'circle_red.png'});
+            marker.setOptions({icon: circle_red_url});
             layers[3].add(marker);
         }
     }
@@ -174,9 +174,9 @@ function adjustMarker(id, fromLayer, toLayer, icon)
 function enableMarker(id, active)
 {
     if (active)
-        adjustMarker(id, layers[0], layers[1], 'pin_red.png');
+        adjustMarker(id, layers[0], layers[1], pin_red_url);
     else
-        adjustMarker(id, layers[1], layers[0], 'pin_grey.png');
+        adjustMarker(id, layers[1], layers[0], pin_grey_url);
 }
 
 function addMarker(id, lat, lng, active)
@@ -184,13 +184,13 @@ function addMarker(id, lat, lng, active)
     var marker = new Microsoft.Maps.Pushpin(
         new Microsoft.Maps.Location(lat, lng), {
             anchor   : new Microsoft.Maps.Point(11, 35),
-            icon     : 'pin_grey.png',
+            icon     : pin_grey_url,
             draggable: true
         });
     marker.metadata = {id: id};
     if (active)
     {
-        marker.setOptions({icon: 'pin_red.png'});
+        marker.setOptions({icon: pin_red_url});
         layers[1].add(marker);
     }
     else

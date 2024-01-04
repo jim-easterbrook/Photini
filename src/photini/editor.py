@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import codecs
 import importlib
 import locale
 import logging
@@ -25,7 +26,10 @@ import socket
 import sys
 import warnings
 
-import pkg_resources
+if sys.version_info < (3, 9, 0):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
 
 from photini import __version__
 from photini.configstore import BaseConfigStore
@@ -266,21 +270,22 @@ class MenuBar(QtWidgets.QMenuBar):
     @QtSlot()
     @catch_all
     def about(self):
+        pkg_data = importlib_resources.files('photini.data')
+        icon = pkg_data.joinpath('icons/photini_128.png').read_bytes()
         text = """
 <table width="100%"><tr>
 <td align="center" width="70%">
 <h1>Photini</h1>
 <h3>version: {}</h3>
 </td>
-<td align="center"><img src="{}" /></td>
+<td align="center"><img src="data:image/png;base64,{}" /></td>
 </tr></table>
 <p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
 jim@jim-easterbrook.me.uk</a><br /><br />
 {}<br />
 {}</p>
 """.format(__version__,
-           pkg_resources.resource_filename(
-               'photini', 'data/icons/photini_128.png'),
+           codecs.encode(icon, 'base64').decode('ascii'),
            translate('MenuBar', 'An easy to use digital photograph metadata'
                      ' (Exif, IPTC, XMP) editing application.'),
            translate(
@@ -291,8 +296,8 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
         dialog.setText(text)
-        licence = pkg_resources.resource_string('photini', 'data/LICENSE.txt')
-        dialog.setDetailedText(licence.decode('utf-8'))
+        licence = pkg_data.joinpath('LICENSE.txt').read_text()
+        dialog.setDetailedText(licence)
         dialog.setInformativeText(translate(
             'MenuBar', 'This program is released with a GNU General Public'
             ' License. For details click the "{details}" button.').format(
@@ -356,8 +361,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle(translate(
             'MenuBar', "Photini photo metadata editor"))
         pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(pkg_resources.resource_string(
-            'photini', 'data/icons/photini_48.png'))
+        pixmap.loadFromData(importlib_resources.files(
+            'photini.data.icons').joinpath('photini_48.png').read_bytes())
         icon = QtGui.QIcon(pixmap)
         self.setWindowIcon(icon)
         self.selection = list()
@@ -541,17 +546,28 @@ def main(argv=None):
     sys.argv = app.arguments()
     # install translations
     # English translation as a fallback (to get correct plurals)
-    lang_dir = pkg_resources.resource_filename('photini', 'data/lang')
+    lang_dir = importlib_resources.files('photini.data.lang')
     translator = QtCore.QTranslator(parent=app)
-    if translator.load('photini.en', lang_dir):
-        app.installTranslator(translator)
-        translator = QtCore.QTranslator(parent=app)
-    # localised translation, if it exists
+    with importlib_resources.as_file(
+            lang_dir.joinpath('photini.en.qm')) as path:
+        if translator.load(str(path)):
+            app.installTranslator(translator)
+            translator = QtCore.QTranslator(parent=app)
+    # localised translation(s), if available
     locale.setlocale(locale.LC_ALL, '')
     qt_locale = QtCore.QLocale.system()
-    if translator.load(qt_locale, 'photini', '.', lang_dir):
-        app.installTranslator(translator)
-        translator = QtCore.QTranslator(parent=app)
+    langs = qt_locale.uiLanguages()
+    langs = [x.replace('-', '_') for x in langs]
+    for lang in reversed(langs):
+        file = lang_dir.joinpath('photini.{}.qm'.format(lang))
+        if not file.is_file():
+            file = lang_dir.joinpath('photini.{}.qm'.format(lang.lower()))
+        if file.is_file():
+            with importlib_resources.as_file(file) as path:
+                if translator.load(str(path)):
+                    app.installTranslator(translator)
+                    translator = QtCore.QTranslator(parent=app)
+                    print('loaded translation', str(path))
     # parse remaining arguments
     version = full_version_info()
     parser = OptionParser(

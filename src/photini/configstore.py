@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -17,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import ast
 import codecs
 from configparser import RawConfigParser
@@ -28,7 +25,10 @@ import stat
 import sys
 
 import appdirs
-import pkg_resources
+if sys.version_info < (3, 9, 0):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
 
 class BaseConfigStore(object):
     # the actual config store functionality
@@ -125,13 +125,9 @@ class KeyStore(object):
     """
     def __init__(self):
         self.config = RawConfigParser()
-        if sys.version_info >= (3, 2):
-            data = pkg_resources.resource_string('photini', 'data/keys.txt')
-            data = data.decode('utf-8')
-            self.config.read_string(data)
-        else:
-            data = pkg_resources.resource_stream('photini', 'data/keys.txt')
-            self.config.readfp(data)
+        pkg_data = importlib_resources.files('photini.data')
+        data = pkg_data.joinpath('keys.txt').read_text()
+        self.config.read_string(data)
 
     def get(self, section, option):
         value = self.config.get(section, option)

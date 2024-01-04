@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -25,7 +25,10 @@ import site
 import subprocess
 import sys
 
-import pkg_resources
+if sys.version_info < (3, 9, 0):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
 
 from photini.configstore import BaseConfigStore
 try:
@@ -139,14 +142,16 @@ def post_install(argv=None):
     options, args = parser.parse_args()
     exec_path = os.path.abspath(
         os.path.join(os.path.dirname(sys.argv[0]), 'photini'))
-    icon_path = pkg_resources.resource_filename('photini', 'data/icons')
+    pkg_data = importlib_resources.files('photini.data')
     if sys.platform == 'win32':
         exec_path += '.exe'
-        icon_path = os.path.join(icon_path, 'photini_win.ico')
-        cmd = ['cscript', '/nologo',
-               pkg_resources.resource_filename(
-                   'photini', 'data/windows/install_shortcuts.vbs'),
-               exec_path, icon_path, sys.prefix]
+        with importlib_resources.as_file(
+                pkg_data.joinpath('icons/photini_win.ico')) as path:
+            icon_path = str(path)
+        with importlib_resources.as_file(
+                pkg_data.joinpath('windows/install_shortcuts.vbs')) as path:
+            script = str(path)
+        cmd = ['cscript', '/nologo', script, exec_path, icon_path, sys.prefix]
         if options.remove:
             cmd.append('/remove')
         return subprocess.call(cmd)
@@ -167,7 +172,9 @@ def post_install(argv=None):
                     return 0
             print('No "desktop" file found.')
             return 1
-        icon_path = os.path.join(icon_path, 'photini_48.png')
+        with importlib_resources.as_file(
+                pkg_data.joinpath('icons/photini_48.png')) as path:
+            icon_path = str(path)
         cmd = ['desktop-file-install']
         if os.geteuid() != 0:
             # not running as root
@@ -176,13 +183,15 @@ def post_install(argv=None):
         cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
         # add translations
         if QtCore:
-            lang_dir = pkg_resources.resource_filename('photini', 'data/lang')
+            lang_dir = pkg_data.joinpath('lang')
             translator = QtCore.QTranslator()
-            for name in sorted(os.listdir(lang_dir)):
+            for file in lang_dir.iterdir():
+                name = file.name
                 lang = name.split('.')[1]
-                if not translator.load('photini.' + lang, lang_dir):
-                    print('load failed:', lang)
-                    continue
+                with importlib_resources.as_file(file) as path:
+                    if not translator.load(str(path)):
+                        print('load failed:', lang)
+                        continue
                 text = translator.translate(
                     'MenuBar', 'Photini photo metadata editor')
                 if text:
@@ -194,8 +203,9 @@ def post_install(argv=None):
                 if text:
                     cmd += ['--set-key=Comment[{}]'.format(lang),
                             '--set-value={}'.format(text.strip())]
-        cmd.append(pkg_resources.resource_filename(
-            'photini', 'data/linux/photini.desktop'))
+        with importlib_resources.as_file(
+                pkg_data.joinpath('linux/photini.desktop')) as path:
+            cmd.append(str(path))
         print(' \\\n  '.join(cmd))
         return subprocess.call(cmd)
     return 0

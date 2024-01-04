@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,14 +16,19 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import codecs
 from datetime import timezone
 import logging
 import os
 import pickle
+import sys
 
 import appdirs
 import cachetools
-import pkg_resources
+if sys.version_info < (3, 9, 0):
+    import importlib_resources
+else:
+    import importlib.resources as importlib_resources
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
@@ -148,8 +153,14 @@ class MapWebPage(QWebEnginePage):
 
     @catch_all
     def javaScriptConsoleMessage(self, level, msg, line, source):
-        logger.log(
-            logging.INFO + (level * 10), '%s line %d: %s', source, line, msg)
+        level = {
+            self.JavaScriptConsoleMessageLevel.InfoMessageLevel: logging.INFO,
+            self.JavaScriptConsoleMessageLevel.WarningMessageLevel: logging.WARNING,
+            self.JavaScriptConsoleMessageLevel.ErrorMessageLevel: logging.ERROR,
+            }[level]
+        if len(source) > 100:
+            source = 'JavaScript'
+        logger.log(level, '%s line %d: %s', source, line, msg)
 
 
 class MapWebView(QWebEngineView):
@@ -196,10 +207,10 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
-        self.script_dir = pkg_resources.resource_filename(
-            'photini', 'data/map/')
-        self.drag_icon = QtGui.QPixmap(
-            os.path.join(self.script_dir, 'pin_grey.png'))
+        self.script_dir = importlib_resources.files('photini.data.map')
+        self.drag_icon = QtGui.QPixmap()
+        self.drag_icon.loadFromData(
+            self.script_dir.joinpath('pin_grey.png').read_bytes())
         self.drag_hotspot = 11, 35
         self.search_string = None
         self.map_loaded = 0     # not loaded
@@ -298,7 +309,13 @@ class PhotiniMap(QtWidgets.QWidget):
     </style>
 {initialize}
 {head}
-    <script type="text/javascript" src="{script}.js"></script>
+    <script type="text/javascript">
+      const pin_red_url = `data:image/png;base64,{pin_red}`;
+      const pin_grey_url = `data:image/png;base64,{pin_grey}`;
+      const circle_red_url = `data:image/png;base64,{circle_red}`;
+      const circle_blue_url = `data:image/png;base64,{circle_blue}`;
+      {script}
+    </script>
   </head>
   <body ondragstart="return false">
     <div id="mapDiv"></div>
@@ -321,12 +338,21 @@ class PhotiniMap(QtWidgets.QWidget):
           loadMap({lat}, {lng}, {zoom});
       }}
     </script>'''
-        initialize = initialize.format(lat=lat, lng=lng, zoom=zoom)
-        page = page.format(initialize=initialize, head=self.get_head(),
-                           script=self.__module__.split('.')[-1])
+        pin_red = self.script_dir.joinpath('pin_red.png').read_bytes()
+        pin_grey = self.script_dir.joinpath('pin_grey.png').read_bytes()
+        circle_red = self.script_dir.joinpath('circle_red.png').read_bytes()
+        circle_blue = self.script_dir.joinpath('circle_blue.png').read_bytes()
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-        self.widgets['map'].setHtml(
-            page, QtCore.QUrl.fromLocalFile(self.script_dir))
+        self.widgets['map'].setHtml(page.format(
+            head = self.get_head(),
+            initialize = initialize.format(lat=lat, lng=lng, zoom=zoom),
+            script = self.script_dir.joinpath(
+                self.__module__.split('.')[-1] + '.js').read_text(),
+            pin_red = codecs.encode(pin_red, 'base64').decode('ascii'),
+            pin_grey = codecs.encode(pin_grey, 'base64').decode('ascii'),
+            circle_red = codecs.encode(circle_red, 'base64').decode('ascii'),
+            circle_blue = codecs.encode(circle_blue, 'base64').decode('ascii'),
+            ))
 
     @catch_all
     def initialize_finished(self):
