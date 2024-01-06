@@ -16,7 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import codecs
 from datetime import timezone
 import logging
 import os
@@ -153,8 +152,6 @@ class MapWebPage(QWebEnginePage):
             self.JavaScriptConsoleMessageLevel.WarningMessageLevel: logging.WARNING,
             self.JavaScriptConsoleMessageLevel.ErrorMessageLevel: logging.ERROR,
             }[level]
-        if len(source) > 100:
-            source = 'JavaScript'
         logger.log(level, '%s line %d: %s', source, line, msg)
 
 
@@ -303,13 +300,7 @@ class PhotiniMap(QtWidgets.QWidget):
     </style>
 {initialize}
 {head}
-    <script type="text/javascript">
-      const pin_red_url = `data:image/png;base64,{pin_red}`;
-      const pin_grey_url = `data:image/png;base64,{pin_grey}`;
-      const circle_red_url = `data:image/png;base64,{circle_red}`;
-      const circle_blue_url = `data:image/png;base64,{circle_blue}`;
-      {script}
-    </script>
+    <script type="text/javascript" src="{script}.js"></script>
   </head>
   <body ondragstart="return false">
     <div id="mapDiv"></div>
@@ -332,27 +323,13 @@ class PhotiniMap(QtWidgets.QWidget):
           loadMap({lat}, {lng}, {zoom});
       }}
     </script>'''
-        with open(os.path.join(self.script_dir, 'pin_red.png'), 'rb') as f:
-            pin_red = f.read()
-        with open(os.path.join(self.script_dir, 'pin_grey.png'), 'rb') as f:
-            pin_grey = f.read()
-        with open(os.path.join(self.script_dir, 'circle_red.png'), 'rb') as f:
-            circle_red = f.read()
-        with open(os.path.join(self.script_dir, 'circle_blue.png'), 'rb') as f:
-            circle_blue = f.read()
-        with open(os.path.join(
-                self.script_dir,
-                self.__module__.split('.')[-1] + '.js'), 'r') as f:
-            script = f.read()
+        page = page.format(
+            head = self.get_head(),
+            script = self.__module__.split('.')[-1],
+            initialize = initialize.format(lat=lat, lng=lng, zoom=zoom))
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-        self.widgets['map'].setHtml(page.format(
-            head = self.get_head(), script = script,
-            initialize = initialize.format(lat=lat, lng=lng, zoom=zoom),
-            pin_red = codecs.encode(pin_red, 'base64').decode('ascii'),
-            pin_grey = codecs.encode(pin_grey, 'base64').decode('ascii'),
-            circle_red = codecs.encode(circle_red, 'base64').decode('ascii'),
-            circle_blue = codecs.encode(circle_blue, 'base64').decode('ascii'),
-            ))
+        self.widgets['map'].setHtml(
+            page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
 
     @catch_all
     def initialize_finished(self):

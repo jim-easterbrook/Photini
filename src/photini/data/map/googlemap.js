@@ -24,7 +24,7 @@ var gpsMarkers = {};
 var icon_on;
 var icon_off;
 var gpsBlueCircle;
-var gpsRedCircle
+var gpsRedCircle;
 
 function loadMap(lat, lng, zoom)
 {
@@ -45,11 +45,11 @@ function loadMap(lat, lng, zoom)
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
     var anchor = new google.maps.Point(11, 35);
-    icon_on = {anchor: anchor, url: pin_red_url};
-    icon_off = {anchor: anchor, url: pin_grey_url};
+    icon_on = {anchor: anchor, url: 'pin_red.png'};
+    icon_off = {anchor: anchor, url: 'pin_grey.png'};
     anchor = new google.maps.Point(5, 5);
-    gpsBlueCircle = {anchor: anchor, url: circle_blue_url};
-    gpsRedCircle = {anchor: anchor, url: circle_red_url};
+    gpsBlueCircle = {anchor: anchor, url: 'circle_blue.png'};
+    gpsRedCircle = {anchor: anchor, url: 'circle_red.png'};
     python.initialize_finished();
 }
 

@@ -119,7 +119,7 @@ function plotGPS(points)
         var latlng = new Microsoft.Maps.Location(points[i][0], points[i][1]);
         var id = points[i][2];
         var marker = new Microsoft.Maps.Pushpin(latlng, {
-            icon: circle_blue_url,
+            icon: 'circle_blue.png',
             anchor: new Microsoft.Maps.Point(5, 5)});
         marker.metadata = {id: id};
         layers[2].add(marker);
@@ -132,7 +132,7 @@ function enableGPS(ids)
     for (var i = 0; i < markers.length; i++)
     {
         var marker = markers[i];
-        marker.setOptions({icon: circle_blue_url});
+        marker.setOptions({icon: 'circle_blue.png'});
         layers[2].add(marker);
     }
     layers[3].clear();
@@ -143,7 +143,7 @@ function enableGPS(ids)
         if (ids.includes(marker.metadata.id))
         {
             layers[2].remove(marker);
-            marker.setOptions({icon: circle_red_url});
+            marker.setOptions({icon: 'circle_red.png'});
             layers[3].add(marker);
         }
     }
@@ -174,9 +174,9 @@ function adjustMarker(id, fromLayer, toLayer, icon)
 function enableMarker(id, active)
 {
     if (active)
-        adjustMarker(id, layers[0], layers[1], pin_red_url);
+        adjustMarker(id, layers[0], layers[1], 'pin_red.png');
     else
-        adjustMarker(id, layers[1], layers[0], pin_grey_url);
+        adjustMarker(id, layers[1], layers[0], 'pin_grey.png');
 }
 
 function addMarker(id, lat, lng, active)
@@ -184,13 +184,13 @@ function addMarker(id, lat, lng, active)
     var marker = new Microsoft.Maps.Pushpin(
         new Microsoft.Maps.Location(lat, lng), {
             anchor   : new Microsoft.Maps.Point(11, 35),
-            icon     : pin_grey_url,
+            icon     : 'pin_grey.png',
             draggable: true
         });
     marker.metadata = {id: id};
     if (active)
     {
-        marker.setOptions({icon: pin_red_url});
+        marker.setOptions({icon: 'pin_red.png'});
         layers[1].add(marker);
     }
     else
