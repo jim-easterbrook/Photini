@@ -25,11 +25,6 @@ import site
 import subprocess
 import sys
 
-if sys.version_info < (3, 9, 0):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
-
 from photini.configstore import BaseConfigStore
 try:
     from photini.pyqt import QtCore
@@ -142,15 +137,11 @@ def post_install(argv=None):
     options, args = parser.parse_args()
     exec_path = os.path.abspath(
         os.path.join(os.path.dirname(sys.argv[0]), 'photini'))
-    pkg_data = importlib_resources.files('photini.data')
+    pkg_data = os.path.join(os.path.dirname(__file__), 'data')
     if sys.platform == 'win32':
         exec_path += '.exe'
-        with importlib_resources.as_file(
-                pkg_data.joinpath('icons/photini_win.ico')) as path:
-            icon_path = str(path)
-        with importlib_resources.as_file(
-                pkg_data.joinpath('windows/install_shortcuts.vbs')) as path:
-            script = str(path)
+        icon_path = os.path.join(pkg_data, 'icons', 'photini_win.ico')
+        script = os.path.join(pkg_data, 'windows', 'install_shortcuts.vbs')
         cmd = ['cscript', '/nologo', script, exec_path, icon_path, sys.prefix]
         if options.remove:
             cmd.append('/remove')
@@ -172,9 +163,7 @@ def post_install(argv=None):
                     return 0
             print('No "desktop" file found.')
             return 1
-        with importlib_resources.as_file(
-                pkg_data.joinpath('icons/photini_48.png')) as path:
-            icon_path = str(path)
+        icon_path = os.path.join(pkg_data, 'icons', 'photini_48.png')
         cmd = ['desktop-file-install']
         if os.geteuid() != 0:
             # not running as root
@@ -183,15 +172,13 @@ def post_install(argv=None):
         cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
         # add translations
         if QtCore:
-            lang_dir = pkg_data.joinpath('lang')
+            lang_dir = os.path.join(pkg_data, 'lang')
             translator = QtCore.QTranslator()
-            for file in lang_dir.iterdir():
-                name = file.name
+            for name in os.listdir(lang_dir):
                 lang = name.split('.')[1]
-                with importlib_resources.as_file(file) as path:
-                    if not translator.load(str(path)):
-                        print('load failed:', lang)
-                        continue
+                if not translator.load(os.path.join(lang_dir, name)):
+                    print('load failed:', lang)
+                    continue
                 text = translator.translate(
                     'MenuBar', 'Photini photo metadata editor')
                 if text:
@@ -203,9 +190,7 @@ def post_install(argv=None):
                 if text:
                     cmd += ['--set-key=Comment[{}]'.format(lang),
                             '--set-value={}'.format(text.strip())]
-        with importlib_resources.as_file(
-                pkg_data.joinpath('linux/photini.desktop')) as path:
-            cmd.append(str(path))
+        cmd.append(os.path.join(pkg_data, 'linux', 'photini.desktop'))
         print(' \\\n  '.join(cmd))
         return subprocess.call(cmd)
     return 0

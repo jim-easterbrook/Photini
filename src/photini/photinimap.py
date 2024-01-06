@@ -21,14 +21,9 @@ from datetime import timezone
 import logging
 import os
 import pickle
-import sys
 
 import appdirs
 import cachetools
-if sys.version_info < (3, 9, 0):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
@@ -207,10 +202,9 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
-        self.script_dir = importlib_resources.files('photini.data.map')
-        self.drag_icon = QtGui.QPixmap()
-        self.drag_icon.loadFromData(
-            self.script_dir.joinpath('pin_grey.png').read_bytes())
+        self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
+        self.drag_icon = QtGui.QPixmap(
+            os.path.join(self.script_dir, 'pin_grey.png'))
         self.drag_hotspot = 11, 35
         self.search_string = None
         self.map_loaded = 0     # not loaded
@@ -338,16 +332,22 @@ class PhotiniMap(QtWidgets.QWidget):
           loadMap({lat}, {lng}, {zoom});
       }}
     </script>'''
-        pin_red = self.script_dir.joinpath('pin_red.png').read_bytes()
-        pin_grey = self.script_dir.joinpath('pin_grey.png').read_bytes()
-        circle_red = self.script_dir.joinpath('circle_red.png').read_bytes()
-        circle_blue = self.script_dir.joinpath('circle_blue.png').read_bytes()
+        with open(os.path.join(self.script_dir, 'pin_red.png'), 'rb') as f:
+            pin_red = f.read()
+        with open(os.path.join(self.script_dir, 'pin_grey.png'), 'rb') as f:
+            pin_grey = f.read()
+        with open(os.path.join(self.script_dir, 'circle_red.png'), 'rb') as f:
+            circle_red = f.read()
+        with open(os.path.join(self.script_dir, 'circle_blue.png'), 'rb') as f:
+            circle_blue = f.read()
+        with open(os.path.join(
+                self.script_dir,
+                self.__module__.split('.')[-1] + '.js'), 'r') as f:
+            script = f.read()
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(page.format(
-            head = self.get_head(),
+            head = self.get_head(), script = script,
             initialize = initialize.format(lat=lat, lng=lng, zoom=zoom),
-            script = self.script_dir.joinpath(
-                self.__module__.split('.')[-1] + '.js').read_text(),
             pin_red = codecs.encode(pin_red, 'base64').decode('ascii'),
             pin_grey = codecs.encode(pin_grey, 'base64').decode('ascii'),
             circle_red = codecs.encode(circle_red, 'base64').decode('ascii'),

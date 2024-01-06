@@ -26,11 +26,6 @@ import socket
 import sys
 import warnings
 
-if sys.version_info < (3, 9, 0):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
-
 from photini import __version__
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
@@ -270,8 +265,10 @@ class MenuBar(QtWidgets.QMenuBar):
     @QtSlot()
     @catch_all
     def about(self):
-        pkg_data = importlib_resources.files('photini.data')
-        icon = pkg_data.joinpath('icons/photini_128.png').read_bytes()
+        data_dir = os.path.join(os.path.dirname(__file__), 'data')
+        with open(os.path.join(
+                data_dir, 'icons', 'photini_128.png'), 'rb') as f:
+            icon = f.read()
         text = """
 <table width="100%"><tr>
 <td align="center" width="70%">
@@ -296,7 +293,8 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
         dialog.setText(text)
-        licence = pkg_data.joinpath('LICENSE.txt').read_text()
+        with open(os.path.join(data_dir, 'LICENSE.txt'), 'r') as f:
+            licence = f.read()
         dialog.setDetailedText(licence)
         dialog.setInformativeText(translate(
             'MenuBar', 'This program is released with a GNU General Public'
@@ -360,9 +358,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self.setWindowTitle(translate(
             'MenuBar', "Photini photo metadata editor"))
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(importlib_resources.files(
-            'photini.data.icons').joinpath('photini_48.png').read_bytes())
+        pixmap = QtGui.QPixmap(os.path.join(
+            os.path.dirname(__file__), 'data', 'icons', 'photini_48.png'))
         icon = QtGui.QIcon(pixmap)
         self.setWindowIcon(icon)
         self.selection = list()
@@ -545,29 +542,24 @@ def main(argv=None):
     # get remaining argument list after Qt has swallowed its options
     sys.argv = app.arguments()
     # install translations
-    # English translation as a fallback (to get correct plurals)
-    lang_dir = importlib_resources.files('photini.data.lang')
-    translator = QtCore.QTranslator(parent=app)
-    with importlib_resources.as_file(
-            lang_dir.joinpath('photini.en.qm')) as path:
-        if translator.load(str(path)):
-            app.installTranslator(translator)
-            translator = QtCore.QTranslator(parent=app)
-    # localised translation(s), if available
+    lang_dir = os.path.join(os.path.dirname(__file__), 'data', 'lang')
     locale.setlocale(locale.LC_ALL, '')
-    qt_locale = QtCore.QLocale.system()
-    langs = qt_locale.uiLanguages()
-    langs = [x.replace('-', '_') for x in langs]
+    langs = [x.replace('-', '_') for x in QtCore.QLocale.system().uiLanguages()]
+    # always have English translation as a fallback (to get correct plurals)
+    if 'en' not in langs:
+        langs += ['en']
+    installed = []
     for lang in reversed(langs):
-        file = lang_dir.joinpath('photini.{}.qm'.format(lang))
-        if not file.is_file():
-            file = lang_dir.joinpath('photini.{}.qm'.format(lang.lower()))
-        if file.is_file():
-            with importlib_resources.as_file(file) as path:
-                if translator.load(str(path)):
-                    app.installTranslator(translator)
-                    translator = QtCore.QTranslator(parent=app)
-                    print('loaded translation', str(path))
+        if lang in installed:
+            continue
+        file = os.path.join(lang_dir, 'photini.{}.qm'.format(lang))
+        if not os.path.isfile(file):
+            file = os.path.join(lang_dir, 'photini.{}.qm'.format(lang.lower()))
+        translator = QtCore.QTranslator()
+        if os.path.isfile(file) and translator.load(file):
+            translator.setParent(app)
+            app.installTranslator(translator)
+            installed.append(lang)
     # parse remaining arguments
     version = full_version_info()
     parser = OptionParser(

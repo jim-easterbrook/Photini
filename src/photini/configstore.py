@@ -22,13 +22,8 @@ from configparser import RawConfigParser
 import os
 import pprint
 import stat
-import sys
 
 import appdirs
-if sys.version_info < (3, 9, 0):
-    import importlib_resources
-else:
-    import importlib.resources as importlib_resources
 
 class BaseConfigStore(object):
     # the actual config store functionality
@@ -125,8 +120,9 @@ class KeyStore(object):
     """
     def __init__(self):
         self.config = RawConfigParser()
-        pkg_data = importlib_resources.files('photini.data')
-        data = pkg_data.joinpath('keys.txt').read_text()
+        with open(os.path.join(
+                os.path.dirname(__file__), 'data', 'keys.txt'), 'r') as f:
+            data = f.read()
         self.config.read_string(data)
 
     def get(self, section, option):
