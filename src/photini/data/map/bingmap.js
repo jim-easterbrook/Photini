@@ -184,17 +184,11 @@ function addMarker(id, lat, lng, active)
     var marker = new Microsoft.Maps.Pushpin(
         new Microsoft.Maps.Location(lat, lng), {
             anchor   : new Microsoft.Maps.Point(11, 35),
-            icon     : 'pin_grey.png',
+            icon     : active ? 'pin_red.png' : 'pin_grey.png',
             draggable: true
         });
     marker.metadata = {id: id};
-    if (active)
-    {
-        marker.setOptions({icon: 'pin_red.png'});
-        layers[1].add(marker);
-    }
-    else
-        layers[0].add(marker);
+    layers[active ? 1 : 0].add(marker);
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
     Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
@@ -229,14 +223,14 @@ function markerDrop(x, y)
 
 function delMarker(id)
 {
-    for (var j = 0; j < layers.length; j++)
+    for (var j = 0; j < 2; j++)
     {
         var markers = layers[j].getPrimitives();
         for (var i = 0; i < markers.length; i++)
             if (markers[i].metadata.id == id)
             {
                 layers[j].remove(markers[i]);
-                return markers[i];
+                return;
             }
     }
 }
