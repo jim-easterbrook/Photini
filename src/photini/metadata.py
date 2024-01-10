@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -18,7 +18,6 @@
 
 import codecs
 from fractions import Fraction
-import imghdr
 import logging
 import math
 import mimetypes
@@ -26,6 +25,7 @@ import os
 import re
 
 import exiv2
+import filetype
 
 from photini import __version__
 from photini.exiv2 import MetadataHandler
@@ -667,8 +667,11 @@ class Metadata(object):
         video_md = None
         self._if = None
         self._sc = SidecarMetadata.open_old(self.find_sidecar())
-        self._if = ImageMetadata.open_old(
-            path, quiet=self.get_mime_type().split('/')[0] == 'video')
+        # guess mime type from file name
+        self.mime_type = mimetypes.guess_type(self._path, strict=False)[0]
+        quiet = self.mime_type and self.mime_type.split('/')[0] == 'video'
+        self._if = ImageMetadata.open_old(path, quiet=quiet)
+        # get mime type from image data
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             video_md = FFMPEGMetadata.open_old(path)
@@ -851,11 +854,9 @@ class Metadata(object):
         if self._if:
             result = self._if.mime_type
         if not result:
-            result = mimetypes.guess_type(self._path, strict=False)[0]
-        if not result:
-            result = imghdr.what(self._path)
-            if result:
-                result = 'image/' + result
+            kind = filetype.guess(self._path)
+            if kind:
+                result = kind.mime
         # anything not recognised is assumed to be 'raw'
         if not result:
             result = 'image/raw'
