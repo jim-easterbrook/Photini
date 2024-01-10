@@ -59,8 +59,9 @@ class MetadataHandler(object):
 
     @classmethod
     def initialise(cls, config_store, verbosity):
-        exiv2.LogMsg.setLevel(
-            max(exiv2.LogMsg.debug, min(exiv2.LogMsg.error, 4 - verbosity)))
+        level = min(exiv2.LogMsg.Level.error, 4 - verbosity)
+        level = max(exiv2.LogMsg.Level.debug, level)
+        exiv2.LogMsg.setLevel(exiv2.LogMsg.Level(level))
         exiv2.XmpParser.initialize()
         if config_store and exiv2.testVersion(0, 27, 4):
             exiv2.enableBMFF(config_store.get('metadata', 'enable_bmff', False))
