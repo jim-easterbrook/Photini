@@ -842,7 +842,7 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation>Latitud longitud - this is too long, please see screenshots for available space</translation>
+        <translation>Lat.,Long.</translation>
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
