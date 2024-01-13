@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <TS language="es" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
@@ -71,8 +71,8 @@
         <translation>Introduce el nombre del continente.</translation>
     </message>
     <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with ";" characters.</source>
-        <translation>Introduce identificador(es) único(s) globales de la ubicación. Sepáralos con los carácteres ";".</translation>
+        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
+        <translation>Introduce identificador(es) único(s) globales de la ubicación. Sepáralos con los carácteres &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Name</source>
@@ -181,12 +181,12 @@
         <translation>Titular</translation>
     </message>
     <message>
-        <source>Enter a "caption" describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation>Introduce una "leyenda" describiendo quién, qué, y por qué sobre lo que sucede en esta imagen, puede incluir nombres de personas, y/o su papel en la acción que tiene lugar en la imagen.</translation>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation>Introduce una &quot;leyenda&quot; describiendo quién, qué, y por qué sobre lo que sucede en esta imagen, puede incluir nombres de personas, y/o su papel en la acción que tiene lugar en la imagen.</translation>
     </message>
     <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with ";" characters.</source>
-        <translation>Introduce cualquier número de palabras clave, términos o frases usadas para expresar el tema de la imagen. Sepáralas con carácteres ";".</translation>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation>Introduce cualquier número de palabras clave, términos o frases usadas para expresar el tema de la imagen. Sepáralas con carácteres &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
@@ -237,15 +237,15 @@
     </message>
     <message>
         <source>Write to image file</source>
-        <translation type="unfinished"></translation>
+        <translation>Escribir en un archivo de una imagen</translation>
     </message>
     <message>
         <source>IPTC-IIM metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Metadatos IPTC-IIM</translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar límites de longitud IPTC-IIM</translation>
     </message>
     <message>
         <source>Keep original</source>
@@ -277,7 +277,7 @@
     </message>
     <message>
         <source>GPX importer</source>
-        <translation type="unfinished"></translation>
+        <translation>Importador GPX</translation>
     </message>
 </context>
 <context>
@@ -332,7 +332,7 @@
     </message>
     <message>
         <source>Replace image region notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Reemplazar notas en la región de la imagen</translation>
     </message>
     <message>
         <source>Title</source>
@@ -376,7 +376,7 @@
     </message>
     <message>
         <source>Viewing privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar privacidad</translation>
     </message>
     <message>
         <source>Allow commenting</source>
@@ -400,7 +400,7 @@
     </message>
     <message>
         <source>Restricted</source>
-        <translation type="unfinished"></translation>
+        <translation>Restringido</translation>
     </message>
     <message>
         <source>Safety level</source>
@@ -432,7 +432,7 @@
     </message>
     <message>
         <source>Virtual Photography</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotografía virtual</translation>
     </message>
 </context>
 <context>
@@ -454,8 +454,8 @@
         <translation>Photini: archivo grande</translation>
     </message>
     <message>
-        <source>File "{file_name}" is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>El archivo &quot;{file_name}&quot; pesa más de 25 MB. Recuerda que las subidas de Photini cuentan para el almacenamiento de tu cuenta de Google. ¿Lo subes de todas formas?</translation>
     </message>
     <message>
         <source>Album title</source>
@@ -474,11 +474,11 @@
     <name>GpxImporter</name>
     <message>
         <source>Import GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar un archivo GPX</translation>
     </message>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos GPX (*.gpx *.GPX *.Gpx);;Todos los archivos (*)</translation>
     </message>
 </context>
 <context>
@@ -501,7 +501,7 @@
     </message>
     <message>
         <source>Metadata differences: {file_name}</source>
-        <translation type="unfinished"></translation>
+        <translation>Diferencias de metadatos: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -532,7 +532,8 @@
         <translation>
             <numerusform>Regenerar miniatura</numerusform>
             <numerusform>Regenerar miniaturas</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -543,14 +544,16 @@
         <translation>
             <numerusform>Recargar archivo</numerusform>
             <numerusform>Recargar archivos</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Cerrar archivo</numerusform>
             <numerusform>Cerrar archivos</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -629,7 +632,7 @@
     </message>
     <message>
         <source>Move photos</source>
-        <translation>Copiar fotos</translation>
+        <translation>Mover fotos</translation>
     </message>
     <message>
         <source>Stop move</source>
@@ -644,8 +647,8 @@
         <translation>Parar copia</translation>
     </message>
     <message>
-        <source>Remove "{source_name}"</source>
-        <translation>Borrar "{source_name}"</translation>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation>Borrar &quot;{source_name}&quot;</translation>
     </message>
     <message>
         <source>camera: {camera_name}</source>
@@ -660,7 +663,8 @@
         <translation>
             <numerusform>%n archivo seleccionado</numerusform>
             <numerusform>%n archivos seleccionados</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -695,31 +699,31 @@
     </message>
     <message>
         <source>Attribution + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución + ningún derivado</translation>
     </message>
     <message>
         <source>Attribution + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución + compartir igual</translation>
     </message>
     <message>
         <source>Attribution + non commercial + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation>Reconocimiento + no comercial + no derivado</translation>
     </message>
     <message>
         <source>Attribution + non commercial + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation>Reconocimiento + no comercial + compartir igual</translation>
     </message>
     <message>
         <source>Free use (copyright surrendered, no licence)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uso libre (derechos de autor cedidos, sin licencia)</translation>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ipernity subir</translation>
     </message>
     <message>
         <source>Ipernity</source>
-        <translation type="unfinished"></translation>
+        <translation>Ipernity</translation>
     </message>
     <message>
         <source>Who can:</source>
@@ -791,7 +795,7 @@
     </message>
     <message>
         <source>Replace image region notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Sustituir las notas de la región de la imagen</translation>
     </message>
     <message>
         <source>Title</source>
@@ -818,12 +822,12 @@
     </message>
     <message>
         <source>Lang: </source>
-        <comment>Short abbreviation of "Language: "</comment>
+        <comment>Short abbreviation of &quot;Language: &quot;</comment>
         <translation>Idioma: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
+        <translation>¿En qué idioma está el texto actual? Por favor, introduzca una etiqueta de idioma RFC3066.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
@@ -838,7 +842,7 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation>Lat, long</translation>
+        <translation>Lat.,Long.</translation>
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
@@ -879,7 +883,7 @@
     </message>
     <message>
         <source>Search and altitude lookup powered by Google</source>
-        <comment>Do not translate "powered by Google"</comment>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
         <translation>Búsqueda y consulta de altitud powered by Google</translation>
     </message>
 </context>
@@ -918,7 +922,7 @@
     </message>
     <message>
         <source>Spelling</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortografía</translation>
     </message>
     <message>
         <source>Enable spell check</source>
@@ -938,7 +942,7 @@
     </message>
     <message>
         <source>Open source package available from {url}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquete de código abierto disponible en {url}.</translation>
     </message>
     <message>
         <source>Photini: about</source>
@@ -946,7 +950,7 @@
     </message>
     <message>
         <source>You are currently running Photini version {version}. The latest release is {release}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualmente está ejecutando la versión {version} de Photini. La última versión es {release}.</translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
@@ -965,8 +969,8 @@
         <translation>Cerrar todos los archivos</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the "{}" button.</source>
-        <translation type="vanished">Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón "{}".</translation>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
+        <translation type="vanished">Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -977,12 +981,12 @@
         <translation>Comprobar actualizaciones</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the "{details}" button.</source>
-        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón "{details}".</translation>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{details}&quot;.</translation>
     </message>
     <message>
         <source>Photini: version check</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: comprobación de la versión</translation>
     </message>
     <message>
         <source>Selected images</source>
@@ -992,8 +996,8 @@
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as "©2008 Jane Doe".</source>
-        <translation type="unfinished"></translation>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <translation>Introduzca un aviso sobre el propietario actual de los derechos de autor de esta imagen, como &quot;©2008 Jane Doe&quot;.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1001,7 +1005,7 @@
     </message>
     <message>
         <source>All rights reserved</source>
-        <translation>Reservados todos los derechos</translation>
+        <translation>Todos los derechos reservados</translation>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
@@ -1060,7 +1064,7 @@
         <translation>Introduce el cargo de trabajo de la persona que figura en el campo Creador.</translation>
     </message>
     <message>
-        <source>Creator's Jobtitle</source>
+        <source>Creator&apos;s Jobtitle</source>
         <translation>Cargo del creador</translation>
     </message>
     <message>
@@ -1081,7 +1085,7 @@
     </message>
     <message>
         <source>Enter information about embargoes, or other restrictions not covered by the Rights Usage Terms field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduzca información sobre embargos u otras restricciones no contempladas en el campo Condiciones de uso de los derechos.</translation>
     </message>
     <message>
         <source>Instructions</source>
@@ -1133,7 +1137,7 @@
     </message>
     <message>
         <source>Creator / Licensor Contact Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Información de contacto del creador/licenciante</translation>
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
@@ -1144,12 +1148,12 @@
         <translation>Términos de uso</translation>
     </message>
     <message>
-        <source>Open link to "{licence}"</source>
-        <translation>Abrir enlace a "{licence}"</translation>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation>Abrir enlace a &quot;{licence}&quot;</translation>
     </message>
     <message>
         <source>Web Statement</source>
-        <translation type="unfinished"></translation>
+        <translation>Declaración web</translation>
     </message>
     <message>
         <source>Rights</source>
@@ -1157,15 +1161,15 @@
     </message>
     <message>
         <source>Enter the work email address for the person that created this image, such as name@domain.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduzca la dirección de correo electrónico de trabajo de la persona que creó esta imagen, como name@domain.com.</translation>
     </message>
     <message>
         <source>Enter the work Web URL for the person that created this image, such as http://www.domain.com/.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduzca la dirección URL de la web de trabajo de la persona que creó esta imagen, como http://www.domain.com/.</translation>
     </message>
     <message>
         <source>Enter the work phone number for the person that created this image, using the international format, such as +1 (123) 456789.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduzca el número de teléfono del trabajo de la persona que creó esta imagen, utilizando el formato internacional, como +1 (123) 456789.</translation>
     </message>
     <message>
         <source>Enter address detail (e.g. flat number or room number) for the person that created this image.</source>
@@ -1216,19 +1220,19 @@
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargar el archivo GPX</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
+        <translation>Establecer coordenadas desde GPX</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar los datos GPX</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;widen search&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
@@ -1247,7 +1251,7 @@
     </message>
     <message>
         <source>Which Pixelfed instance hosts your account?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Qué instancia de Pixelfed aloja tu cuenta?</translation>
     </message>
     <message>
         <source>Other</source>
@@ -1255,15 +1259,15 @@
     </message>
     <message>
         <source>Pixelfed</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixelfed</translation>
     </message>
     <message>
         <source>&amp;Pixelfed upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Carga de &amp;Pixelfed</translation>
     </message>
     <message>
         <source>Caption</source>
-        <translation type="unfinished"></translation>
+        <translation>Subtítulo</translation>
     </message>
     <message>
         <source>Generate</source>
@@ -1271,7 +1275,7 @@
     </message>
     <message>
         <source>Spoiler</source>
-        <translation type="unfinished"></translation>
+        <translation>Spoiler</translation>
     </message>
     <message>
         <source>Public</source>
@@ -1287,7 +1291,7 @@
     </message>
     <message>
         <source>Post visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Visibilidad de la publicación</translation>
     </message>
     <message>
         <source>Sensitive post</source>
@@ -1299,15 +1303,15 @@
     </message>
     <message>
         <source>All Rights Reserved</source>
-        <translation>Reservados todos los derechos</translation>
+        <translation>Todos los derechos reservados</translation>
     </message>
     <message>
         <source>Public Domain Work</source>
-        <translation type="unfinished"></translation>
+        <translation>Trabajo de dominio público</translation>
     </message>
     <message>
         <source>Public Domain Dedication (CC0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Dedicación al dominio público (CC0)</translation>
     </message>
     <message>
         <source>Attribution</source>
@@ -1315,23 +1319,23 @@
     </message>
     <message>
         <source>Attribution-ShareAlike</source>
-        <translation type="unfinished">Atribución-CompartirIgual</translation>
+        <translation>Atribución-Compartir igual</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial</source>
-        <translation type="unfinished">Atribución-NoComercial</translation>
+        <translation>Atribución-No comercial</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike</source>
-        <translation type="unfinished">Atribución-NoComercial-CompartirIgual</translation>
+        <translation>Atribución-No comercial-Compartir igual</translation>
     </message>
     <message>
         <source>Attribution-NoDerivs</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución-Sin derivados</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivs</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución-No comercial-Sin obra derivada</translation>
     </message>
     <message>
         <source>Licence</source>
@@ -1363,23 +1367,23 @@
     </message>
     <message>
         <source>Collection visibility</source>
-        <translation type="unfinished"></translation>
+        <translation>Visibilidad de la colección</translation>
     </message>
     <message>
         <source>Update remote</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualización remota</translation>
     </message>
     <message>
         <source>Photini: alt text</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: texto alternativo</translation>
     </message>
     <message>
         <source>Missing alt text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Falta el texto alternativo.</translation>
     </message>
     <message>
-        <source>File "{file_name}" does not have any "alt text" for accessibility. Would you like to upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <source>File &quot;{file_name}&quot; does not have any &quot;alt text&quot; for accessibility. Would you like to upload it anyway?</source>
+        <translation>El archivo &quot;{file_name}&quot; no tiene ningún &quot;texto alternativo&quot; para la accesibilidad. ¿Le gustaría subirlo de todos modos?</translation>
     </message>
 </context>
 <context>
@@ -1402,7 +1406,7 @@
     </message>
     <message>
         <source>A pixel of a digital image setting an absolute value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un píxel de una imagen digital que establece un valor absoluto.</translation>
     </message>
     <message>
         <source>relative</source>
@@ -1410,7 +1414,7 @@
     </message>
     <message>
         <source>Relative part of the size of an image along the x- or the y-axis.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parte relativa del tamaño de una imagen a lo largo de los ejes x o y.</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1418,11 +1422,11 @@
     </message>
     <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de texto libre de la región. Debe ser único entre todos los nombres de región de una imagen.</translation>
     </message>
     <message>
         <source>Identifier of the region. Must be unique among all Region Identifiers of an image. Does not have to be unique beyond the metadata of this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Identificador de la región. Debe ser único entre todos los identificadores de región de una imagen. No tiene que ser único más allá de los metadatos de esta imagen.</translation>
     </message>
     <message>
         <source>Identifier</source>
@@ -1434,11 +1438,11 @@
     </message>
     <message>
         <source>Boundary unit</source>
-        <translation type="unfinished"></translation>
+        <translation>Unidad límite</translation>
     </message>
     <message>
         <source>Role of this region among all regions of this image or of other images. The value SHOULD be taken from a Controlled Vocabulary.</source>
-        <translation type="unfinished"></translation>
+        <translation>Papel de esta región entre todas las regiones de esta imagen o de otras imágenes. El valor DEBERÍA tomarse de un Vocabulario Controlado.</translation>
     </message>
     <message>
         <source>Role</source>
@@ -1446,15 +1450,15 @@
     </message>
     <message>
         <source>The semantic type of what is shown inside the region. The value SHOULD be taken from a Controlled Vocabulary.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo semántico de lo que se muestra dentro de la región. El valor DEBERÍA tomarse de un Vocabulario Controlado.</translation>
     </message>
     <message>
         <source>Content type</source>
         <translation>Tipo de contenido</translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with ";" characters.</source>
-        <translation type="unfinished"></translation>
+        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
+        <translation>Introduzca los nombres de las personas que aparecen en esta región. Separe las entradas múltiples con caracteres &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Person shown</source>
@@ -1465,12 +1469,12 @@
         <translation>Descripción</translation>
     </message>
     <message>
-        <source>Enter a "caption" describing the who, what, and why of what is happening in this region.</source>
-        <translation>Introduce una "leyenda" describiendo el quién, qué y por qué de lo que describing the who, what, and why of what is happening in this region.</translation>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
+        <translation>Introduce una &quot;leyenda&quot; describiendo el quién, qué y por qué de lo que describing the who, what, and why of what is happening in this region.</translation>
     </message>
     <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
-        <translation type="unfinished"></translation>
+        <translation>La estructura de la región de imagen incluye opcionalmente cualquier propiedad de metadatos relacionada con la región.</translation>
     </message>
     <message>
         <source>New rectangle</source>
@@ -1494,7 +1498,7 @@
     </message>
     <message>
         <source>Image &amp;regions</source>
-        <translation type="unfinished"></translation>
+        <translation>Imagen y regiones</translation>
     </message>
 </context>
 <context>
@@ -1524,12 +1528,12 @@
         <translation>Nombre del modelo</translation>
     </message>
     <message>
-        <source>Maker's name</source>
+        <source>Maker&apos;s name</source>
         <translation>Nombre del fabricante</translation>
     </message>
     <message>
-        <source>Remove "{camera_or_lens}"</source>
-        <translation type="unfinished"></translation>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation>Quitar &quot;{camera_or_lens}&quot;</translation>
     </message>
     <message>
         <source>Serial number</source>
@@ -1544,12 +1548,12 @@
         <translation>Fecha y hora</translation>
     </message>
     <message>
-        <source>Link 'taken' and 'digitised'</source>
-        <translation>Vincular 'tomada' y 'digitalizada'</translation>
+        <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
+        <translation>Vincular &apos;tomada&apos; y &apos;digitalizada&apos;</translation>
     </message>
     <message>
-        <source>Link 'digitised' and 'modified'</source>
-        <translation>Vincular 'digitalizada' y 'modificada'</translation>
+        <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
+        <translation>Vincular &apos;digitalizada&apos; y &apos;modificada&apos;</translation>
     </message>
     <message>
         <source>Taken</source>
@@ -1585,7 +1589,7 @@
     </message>
     <message>
         <source>Adjust image aperture and focal length to agree with lens specification?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Ajusta la apertura de la imagen y la distancia focal de acuerdo con las especificaciones del objetivo?</translation>
     </message>
     <message>
         <source>Minimum focal length</source>
@@ -1613,7 +1617,7 @@
     </message>
     <message>
         <source>Photini: define camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: definir la cámara</translation>
     </message>
     <message>
         <source>Camera</source>
@@ -1621,15 +1625,15 @@
     </message>
     <message>
         <source>Photini: maker name change</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: cambio del nombre del fabricante</translation>
     </message>
     <message>
         <source>Do you want to delete the Exif makernote?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Desea eliminar la nota Exif?</translation>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
-        <translation type="unfinished"></translation>
+        <translation>El cambio del nombre del creador invalidará la información Exif de la nota de fabricante.</translation>
     </message>
     <message>
         <source>normal</source>
@@ -1649,12 +1653,12 @@
     <message>
         <source>reflect top right to bottom left</source>
         <comment>orientation dropdown, diagonal reflection</comment>
-        <translation type="unfinished">reflejar tr-bl</translation>
+        <translation>reflejar desde arriba a la derecha hasta abajo a la izquierda</translation>
     </message>
     <message>
         <source>reflect top left to bottom right</source>
         <comment>orientation dropdown, diagonal reflection</comment>
-        <translation type="unfinished">reflejar tl-br</translation>
+        <translation>reflejar desde arriba a la izquierda hasta abajo a la derecha</translation>
     </message>
     <message>
         <source>rotate -90°</source>
@@ -1687,17 +1691,17 @@
     </message>
     <message>
         <source>h</source>
-        <comment>single letter abbreviation of "hours"</comment>
+        <comment>single letter abbreviation of &quot;hours&quot;</comment>
         <translation>h</translation>
     </message>
     <message>
         <source>m</source>
-        <comment>single letter abbreviation of "minutes"</comment>
+        <comment>single letter abbreviation of &quot;minutes&quot;</comment>
         <translation>m</translation>
     </message>
     <message>
         <source>s</source>
-        <comment>single letter abbreviation of "seconds"</comment>
+        <comment>single letter abbreviation of &quot;seconds&quot;</comment>
         <translation>s</translation>
     </message>
 </context>
@@ -1720,8 +1724,8 @@
         <translation>No conectado a {service}</translation>
     </message>
     <message>
-        <source>File "{file_name}" has {size} bytes and exceeds {service}'s limit of {max_size} bytes.</source>
-        <translation type="unfinished"></translation>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation>El archivo &quot;{file_name}&quot; tiene {size} bytes y excede el límite de {service} de {max_size} bytes.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
@@ -1732,16 +1736,16 @@
         <translation>Avance</translation>
     </message>
     <message>
-        <source>File "{file_name}" upload failed.</source>
-        <translation type="unfinished"></translation>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation>Fallo en la carga del archivo &quot;{file_name}&quot;.</translation>
     </message>
     <message>
         <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation>El archivo {file_name} ya ha sido cargado en {service}. ¿Cómo desea actualizarlo?</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {service}?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Qué archivo de imagen corresponde a esta foto en {service}?</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -1785,7 +1789,7 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: demasiado grande</translation>
     </message>
     <message>
         <source>File too large.</source>
@@ -1793,39 +1797,39 @@
     </message>
     <message>
         <source>Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Quiere cambiar el tamaño?</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: error en la carga</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: autorizar</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
+        <translation>Autorización necesaria</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor, utilice su navegador para autorizar Photini y, a continuación, cierre este cuadro de diálogo.</translation>
     </message>
     <message>
-        <source>File "{file_name}" has {size} pixels and exceeds {service}'s limit of {max_size} pixels.</source>
-        <translation type="unfinished"></translation>
+        <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
+        <translation>El archivo &quot;{file_name}&quot; tiene {size} píxeles y excede el límite de {service} de {max_size} píxeles.</translation>
     </message>
     <message>
-        <source>File "{file_name}" is of type "{file_type}", which {service} may not handle correctly.</source>
-        <translation type="unfinished"></translation>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
+        <translation>El archivo &quot;{file_name}&quot; es del tipo &quot;{file_type}&quot;, que {service} no puede gestionar correctamente.</translation>
     </message>
     <message>
         <source>Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Desea convertirlo a JPEG?</translation>
     </message>
     <message>
         <source>Would you like to upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Quieres subirlo de todos modos?</translation>
     </message>
     <message>
         <source>Replace photo</source>
@@ -1841,7 +1845,7 @@
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pueden subir imágenes</translation>
     </message>
     <message>
         <source>Select an image</source>
