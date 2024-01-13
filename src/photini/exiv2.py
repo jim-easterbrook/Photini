@@ -59,8 +59,9 @@ class MetadataHandler(object):
 
     @classmethod
     def initialise(cls, config_store, verbosity):
-        exiv2.LogMsg.setLevel(
-            max(exiv2.LogMsg.debug, min(exiv2.LogMsg.error, 4 - verbosity)))
+        level = min(exiv2.LogMsg.Level.error, 4 - verbosity)
+        level = max(exiv2.LogMsg.Level.debug, level)
+        exiv2.LogMsg.setLevel(exiv2.LogMsg.Level(level))
         exiv2.XmpParser.initialize()
         if config_store and exiv2.testVersion(0, 27, 4):
             exiv2.enableBMFF(config_store.get('metadata', 'enable_bmff', False))
@@ -132,8 +133,14 @@ class MetadataHandler(object):
                                           exiv2.TypeId.string):
                     continue
                 key = datum.key()
+                if key in ('Iptc.Envelope.CharacterSet', 'Exif.Image.IPTCNAA'):
+                    continue
                 if '.0x' in key:
                     # unknown key type
+                    continue
+                family, group, tagname = key.split('.', 2)
+                if family == 'Exif' and exiv2.ExifTags.isMakerGroup(group):
+                    # don't transcode maker note stuff
                     continue
                 raw_value = datum.value().data()
                 if self.decode_string(key, raw_value, 'utf-8') is not None:
@@ -161,7 +168,8 @@ class MetadataHandler(object):
                     else:
                         logger.warning('%s: failed to transcode %s',
                                        self._name, key)
-                        value = raw_value.decode('utf-8', errors='replace')
+                        value = bytes(raw_value).decode(
+                            'utf-8', errors='replace')
                 new_data[key].append(value)
             for key, value in new_data.items():
                 if len(value) == 1:
@@ -294,9 +302,9 @@ class MetadataHandler(object):
             yield datum.key()
 
     @classmethod
-    def open_old(cls, *arg, quiet=False, **kw):
+    def open_old(cls, path, *arg, quiet=False, **kw):
         try:
-            return cls(*arg, **kw)
+            return cls(path, *arg, **kw)
         except exiv2.Exiv2Error as ex:
             # expected if unrecognised file format
             if quiet:
@@ -305,6 +313,7 @@ class MetadataHandler(object):
                 logger.warning(str(ex))
             return None
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
             return None
 
@@ -312,9 +321,7 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
 
-    def get_exif_comment(self, tag, datum):
-        type_id = datum.typeId()
-        value = datum.value()
+    def get_exif_comment(self, tag, value):
         if isinstance(value, exiv2.CommentValue):
             data = value.data()
             charset = value.charsetId()
@@ -387,39 +394,51 @@ class MetadataHandler(object):
         return result
 
     def get_exif_value(self, tag):
-        datum = self._exifData.findKey(exiv2.ExifKey(tag))
+        try:
+            key = exiv2.ExifKey(tag)
+        except exiv2.Exiv2Error:
+            # old versions of libexiv2 don't recognise newer tags
+            return None
+        datum = self._exifData.findKey(key)
         if datum == self._exifData.end():
             return None
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
+                   'Exif.Canon.SerialNumber', 'Exif.CanonLe.LensSerialNumber',
                    'Exif.Image.XPTitle', 'Exif.Image.XPComment',
                    'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
                    'Exif.Image.XPSubject', 'Exif.NikonLd1.LensIDNumber',
-                   'Exif.NikonLd2.LensIDNumber',
-                   'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
+                   'Exif.Minolta.LensID', 'Exif.Nikon3.LensType',
+                   'Exif.NikonLd2.LensIDNumber', 'Exif.NikonLd3.LensIDNumber',
+                   'Exif.NikonLd4.LensIDNumber', 'Exif.OlympusEq.LensType',
+                   'Exif.Olympus2.CameraID',
+                   'Exif.Panasonic.InternalSerialNumber',
+                   'Exif.Pentax.LensType', 'Exif.Pentax.ModelID',
+                   'Exif.PentaxDng.LensType', 'Exif.PentaxDng.ModelID',
+                   'Exif.Sony1.LensID', 'Exif.Sony1.SonyModelID',
+                   'Exif.Sony2.LensID', 'Exif.Sony2.SonyModelID'):
             # use Exiv2's "interpreted string"
             return datum._print(self._exifData)
+        value = datum.value()
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
-            return self.get_exif_comment(tag, datum)
-        value = datum.value()
-        type_id = datum.typeId()
-        if type_id == exiv2.TypeId.asciiString:
+            return self.get_exif_comment(tag, value)
+        if isinstance(value, exiv2.AsciiValue):
             return value.toString()
-        if type_id in (exiv2.TypeId.unsignedByte, exiv2.TypeId.undefined):
+        if isinstance(value, exiv2.DataValue):
             result = bytearray(value.size())
             value.copy(result, exiv2.ByteOrder.invalidByteOrder)
             return result
-        if type_id not in (
-                exiv2.TypeId.signedRational, exiv2.TypeId.unsignedRational,
-                exiv2.TypeId.signedShort, exiv2.TypeId.unsignedShort,
-                exiv2.TypeId.signedLong, exiv2.TypeId.unsignedLong):
-            # unhandled type, use the string representation
-            logger.warning('%s: %s: reading %s as string',
-                           self._name, tag, datum.typeName())
-            return value.toString()
-        if len(value) > 1:
-            return list(value)
-        return value[0]
+        if isinstance(value, (exiv2.RationalValue, exiv2.URationalValue,
+                              exiv2.ShortValue, exiv2.UShortValue,
+                              exiv2.LongValue, exiv2.ULongValue)):
+            if len(value) > 1:
+                return list(value)
+            if len(value) == 0:
+                return None
+            return value[0]
+        logger.warning(
+            '%s: %s: reading %s as string', self._name, tag, type(value))
+        return value.toString()
 
     def decode_iptc_value(self, datum):
         type_id = datum.typeId()

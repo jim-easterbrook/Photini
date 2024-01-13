@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <TS language="es" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
@@ -71,8 +71,8 @@
         <translation>Introduce el nombre del continente.</translation>
     </message>
     <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
-        <translation>Introduce identificador(es) único(s) globales de la ubicación. Sepáralos con los carácteres &quot;;&quot;.</translation>
+        <source>Enter globally unique identifier(s) of the location. Separate them with ";" characters.</source>
+        <translation>Introduce identificador(es) único(s) globales de la ubicación. Sepáralos con los carácteres ";".</translation>
     </message>
     <message>
         <source>Name</source>
@@ -181,12 +181,12 @@
         <translation>Titular</translation>
     </message>
     <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation>Introduce una &quot;leyenda&quot; describiendo quién, qué, y por qué sobre lo que sucede en esta imagen, puede incluir nombres de personas, y/o su papel en la acción que tiene lugar en la imagen.</translation>
+        <source>Enter a "caption" describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation>Introduce una "leyenda" describiendo quién, qué, y por qué sobre lo que sucede en esta imagen, puede incluir nombres de personas, y/o su papel en la acción que tiene lugar en la imagen.</translation>
     </message>
     <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
-        <translation>Introduce cualquier número de palabras clave, términos o frases usadas para expresar el tema de la imagen. Sepáralas con carácteres &quot;;&quot;.</translation>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with ";" characters.</source>
+        <translation>Introduce cualquier número de palabras clave, términos o frases usadas para expresar el tema de la imagen. Sepáralas con carácteres ";".</translation>
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
@@ -454,8 +454,8 @@
         <translation>Photini: archivo grande</translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El archivo &quot;{file_name}&quot; pesa más de 25 MB. Recuerda que las subidas de Photini cuentan para el almacenamiento de tu cuenta de Google. ¿Lo subes de todas formas?</translation>
+        <source>File "{file_name}" is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>El archivo "{file_name}" pesa más de 25 MB. Recuerda que las subidas de Photini cuentan para el almacenamiento de tu cuenta de Google. ¿Lo subes de todas formas?</translation>
     </message>
     <message>
         <source>Album title</source>
@@ -532,8 +532,7 @@
         <translation>
             <numerusform>Regenerar miniatura</numerusform>
             <numerusform>Regenerar miniaturas</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -544,16 +543,14 @@
         <translation>
             <numerusform>Recargar archivo</numerusform>
             <numerusform>Recargar archivos</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Cerrar archivo</numerusform>
             <numerusform>Cerrar archivos</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -647,8 +644,8 @@
         <translation>Parar copia</translation>
     </message>
     <message>
-        <source>Remove &quot;{source_name}&quot;</source>
-        <translation>Borrar &quot;{source_name}&quot;</translation>
+        <source>Remove "{source_name}"</source>
+        <translation>Borrar "{source_name}"</translation>
     </message>
     <message>
         <source>camera: {camera_name}</source>
@@ -663,8 +660,7 @@
         <translation>
             <numerusform>%n archivo seleccionado</numerusform>
             <numerusform>%n archivos seleccionados</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -822,7 +818,7 @@
     </message>
     <message>
         <source>Lang: </source>
-        <comment>Short abbreviation of &quot;Language: &quot;</comment>
+        <comment>Short abbreviation of "Language: "</comment>
         <translation>Idioma: </translation>
     </message>
     <message>
@@ -842,11 +838,16 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation>Lat.,Long.</translation>
+        <translation type="vanished">Lat.,Long.</translation>
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation>Latitud y longitud (en grados) con dos números decimales separados por un espacio.</translation>
+    </message>
+    <message>
+        <source>Lat, long</source>
+        <comment>Short abbreviation of "Latitude, longitude"</comment>
+        <translation>Lat.,Long.</translation>
     </message>
 </context>
 <context>
@@ -883,7 +884,7 @@
     </message>
     <message>
         <source>Search and altitude lookup powered by Google</source>
-        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <comment>Do not translate "powered by Google"</comment>
         <translation>Búsqueda y consulta de altitud powered by Google</translation>
     </message>
 </context>
@@ -969,8 +970,8 @@
         <translation>Cerrar todos los archivos</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation type="vanished">Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{}&quot;.</translation>
+        <source>This program is released with a GNU General Public License. For details click the "{}" button.</source>
+        <translation type="vanished">Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón "{}".</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -981,8 +982,8 @@
         <translation>Comprobar actualizaciones</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
-        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{details}&quot;.</translation>
+        <source>This program is released with a GNU General Public License. For details click the "{details}" button.</source>
+        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón "{details}".</translation>
     </message>
     <message>
         <source>Photini: version check</source>
@@ -996,8 +997,8 @@
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation>Introduzca un aviso sobre el propietario actual de los derechos de autor de esta imagen, como &quot;©2008 Jane Doe&quot;.</translation>
+        <source>Enter a notice on the current owner of the copyright for this image, such as "©2008 Jane Doe".</source>
+        <translation>Introduzca un aviso sobre el propietario actual de los derechos de autor de esta imagen, como "©2008 Jane Doe".</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1064,7 +1065,7 @@
         <translation>Introduce el cargo de trabajo de la persona que figura en el campo Creador.</translation>
     </message>
     <message>
-        <source>Creator&apos;s Jobtitle</source>
+        <source>Creator's Jobtitle</source>
         <translation>Cargo del creador</translation>
     </message>
     <message>
@@ -1148,8 +1149,8 @@
         <translation>Términos de uso</translation>
     </message>
     <message>
-        <source>Open link to &quot;{licence}&quot;</source>
-        <translation>Abrir enlace a &quot;{licence}&quot;</translation>
+        <source>Open link to "{licence}"</source>
+        <translation>Abrir enlace a "{licence}"</translation>
     </message>
     <message>
         <source>Web Statement</source>
@@ -1382,8 +1383,8 @@
         <translation>Falta el texto alternativo.</translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; does not have any &quot;alt text&quot; for accessibility. Would you like to upload it anyway?</source>
-        <translation>El archivo &quot;{file_name}&quot; no tiene ningún &quot;texto alternativo&quot; para la accesibilidad. ¿Le gustaría subirlo de todos modos?</translation>
+        <source>File "{file_name}" does not have any "alt text" for accessibility. Would you like to upload it anyway?</source>
+        <translation>El archivo "{file_name}" no tiene ningún "texto alternativo" para la accesibilidad. ¿Le gustaría subirlo de todos modos?</translation>
     </message>
 </context>
 <context>
@@ -1457,8 +1458,8 @@
         <translation>Tipo de contenido</translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
-        <translation>Introduzca los nombres de las personas que aparecen en esta región. Separe las entradas múltiples con caracteres &quot;;&quot;.</translation>
+        <source>Enter the names of people shown in this region. Separate multiple entries with ";" characters.</source>
+        <translation>Introduzca los nombres de las personas que aparecen en esta región. Separe las entradas múltiples con caracteres ";".</translation>
     </message>
     <message>
         <source>Person shown</source>
@@ -1469,8 +1470,8 @@
         <translation>Descripción</translation>
     </message>
     <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
-        <translation>Introduce una &quot;leyenda&quot; describiendo el quién, qué y por qué de lo que describing the who, what, and why of what is happening in this region.</translation>
+        <source>Enter a "caption" describing the who, what, and why of what is happening in this region.</source>
+        <translation>Introduce una "leyenda" describiendo el quién, qué y por qué de lo que describing the who, what, and why of what is happening in this region.</translation>
     </message>
     <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
@@ -1528,12 +1529,12 @@
         <translation>Nombre del modelo</translation>
     </message>
     <message>
-        <source>Maker&apos;s name</source>
+        <source>Maker's name</source>
         <translation>Nombre del fabricante</translation>
     </message>
     <message>
-        <source>Remove &quot;{camera_or_lens}&quot;</source>
-        <translation>Quitar &quot;{camera_or_lens}&quot;</translation>
+        <source>Remove "{camera_or_lens}"</source>
+        <translation>Quitar "{camera_or_lens}"</translation>
     </message>
     <message>
         <source>Serial number</source>
@@ -1548,12 +1549,12 @@
         <translation>Fecha y hora</translation>
     </message>
     <message>
-        <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
-        <translation>Vincular &apos;tomada&apos; y &apos;digitalizada&apos;</translation>
+        <source>Link 'taken' and 'digitised'</source>
+        <translation>Vincular 'tomada' y 'digitalizada'</translation>
     </message>
     <message>
-        <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
-        <translation>Vincular &apos;digitalizada&apos; y &apos;modificada&apos;</translation>
+        <source>Link 'digitised' and 'modified'</source>
+        <translation>Vincular 'digitalizada' y 'modificada'</translation>
     </message>
     <message>
         <source>Taken</source>
@@ -1691,17 +1692,17 @@
     </message>
     <message>
         <source>h</source>
-        <comment>single letter abbreviation of &quot;hours&quot;</comment>
+        <comment>single letter abbreviation of "hours"</comment>
         <translation>h</translation>
     </message>
     <message>
         <source>m</source>
-        <comment>single letter abbreviation of &quot;minutes&quot;</comment>
+        <comment>single letter abbreviation of "minutes"</comment>
         <translation>m</translation>
     </message>
     <message>
         <source>s</source>
-        <comment>single letter abbreviation of &quot;seconds&quot;</comment>
+        <comment>single letter abbreviation of "seconds"</comment>
         <translation>s</translation>
     </message>
 </context>
@@ -1724,8 +1725,8 @@
         <translation>No conectado a {service}</translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
-        <translation>El archivo &quot;{file_name}&quot; tiene {size} bytes y excede el límite de {service} de {max_size} bytes.</translation>
+        <source>File "{file_name}" has {size} bytes and exceeds {service}'s limit of {max_size} bytes.</source>
+        <translation>El archivo "{file_name}" tiene {size} bytes y excede el límite de {service} de {max_size} bytes.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
@@ -1736,8 +1737,8 @@
         <translation>Avance</translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; upload failed.</source>
-        <translation>Fallo en la carga del archivo &quot;{file_name}&quot;.</translation>
+        <source>File "{file_name}" upload failed.</source>
+        <translation>Fallo en la carga del archivo "{file_name}".</translation>
     </message>
     <message>
         <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
@@ -1816,12 +1817,12 @@
         <translation>Por favor, utilice su navegador para autorizar Photini y, a continuación, cierre este cuadro de diálogo.</translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
-        <translation>El archivo &quot;{file_name}&quot; tiene {size} píxeles y excede el límite de {service} de {max_size} píxeles.</translation>
+        <source>File "{file_name}" has {size} pixels and exceeds {service}'s limit of {max_size} pixels.</source>
+        <translation>El archivo "{file_name}" tiene {size} píxeles y excede el límite de {service} de {max_size} píxeles.</translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
-        <translation>El archivo &quot;{file_name}&quot; es del tipo &quot;{file_type}&quot;, que {service} no puede gestionar correctamente.</translation>
+        <source>File "{file_name}" is of type "{file_type}", which {service} may not handle correctly.</source>
+        <translation>El archivo "{file_name}" es del tipo "{file_type}", que {service} no puede gestionar correctamente.</translation>
     </message>
     <message>
         <source>Would you like to convert it to JPEG?</source>

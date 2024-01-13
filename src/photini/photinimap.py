@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@ import pickle
 
 import appdirs
 import cachetools
-import pkg_resources
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
@@ -148,8 +147,12 @@ class MapWebPage(QWebEnginePage):
 
     @catch_all
     def javaScriptConsoleMessage(self, level, msg, line, source):
-        logger.log(
-            logging.INFO + (level * 10), '%s line %d: %s', source, line, msg)
+        level = {
+            self.JavaScriptConsoleMessageLevel.InfoMessageLevel: logging.INFO,
+            self.JavaScriptConsoleMessageLevel.WarningMessageLevel: logging.WARNING,
+            self.JavaScriptConsoleMessageLevel.ErrorMessageLevel: logging.ERROR,
+            }[level]
+        logger.log(level, '%s line %d: %s', source, line, msg)
 
 
 class MapWebView(QWebEngineView):
@@ -196,8 +199,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
-        self.script_dir = pkg_resources.resource_filename(
-            'photini', 'data/map/')
+        self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, 'pin_grey.png'))
         self.drag_hotspot = 11, 35
@@ -321,12 +323,13 @@ class PhotiniMap(QtWidgets.QWidget):
           loadMap({lat}, {lng}, {zoom});
       }}
     </script>'''
-        initialize = initialize.format(lat=lat, lng=lng, zoom=zoom)
-        page = page.format(initialize=initialize, head=self.get_head(),
-                           script=self.__module__.split('.')[-1])
+        page = page.format(
+            head = self.get_head(),
+            script = self.__module__.split('.')[-1],
+            initialize = initialize.format(lat=lat, lng=lng, zoom=zoom))
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
-            page, QtCore.QUrl.fromLocalFile(self.script_dir))
+            page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
 
     @catch_all
     def initialize_finished(self):

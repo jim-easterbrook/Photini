@@ -883,11 +883,16 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation>Lat, long</translation>
+        <translation type="vanished">Lat, long</translation>
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lat, long</source>
+        <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
+        <translation>Lat, long</translation>
     </message>
 </context>
 <context>

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -97,7 +97,7 @@ class OpenCage(GeocoderBase):
 
     def get_address(self, coords):
         params = {'q': '{:.5f},{:.5f}'.format(*coords)}
-        lang, encoding = locale.getdefaultlocale()
+        lang, encoding = locale.getlocale()
         if lang:
             params['language'] = lang
         results = self.cached_query(params)
