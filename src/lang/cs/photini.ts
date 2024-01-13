@@ -890,11 +890,16 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation>Zeměpisná šířka, délka</translation>
+        <translation type="vanished">Zeměpisná šířka, délka</translation>
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lat, long</source>
+        <comment>Short abbreviation of "Latitude, longitude"</comment>
+        <translation>Zeměpisná šířka, délka</translation>
     </message>
 </context>
 <context>

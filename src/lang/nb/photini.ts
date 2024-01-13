@@ -875,11 +875,16 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation type="unfinished">Bredde, lengde</translation>
+        <translation type="obsolete">Bredde, lengde</translation>
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lat, long</source>
+        <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
+        <translation>Bredde, lengde</translation>
     </message>
 </context>
 <context>

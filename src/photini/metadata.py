@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -18,7 +18,6 @@
 
 import codecs
 from fractions import Fraction
-import imghdr
 import logging
 import math
 import mimetypes
@@ -26,6 +25,7 @@ import os
 import re
 
 import exiv2
+import filetype
 
 from photini import __version__
 from photini.exiv2 import MetadataHandler
@@ -108,6 +108,7 @@ class FFMPEGMetadata(object):
         except RuntimeError as ex:
             logger.error(str(ex))
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
         return None
 
@@ -243,9 +244,7 @@ class ImageMetadata(MetadataHandler):
                 # some tags disappear with good reason
                 continue
             family, group, tagname = tag.split('.', 2)
-            if family == 'Exif' and group[:5] in (
-                    'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
-                    'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):
+            if family == 'Exif' and exiv2.ExifTags.isMakerGroup(group):
                 # maker note tags are often not saved
                 logger.warning('%s: tag not saved: %s', self._name, tag)
                 continue
@@ -269,6 +268,8 @@ class ImageMetadata(MetadataHandler):
             '', 'Exif.Canon.ModelID', 'Exif.Canon.SerialNumber'),
         'Exif.CanonCs.Lens*': ('', 'Exif.CanonCs.LensType',
                                '', 'Exif.CanonCs.Lens'),
+        'Exif.CanonLe.LensSerialNumber*': (
+            '', '', 'Exif.CanonLe.LensSerialNumber'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.GPSInfo.GPS*': (
             'Exif.GPSInfo.GPSVersionID', 'Exif.GPSInfo.GPSProcessingMethod',
@@ -286,17 +287,29 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.BodySerialNumber'),
         'Exif.Image.UniqueCameraModel*': (
             '', 'Exif.Image.UniqueCameraModel', 'Exif.Image.CameraSerialNumber'),
-        'Exif.Nikon3.Lens*': ('', '', '', 'Exif.Nikon3.Lens'),
+        'Exif.Minolta.LensID*': ('', 'Exif.Minolta.LensID'),
+        'Exif.Nikon3.Lens*': (
+            '', 'Exif.Nikon3.LensType', '', 'Exif.Nikon3.Lens'),
         'Exif.Nikon3.SerialNumber*': ('', '', 'Exif.Nikon3.SerialNumber'),
         'Exif.NikonLd1.LensIDNumber*': ('', 'Exif.NikonLd1.LensIDNumber'),
         'Exif.NikonLd2.LensIDNumber*': ('', 'Exif.NikonLd2.LensIDNumber'),
         'Exif.NikonLd3.LensIDNumber*': ('', 'Exif.NikonLd3.LensIDNumber'),
+        'Exif.NikonLd4.LensIDNumber*': ('', 'Exif.NikonLd4.LensIDNumber'),
         'Exif.OlympusEq.Camera*': (
             '', 'Exif.OlympusEq.CameraType', 'Exif.OlympusEq.SerialNumber'),
         'Exif.OlympusEq.LensModel*': (
             '', 'Exif.OlympusEq.LensModel', 'Exif.OlympusEq.LensSerialNumber'),
+        'Exif.OlympusEq.Lens2*': (
+            '', 'Exif.OlympusEq.LensType', ''),
+        'Exif.Olympus2.Camera*': (
+            '', 'Exif.Olympus2.CameraID', ''),
+        'Exif.Panasonic.InternalSerialNumber*': (
+            '', '', 'Exif.Panasonic.InternalSerialNumber'),
+        'Exif.Pentax.LensType*': ('', 'Exif.Pentax.LensType'),
         'Exif.Pentax.ModelID*': (
             '', 'Exif.Pentax.ModelID', 'Exif.Pentax.SerialNumber'),
+        'Exif.PentaxDng.LensType*': ('', 'Exif.PentaxDng.LensType'),
+        'Exif.PentaxDng.ModelID*': ('', 'Exif.PentaxDng.ModelID'),
         'Exif.Photo.DateTimeDigitized*': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
         'Exif.Photo.DateTimeOriginal*': (
@@ -306,6 +319,12 @@ class ImageMetadata(MetadataHandler):
         'Exif.Photo.Lens*': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber', 'Exif.Photo.LensSpecification'),
+        'Exif.Sigma.SerialNumber*': (
+            '', '', 'Exif.Sigma.SerialNumber'),
+        'Exif.Sony1.LensID*': ('', 'Exif.Sony1.LensID'),
+        'Exif.Sony1.SonyModelID*': ('', 'Exif.Sony1.SonyModelID'),
+        'Exif.Sony2.LensID*': ('', 'Exif.Sony2.LensID'),
+        'Exif.Sony2.SonyModelID*': ('', 'Exif.Sony2.SonyModelID'),
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
@@ -356,7 +375,13 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Fujifilm.SerialNumber*'),
                             ('WN', 'Exif.Nikon3.SerialNumber*'),
                             ('WN', 'Exif.OlympusEq.Camera*'),
+                            ('WN', 'Exif.Olympus2.Camera*'),
+                            ('WN', 'Exif.Panasonic.InternalSerialNumber*'),
+                            ('WN', 'Exif.PentaxDng.ModelID*'),
                             ('WN', 'Exif.Pentax.ModelID*'),
+                            ('WN', 'Exif.Sigma.SerialNumber*'),
+                            ('WN', 'Exif.Sony1.SonyModelID*'),
+                            ('WN', 'Exif.Sony2.SonyModelID*'),
                             ('WN', 'Xmp.aux.SerialNumber*'),
                             ('W0', 'Xmp.video.Make*')),
         'contact_info'   : (('WA', 'Xmp.plus.Licensor'),
@@ -430,11 +455,19 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.Lens*'),
                             ('WN', 'Exif.Canon.LensModel*'),
                             ('WN', 'Exif.CanonCs.Lens*'),
-                            ('WN', 'Exif.OlympusEq.LensModel*'),
-                            ('WN', 'Exif.Nikon3.Lens*'),
+                            ('WN', 'Exif.CanonLe.LensSerialNumber*'),
+                            ('WN', 'Exif.Minolta.LensID*'),
                             ('WN', 'Exif.NikonLd1.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd2.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd3.LensIDNumber*'),
+                            ('WN', 'Exif.NikonLd4.LensIDNumber*'),
+                            ('WN', 'Exif.Nikon3.Lens*'),
+                            ('WN', 'Exif.OlympusEq.LensModel*'),
+                            ('WN', 'Exif.OlympusEq.Lens2*'),
+                            ('WN', 'Exif.Pentax.LensType*'),
+                            ('WN', 'Exif.PentaxDng.LensType*'),
+                            ('WN', 'Exif.Sony1.LensID*'),
+                            ('WN', 'Exif.Sony2.LensID*'),
                             ('W0', 'Xmp.aux.Lens*')),
         'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
@@ -527,9 +560,13 @@ class ImageMetadata(MetadataHandler):
         for key in self.get_all_tags():
             family, group, tag = key.split('.', 2)
             if tag in ('PixelXDimension', 'ImageWidth'):
-                widths[key] = int(self.get_value(key))
+                value = self.get_value(key)
+                if value:
+                    widths[key] = int(value)
             elif tag in ('PixelYDimension', 'ImageLength'):
-                heights[key] = int(self.get_value(key))
+                value = self.get_value(key)
+                if value:
+                    heights[key] = int(value)
         for kx in widths:
             if 'ImageWidth' in kx:
                 ky = kx.replace('ImageWidth', 'ImageLength')
@@ -557,6 +594,7 @@ class SidecarMetadata(ImageMetadata):
         try:
             return cls(path=path)
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
             return None
 
@@ -567,6 +605,7 @@ class SidecarMetadata(ImageMetadata):
             cls.create_sc(sc_path, image_md)
             return cls(path=sc_path)
         except Exception as ex:
+            logger.error('Exception opening %s', path)
             logger.exception(ex)
             return None
 
@@ -628,8 +667,11 @@ class Metadata(object):
         video_md = None
         self._if = None
         self._sc = SidecarMetadata.open_old(self.find_sidecar())
-        self._if = ImageMetadata.open_old(
-            path, quiet=self.get_mime_type().split('/')[0] == 'video')
+        # guess mime type from file name
+        self.mime_type = mimetypes.guess_type(self._path, strict=False)[0]
+        quiet = self.mime_type and self.mime_type.split('/')[0] == 'video'
+        self._if = ImageMetadata.open_old(path, quiet=quiet)
+        # get mime type from image data
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             video_md = FFMPEGMetadata.open_old(path)
@@ -812,11 +854,9 @@ class Metadata(object):
         if self._if:
             result = self._if.mime_type
         if not result:
-            result = mimetypes.guess_type(self._path, strict=False)[0]
-        if not result:
-            result = imghdr.what(self._path)
-            if result:
-                result = 'image/' + result
+            kind = filetype.guess(self._path)
+            if kind:
+                result = kind.mime
         # anything not recognised is assumed to be 'raw'
         if not result:
             result = 'image/raw'

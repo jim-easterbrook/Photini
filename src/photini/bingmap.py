@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -15,8 +15,6 @@
 ##  You should have received a copy of the GNU General Public License
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
-
-from __future__ import unicode_literals
 
 import locale
 import logging
@@ -78,7 +76,7 @@ class BingGeocoder(GeocoderBase):
             'query' : search_string,
             'maxRes': '20',
             }
-        lang, encoding = locale.getdefaultlocale()
+        lang, encoding = locale.getlocale()
         if lang:
             params['culture'] = lang.replace('_', '-')
         if bounds:
@@ -114,7 +112,7 @@ class TabWidget(PhotiniMap):
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         url += '&key=' + self.api_key
-        lang, encoding = locale.getdefaultlocale()
+        lang, encoding = locale.getlocale()
         if lang:
             culture = lang.replace('_', '-')
             url += '&setMkt=' + culture

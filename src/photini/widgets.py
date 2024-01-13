@@ -846,7 +846,9 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
         self.setButtonSymbols(self.ButtonSymbols.NoButtons)
-        self.label = Label(translate('LatLongDisplay', 'Lat, long'))
+        self.label = Label(translate(
+            'LatLongDisplay', 'Lat, long',
+            'Short abbreviation of "Latitude, longitude"'))
         self.setFixedWidth(width_for_text(self, '8' * 22))
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'

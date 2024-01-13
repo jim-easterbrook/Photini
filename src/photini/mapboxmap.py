@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ class MapboxGeocoder(GeocoderBase):
         del params['query']
         params['access_token'] = self.api_key
         params['autocomplete '] = 'false'
-        lang, encoding = locale.getdefaultlocale()
+        lang, encoding = locale.getlocale()
         if lang:
             params['language'] = lang
         query += '.json'
