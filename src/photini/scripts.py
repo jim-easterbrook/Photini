@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -24,8 +24,6 @@ import platform
 import site
 import subprocess
 import sys
-
-import pkg_resources
 
 from photini.configstore import BaseConfigStore
 try:
@@ -139,14 +137,12 @@ def post_install(argv=None):
     options, args = parser.parse_args()
     exec_path = os.path.abspath(
         os.path.join(os.path.dirname(sys.argv[0]), 'photini'))
-    icon_path = pkg_resources.resource_filename('photini', 'data/icons')
+    pkg_data = os.path.join(os.path.dirname(__file__), 'data')
     if sys.platform == 'win32':
         exec_path += '.exe'
-        icon_path = os.path.join(icon_path, 'photini_win.ico')
-        cmd = ['cscript', '/nologo',
-               pkg_resources.resource_filename(
-                   'photini', 'data/windows/install_shortcuts.vbs'),
-               exec_path, icon_path, sys.prefix]
+        icon_path = os.path.join(pkg_data, 'icons', 'photini_win.ico')
+        script = os.path.join(pkg_data, 'windows', 'install_shortcuts.vbs')
+        cmd = ['cscript', '/nologo', script, exec_path, icon_path, sys.prefix]
         if options.remove:
             cmd.append('/remove')
         return subprocess.call(cmd)
@@ -167,7 +163,7 @@ def post_install(argv=None):
                     return 0
             print('No "desktop" file found.')
             return 1
-        icon_path = os.path.join(icon_path, 'photini_48.png')
+        icon_path = os.path.join(pkg_data, 'icons', 'photini_48.png')
         cmd = ['desktop-file-install']
         if os.geteuid() != 0:
             # not running as root
@@ -176,11 +172,11 @@ def post_install(argv=None):
         cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
         # add translations
         if QtCore:
-            lang_dir = pkg_resources.resource_filename('photini', 'data/lang')
+            lang_dir = os.path.join(pkg_data, 'lang')
             translator = QtCore.QTranslator()
-            for name in sorted(os.listdir(lang_dir)):
+            for name in os.listdir(lang_dir):
                 lang = name.split('.')[1]
-                if not translator.load('photini.' + lang, lang_dir):
+                if not translator.load(os.path.join(lang_dir, name)):
                     print('load failed:', lang)
                     continue
                 text = translator.translate(
@@ -194,8 +190,7 @@ def post_install(argv=None):
                 if text:
                     cmd += ['--set-key=Comment[{}]'.format(lang),
                             '--set-value={}'.format(text.strip())]
-        cmd.append(pkg_resources.resource_filename(
-            'photini', 'data/linux/photini.desktop'))
+        cmd.append(os.path.join(pkg_data, 'linux', 'photini.desktop'))
         print(' \\\n  '.join(cmd))
         return subprocess.call(cmd)
     return 0
