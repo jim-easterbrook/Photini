@@ -892,7 +892,7 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation>Breite, Länge</translation>
+        <translation type="vanished">Breite, Länge</translation>
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a comma.</source>
@@ -901,6 +901,11 @@
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lat, long</source>
+        <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
+        <translation>Breite, Länge</translation>
     </message>
 </context>
 <context>
