@@ -41,7 +41,7 @@ Edit translation locally::
 
    git checkout main                        # switch to main branch
    git pull                                 # fetch new content
-   python3 utils/lang_update.py -l xx       # update from source, with line numbers
+   python3 utils/lang_update.py -q -l xx    # update from source, with line numbers and suitable for Qt Linguist
    pyside6-linguist src/lang/xx/photini.ts  # edit translation of language xx
    python3 utils/lang_update.py -s -l xx    # remove line numbers
    git push                                 # push updated translation to GitHub
@@ -51,7 +51,7 @@ Before a new release of Photini::
 
    git checkout main                    # switch to main branch
    git pull                             # fetch new content
-   python3 utils/lang_update.py         # update from source
+   python3 utils/lang_update.py -q      # update from source, suitable for Qt Linguist
    python3 utils/build_lang.py          # "compile" language files
 
 Plurals
@@ -59,5 +59,4 @@ Plurals
 
 Qt Linguist and Transifex have different ideas about how many plural forms some languages have.
 For example, Transifex expects French to have three plurals ``1``, ``many``, and ``other``, but Qt Linguist expects two ``singular`` and ``plural``.
-Transifex provides languages such as ``Italian (QT FILETYPE)`` that use Qt's plural definitions.
-Weblate just considers the missing plural forms to be an error that can be ignored.
+The -q option to lang_update.py strips extra plurals to make the file suitable for Qt's tools. Without the -q option extra plurals "unused" are inserted to suit Weblate and Transifex.
