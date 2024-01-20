@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2023  Jim Easterbrook.
+   Copyright (C)  2023-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Image regions
@@ -20,12 +20,14 @@ On the left are one or more tabs showing metadata for each image region.
 
 .. image:: ../images/screenshot_272.png
 
-To create a new region, right-click on the region info tab bar and select the region shape.
-This same context menu can also be used to delete regions.
+.. |plus| unicode:: U+002b
+
+To create a new region, click on the |plus| button and select a region shape.
+(To delete a region, right-click on its tab and select ``Delete region``.)
 
 .. image:: ../images/screenshot_273.png
 
-The new region is initially placed at the centre of the image.
+The new region (a rectangle in this example) is initially placed at the centre of the image.
 
 .. image:: ../images/screenshot_274.png
 
@@ -34,13 +36,13 @@ The entire region can be dragged by clicking within it.
 
 .. image:: ../images/screenshot_275.png
 
-The most important metadata for a region is probably its "role".
-This is chosen from a "`controlled vocabulary`_" defined by the IPTC.
+The most important metadata for a region is probably its "role_".
+This is chosen from a "controlled vocabulary" defined by the IPTC.
 Photini shows the IPTC names and definitions (as "tooltips") in a drop down menu when you click on the ``Role`` entry.
 You can select one or more roles from the list.
 
 Other, less useful, metadata includes a name and identifier for the region.
-The ``Content type`` is another controlled vocabulary that allows you to say what's special about the selected area.
+The `content type`_ is another controlled vocabulary that allows you to say what's special about the selected area.
 The most useful of these is probably ``human``.
 
 .. image:: ../images/screenshot_276.png
@@ -71,7 +73,9 @@ Vertices can be added to make shapes of arbitrary complexity.
 Is this useful for anything?
 
 
-.. _controlled vocabulary:
-    https://cv.iptc.org/newscodes/imageregionrole/
+.. _content type:
+    https://cv.iptc.org/newscodes/imageregiontype/
 .. _IPTC User Guide:
     https://www.iptc.org/std/photometadata/documentation/userguide/#_image_regions
+.. _role:
+    https://cv.iptc.org/newscodes/imageregionrole/
