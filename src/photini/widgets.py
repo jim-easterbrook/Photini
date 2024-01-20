@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -564,6 +564,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.customContextMenuRequested.connect(self._context_menu)
         layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
+        self.set_value('')
         # adopt some child methods ...
         self.is_multiple = self.edit.is_multiple
         self.set_height = self.edit.set_height
