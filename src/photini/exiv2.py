@@ -417,7 +417,10 @@ class MetadataHandler(object):
                    'Exif.Sony1.LensID', 'Exif.Sony1.SonyModelID',
                    'Exif.Sony2.LensID', 'Exif.Sony2.SonyModelID'):
             # use Exiv2's "interpreted string"
-            return datum._print(self._exifData)
+            if exiv2.__version_tuple__ >= (0, 16, 2):
+                return datum.print(self._exifData)
+            else:
+                return datum._print(self._exifData)
         value = datum.value()
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
