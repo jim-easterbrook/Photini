@@ -897,7 +897,8 @@ class MD_LangAlt(MD_Value, dict):
         if len(keys) == 1:
             return keys[0]
         if cls.DEFAULT not in keys:
-            return cls.DEFAULT
+            # arbitrarily choose first language
+            return keys[0]
         # look for language with same text as 'x-default' value
         text = value[cls.DEFAULT]
         for k, v in value.items():
