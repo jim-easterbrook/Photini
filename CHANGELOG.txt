@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2024.2.1:
+  1/ Fix bug in LangAlt values without a default language.
+  2/ Possibly fix NSRangeException on MacOS ARM computers.
+  3/ Ignore '_normalized_city' address component.
+
 Changes in v2024.2.0:
   1/ Improved lens model recognition.
   2/ Fix hangup in Bing map.
