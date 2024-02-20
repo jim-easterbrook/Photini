@@ -1,9 +1,9 @@
-sphinx==4.5.0
-sphinx-rtd-theme==0.5.2
-sphinx-tabs==3.2.0
-sphinxcontrib-applehelp==1.0.0
-sphinxcontrib-devhelp==1.0.0
-sphinxcontrib-htmlhelp==2.0.0
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+sphinx-tabs==3.4.5
+sphinxcontrib-applehelp==1.0.8
+sphinxcontrib-devhelp==1.0.6
+sphinxcontrib-htmlhelp==2.0.5
 sphinxcontrib-jsmath==1.0.1
-sphinxcontrib-qthelp==1.0.0
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-qthelp==1.0.7
+sphinxcontrib-serializinghtml==1.1.10
