@@ -92,7 +92,7 @@ class OpenCage(GeocoderBase):
             'locality', 'hamlet', 'croft'),
         'ignore': (
             'ISO_3166-2', 'political_union', 'road_reference',
-            'road_reference_intl', 'road_type', '_category', '_type'),
+            'road_reference_intl', 'road_type'),
         }
 
     def get_address(self, coords):
@@ -105,7 +105,10 @@ class OpenCage(GeocoderBase):
             return None
         address = dict(results[0]['components'])
         formatted = results[0]['formatted']
-        for key in address.keys():
+        for key in list(address.keys()):
+            if key.startswith('_'):
+                del address[key]
+                continue
             if isinstance(address[key], list):
                 try:
                     address[key] = '; '.join(address[key])

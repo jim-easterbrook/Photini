@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -897,7 +897,8 @@ class MD_LangAlt(MD_Value, dict):
         if len(keys) == 1:
             return keys[0]
         if cls.DEFAULT not in keys:
-            return cls.DEFAULT
+            # arbitrarily choose first language
+            return keys[0]
         # look for language with same text as 'x-default' value
         text = value[cls.DEFAULT]
         for k, v in value.items():
@@ -1378,7 +1379,10 @@ class MD_Coordinate(MD_Rational):
         return abs(float(other) - float(this)) < 0.0000005
 
     def compact_form(self):
-        return round(float(self), 6)
+        return float(self)
+
+    def __float__(self):
+        return round(super(MD_Coordinate, self).__float__(), 6)
 
     def __str__(self):
         return '{:.6f}'.format(float(self))
