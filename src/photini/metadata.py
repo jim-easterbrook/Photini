@@ -828,6 +828,8 @@ class Metadata(object):
             resolution[tag] = resolution[key]
         resolution['x'] = safe_fraction(resolution['FocalPlaneXResolution'])
         resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
+        if not (resolution['x'] and resolution['y']):
+            return None
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # find largest image dimensions
         w = image_size['width'] / resolution['x']
