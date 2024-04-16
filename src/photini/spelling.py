@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -27,7 +27,8 @@ except ImportError as ex:
     enchant = None
     print(str(ex))
 
-from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
+from photini.pyqt import (
+    catch_all, QtCore, QtSignal, QtSlot, QtWidgets, qt_version_info)
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,10 @@ class SpellCheck(QtCore.QObject):
                 locale = QtCore.QLocale(code)
                 language = locale.languageToString(locale.language())
                 if '_' in code and '_ANY' not in code:
-                    country = locale.countryToString(locale.country())
+                    if qt_version_info < (6, 2):
+                        country = locale.countryToString(locale.country())
+                    else:
+                        country = locale.territoryToString(locale.territory())
                 else:
                     country = ''
                 result[language].append((country, code))

@@ -93,8 +93,7 @@ def configure(argv=None):
                ('pixelfed', 'photini.pixelfed',
                 'upload pictures to Pixelfed or Mastodon'),
                ('spelling', None, 'check spelling of metadata'),
-               ('gpxpy', None, 'import GPS track data'),
-               ('Pillow', None, 'make higher quality thumbnails')]
+               ('gpxpy', None, 'import GPS track data')]
     if sys.platform != 'win32':
         options.append(
             ('importer', 'photini.importer', 'import pictures from a camera'))

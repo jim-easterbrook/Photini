@@ -101,7 +101,10 @@ class TabWidget(PhotiniMap):
         return GoogleGeocoder(parent=self)
 
     def get_head(self):
-        url = 'http://maps.googleapis.com/maps/api/js?callback=initialize'
+        url = ('http://maps.googleapis.com/maps/api/js'
+               '?callback=initialize'
+               '&loading=async'
+               '&libraries=marker')
         if self.app.options.test:
             url += '&v=beta'
         url += '&key=' + self.api_key

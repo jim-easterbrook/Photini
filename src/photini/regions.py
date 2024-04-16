@@ -23,7 +23,7 @@ import re
 
 from photini.cv import image_region_types, image_region_roles
 from photini.pyqt import *
-from photini.pyqt import set_symbol_font
+from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import ImageRegionItem, MD_LangAlt
 from photini.widgets import LangAltWidget, MultiStringEdit, SingleLineEdit
 
@@ -404,7 +404,10 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             # try image previews
             for data in image.metadata.get_previews():
                 buf = QtCore.QBuffer()
-                buf.setData(bytes(data))
+                # PySide insists on bytes, can't use buffer interface
+                if using_pyside:
+                    data = bytes(data)
+                buf.setData(data)
                 reader = QtGui.QImageReader(buf)
                 reader.setAutoTransform(False)
                 preview = QtGui.QPixmap.fromImageReader(reader)

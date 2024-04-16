@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2012-23, Jim Easterbrook
+# Copyright (C) 2012-24, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2023.10.0.post83\n"
+"Project-Id-Version: Photini 2024.2.1.post12\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 11:22+0000\n"
+"POT-Creation-Date: 2024-04-16 15:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -832,7 +832,7 @@ msgstr ""
 msgid "Mastodon uses \"`focal points`_\" when cropping images. If you define a cropping region in Photini's :doc:`regions` tab, the centre of that region will be used as the focal point. Ipernity currently ignores the focal point parameter."
 msgstr ""
 
-msgid "Pixelfed instances have maximum allowed image sizes, both pixel count and bytes in the file. If your image is too large, and is in a format Photini can process, Photini will offer to resize it for you. For best picture quality Photini will use Pillow_ if it is installed."
+msgid "Pixelfed instances have maximum allowed image sizes, both pixel count and bytes in the file. If your image is too large, and is in a format Photini can process, Photini will offer to resize it for you. For best picture quality Photini uses Pillow_ to resize images."
 msgstr ""
 
 msgid "Image regions"
@@ -1741,6 +1741,18 @@ msgstr ""
 msgid "``python3-appdirs``"
 msgstr ""
 
+msgid "Pillow_"
+msgstr ""
+
+msgid "2.0"
+msgstr ""
+
+msgid "``python3-Pillow``"
+msgstr ""
+
+msgid "pillow"
+msgstr ""
+
 msgid "requests_"
 msgstr ""
 
@@ -1798,7 +1810,7 @@ msgstr ""
 msgid "Thumbnail creation[2]"
 msgstr ""
 
-msgid "FFmpeg_, Pillow_ 2.0+"
+msgid "FFmpeg_"
 msgstr ""
 
 msgid "Import photos from camera[3]"
@@ -1816,7 +1828,7 @@ msgstr ""
 msgid "[1] Pyenchant requires a C library and dictionaries to be installed. See the `pyenchant documentation`_ for detailed instructions."
 msgstr ""
 
-msgid "[2] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow. FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats."
+msgid "[2] FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats."
 msgstr ""
 
 msgid "[3]Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera if python-gphoto2 is installed."
@@ -1973,6 +1985,9 @@ msgid "Getting help"
 msgstr ""
 
 msgid "If you encounter any problems installing or running Photini, please email jim@jim-easterbrook.me.uk and I'll respond as soon as I can. There is also an email list or forum for discussions about Photini at https://groups.google.com/forum/#!forum/photini. If you discover a bug and have a GitHub account then please file a bug report on the GitHub `\"issues\" page`_."
+msgstr ""
+
+msgid "If you find a problem with a particular image file then it would be useful for me to have a copy of its metadata. You can use the exiv2_ command line program to extract the raw metadata so you don't need to send me the entire image file. For example, the command ``exiv2 ex problem_file.jpg`` can reduce a 3 MByte image file to a 20 kByte file called ``problem_file.exv``. I promise not to publish or redistribute any file you send me."
 msgstr ""
 
 msgid "Localisation"
