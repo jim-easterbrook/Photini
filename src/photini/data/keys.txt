@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2015-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2015-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -29,16 +29,16 @@ client_id = OTkxMTQ2MzkyMzc1LWdyOXRjcTc1NWZvbXRqNGUxazQ5NzNmM2FjbWlvN29tLmFwcHMu
 client_secret = dnkwV3UtYWVmMmlYeTJXZ2lVaUZDOFlB
 
 [googlemap]
-api_key = QUl6YVN5RFlfLW5OWnVTOWlYaF81cFJmd2s0QnhRQnZQbU1xUGVB
+api_key = QUl6YVN5Q0NCQkVBenhmS0pwSjJGaTNwNFZ0TzA0OS14S0FkeGk4
 
 [bingmap]
-api_key = QXJrdkh0eHhrU29kVnRndzdiV2ZlYUh0ZXVUNzZObHRpZ2d6cS1Ba3RiQm04b0prLWxxTE9sZTZMQUJlY09YXw==
+api_key = QXFMRjRjcDc3N3IzZVVPNFFQT28zWU9mMV9Ta2hHWEV5ajdlWmZBOEtBclBlaEJLZFlJNHlWQWR5cC1pTXV1bg==
 
 [opencage]
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=
 
 [mapboxmap]
-api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc2JHOTFabTFwT1RBd2VEQXpabkEwT1hweGNIazBlVEVpZlEuSWxhZTdQWnVaQ2E2OG5TTjBUTHdRdw==
+api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc2RUbHJlV001TmpCaVl6SXliWEZyT1RkdVpXcDBiSG9pZlEuWXgxc1RtVmtKWHlDTzlONkZzc2pCdw==
 
 [pixelfed pixelfed.de]
 client_id = NDIyNjQ=

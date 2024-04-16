@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-23  Jim Easterbrook.
+   Copyright (C)  2012-24  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 .. |nbsp| unicode:: 0xA0
@@ -803,6 +803,7 @@ QtWebEngine_ [2]                                  ``python3-pyside2.qtwebengine`
                                                   or ``python310-PyQt6-WebEngine``
 `python-exiv2`_                0.14.0                                               exiv2
 appdirs                        1.3                ``python3-appdirs``               appdirs
+Pillow_                        2.0                ``python3-Pillow``                pillow
 requests_                      2.4                ``python3-requests``              requests
 =============================  =================  ================================  =================
 
@@ -831,7 +832,7 @@ Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.
 Ipernity upload               `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Pixelfed upload               `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
-Thumbnail creation[2]         FFmpeg_, Pillow_ 2.0+
+Thumbnail creation[2]         FFmpeg_
 Import photos from camera[3]  `python3-gphoto2`_ 1.8+
 Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
@@ -839,8 +840,7 @@ Import GPS logger file        gpxpy_ 1.3.5+
 [1] Pyenchant requires a C library and dictionaries to be installed.
 See the `pyenchant documentation`_ for detailed instructions.
 
-[2] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
-FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats.
+[2] FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats.
 
 [3]Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera if python-gphoto2 is installed.
 

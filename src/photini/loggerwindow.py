@@ -37,12 +37,14 @@ def full_version_info():
     version += '\n  Python ' + sys.version
     version += '\n  ' + exiv2_version
     version += '\n  ' + qt_version
-    version += ', locale ' + QtCore.QLocale.system().bcp47Name()
+    version += '\n  system locale ' + QtCore.QLocale.system().bcp47Name()
+    version += ', locales: ' + ' '.join(
+        QtCore.QLocale.system().uiLanguages())
     if spelling_version:
         version += '\n  ' + spelling_version
     if ffmpeg_version:
         version += '\n  ' + ffmpeg_version
-    version += '\n  available styles: {}'.format(
+    version += '\n  styles: {}'.format(
         ', '.join(QtWidgets.QStyleFactory.keys()))
     version += '\n  using style: {}'.format(
         QtWidgets.QApplication.style().objectName())

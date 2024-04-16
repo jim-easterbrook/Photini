@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -22,10 +22,7 @@ import logging
 import os
 import time
 
-try:
-    import PIL.Image as PIL
-except ImportError:
-    PIL = None
+import PIL.Image as PIL
 
 from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
@@ -98,7 +95,7 @@ class Image(QtWidgets.QFrame):
         # ratios are padded with black
         # try using PIL first, good quality and quick
         qt_im = self.get_qt_image()
-        if qt_im and PIL:
+        if qt_im:
             data = self.make_thumb_PIL(qt_im)
             if data:
                 self.metadata.thumbnail = {'data': data}

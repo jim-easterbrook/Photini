@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -28,16 +28,14 @@ import time
 import urllib
 
 import keyring
-try:
-    import PIL.Image as PIL
-except ImportError:
-    PIL = None
+import PIL.Image as PIL
 import requests
 
 from photini import __version__
 from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import *
+from photini.pyqt import using_pyside
 from photini.widgets import Label, StartStopButton
 
 logger = logging.getLogger(__name__)
@@ -573,22 +571,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         if dst['image']:
             return dst
         exiv_io = dst['data'].io()
-        if PIL:
-            # use Pillow for good quality
-            dst['image'] = PIL.open(io.BytesIO(exiv_io))
-            dst['width'], dst['height'] = dst['image'].size
-        else:
-            # use Qt, lower quality but available
-            buf = QtCore.QBuffer()
-            buf.setData(exiv_io)
-            reader = QtGui.QImageReader(buf)
-            reader.setAutoTransform(False)
-            im = reader.read()
-            if im.isNull():
-                raise RuntimeError(reader.errorString())
-            dst['image'] = im
-            dst['width'] = dst['image'].width()
-            dst['height'] = dst['image'].height()
+        dst['image'] = PIL.open(io.BytesIO(exiv_io))
+        dst['width'], dst['height'] = dst['image'].size
         return dst
 
     def image_to_data(self, src, mime_type=None, max_size=None):
@@ -612,18 +596,9 @@ class PhotiniUploader(QtWidgets.QWidget):
             else:
                 options = [{}]
             for option in options:
-                if PIL:
-                    dest_buf = io.BytesIO()
-                    dst['image'].save(dest_buf, format=fmt, **option)
-                    data = dest_buf.getbuffer()
-                else:
-                    dest_buf = QtCore.QBuffer()
-                    dest_buf.open(dest_buf.OpenModeFlag.WriteOnly)
-                    writer = QtGui.QImageWriter(dest_buf, fmt.encode('ascii'))
-                    writer.setQuality(option['quality'])
-                    if not writer.write(dst['image']):
-                        raise RuntimeError(writer.errorString())
-                    data = dest_buf.data().data()
+                dest_buf = io.BytesIO()
+                dst['image'].save(dest_buf, format=fmt, **option)
+                data = dest_buf.getbuffer()
                 dst['data'] = src['metadata'].clone(data)
                 dst['mime_type'] = dst_mime_type
                 if not (max_size and dst['data'].io().size() > max_size):
@@ -634,16 +609,8 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def resize_image(self, src, w, h):
         dst = self.data_to_image(src)
-        if PIL:
-            dst['image'] = dst['image'].resize(
-                (w, h), resample=PIL.BICUBIC)
-            dst['width'], dst['height'] = dst['image'].size
-        else:
-            dst['image'] = dst['image'].scaled(
-                w, h, Qt.AspectRatioMode.IgnoreAspectRatio,
-                Qt.TransformationMode.SmoothTransformation)
-            dst['width'] = dst['image'].width()
-            dst['height'] = dst['image'].height()
+        dst['image'] = dst['image'].resize((w, h), resample=PIL.BICUBIC)
+        dst['width'], dst['height'] = dst['image'].size
         dst['data'] = None
         dst['mime_type'] = 'image/jpeg'
         return dst
