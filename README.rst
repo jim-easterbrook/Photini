@@ -75,6 +75,11 @@ If you encounter any problems installing or running Photini, please email jim@ji
 There is also an email list or forum for discussions about Photini at https://groups.google.com/forum/#!forum/photini.
 If you discover a bug and have a GitHub account then please file a bug report on the GitHub `"issues" page`_.
 
+If you find a problem with a particular image file then it would be useful for me to have a copy of its metadata.
+You can use the exiv2_ command line program to extract the raw metadata so you don't need to send me the entire image file.
+For example, the command ``exiv2 ex problem_file.jpg`` can reduce a 3 MByte image file to a 20 kByte file called ``problem_file.exv``.
+I promise not to publish or redistribute any file you send me.
+
 Localisation
 ------------
 
@@ -146,6 +151,7 @@ A copy of the license is included in the documentation section entitled "GNU Fre
 
 .. _blog post:
       https://www.jim-easterbrook.me.uk/2012/10/photini-whats-in-a-name/
+.. _exiv2:         https://exiv2.org/manpage.html
 .. _Flickr:        http://www.flickr.com/
 .. _Google Photos: https://photos.google.com/
 .. _Google Maps Terms of Use:
