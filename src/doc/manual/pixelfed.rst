@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2023  Jim Easterbrook.
+   Copyright (C)  2023-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Pixelfed uploader
@@ -75,7 +75,7 @@ This is not available on Mastodon instances, and your updated alt text might not
 
 Pixelfed instances have maximum allowed image sizes, both pixel count and bytes in the file.
 If your image is too large, and is in a format Photini can process, Photini will offer to resize it for you.
-For best picture quality Photini will use Pillow_ if it is installed.
+For best picture quality Photini uses Pillow_ to resize images.
 
 
 .. _focal points:
