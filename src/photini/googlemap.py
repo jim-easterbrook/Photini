@@ -18,6 +18,7 @@
 
 import locale
 import logging
+import re
 
 import requests
 
@@ -101,10 +102,21 @@ class TabWidget(PhotiniMap):
         return GoogleGeocoder(parent=self)
 
     def get_head(self):
+        user_agent = self.widgets['map'].page().profile().httpUserAgent()
+        match = re.search(r'\sChrome/(\d+)\.', user_agent)
+        if match:
+            chrome_version = int(match.group(1))
+        else:
+            chrome_version = 0
         url = ('http://maps.googleapis.com/maps/api/js'
                '?callback=initialize'
-               '&loading=async'
-               '&libraries=marker')
+               '&loading=async')
+        # AdvancedMarkerElement requires Chrome v86+
+        if chrome_version >= 86:
+            url += '&libraries=marker'
+            script = 'googlemap.js'
+        else:
+            script = 'googlemap_legacy.js'
         if self.app.options.test:
             url += '&v=beta'
         url += '&key=' + self.api_key
@@ -117,4 +129,4 @@ class TabWidget(PhotiniMap):
         return '''    <script type="text/javascript"
       src="{}" async>
     </script>
-    <script type="text/javascript" src="googlemap.js"></script>'''.format(url)
+    <script type="text/javascript" src="{}"></script>'''.format(url, script)
