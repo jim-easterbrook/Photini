@@ -96,30 +96,25 @@ function fitPoints(points)
         map.panTo(bounds.getCenter());
 }
 
-function newGPSCircle(active)
-{
-    var result = document.createElement("img");
-    result.src = active ? 'circle_red.png' : 'circle_blue.png';
-    result.style.transform = 'translate(0.5px,8.5px)';
-    return result;
-}
-
 function plotGPS(points)
 {
     for (var i = 0; i < points.length; i++)
     {
         var latlng = new google.maps.LatLng(points[i][0], points[i][1]);
         var id = points[i][2];
+        var circle = document.createElement("img");
+        circle.src = 'circle_blue.png';
+        circle.style.transform = 'translate(0.5px,8.5px)';
         gpsMarkers[id] = new google.maps.marker.AdvancedMarkerElement({
-            map: map, position: latlng,
-            content: newGPSCircle(false), zIndex: 2});
+            map: map, position: latlng, content: circle, zIndex: 2});
     }
 }
 
 function enableGPS(ids)
 {
     for (var id in gpsMarkers)
-        gpsMarkers[id].content = newGPSCircle(ids.includes(id));
+        gpsMarkers[id].content.src =
+            ids.includes(id) ? 'circle_red.png' : 'circle_blue.png';
         gpsMarkers[id].zIndex = ids.includes(id) ? 3 : 2;
 }
 
@@ -130,25 +125,20 @@ function clearGPS()
     gpsMarkers = {};
 }
 
-function newIcon(active)
-{
-    var result = document.createElement("img");
-    result.src = active ? 'pin_red.png' : 'pin_grey.png';
-    result.style.transform = 'translate(1.5px,3px)';
-    return result;
-}
-
 function enableMarker(id, active)
 {
     var marker = markers[id];
-    marker.content = newIcon(active);
+    marker.content.src = active ? 'pin_red.png' : 'pin_grey.png';
     marker.zIndex = active ? 1 : 0;
 }
 
 function addMarker(id, lat, lng, active)
 {
+    var icon = document.createElement("img");
+    icon.src = 'pin_grey.png';
+    icon.style.transform = 'translate(1.5px,3px)';
     var marker = new google.maps.marker.AdvancedMarkerElement({
-        content: newIcon(false),
+        content: icon,
         position: new google.maps.LatLng(lat, lng),
         map: map,
         gmpDraggable: true,
