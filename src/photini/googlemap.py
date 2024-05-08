@@ -116,4 +116,5 @@ class TabWidget(PhotiniMap):
                 url += '&region=' + region
         return '''    <script type="text/javascript"
       src="{}" async>
-    </script>'''.format(url)
+    </script>
+    <script type="text/javascript" src="googlemap.js"></script>'''.format(url)

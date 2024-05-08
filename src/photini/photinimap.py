@@ -301,7 +301,6 @@ class PhotiniMap(QtWidgets.QWidget):
     </style>
 {initialize}
 {head}
-    <script type="text/javascript" src="{script}.js"></script>
   </head>
   <body ondragstart="return false">
     <div id="mapDiv"></div>
@@ -326,7 +325,6 @@ class PhotiniMap(QtWidgets.QWidget):
     </script>'''
         page = page.format(
             head = self.get_head(),
-            script = self.__module__.split('.')[-1],
             initialize = initialize.format(lat=lat, lng=lng, zoom=zoom))
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
