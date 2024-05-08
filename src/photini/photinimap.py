@@ -127,6 +127,7 @@ class MapWebPage(QWebEnginePage):
             self.web_channel.registerObject('python', self.call_handler)
         self.profile().setCachePath(
             os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
+        logger.debug('user agent: %s', self.profile().httpUserAgent())
 
     @catch_all
     def acceptNavigationRequest(self, url, type_, isMainFrame):
