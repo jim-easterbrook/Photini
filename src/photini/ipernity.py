@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -40,8 +40,8 @@ translate = QtCore.QCoreApplication.translate
 # requests: https://docs.python-requests.org/
 
 class IpernitySession(UploaderSession):
-    api_url = 'http://api.ipernity.com/api/'
-    auth_url = 'http://www.ipernity.com/apps/authorize'
+    api_url = 'https://api.ipernity.com/api/'
+    auth_url = 'https://www.ipernity.com/apps/authorize'
 
     def sign_request(self, method, params):
         params = dict(params)
