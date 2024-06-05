@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2021-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2021-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -349,10 +349,10 @@ class TabWidget(QtWidgets.QWidget):
         template = {}
         for image in self.app.image_list.get_selected_images():
             date_taken = image.metadata.date_taken
-            if date_taken is None:
-                date_taken = datetime.now()
-            else:
+            if date_taken:
                 date_taken = date_taken['datetime']
+            else:
+                date_taken = datetime.now()
             year = str(date_taken.year)
             for key in self.widgets:
                 value = self._get_value(image, key)
