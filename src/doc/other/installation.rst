@@ -764,8 +764,11 @@ If you installed Photini in a virtual environment then you need to activate the 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
+        jim@mint:~$ source photini/bin/activate
         (photini) jim@mint:~$ pip3 install -U photini
     .. code-tab:: none Windows
+
+        C:\Users\Jim>photini\Scripts\activate.bat
 
         (photini) C:\Users\Jim>pip install -U photini
 
