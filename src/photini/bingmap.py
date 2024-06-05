@@ -122,7 +122,8 @@ class TabWidget(PhotiniMap):
             url += '&branch=experimental'
         return '''    <script type="text/javascript"
       src="{}" async>
-    </script>'''.format(url)
+    </script>
+    <script type="text/javascript" src="bingmap.js"></script>'''.format(url)
 
     @catch_all
     def new_status(self, status):

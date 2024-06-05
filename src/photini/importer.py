@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -166,6 +166,7 @@ class CameraSource(object):
                     'camera'    : self.model,
                     'folder'    : folder,
                     'name'      : name,
+                    'size'      : info.file.size,
                     'timestamp' : timestamp,
                     }
         return file_data
@@ -176,9 +177,19 @@ class CameraSource(object):
                 dest_dir = os.path.dirname(info['dest_path'])
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
-                camera_file = camera.file_get(
-                    info['folder'], info['name'], gp.GP_FILE_TYPE_NORMAL)
-                camera_file.save(info['dest_path'])
+                buf = bytearray(min(info['size'], 32 * 1024 * 1024))
+                try:
+                    with open(info['dest_path'], 'wb') as of:
+                        offset = 0
+                        while offset < info['size']:
+                            count = camera.file_read(
+                                info['folder'], info['name'],
+                                gp.GP_FILE_TYPE_NORMAL, offset, buf)
+                            of.write(buf[:count])
+                            offset += count
+                except Exception:
+                    os.unlink(info['dest_path'])
+                    raise
                 if move:
                     camera.file_delete(info['folder'], info['name'])
                 yield info

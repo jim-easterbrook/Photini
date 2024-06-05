@@ -127,6 +127,7 @@ class MapWebPage(QWebEnginePage):
             self.web_channel.registerObject('python', self.call_handler)
         self.profile().setCachePath(
             os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
+        logger.debug('user agent: %s', self.profile().httpUserAgent())
 
     @catch_all
     def acceptNavigationRequest(self, url, type_, isMainFrame):
@@ -300,7 +301,6 @@ class PhotiniMap(QtWidgets.QWidget):
     </style>
 {initialize}
 {head}
-    <script type="text/javascript" src="{script}.js"></script>
   </head>
   <body ondragstart="return false">
     <div id="mapDiv"></div>
@@ -325,7 +325,6 @@ class PhotiniMap(QtWidgets.QWidget):
     </script>'''
         page = page.format(
             head = self.get_head(),
-            script = self.__module__.split('.')[-1],
             initialize = initialize.format(lat=lat, lng=lng, zoom=zoom))
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
