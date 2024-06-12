@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -99,7 +99,8 @@ def extract_program_strings(root):
         language = os.path.basename(os.path.dirname(path))
         if language not in numerus_count:
             continue
-        tree = ET.parse(path)
+        with open(path, 'rb') as f:
+            tree = ET.parse(f)
         xml = tree.getroot()
         for context in xml.iter('context'):
             for message in context.iter('message'):
@@ -110,8 +111,21 @@ def extract_program_strings(root):
                     if missing > 0:
                         for i in range(missing):
                             translation.append(unused)
-        tree.write(path, encoding='utf-8',
-                   xml_declaration=True, short_empty_elements=False)
+        with open(path, 'wb') as f:
+            f.write(b'<?xml version="1.0" encoding="utf-8"?>\n'
+                    b'<!DOCTYPE TS>\n')
+            lines = ET.tostring(
+                xml, encoding='unicode', short_empty_elements=False).splitlines()
+            for line in lines:
+                match = re.search('(\s*<.*?>)(.*?)(</.*?)$', line)
+                if match:
+                    parts = list(match.groups())
+                    parts[1] = parts[1].replace("'", '&apos;')
+                    parts[1] = parts[1].replace('"', '&quot;')
+                    parts[1] = parts[1].replace('\xa0', '&#xa0;')
+                    parts[1] = parts[1].replace('\u202f', '&#x202f;')
+                    line = ''.join(parts)
+                f.write(line.encode('utf-8') + b'\n')
     return 0
 
 

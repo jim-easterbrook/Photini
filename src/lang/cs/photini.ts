@@ -1,4 +1,5 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
 <TS language="cs" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
@@ -7,7 +8,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with ";" characters.</source>
+        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -189,12 +190,12 @@
         <translation>Záhlaví</translation>
     </message>
     <message>
-        <source>Enter a "caption" describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation>Zadejte "text" popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation>Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
     </message>
     <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with ";" characters.</source>
-        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky ";".</translation>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
@@ -331,8 +332,8 @@
         <translation type="vanished">Příliš velký</translation>
     </message>
     <message>
-        <source>File "{0}" has {1} bytes and exceeds Flickr's limit of {2} bytes.</source>
-        <translation type="vanished">Soubor "{0}" má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -478,8 +479,8 @@
         <translation>Velký soubor</translation>
     </message>
     <message>
-        <source>File "{file_name}" is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Soubor "{file_name}" má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Soubor &quot;{file_name}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
     <message>
         <source>Album title</source>
@@ -494,8 +495,8 @@
         <translation>Velký soubor.</translation>
     </message>
     <message>
-        <source>File "{0}" is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="vanished">Soubor "{0}" má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
 </context>
 <context>
@@ -679,7 +680,7 @@
         <translation>Zastavit kopírování</translation>
     </message>
     <message>
-        <source>Remove "{source_name}"</source>
+        <source>Remove &quot;{source_name}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -814,8 +815,8 @@
         <translation type="vanished">Příliš velký</translation>
     </message>
     <message>
-        <source>File "{0}" has {1} bytes which exceeds Ipernity's limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="vanished">Soubor "{0}" má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
+        <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -870,7 +871,7 @@
     </message>
     <message>
         <source>Lang: </source>
-        <comment>Short abbreviation of "Language: "</comment>
+        <comment>Short abbreviation of &quot;Language: &quot;</comment>
         <translation>Jazyk: </translation>
     </message>
     <message>
@@ -898,7 +899,7 @@
     </message>
     <message>
         <source>Lat, long</source>
-        <comment>Short abbreviation of "Latitude, longitude"</comment>
+        <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
         <translation>Zeměpisná šířka, délka</translation>
     </message>
 </context>
@@ -936,7 +937,7 @@
     </message>
     <message>
         <source>Search and altitude lookup powered by Google</source>
-        <comment>Do not translate "powered by Google"</comment>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
         <translation>Hledání a výškové vyhledávání powered by Google</translation>
     </message>
 </context>
@@ -1026,8 +1027,8 @@
         <translation>Zavřít všechny soubory</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the "{}" button.</source>
-        <translation type="vanished">Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko "{}".</translation>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
+        <translation type="vanished">Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -1038,8 +1039,8 @@
         <translation>Podívat se po nejnovější verzi</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the "{details}" button.</source>
-        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko "{details}".</translation>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{details}&quot;.</translation>
     </message>
     <message>
         <source>Photini: version check</source>
@@ -1057,8 +1058,8 @@
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as "©2008 Jane Doe".</source>
-        <translation>Zadejte upozornění na současného vlastníka kopírovacích práv k tomuto obrázku, například "©2008 Jane Doe".</translation>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <translation>Zadejte upozornění na současného vlastníka kopírovacích práv k tomuto obrázku, například &quot;©2008 Jane Doe&quot;.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1125,7 +1126,7 @@
         <translation>Zadejte pracovní místo osoby uvedené v poli Tvůrce.</translation>
     </message>
     <message>
-        <source>Creator's Jobtitle</source>
+        <source>Creator&apos;s Jobtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1209,7 +1210,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open link to "{licence}"</source>
+        <source>Open link to &quot;{licence}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1447,7 +1448,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File "{file_name}" does not have any "alt text" for accessibility. Would you like to upload it anyway?</source>
+        <source>File &quot;{file_name}&quot; does not have any &quot;alt text&quot; for accessibility. Would you like to upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1522,7 +1523,7 @@
         <translation type="unfinished">Typ obsahu</translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with ";" characters.</source>
+        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1534,7 +1535,7 @@
         <translation type="unfinished">Popis</translation>
     </message>
     <message>
-        <source>Enter a "caption" describing the who, what, and why of what is happening in this region.</source>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1593,11 +1594,11 @@
         <translation>Název modelu</translation>
     </message>
     <message>
-        <source>Maker's name</source>
+        <source>Maker&apos;s name</source>
         <translation>Název výrobce</translation>
     </message>
     <message>
-        <source>Remove "{camera_or_lens}"</source>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1613,11 +1614,11 @@
         <translation>Datum a čas</translation>
     </message>
     <message>
-        <source>Link 'taken' and 'digitised'</source>
+        <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
         <translation>Odkaz vzat a digitalizován</translation>
     </message>
     <message>
-        <source>Link 'digitised' and 'modified'</source>
+        <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
         <translation>Odkaz digitalizován a změněn</translation>
     </message>
     <message>
@@ -1756,17 +1757,17 @@
     </message>
     <message>
         <source>h</source>
-        <comment>single letter abbreviation of "hours"</comment>
+        <comment>single letter abbreviation of &quot;hours&quot;</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>m</source>
-        <comment>single letter abbreviation of "minutes"</comment>
+        <comment>single letter abbreviation of &quot;minutes&quot;</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>s</source>
-        <comment>single letter abbreviation of "seconds"</comment>
+        <comment>single letter abbreviation of &quot;seconds&quot;</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1809,19 +1810,19 @@
         <translation>Nepřihlášen do {service}</translation>
     </message>
     <message>
-        <source>File "{file_name}" has {size} bytes and exceeds {service}'s limit of {max_size} bytes.</source>
-        <translation type="unfinished">Soubor "{file_name}" má {size} bytů a překračuje omezení {service} {max_size} bytů.</translation>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation type="unfinished">Soubor &quot;{file_name}&quot; má {size} bytů a překračuje omezení {service} {max_size} bytů.</translation>
     </message>
     <message>
-        <source>File "{file_name}" is of type "{file_type}", which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="obsolete">Soubor "{file_name}" je typu "{file_type}", se kterým {service} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="obsolete">Soubor &quot;{file_name}&quot; je typu &quot;{file_type}&quot;, se kterým {service} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Progress</source>
         <translation>Postup</translation>
     </message>
     <message>
-        <source>File "{file_name}" upload failed.</source>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1845,16 +1846,16 @@
         <translation type="vanished">Nepřihlášen do {}</translation>
     </message>
     <message>
-        <source>File "{0}" is of type "{1}", which {2} does not accept and Photini cannot convert.</source>
-        <translation type="vanished">Soubor "{0}" je typu "{1}", který {2} nepřijímá a Photini nedokáže převést.</translation>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
     </message>
     <message>
-        <source>File "{0}" is of type "{1}", which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Soubor "{0}" je typu "{1}", který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
-        <source>File "{0}" is of type "{1}", which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Soubor "{0}" je typu "{1}", se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1885,8 +1886,8 @@
         <translation>Soubor je příliš velký.</translation>
     </message>
     <message>
-        <source>File "{0}" has {1} bytes and exceeds {2}'s limit of {3} bytes.</source>
-        <translation type="vanished">Soubor "{0}" má {1} bytů a překračuje omezení {2} {3} bytů.</translation>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení {2} {3} bytů.</translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
@@ -1905,12 +1906,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File "{file_name}" has {size} pixels and exceeds {service}'s limit of {max_size} pixels.</source>
+        <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File "{file_name}" is of type "{file_type}", which {service} may not handle correctly.</source>
-        <translation type="unfinished">Soubor "{file_name}" je typu "{file_type}", se kterým {service} nezachází správně.</translation>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
+        <translation type="unfinished">Soubor &quot;{file_name}&quot; je typu &quot;{file_type}&quot;, se kterým {service} nezachází správně.</translation>
     </message>
     <message>
         <source>Would you like to convert it to JPEG?</source>

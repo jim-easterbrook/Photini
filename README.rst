@@ -100,7 +100,7 @@ Licence
 
 | Catalan translation by Joan Juvanteny
 | Czech translation by Pavel Fric
-| French translation by Nathan, J. Lavoie
+| French translation by Nathan, J. Lavoie, Thibault Chevrin
 | German translation by Jan Rimmek, J. Lavoie, Ettore Atalan
 | Italian translation by "albanobattistella"
 | Korean translation by Soohyeon Park
