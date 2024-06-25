@@ -53,7 +53,10 @@ class GeocoderBase(QtCore.QObject):
             try:
                 with open(self.cache_file, 'rb') as f:
                     self.query_cache = pickle.load(f)
-            except (AttributeError, FileNotFoundError):
+            except Exception as ex:
+                if not isinstance(ex, (AttributeError, FileNotFoundError,
+                                       ModuleNotFoundError)):
+                    logger.exception(ex)
                 self.query_cache = cachetools.TTLCache(
                     self.cache_size, self.cache_ttl)
             logger.debug('cache %s has %d entries',
