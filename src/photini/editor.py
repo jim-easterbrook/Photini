@@ -397,6 +397,7 @@ class MainWindow(QtWidgets.QMainWindow):
         default_modules = ['photini.descriptive',  'photini.ownership',
                            'photini.technical',    'photini.regions',
                            'photini.googlemap',    'photini.bingmap',
+                           'photini.azuremap',
                            'photini.mapboxmap',    'photini.address',
                            'photini.flickr',       'photini.ipernity',
                            'photini.googlephotos', 'photini.pixelfed',

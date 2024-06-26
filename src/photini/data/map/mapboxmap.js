@@ -30,7 +30,7 @@ var gpsRedCircle
 
 window.addEventListener('load', initialize);
 
-function loadMap(lat, lng, zoom)
+function loadMap(lat, lng, zoom, options)
 {
     var streets = L.mapbox.styleLayer(
         'mapbox://styles/mapbox/streets-v11', {tileSize: 512, zoomOffset: -1});
