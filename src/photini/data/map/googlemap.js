@@ -22,7 +22,7 @@ var map;
 var markers = {};
 var gpsMarkers = {};
 
-function loadMap(lat, lng, zoom)
+function loadMap(lat, lng, zoom, options)
 {
     var mapOptions = {
         center: new google.maps.LatLng(lat, lng),

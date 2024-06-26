@@ -287,6 +287,15 @@ class PhotiniMap(QtWidgets.QWidget):
         # add or remove markers
         self.redraw_markers()
 
+    def get_body(self):
+        return '''  <body ondragstart="return false">
+    <div id="mapDiv"></div>
+  </body>
+'''
+
+    def get_options(self):
+        return {}
+
     @QtSlot()
     @catch_all
     def initialise(self):
@@ -302,9 +311,7 @@ class PhotiniMap(QtWidgets.QWidget):
 {initialize}
 {head}
   </head>
-  <body ondragstart="return false">
-    <div id="mapDiv"></div>
-  </body>
+{body}
 </html>'''
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
         zoom = int(self.app.config_store.get('map', 'zoom', 11))
@@ -320,12 +327,14 @@ class PhotiniMap(QtWidgets.QWidget):
       function doLoadMap(channel)
       {{
           python = channel.objects.python;
-          loadMap({lat}, {lng}, {zoom});
+          loadMap({lat}, {lng}, {zoom}, {options});
       }}
     </script>'''
         page = page.format(
             head = self.get_head(),
-            initialize = initialize.format(lat=lat, lng=lng, zoom=zoom))
+            body = self.get_body(),
+            initialize = initialize.format(
+                lat=lat, lng=lng, zoom=zoom, options=self.get_options()))
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))

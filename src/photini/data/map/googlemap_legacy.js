@@ -28,7 +28,7 @@ var icon_off;
 var gpsBlueCircle;
 var gpsRedCircle;
 
-function loadMap(lat, lng, zoom)
+function loadMap(lat, lng, zoom, options)
 {
     var mapOptions = {
         center: new google.maps.LatLng(lat, lng),
