@@ -317,7 +317,7 @@ class PhotiniMap(QtWidgets.QWidget):
 {body}
 </html>'''
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
-        zoom = int(self.app.config_store.get('map', 'zoom', 11))
+        zoom = float(self.app.config_store.get('map', 'zoom', 11))
         initialize = '''    <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">
     </script>
@@ -362,8 +362,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if self.map_loaded < 2:
             return
         lat, lng = self.app.config_store.get('map', 'centre')
-        zoom = int(self.app.config_store.get('map', 'zoom'))
-        self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
+        zoom = float(self.app.config_store.get('map', 'zoom'))
+        self.JavaScript('setView({!r},{!r},{:f})'.format(lat, lng, zoom))
         self.new_selection(selection, adjust_map=False)
 
     def do_not_close(self):
