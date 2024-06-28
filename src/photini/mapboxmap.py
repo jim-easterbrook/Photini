@@ -110,11 +110,34 @@ class TabWidget(PhotiniMap):
         return MapboxGeocoder(parent=self)
 
     def get_head(self):
-        return '''    <link rel="stylesheet" href="{url}/mapbox.css" />
-    <script type="text/javascript" src="{url}/mapbox.js">
-    </script>
-    <script type="text/javascript">
-      L.mapbox.accessToken = "{key}";
-    </script>
-    <script type="text/javascript" src="mapboxmap.js"></script>'''.format(
-        key=self.api_key, url='https://api.mapbox.com/mapbox.js/v3.3.1')
+        url = 'https://api.mapbox.com/mapbox-gl-js/v3.4.0'
+        return """<script type="text/javascript">
+var exports = {{}};
+</script>
+<script src='{url}/mapbox-gl.js'></script>
+<link href='{url}/mapbox-gl.css' rel='stylesheet' />
+<script
+ src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/index.min.js"
+ integrity="sha512-YUXVABhePA/4bucH67dmr0jHhoAftZaohBcK9iHk4XhwPpV1Tp5I2OhKooiettXrc29cdCe0TER4D+YPJg6HOA=="
+ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet"
+ href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/styles.min.css"
+ integrity="sha512-0Yn+skifSWsXXCwOpPt30lf5Yq3bXo607axVyGBNJZPJPAhMFhTImY/AOMY4oH7Cpd3dwjF9T8YK/n64qPZsDQ=="
+ crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script type="text/javascript" src="mapboxmap.js"></script>""".format(url=url)
+
+    def get_body(self):
+        return '''  <body onload="initialize()" ondragstart="return false">
+    <div id="mapDiv"></div>
+  </body>
+'''
+
+    def get_options(self):
+        options = {'accessToken': self.api_key}
+        lang, encoding = locale.getlocale()
+        if lang:
+            language, sep, region = lang.replace('_', '-').partition('-')
+            options['language'] = language
+            if region:
+                options['worldview'] = region
+        return options
