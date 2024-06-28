@@ -84,7 +84,7 @@ class MapboxGeocoder(GeocoderBase):
                 yield north, east, south, west, feature['place_name']
             elif 'center' in feature:
                 east, north = feature['center']
-                yield north, east, None, None, feature['place_name']
+                yield north, east, north, east, feature['place_name']
 
     def search_terms(self):
         widget = CompactButton(

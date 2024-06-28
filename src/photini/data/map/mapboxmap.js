@@ -77,40 +77,28 @@ function setView(lat, lng, zoom) {
     map.jumpTo({center: [lng, lat], padding: noPadding, zoom: zoom - 1});
 }
 
-function adjustBounds(north, east, south, west) {
-    map.fitBounds(
-        [west, south, east, north], {animate: true, padding: noPadding});
-}
-
-function fitPoints(points) {
-    var bounds = mapboxgl.LngLatBounds.convert([
-        [points[0][1], points[0][0]], [points[0][1], points[0][0]]]);
-    for (i in points)
-        bounds.extend([points[i][1], points[i][0]]);
+function moveTo(bounds, withPadding, maxZoom) {
     // Get viewport after setting padding
-    map.setPadding(padding);
+    map.setPadding(withPadding ? padding : noPadding);
     const mapBounds = map.getBounds();
     const map_ne = mapBounds.getNorthEast();
     const map_sw = mapBounds.getSouthWest();
     var width = map_ne.lng - map_sw.lng;
     var height = map_ne.lat - map_sw.lat;
-    const zoom = map.getZoom();
     // Get centre and zoom needed to fit points
-    var options = map.cameraForBounds(bounds, {maxZoom: zoom});
+    var options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
     // Get pan needed
     const dx = Math.abs(options.center.lng - mapBounds.getCenter().lng);
     const dy = Math.abs(options.center.lat - mapBounds.getCenter().lat);
-    if (options.zoom > zoom) {
-        var scale = Math.pow(2, options.zoom - zoom);
-        width *= scale;
-        height *= scale;
-    }
-    if (dx > width * 10 || dy > height * 10) {
+    const zoom = map.getZoom();
+    if (dx > width * 10 || dy > height * 10 ||
+            Math.abs(options.zoom - zoom) > 2) {
         // Long distance, go by air
         map.flyTo(options);
         return;
     }
-    if (options.zoom == zoom && dx < width * 1.5 && dy < height * 1.5) {
+    if (withPadding && options.zoom == zoom &&
+            dx < width * 1.5 && dy < height * 1.5) {
         // Extend bounds to minimise pan
         var ne = bounds.getNorthEast();
         var sw = bounds.getSouthWest();
@@ -130,9 +118,22 @@ function fitPoints(points) {
             bounds.extend([ne.lng, map_ne.lat]);
             bounds.extend([sw.lng, map_sw.lat]);
         }
-        options = map.cameraForBounds(bounds, {maxZoom: zoom});
+        options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
     }
     map.easeTo(options);
+}
+
+function adjustBounds(north, east, south, west) {
+    moveTo(mapboxgl.LngLatBounds.convert([[west, south], [east, north]]),
+           false, map.getMaxZoom() - 2);
+}
+
+function fitPoints(points) {
+    var bounds = mapboxgl.LngLatBounds.convert([
+        [points[0][1], points[0][0]], [points[0][1], points[0][0]]]);
+    for (i in points)
+        bounds.extend([points[i][1], points[i][0]]);
+    moveTo(bounds, true, map.getZoom());
 }
 
 function plotGPS(points) {
