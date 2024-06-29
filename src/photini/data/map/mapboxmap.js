@@ -78,8 +78,24 @@ function setView(lat, lng, zoom) {
 }
 
 function moveTo(bounds, withPadding, maxZoom) {
+    // Set padding if needed
+    const oldPadding = map.getPadding();
+    const newPadding = withPadding ? padding : noPadding;
+    if (oldPadding.top != newPadding.top ||
+            oldPadding.bottom != newPadding.bottom ||
+            oldPadding.left != newPadding.left ||
+            oldPadding.right != newPadding.right) {
+        // Move centre to allow for padding change
+        var x_shift = ((newPadding.left - newPadding.right) -
+                       (oldPadding.left - oldPadding.right)) / 2;
+        var y_shift = ((newPadding.top - newPadding.bottom) -
+                       (oldPadding.top - oldPadding.bottom)) / 2;
+        var centre = map.getCenter();
+        centre = map.project(centre);
+        centre = map.unproject([centre.x + x_shift, centre.y + y_shift]);
+        map.jumpTo({center: centre, padding: newPadding});
+    }
     // Get viewport after setting padding
-    map.setPadding(withPadding ? padding : noPadding);
     const mapBounds = map.getBounds();
     const map_ne = mapBounds.getNorthEast();
     const map_sw = mapBounds.getSouthWest();
