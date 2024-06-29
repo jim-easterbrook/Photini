@@ -88,7 +88,22 @@ function moveTo(bounds, withPadding, maxZoom) {
     // Get centre and zoom needed to fit points
     var options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
     // Get pan needed
-    const dx = Math.abs(options.center.lng - mapBounds.getCenter().lng);
+    var dx = options.center.lng - mapBounds.getCenter().lng;
+    if (dx > 180) {
+        dx -= 360;
+        bounds = mapboxgl.LngLatBounds.convert([
+            [bounds.getWest() - 360, bounds.getSouth()],
+            [bounds.getEast() - 360, bounds.getNorth()]]);
+        options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
+    }
+    else if (dx < -180) {
+        dx += 360;
+        bounds = mapboxgl.LngLatBounds.convert([
+            [bounds.getWest() + 360, bounds.getSouth()],
+            [bounds.getEast() + 360, bounds.getNorth()]]);
+        options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
+    }
+    dx = Math.abs(dx)
     const dy = Math.abs(options.center.lat - mapBounds.getCenter().lat);
     const zoom = map.getZoom();
     if (dx > width * 10 || dy > height * 10 ||
@@ -124,6 +139,9 @@ function moveTo(bounds, withPadding, maxZoom) {
 }
 
 function adjustBounds(north, east, south, west) {
+    if (east < west)
+        // Spanning 180 degree meridian
+        east += 360;
     moveTo(mapboxgl.LngLatBounds.convert([[west, south], [east, north]]),
            false, map.getMaxZoom() - 2);
 }
@@ -131,8 +149,14 @@ function adjustBounds(north, east, south, west) {
 function fitPoints(points) {
     var bounds = mapboxgl.LngLatBounds.convert([
         [points[0][1], points[0][0]], [points[0][1], points[0][0]]]);
-    for (i in points)
-        bounds.extend([points[i][1], points[i][0]]);
+    for (i in points) {
+        var lng = points[i][1];
+        if (bounds.getEast() - lng > 180)
+            lng += 360;
+        else if (lng - bounds.getWest() > 180)
+            lng -= 360;
+        bounds.extend([lng, points[i][0]]);
+    }
     moveTo(bounds, true, map.getZoom());
 }
 
