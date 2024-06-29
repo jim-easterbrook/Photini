@@ -32,6 +32,7 @@ function loadMap(lat, lng, zoom, options) {
     options.center = [lng, lat];
     options.dragRotateInteraction = false;
     options.maxZoom = 19;
+    options.minZoom = 0;
     options.zoom = zoom - 1;
     map = new atlas.Map("mapDiv", options);
     //Wait until the map resources are ready.

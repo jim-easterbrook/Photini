@@ -32,6 +32,7 @@ function loadMap(lat, lng, zoom, options)
         tilt: 0,
         zoom: zoom,
         maxZoom: 20,
+        minZoom: 1,
         mapId: "ce7cafb5b0de6e31",
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: true,

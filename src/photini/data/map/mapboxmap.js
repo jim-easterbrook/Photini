@@ -36,6 +36,7 @@ function loadMap(lat, lng, zoom, options) {
     options.container = 'mapDiv';
     options.dragRotate = false;
     options.maxZoom = 19;
+    options.minZoom = 0;
     options.projection = 'mercator';
     options.style = 'mapbox://styles/mapbox/outdoors-v12';
     options.zoom = zoom - 1;
