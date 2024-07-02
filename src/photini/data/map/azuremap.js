@@ -87,13 +87,6 @@ function mapReady() {
     });
 }
 
-//function newCredentials(sessionId) {
-//    python.new_status({
-//        session_id: sessionId,
-//        });
-//    python.initialize_finished();
-//}
-
 function newBounds() {
     const camera = map.getCamera();
     python.new_status({
@@ -106,6 +99,14 @@ function newBounds() {
 
 function setView(lat, lng, zoom) {
     map.setCamera({center: [lng, lat], zoom: zoom - 1});
+}
+
+function normDx(dx) {
+    if (dx > 180)
+        return dx - 360;
+    if (dx < -180)
+        return dx + 360;
+    return dx;
 }
 
 function moveTo(bounds, withPadding, maxZoom) {
@@ -125,9 +126,6 @@ function moveTo(bounds, withPadding, maxZoom) {
             pixels, camera.zoom);
         mapBounds = BBox.fromPositions(positions);
     }
-    // Get opposite corners of points bounding box
-    var ne = BBox.getNorthEast(bounds);
-    var sw = BBox.getSouthWest(bounds);
     // Get map and bounds dimensions
     var map_h = BBox.getHeight(mapBounds);
     var map_w = BBox.getWidth(mapBounds);
@@ -136,9 +134,10 @@ function moveTo(bounds, withPadding, maxZoom) {
     // Compute normalised pan needed
     const boundsCentre = BBox.getCenter(bounds);
     const mapCentre = BBox.getCenter(mapBounds);
-    var dx = (boundsCentre[0] - mapCentre[0]) / Math.max(bounds_w, map_w);
-    var dy = (boundsCentre[1] - mapCentre[1]) / Math.max(bounds_h, map_h);
-    const pan = Math.max(Math.abs(dx), Math.abs(dy));
+    var dx = normDx(boundsCentre[0] - mapCentre[0]);
+    var dy = boundsCentre[1] - mapCentre[1];
+    const pan = Math.max(Math.abs(dx) / Math.max(bounds_w, map_w),
+                         Math.abs(dy) / Math.max(bounds_h, map_h));
     // Jump, pan or zoom out?
     var options = {};
     var new_zoom = camera.zoom - Math.log2(
@@ -154,10 +153,14 @@ function moveTo(bounds, withPadding, maxZoom) {
         options = {zoom: new_zoom};
         if (withPadding && new_zoom == maxZoom && pan < 1.5) {
             // Minimum pan to make marker(s) visible
-            dx = Math.max(0, ne[0] - BBox.getEast(mapBounds));
-            dx = Math.min(dx, sw[0] - BBox.getWest(mapBounds));
-            dy = Math.max(0, ne[1] - BBox.getNorth(mapBounds));
-            dy = Math.min(dy, sw[1] - BBox.getSouth(mapBounds));
+            dx = Math.max(
+                0, normDx(BBox.getEast(bounds) - BBox.getEast(mapBounds)));
+            dx = Math.min(
+                dx, normDx(BBox.getWest(bounds) - BBox.getWest(mapBounds)));
+            dy = Math.max(
+                0, BBox.getNorth(bounds) - BBox.getNorth(mapBounds));
+            dy = Math.min(
+                dy, BBox.getSouth(bounds) - BBox.getSouth(mapBounds));
             options.center = Pos.fromLatLng(
                 camera.center[0] + dx, camera.center[1] + dy);
         }
