@@ -43,6 +43,7 @@ function loadMap(lat, lng, zoom, options)
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: true,
         mapTypeControlOptions: {
+            position: google.maps.ControlPosition.BLOCK_START_INLINE_END,
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
             },
         };
