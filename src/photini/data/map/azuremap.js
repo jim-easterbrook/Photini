@@ -108,7 +108,7 @@ function setView(lat, lng, zoom) {
     map.setCamera({center: [lng, lat], zoom: zoom - 1});
 }
 
-function moveTo(bounds, withPadding, maxZoom, centred) {
+function moveTo(bounds, withPadding, maxZoom) {
     const camera = map.getCamera();
     var mapBounds = camera.bounds;
     if (withPadding) {
@@ -128,20 +128,21 @@ function moveTo(bounds, withPadding, maxZoom, centred) {
     // Get opposite corners of points bounding box
     var ne = BBox.getNorthEast(bounds);
     var sw = BBox.getSouthWest(bounds);
-    // Compute minimum map pan required
-    var dx = Math.max(0, ne[0] - BBox.getEast(mapBounds));
-    dx = Math.min(dx, sw[0] - BBox.getWest(mapBounds));
-    var dy = Math.max(0, ne[1] - BBox.getNorth(mapBounds));
-    dy = Math.min(dy, sw[1] - BBox.getSouth(mapBounds));
-    // Jump, pan or zoom out?
+    // Get map and bounds dimensions
     var map_h = BBox.getHeight(mapBounds);
     var map_w = BBox.getWidth(mapBounds);
     var bounds_h = BBox.getHeight(bounds);
     var bounds_w = BBox.getWidth(bounds);
+    // Compute normalised pan needed
+    const boundsCentre = BBox.getCenter(bounds);
+    const mapCentre = BBox.getCenter(mapBounds);
+    var dx = (boundsCentre[0] - mapCentre[0]) / Math.max(bounds_w, map_w);
+    var dy = (boundsCentre[1] - mapCentre[1]) / Math.max(bounds_h, map_h);
+    const pan = Math.max(Math.abs(dx), Math.abs(dy));
+    // Jump, pan or zoom out?
     var options = {};
     var new_zoom = camera.zoom - Math.log2(
         Math.max(1.0e-30, bounds_h / map_h, bounds_w / map_w));
-    const pan = Math.max(Math.abs(dx) / map_w, Math.abs(dy) / map_h);
     if (new_zoom < camera.zoom) {
         // Zoom out to fit bounds
         options = {bounds: bounds};
@@ -151,13 +152,17 @@ function moveTo(bounds, withPadding, maxZoom, centred) {
     else {
         new_zoom = Math.min(new_zoom, maxZoom);
         options = {zoom: new_zoom};
-        if (centred || pan > 2)
-            options.center = BBox.getCenter(bounds);
-        else {
-            // Minimum pan to make bounds visible
-            var centre = map.getCamera().center;
-            options.center = Pos.fromLatLng(centre[0] + dx, centre[1] + dy);
+        if (withPadding && new_zoom == maxZoom && pan < 1.5) {
+            // Minimum pan to make marker(s) visible
+            dx = Math.max(0, ne[0] - BBox.getEast(mapBounds));
+            dx = Math.min(dx, sw[0] - BBox.getWest(mapBounds));
+            dy = Math.max(0, ne[1] - BBox.getNorth(mapBounds));
+            dy = Math.min(dy, sw[1] - BBox.getSouth(mapBounds));
+            options.center = Pos.fromLatLng(
+                camera.center[0] + dx, camera.center[1] + dy);
         }
+        else
+            options.center = BBox.getCenter(bounds);
     }
     if (pan > 10 || Math.abs(new_zoom - camera.zoom) > 2) {
         // Long distance, go by air
@@ -168,14 +173,13 @@ function moveTo(bounds, withPadding, maxZoom, centred) {
     }
     else {
         options.type = 'ease';
-        options.duration = 250;
+        options.duration = pan * 200;
     }
     map.setCamera(options);
 }
 
 function adjustBounds(north, east, south, west) {
-    moveTo([west, south, east, north], false,
-           map.getCamera().maxZoom - 3, true);
+    moveTo([west, south, east, north], false, map.getCamera().maxZoom - 3);
 }
 
 function fitPoints(points) {
@@ -183,7 +187,7 @@ function fitPoints(points) {
     for (i in points)
         // NB fromLatLng params are lng, lat
         positions.push(Pos.fromLatLng(points[i][1], points[i][0]));
-    moveTo(BBox.fromPositions(positions), true, map.getCamera().zoom, false);
+    moveTo(BBox.fromPositions(positions), true, map.getCamera().zoom);
 }
 
 function plotGPS(points) {
