@@ -28,8 +28,7 @@ if (use_old_markers) {
     var gpsRedCircle;
 }
 
-function loadMap(lat, lng, zoom, options)
-{
+function loadMap(lat, lng, zoom, options) {
     var mapOptions = {
         center: new google.maps.LatLng(lat, lng),
         fullscreenControl: false,
@@ -45,8 +44,8 @@ function loadMap(lat, lng, zoom, options)
         mapTypeControlOptions: {
             position: google.maps.ControlPosition.BLOCK_START_INLINE_END,
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-            },
-        };
+        },
+    };
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
     if (use_old_markers) {
@@ -60,39 +59,33 @@ function loadMap(lat, lng, zoom, options)
     python.initialize_finished();
 }
 
-function newBounds()
-{
-    var centre = map.getCenter();
-    var bounds = map.getBounds();
-    var sw = bounds.getSouthWest();
-    var ne = bounds.getNorthEast();
+function newBounds() {
+    const centre = map.getCenter();
+    const bounds = map.getBounds();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
     python.new_status({
         centre: [centre.lat(), centre.lng()],
         bounds: [ne.lat(), ne.lng(), sw.lat(), sw.lng()],
         zoom: map.getZoom(),
-        });
+    });
 }
 
-function setView(lat, lng, zoom)
-{
+function setView(lat, lng, zoom) {
     map.setZoom(zoom)
     map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function adjustBounds(north, east, south, west)
-{
+function adjustBounds(north, east, south, west) {
     map.fitBounds({north: north, east: east, south: south, west: west});
 }
 
-function fitPoints(points)
-{
+function fitPoints(points) {
     var bounds = new google.maps.LatLngBounds();
-    for (var i = 0; i < points.length; i++)
-    {
+    for (i in points)
         bounds.extend({lat: points[i][0], lng: points[i][1]});
-    }
-    var mapBounds = map.getBounds();
-    var mapSpan = mapBounds.toSpan();
+    const mapBounds = map.getBounds();
+    const mapSpan = mapBounds.toSpan();
     var ne = bounds.getNorthEast();
     var sw = bounds.getSouthWest();
     bounds.extend({lat: ne.lat() + (mapSpan.lat() * 0.13),
@@ -103,7 +96,7 @@ function fitPoints(points)
     sw = bounds.getSouthWest();
     if (mapBounds.contains(ne) && mapBounds.contains(sw))
         return;
-    var span = bounds.toSpan();
+    const span = bounds.toSpan();
     if (span.lat() > mapSpan.lat() || span.lng() > mapSpan.lng())
         map.fitBounds(bounds);
     else if (mapBounds.intersects(bounds))
@@ -112,28 +105,26 @@ function fitPoints(points)
         map.panTo(bounds.getCenter());
 }
 
-function plotGPS(points)
-{
-    for (var i = 0; i < points.length; i++)
-    {
-        var latlng = new google.maps.LatLng(points[i][0], points[i][1]);
-        var id = points[i][2];
-        var circle = document.createElement("img");
-        circle.src = 'circle_blue.png';
-        circle.style.transform = 'translate(0.5px,8.5px)';
+function plotGPS(points) {
+    for (i in points) {
+        const latlng = new google.maps.LatLng(points[i][0], points[i][1]);
+        const id = points[i][2];
         if (use_old_markers)
             gpsMarkers[id] = new google.maps.Marker({
                 map: map, position: latlng,
                 icon: gpsBlueCircle, zIndex: 2, clickable: false});
-        else
+        else {
+            var circle = document.createElement("img");
+            circle.src = 'circle_blue.png';
+            circle.style.transform = 'translate(0.5px,8.5px)';
             gpsMarkers[id] = new google.maps.marker.AdvancedMarkerElement({
                 map: map, position: latlng, content: circle, zIndex: 2});
+        }
     }
 }
 
-function enableGPS(ids)
-{
-    for (var id in gpsMarkers)
+function enableGPS(ids) {
+    for (id in gpsMarkers)
         if (use_old_markers) {
             if (ids.includes(id))
                 gpsMarkers[id].setOptions({icon: gpsRedCircle, zIndex: 3});
@@ -147,15 +138,13 @@ function enableGPS(ids)
         }
 }
 
-function clearGPS()
-{
-    for (var id in gpsMarkers)
+function clearGPS() {
+    for (id in gpsMarkers)
         gpsMarkers[id].setMap(null);
     gpsMarkers = {};
 }
 
-function enableMarker(id, active)
-{
+function enableMarker(id, active) {
     var marker = markers[id];
     if (use_old_markers) {
         if (active)
@@ -169,8 +158,7 @@ function enableMarker(id, active)
     }
 }
 
-function addMarker(id, lat, lng, active)
-{
+function addMarker(id, lat, lng, active) {
     if (use_old_markers) {
         var marker = new google.maps.Marker({
             icon: icon_off,
@@ -199,32 +187,27 @@ function addMarker(id, lat, lng, active)
     enableMarker(id, active)
 }
 
-function markerToId(marker)
-{
-    for (var id in markers)
+function markerToId(marker) {
+    for (id in markers)
         if (markers[id] == marker)
             return id;
 }
 
-function markerClick(event)
-{
+function markerClick(event) {
     python.marker_click(markerToId(this));
 }
 
-function markerDrag(event)
-{
+function markerDrag(event) {
     var loc = event.latLng;
     python.marker_drag(loc.lat(), loc.lng());
 }
 
-function markerDragEnd(event)
-{
+function markerDragEnd(event) {
     var loc = event.latLng;
     python.marker_drag_end(loc.lat(), loc.lng(), markerToId(this));
 }
 
-function markerDrop(x, y)
-{
+function markerDrop(x, y) {
     // convert x, y to world coordinates
     var scale = Math.pow(2, map.getZoom());
     var nw = new google.maps.LatLng(
@@ -240,8 +223,7 @@ function markerDrop(x, y)
     python.marker_drop(position.lat(), position.lng());
 }
 
-function delMarker(id)
-{
+function delMarker(id) {
     google.maps.event.clearInstanceListeners(markers[id]);
     markers[id].setMap(null);
     delete markers[id];
