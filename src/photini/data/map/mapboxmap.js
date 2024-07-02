@@ -161,7 +161,7 @@ function adjustBounds(north, east, south, west) {
         // Spanning 180 degree meridian
         east += 360;
     moveTo(mapboxgl.LngLatBounds.convert([[west, south], [east, north]]),
-           false, map.getMaxZoom() - 2);
+           false, map.getMaxZoom() - 3);
 }
 
 function fitPoints(points) {

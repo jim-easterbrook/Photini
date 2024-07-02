@@ -31,6 +31,7 @@ translate = QtCore.QCoreApplication.translate
 
 
 class MapboxGeocoder(GeocoderBase):
+    # see https://docs.mapbox.com/api/search/geocoding-v5/
     api_key = key_store.get('mapboxmap', 'api_key')
     cache_size = 0
 
