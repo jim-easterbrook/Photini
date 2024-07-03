@@ -16,11 +16,13 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-// See https://developers.google.com/maps/documentation/javascript/overview
+// See https://developers.google.com/maps/documentation/javascript/reference
 
 var map;
 var markers = {};
 var gpsMarkers = {};
+const padding = {top: 40, bottom: 5, left: 18, right: 18};
+const maxZoom = 20;
 if (use_old_markers) {
     var icon_on;
     var icon_off;
@@ -36,8 +38,9 @@ function loadMap(lat, lng, zoom, options) {
         streetViewControl: false,
         tilt: 0,
         zoom: zoom,
-        maxZoom: 20,
+        maxZoom: maxZoom,
         minZoom: 1,
+        isFractionalZoomEnabled: true,
         mapId: "ce7cafb5b0de6e31",
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: true,
@@ -76,33 +79,67 @@ function setView(lat, lng, zoom) {
     map.panTo(new google.maps.LatLng(lat, lng));
 }
 
+function normDx(dx) {
+    if (dx > 180)
+        return dx - 360;
+    if (dx < -180)
+        return dx + 360;
+    return dx;
+}
+
+function moveTo(bounds, withPadding, maximumZoom) {
+    const zoom = map.getZoom();
+    // Get map viewport
+    var mapBounds = map.getBounds();
+    if (withPadding) {
+        // Reduce map bounds to allow for padding
+        const projection = map.getProjection();
+        const scale = Math.pow(2, -zoom);
+        var sw = projection.fromLatLngToPoint(mapBounds.getSouthWest());
+        var ne = projection.fromLatLngToPoint(mapBounds.getNorthEast());
+        sw = projection.fromPointToLatLng(new google.maps.Point(
+            sw.x + (padding.left * scale), sw.y - (padding.bottom * scale)));
+        ne = projection.fromPointToLatLng(new google.maps.Point(
+            ne.x - (padding.right * scale), ne.y + (padding.top * scale)));
+        mapBounds = new google.maps.LatLngBounds(sw, ne);
+    }
+    // Get map and bounds dimensions
+    const boundsSpan = bounds.toSpan();
+    const mapSpan = mapBounds.toSpan();
+    var newZoom = zoom - Math.log2(Math.max(1.0e-30,
+        boundsSpan.lng() / mapSpan.lng(), boundsSpan.lat() / mapSpan.lat()));
+    if (newZoom < zoom) {
+        // Zoom out to fit bounds
+        map.fitBounds(bounds, withPadding ? padding : 0);
+        return;
+    }
+    // Compute normalised pan needed
+    const boundsCentre = bounds.getCenter();
+    const mapCentre = map.getCenter();
+    const dx = Math.abs(normDx(boundsCentre.lng() - mapCentre.lng()));
+    const dy = Math.abs(boundsCentre.lat() - mapCentre.lat());
+    const pan = Math.max(dx / Math.max(boundsSpan.lng(), mapSpan.lng()),
+                         dy / Math.max(boundsSpan.lat(), mapSpan.lat()));
+    if (withPadding && newZoom >= maximumZoom && pan < 2) {
+        map.panToBounds(bounds, withPadding ? padding : 0);
+        return;
+    }
+    map.setOptions({maxZoom: maximumZoom});
+    map.fitBounds(bounds, withPadding ? padding : 0);
+    map.setOptions({maxZoom: maxZoom});
+}
+
 function adjustBounds(north, east, south, west) {
-    map.fitBounds({north: north, east: east, south: south, west: west});
+    moveTo(new google.maps.LatLngBounds({
+        north: north, east: east, south: south, west: west}),
+        false, maxZoom - 3);
 }
 
 function fitPoints(points) {
     var bounds = new google.maps.LatLngBounds();
     for (i in points)
         bounds.extend({lat: points[i][0], lng: points[i][1]});
-    const mapBounds = map.getBounds();
-    const mapSpan = mapBounds.toSpan();
-    var ne = bounds.getNorthEast();
-    var sw = bounds.getSouthWest();
-    bounds.extend({lat: ne.lat() + (mapSpan.lat() * 0.13),
-                   lng: ne.lng() + (mapSpan.lng() * 0.04)});
-    bounds.extend({lat: sw.lat() - (mapSpan.lat() * 0.04),
-                   lng: sw.lng() - (mapSpan.lng() * 0.04)});
-    ne = bounds.getNorthEast();
-    sw = bounds.getSouthWest();
-    if (mapBounds.contains(ne) && mapBounds.contains(sw))
-        return;
-    const span = bounds.toSpan();
-    if (span.lat() > mapSpan.lat() || span.lng() > mapSpan.lng())
-        map.fitBounds(bounds);
-    else if (mapBounds.intersects(bounds))
-        map.panToBounds(bounds);
-    else
-        map.panTo(bounds.getCenter());
+    moveTo(bounds, true, map.getZoom());
 }
 
 function plotGPS(points) {
