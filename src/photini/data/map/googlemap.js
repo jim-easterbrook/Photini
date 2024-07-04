@@ -216,6 +216,7 @@ function addMarker(id, lat, lng, active) {
             gmpDraggable: true,
         });
     }
+    marker.id = id;
     markers[id] = marker;
     google.maps.event.addListener(marker, 'click', markerClick);
     google.maps.event.addListener(marker, 'dragstart', markerClick);
@@ -224,39 +225,28 @@ function addMarker(id, lat, lng, active) {
     enableMarker(id, active)
 }
 
-function markerToId(marker) {
-    for (id in markers)
-        if (markers[id] == marker)
-            return id;
-}
-
 function markerClick(event) {
-    python.marker_click(markerToId(this));
+    python.marker_click(this.id);
 }
 
 function markerDrag(event) {
-    var loc = event.latLng;
-    python.marker_drag(loc.lat(), loc.lng());
+    python.marker_drag(event.latLng.lat(), event.latLng.lng());
 }
 
 function markerDragEnd(event) {
-    var loc = event.latLng;
-    python.marker_drag_end(loc.lat(), loc.lng(), markerToId(this));
+    python.marker_drag_end(event.latLng.lat(), event.latLng.lng(), this.id);
 }
 
 function markerDrop(x, y) {
-    // convert x, y to world coordinates
-    var scale = Math.pow(2, map.getZoom());
-    var nw = new google.maps.LatLng(
-        map.getBounds().getNorthEast().lat(),
-        map.getBounds().getSouthWest().lng()
-        );
-    var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
-    var worldX = worldCoordinateNW.x + (x / scale);
-    var worldY = worldCoordinateNW.y + (y / scale);
-    // convert world coordinates to lat & lng
-    var position = map.getProjection().fromPointToLatLng(
-        new google.maps.Point(worldX, worldY));
+    const projection = map.getProjection();
+    const scale = Math.pow(2, -map.getZoom());
+    // Get top left corner of map in Point coordinates
+    const bounds = map.getBounds();
+    const nw = projection.fromLatLngToPoint({
+        lat: bounds.getNorthEast().lat(), lng: bounds.getSouthWest().lng()});
+    // Get (lat, lng) from (x, y)
+    const position = projection.fromPointToLatLng(
+        new google.maps.Point(nw.x + (x * scale), nw.y + (y * scale)));
     python.marker_drop(position.lat(), position.lng());
 }
 
