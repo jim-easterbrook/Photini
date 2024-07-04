@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from datetime import timezone
+import locale
 import logging
 import os
 import pickle
@@ -292,7 +293,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     def get_body(self):
         return '''  <body ondragstart="return false">
-    <div id="mapDiv"></div>
+    <div id="mapDiv" dir="auto"></div>
   </body>
 '''
 
@@ -302,8 +303,10 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def initialise(self):
+        lang, encoding = locale.getlocale()
+        lang = lang or 'en-GB'
         page = '''<!DOCTYPE html>
-<html>
+<html lang="{lang}" dir="auto">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
@@ -334,6 +337,7 @@ class PhotiniMap(QtWidgets.QWidget):
       }}
     </script>'''
         page = page.format(
+            lang = lang.replace('_', '-'),
             head = self.get_head(),
             body = self.get_body(),
             initialize = initialize.format(
