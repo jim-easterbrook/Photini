@@ -33,6 +33,7 @@ if (use_old_markers) {
 function loadMap(lat, lng, zoom, options) {
     var mapOptions = {
         center: new google.maps.LatLng(lat, lng),
+        controlSize: 30,
         fullscreenControl: false,
         scaleControl: true,
         streetViewControl: false,
