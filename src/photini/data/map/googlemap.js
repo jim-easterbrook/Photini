@@ -49,6 +49,10 @@ function loadMap(lat, lng, zoom, options) {
             position: google.maps.ControlPosition.BLOCK_START_INLINE_END,
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
         },
+        zoomControl: true,
+        zoomControlOptions: {
+            position: google.maps.ControlPosition.INLINE_END_BLOCK_START,
+        },
     };
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
