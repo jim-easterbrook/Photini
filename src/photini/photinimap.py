@@ -201,6 +201,8 @@ class MapWebView(QWebEngineView):
 
 
 class PhotiniMap(QtWidgets.QWidget):
+    use_layout_direction = True
+
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
@@ -308,6 +310,7 @@ class PhotiniMap(QtWidgets.QWidget):
         lang = lang or 'en-GB'
         lang = lang.replace('_', '-')
         text_dir = ('ltr', 'rtl')[
+            self.use_layout_direction and
             self.layoutDirection() == Qt.LayoutDirection.RightToLeft]
         page = '''<!DOCTYPE html>
 <html lang="{lang}" dir="{text_dir}">
