@@ -21,7 +21,6 @@ import base64
 import locale
 import logging
 import os
-from pprint import pprint
 
 import requests
 
@@ -58,6 +57,7 @@ class AzureGeocoder(GeocoderBase):
         return features
 
     def search(self, search_string, bounds=None):
+        # see https://learn.microsoft.com/en-us/rest/api/maps/search/get-geocoding
         params = {
             'api-version': '2023-06-01',
             'query': search_string,
@@ -74,7 +74,6 @@ class AzureGeocoder(GeocoderBase):
                 params['view'] = country
         for feature in self.cached_query(
                 params, 'https://atlas.microsoft.com/geocode'):
-            pprint(feature)
             properties = feature['properties']
             if properties['confidence'] == 'Low':
                 continue
@@ -96,7 +95,7 @@ class AzureGeocoder(GeocoderBase):
                 west, south, east, north = feature['bbox']
             else:
                 east, north = feature['geometry']['coordinates'][:2]
-                west, south = None, None
+                west, south = east, north
             yield north, east, south, west, name
 
     def search_terms(self):
@@ -139,11 +138,10 @@ var circle_red_data = "data:image/png;base64,{circle_red_data}";
         circle_blue_data=base64.b64encode(circle_blue_data).decode('ascii'),
         circle_red_data=base64.b64encode(circle_red_data).decode('ascii'))
 
-    def get_body(self):
+    def get_body(self, text_dir):
         return '''  <body onload="initialize()" ondragstart="return false">
-    <div id="mapDiv"></div>
-  </body>
-'''
+    <div id="mapDiv" dir="{text_dir}"></div>
+  </body>'''.format(text_dir=text_dir)
 
     def get_options(self):
         options = {

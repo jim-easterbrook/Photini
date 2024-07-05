@@ -291,11 +291,10 @@ class PhotiniMap(QtWidgets.QWidget):
         # add or remove markers
         self.redraw_markers()
 
-    def get_body(self):
+    def get_body(self, text_dir):
         return '''  <body ondragstart="return false">
-    <div id="mapDiv" dir="auto"></div>
-  </body>
-'''
+    <div id="mapDiv" dir="{text_dir}"></div>
+  </body>'''.format(text_dir=text_dir)
 
     def get_options(self):
         return {}
@@ -303,10 +302,15 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def initialise(self):
+        lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
+        zoom = float(self.app.config_store.get('map', 'zoom', 11))
         lang, encoding = locale.getlocale()
         lang = lang or 'en-GB'
+        lang = lang.replace('_', '-')
+        text_dir = ('ltr', 'rtl')[
+            self.layoutDirection() == Qt.LayoutDirection.RightToLeft]
         page = '''<!DOCTYPE html>
-<html lang="{lang}" dir="auto">
+<html lang="{lang}" dir="{text_dir}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
@@ -314,34 +318,25 @@ class PhotiniMap(QtWidgets.QWidget):
       html, body {{ height: 100%; margin: 0; padding: 0 }}
       #mapDiv {{ position: relative; width: 100%; height: 100% }}
     </style>
-{initialize}
-{head}
-  </head>
-{body}
-</html>'''
-        lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
-        zoom = float(self.app.config_store.get('map', 'zoom', 11))
-        initialize = '''    <script type="text/javascript"
+    <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">
     </script>
     <script type="text/javascript">
       var python;
-      function initialize()
-      {{
+      function initialize() {{
           new QWebChannel(qt.webChannelTransport, doLoadMap);
       }}
-      function doLoadMap(channel)
-      {{
+      function doLoadMap(channel) {{
           python = channel.objects.python;
           loadMap({lat}, {lng}, {zoom}, {options});
       }}
-    </script>'''
-        page = page.format(
-            lang = lang.replace('_', '-'),
-            head = self.get_head(),
-            body = self.get_body(),
-            initialize = initialize.format(
-                lat=lat, lng=lng, zoom=zoom, options=self.get_options()))
+    </script>
+{head}
+  </head>
+{body}
+</html>'''.format(lat=lat, lng=lng, zoom=zoom, lang=lang, text_dir=text_dir,
+                  head=self.get_head(), body=self.get_body(text_dir),
+                  options=self.get_options())
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))

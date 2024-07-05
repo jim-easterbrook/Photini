@@ -127,11 +127,10 @@ var exports = {{}};
  crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script type="text/javascript" src="mapboxmap.js"></script>""".format(url=url)
 
-    def get_body(self):
+    def get_body(self, text_dir):
         return '''  <body onload="initialize()" ondragstart="return false">
-    <div id="mapDiv"></div>
-  </body>
-'''
+    <div id="mapDiv" dir="{text_dir}"></div>
+  </body>'''.format(text_dir=text_dir)
 
     def get_options(self):
         options = {'accessToken': self.api_key}

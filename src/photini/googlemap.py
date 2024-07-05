@@ -70,7 +70,7 @@ class GoogleGeocoder(GeocoderBase):
         params = {'address': search_string}
         lang, encoding = locale.getlocale()
         if lang:
-            params['language'] = lang
+            params['language'] = lang.replace('_', '-')
         if bounds:
             north, east, south, west = bounds
             params['bounds'] = '{:.4f},{:.4f}|{:.4f},{:.4f}'.format(
@@ -112,7 +112,8 @@ class TabWidget(PhotiniMap):
                '?callback=initialize'
                '&loading=async')
         # AdvancedMarkerElement requires Chrome v86+
-        if chrome_version >= 86:
+        use_old_markers = chrome_version < 86
+        if not use_old_markers:
             url += '&libraries=marker'
         if self.app.options.test:
             url += '&v=beta'
@@ -123,11 +124,11 @@ class TabWidget(PhotiniMap):
             url += '&language=' + language
             if region:
                 url += '&region=' + region
-        return '''<script type="text/javascript">
-const use_old_markers = {use_old_markers};
+        return '''    <script type="text/javascript">
+      const use_old_markers = {use_old_markers};
     </script>
     <script type="text/javascript"
       src="{url}" async>
     </script>
     <script type="text/javascript" src="googlemap.js"></script>'''.format(
-        use_old_markers=('false', 'true')[chrome_version < 86], url=url)
+        use_old_markers=('false', 'true')[use_old_markers], url=url)
