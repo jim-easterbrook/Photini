@@ -40,13 +40,19 @@ function loadMap(lat, lng, zoom, options) {
 }
 
 function mapReady() {
+    const div = document.getElementById("mapDiv");
+    const ltr = getComputedStyle(div).direction == 'ltr';
+    if (ltr)
+        padding.right += 110;
+    else
+        padding.left += 110;
     map.controls.add(
         [new atlas.control.StyleControl({
             mapStyles: ['road', 'road_shaded_relief',
                         'satellite', 'satellite_road_labels'],
             layout: 'list'}),
          new atlas.control.ZoomControl()],
-        {position: 'top-right'});
+        {position: ltr ? 'top-right' : 'top-left'});
     map.controls.add(
         [new atlas.control.ScaleControl()],
         {position: 'bottom-left'});
