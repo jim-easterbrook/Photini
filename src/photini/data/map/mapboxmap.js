@@ -41,13 +41,20 @@ function loadMap(lat, lng, zoom, options) {
     options.style = 'mapbox://styles/mapbox/outdoors-v12';
     options.zoom = zoom - 1;
     map = new mapboxgl.Map(options);
+    const div = document.getElementById("mapDiv");
+    const ltr = getComputedStyle(div).direction == 'ltr';
+    if (ltr)
+        padding.right += 40;
+    else
+        padding.left += 40;
     map.addControl(new exports.MapboxStyleSwitcherControl([
         {title: 'Street', uri: 'mapbox://styles/mapbox/streets-v12'},
         {title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v12'},
         {title: 'Aerial', uri: 'mapbox://styles/mapbox/satellite-v9'},
-    ], {defaultStyle: 'Outdoors'}));
+    ], {defaultStyle: 'Outdoors'}), ltr ? 'top-right' : 'top-left');
+    map.addControl(new mapboxgl.NavigationControl({showCompass: false}),
+                   ltr ? 'top-right' : 'top-left');
     map.addControl(new mapboxgl.ScaleControl());
-    map.addControl(new mapboxgl.NavigationControl({showCompass: false}));
     map.on('contextmenu', ignoreEvent);
     map.on('moveend', newBounds);
     map.on('zoomend', newBounds);

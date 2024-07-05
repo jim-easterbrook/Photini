@@ -136,8 +136,9 @@ var exports = {{}};
         options = {'accessToken': self.api_key}
         lang, encoding = locale.getlocale()
         if lang:
-            language, sep, region = lang.replace('_', '-').partition('-')
-            options['language'] = language
+            lang = lang.replace('_', '-')
+            options['language'] = lang
+            language, sep, region = lang.partition('-')
             if region:
                 options['worldview'] = region
         return options
