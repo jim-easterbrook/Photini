@@ -87,6 +87,8 @@ function setView(lat, lng, zoom) {
 }
 
 function moveTo(bounds, withPadding, maxZoom) {
+    var ne = bounds.getNorthEast();
+    var sw = bounds.getSouthWest();
     // Set padding if needed
     const oldPadding = map.getPadding();
     const newPadding = withPadding ? padding : noPadding;
@@ -117,31 +119,32 @@ function moveTo(bounds, withPadding, maxZoom) {
     if (dx > 180) {
         dx -= 360;
         bounds = mapboxgl.LngLatBounds.convert([
-            [bounds.getWest() - 360, bounds.getSouth()],
-            [bounds.getEast() - 360, bounds.getNorth()]]);
+            [sw.lng - 360, sw.lat], [ne.lng - 360, ne.lat]]);
+        ne = bounds.getNorthEast();
+        sw = bounds.getSouthWest();
         options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
     }
     else if (dx < -180) {
         dx += 360;
         bounds = mapboxgl.LngLatBounds.convert([
-            [bounds.getWest() + 360, bounds.getSouth()],
-            [bounds.getEast() + 360, bounds.getNorth()]]);
+            [sw.lng + 360, sw.lat], [ne.lng + 360, ne.lat]]);
+        ne = bounds.getNorthEast();
+        sw = bounds.getSouthWest();
         options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
     }
     dx = Math.abs(dx)
     const dy = Math.abs(options.center.lat - mapBounds.getCenter().lat);
+    // Compute normalised pan needed
+    const pan = Math.max(dx / Math.max(ne.lng - sw.lng, width),
+                         dy / Math.max(ne.lat - ne.lng, height));
     const zoom = map.getZoom();
-    if (dx > width * 10 || dy > height * 10 ||
-            Math.abs(options.zoom - zoom) > 2) {
+    if (pan > 10 || Math.abs(options.zoom - zoom) > 2) {
         // Long distance, go by air
         map.flyTo(options);
         return;
     }
-    if (withPadding && options.zoom == zoom &&
-            dx < width * 1.5 && dy < height * 1.5) {
+    if (withPadding && options.zoom == zoom && pan < 2) {
         // Extend bounds to minimise pan
-        var ne = bounds.getNorthEast();
-        var sw = bounds.getSouthWest();
         if (ne.lng > map_ne.lng)
             bounds.extend([ne.lng - width, ne.lat]);
         else if (sw.lng < map_sw.lng)
@@ -159,6 +162,7 @@ function moveTo(bounds, withPadding, maxZoom) {
             bounds.extend([sw.lng, map_sw.lat]);
         }
         options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
+        options.zoom = zoom;
     }
     map.easeTo(options);
 }

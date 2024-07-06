@@ -126,13 +126,13 @@ function moveTo(bounds, withPadding, maximumZoom) {
     }
     // Compute normalised pan needed
     const boundsCentre = bounds.getCenter();
-    const mapCentre = map.getCenter();
+    const mapCentre = mapBounds.getCenter();
     const dx = Math.abs(normDx(boundsCentre.lng() - mapCentre.lng()));
     const dy = Math.abs(boundsCentre.lat() - mapCentre.lat());
     const pan = Math.max(dx / Math.max(boundsSpan.lng(), mapSpan.lng()),
                          dy / Math.max(boundsSpan.lat(), mapSpan.lat()));
     if (withPadding && newZoom >= maximumZoom && pan < 2) {
-        map.panToBounds(bounds, withPadding ? padding : 0);
+        map.panToBounds(bounds, padding);
         return;
     }
     map.setOptions({maxZoom: maximumZoom});
