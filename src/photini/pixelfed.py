@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2023  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2023-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import datetime
 import itertools
 import logging
 import math
@@ -780,7 +781,8 @@ class TabWidget(PhotiniUploader):
     @catch_all
     def auto_status(self):
         result = {
-            'title': [], 'headline': [], 'description': [], 'keywords': []}
+            'title': [], 'headline': [], 'description': [], 'keywords': [],
+            'date_taken': []}
         for image in self.get_selected_images():
             for key in result:
                 result[key].append(getattr(image.metadata, key))
@@ -791,6 +793,8 @@ class TabWidget(PhotiniUploader):
             x.best_match(lang) for x in result['description'] if x]
         result['keywords'] = [x.human_tags() for x in result['keywords'] if x]
         result['keywords'] = list(itertools.chain(*result['keywords']))
+        result['date_taken'] = [
+            x.to_ISO_8601(precision=3) for x in result['date_taken'] if x]
         strings = []
         for key in ('title', 'headline', 'description'):
             if not result[key]:
@@ -809,6 +813,13 @@ class TabWidget(PhotiniUploader):
             # convert to #CamelCase
             keywords = ['#' + x.title().replace(' ', '') for x in keywords]
             strings.append(' '.join(set(keywords)))
+        if strings and result['date_taken']:
+            start = min(result['date_taken'])
+            stop = max(result['date_taken'])
+            if stop != start:
+                strings[0] = '{}..{}: {}'.format(start, stop, strings[0])
+            elif start != datetime.date.today().isoformat():
+                strings[0] = '{}: {}'.format(start, strings[0])
         self.widget['status'].set_value('\n\n'.join(strings))
 
     @QtSlot()
