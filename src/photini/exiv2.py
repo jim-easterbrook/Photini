@@ -63,8 +63,10 @@ class MetadataHandler(object):
         level = max(exiv2.LogMsg.Level.debug, level)
         exiv2.LogMsg.setLevel(exiv2.LogMsg.Level(level))
         exiv2.XmpParser.initialize()
-        if config_store and exiv2.testVersion(0, 27, 4):
-            exiv2.enableBMFF(config_store.get('metadata', 'enable_bmff', False))
+        if exiv2.__version_tuple__ < (0, 17) and exiv2.testVersion(0, 27, 4):
+            exiv2.enableBMFF(True)
+        if config_store:
+            config_store.delete('metadata', 'enable_bmff')
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
         # invalid, but Photini doesn't write xapGImg so it doesn't
