@@ -347,7 +347,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
         polygon = self.polygon()
-        polygon.replace(idx, pos)
+        polygon[idx] = pos
         self.setPolygon(polygon)
         self.highlight.setPolygon(polygon)
 
