@@ -247,7 +247,9 @@ class PixelfedUser(UploaderUser):
             yield 'user', (account['display_name'], rsp and rsp.content)
             # get instance info
             self.client_data['version'] = {'mastodon': None, 'pixelfed': None}
-            self.instance_config = session.api_call('/api/v1/instance')
+            self.instance_config = session.api_call('/api/v2/instance')
+            if not self.instance_config:
+                self.instance_config = session.api_call('/api/v1/instance')
             if not self.instance_config:
                 yield 'connected', False
             self.new_instance_config.emit(self.instance_config)
@@ -323,7 +325,8 @@ class PixelfedUser(UploaderUser):
                         'title': collection['title'] or 'Untitled',
                         'description': collection['description'],
                         'id': collection['id'],
-                        'writeable': collection['post_count'] < 18,
+                        # default max collection length is 100
+                        'writeable': collection['post_count'] < 100,
                         }
 
     def load_user_data(self):
