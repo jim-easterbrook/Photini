@@ -168,7 +168,7 @@ function moveTo(bounds, withPadding, maxZoom) {
             dy = Math.min(
                 dy, BBox.getSouth(bounds) - BBox.getSouth(mapBounds));
             options.center = Pos.fromLatLng(
-                camera.center[0] + dx, camera.center[1] + dy);
+                camera.center[1] + dy, camera.center[0] + dx);
         }
         else
             options.center = BBox.getCenter(bounds);
@@ -192,11 +192,8 @@ function adjustBounds(north, east, south, west) {
 }
 
 function fitPoints(points) {
-    var positions = [];
-    for (i in points)
-        // NB fromLatLng params are lng, lat
-        positions.push(Pos.fromLatLng(points[i][1], points[i][0]));
-    moveTo(BBox.fromPositions(positions), true, map.getCamera().zoom);
+    moveTo(BBox.fromPositions(Pos.fromLatLngs(points)),
+           true, map.getCamera().zoom);
 }
 
 function plotGPS(points) {
