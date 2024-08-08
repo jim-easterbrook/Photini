@@ -27,6 +27,7 @@
 var map;
 var markers = {};
 var gpsMarkers = {};
+var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
 
@@ -40,6 +41,7 @@ function loadMap(lat, lng, zoom, options) {
     options.projection = 'mercator';
     options.style = 'mapbox://styles/mapbox/outdoors-v12';
     options.zoom = zoom - 1;
+    lastZoom = options.zoom;
     map = new mapboxgl.Map(options);
     const div = document.getElementById("mapDiv");
     const ltr = getComputedStyle(div).direction == 'ltr';
@@ -66,6 +68,7 @@ function ignoreEvent(event) {
 }
 
 function newBounds(event) {
+    lastZoom = map.getZoom();
     var centre = map.getCenter();
     // Adjust centre to allow for padding
     const pad = map.getPadding();
@@ -78,12 +81,13 @@ function newBounds(event) {
     python.new_status({
         centre: [centre.lat, centre.lng],
         bounds: [ne.lat, ne.lng, sw.lat, sw.lng],
-        zoom: map.getZoom() + 1,
+        zoom: lastZoom + 1,
     });
 }
 
 function setView(lat, lng, zoom) {
-    map.jumpTo({center: [lng, lat], padding: noPadding, zoom: zoom - 1});
+    lastZoom = zoom - 1;
+    map.jumpTo({center: [lng, lat], padding: noPadding, zoom: lastZoom});
 }
 
 function moveTo(bounds, withPadding, maxZoom) {
@@ -140,6 +144,7 @@ function moveTo(bounds, withPadding, maxZoom) {
     const zoom = map.getZoom();
     if (pan > 10 || Math.abs(options.zoom - zoom) > 2) {
         // Long distance, go by air
+        lastZoom = options.zoom;
         map.flyTo(options);
         return;
     }
@@ -164,6 +169,7 @@ function moveTo(bounds, withPadding, maxZoom) {
         options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
         options.zoom = zoom;
     }
+    lastZoom = options.zoom;
     map.easeTo(options);
 }
 
@@ -186,7 +192,7 @@ function fitPoints(points) {
             lng -= 360;
         bounds.extend([lng, points[i][0]]);
     }
-    moveTo(bounds, true, map.getZoom());
+    moveTo(bounds, true, lastZoom);
 }
 
 function plotGPS(points) {
