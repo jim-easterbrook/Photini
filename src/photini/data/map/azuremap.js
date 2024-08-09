@@ -156,22 +156,33 @@ function moveTo(bounds, withPadding, maxZoom) {
     }
     else {
         new_zoom = Math.min(new_zoom, maxZoom);
-        options = {zoom: new_zoom};
         if (withPadding && new_zoom == maxZoom && pan < 1.5) {
-            // Minimum pan to make marker(s) visible
-            dx = Math.max(
-                0, normDx(BBox.getEast(bounds) - BBox.getEast(mapBounds)));
-            dx = Math.min(
-                dx, normDx(BBox.getWest(bounds) - BBox.getWest(mapBounds)));
-            dy = Math.max(
-                0, BBox.getNorth(bounds) - BBox.getNorth(mapBounds));
-            dy = Math.min(
-                dy, BBox.getSouth(bounds) - BBox.getSouth(mapBounds));
-            options.center = Pos.fromLatLng(
-                camera.center[1] + dy, camera.center[0] + dx);
+            // Extend bounds to minimise pan
+            var west = BBox.getWest(bounds);
+            var south = BBox.getSouth(bounds);
+            var east = BBox.getEast(bounds);
+            var north = BBox.getNorth(bounds);
+            if (east > BBox.getEast(mapBounds))
+                west = Math.min(west, east - map_w);
+            else if (west < BBox.getWest(mapBounds))
+                east = Math.max(east, west + map_w);
+            else {
+                west = BBox.getWest(mapBounds);
+                east = BBox.getEast(mapBounds);
+            }
+            if (north > BBox.getNorth(mapBounds))
+                south = Math.min(south, north - map_h);
+            else if (south < BBox.getSouth(mapBounds))
+                north = Math.max(north, south + map_h);
+            else {
+                south = BBox.getSouth(mapBounds);
+                north = BBox.getNorth(mapBounds);
+            }
+            bounds = BBox([west, south, east, north])
+            options = {bounds: bounds, padding: padding};
         }
         else
-            options.center = BBox.getCenter(bounds);
+            options = {center: BBox.getCenter(bounds), zoom: new_zoom};
     }
     if (pan > 10 || Math.abs(new_zoom - camera.zoom) > 2) {
         // Long distance, go by air
