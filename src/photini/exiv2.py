@@ -140,10 +140,6 @@ class MetadataHandler(object):
                 if '.0x' in key:
                     # unknown key type
                     continue
-                family, group, tagname = key.split('.', 2)
-                if family == 'Exif' and exiv2.ExifTags.isMakerGroup(group):
-                    # don't transcode maker note stuff
-                    continue
                 raw_value = datum.value().data()
                 if self.decode_string(key, raw_value, 'utf-8') is not None:
                     # no need to do anything
