@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.2.1.post12\n"
+"Project-Id-Version: Photini 2024.5.0.post55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-16 15:16+0100\n"
+"POT-Creation-Date: 2024-08-13 10:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -158,18 +158,6 @@ msgid "Photini's tabs can be enabled or disabled with the ``Options`` menu as de
 msgstr ""
 
 msgid "You could even use a tab provided by another Python package by adding its module name to the list. See :doc:`extending` for more information."
-msgstr ""
-
-msgid "Metadata options"
-msgstr ""
-
-msgid "Photini can optionally read metadata from \"BMFF\" based filed types CR3, HEIF, HEIC, and AVIF. This requires use of python-exiv2 with libexiv2 v0.27.4 or later. (See :ref:`essential-dependencies` for more details about Photini's dependencies.) Using BMFF files may infringe patents. Please read the `Exiv2 warning`_ before enabling this feature."
-msgstr ""
-
-msgid "To enable BMFF file reading, edit the configuration file and set the ``enable_bmff`` option to ``True``:"
-msgstr ""
-
-msgid "Note that this only affects Photini's ability to read and write BMFF metadata. Reading image data (for thumbnails or the image regions tab) will probably need a Qt plugin to be installed. This should be easy if you installed PyQt or PySide with your operating system's package manager, but is probably impossible if you installed PyQt or PySide with pip."
 msgstr ""
 
 msgid "Descriptive metadata"
@@ -625,7 +613,7 @@ msgstr ""
 msgid "Geotagging"
 msgstr ""
 
-msgid "The map tabs allow you to set the location of where a photograph was taken. Photini currently uses three different map providers: Google, Bing, and Mapbox/OpenStreetMap. All three tabs have similar functionality, but have different styles and levels of detail. Google, Bing, and Mapbox also offer aerial (or \"satellite\") photography."
+msgid "The map tabs allow you to set the location of where a photograph was taken. Photini currently uses four different map providers: Google, Bing, Azure, and Mapbox/OpenStreetMap. (Microsoft have announced that Bing Maps will be \"retired\" in June 2025. Azure Maps is its replacement.) All four tabs have similar functionality, but have different styles and levels of detail. Each map has a drop down menu to switch between map and aerial / satellite imagery."
 msgstr ""
 
 msgid "The map initially displays the previously used location. You can change the view by zooming in or out, or by panning the map by dragging it with the mouse. However, it's usually easier to find a specific location by using the search facility."
@@ -655,7 +643,7 @@ msgstr ""
 msgid "In Photini version 2023.5.0 and later the coordinates are separated by a space. Older versions used a comma but this causes problems with locales that use a decimal comma instead of a decimal point."
 msgstr ""
 
-msgid "When several photographs have location metadata Photini will pan the map (and zoom out if required) to ensure all the selected images are shown on the map. Selected images are shown with coloured markers. Unselected images are shown with grey markers."
+msgid "When several photographs have location metadata Photini will pan the map (and zoom out if required) to ensure all the selected images are shown on the map. Selected images are shown with red markers. Unselected images are shown with grey markers."
 msgstr ""
 
 msgid "The ``Get altitude from map`` button sets the photograph's altitude (in metres) from its latitude and longitude, using data from the map provider. Not all map providers have altitude data, and the accuracy varies quite a lot. You can edit the value to correct it."
@@ -2014,7 +2002,7 @@ msgstr ""
 msgid "Czech translation by Pavel Fric"
 msgstr ""
 
-msgid "French translation by Nathan, J. Lavoie"
+msgid "French translation by Nathan, J. Lavoie, Thibault Chevrin"
 msgstr ""
 
 msgid "German translation by Jan Rimmek, J. Lavoie, Ettore Atalan"
