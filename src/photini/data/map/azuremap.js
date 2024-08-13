@@ -196,7 +196,7 @@ function moveTo(bounds, withPadding, maxZoom) {
     }
     else {
         options.type = 'ease';
-        options.duration = pan * 200;
+        options.duration = Math.min(500, pan * 200);
     }
     map.setCamera(options);
 }
