@@ -627,7 +627,6 @@ class UnitSelector(QtWidgets.QWidget):
 
 
 class RegionForm(QtWidgets.QScrollArea):
-    name_changed = QtSignal(object, str)
     new_value = QtSignal(int, dict)
 
     def __init__(self, idx, *arg, **kw):
@@ -881,7 +880,6 @@ class RegionTabs(QtWidgets.QTabWidget):
         self.clear()
         for idx in range(len(regions)):
             region_form = RegionForm(idx)
-            region_form.name_changed.connect(self.tab_name_changed)
             region_form.new_value.connect(self.new_value)
             self.addTab(region_form, str(idx + 1))
         current = min(max(current, 0), len(regions) - 1)
@@ -899,11 +897,6 @@ class RegionTabs(QtWidgets.QTabWidget):
         region_form = self.widget(idx)
         region_form.set_value(regions[idx])
         self.new_region.emit(idx, regions[idx])
-
-    @QtSlot(object, str)
-    @catch_all
-    def tab_name_changed(self, widget, name):
-        self.setTabText(self.indexOf(widget), name)
 
     @QtSlot(int, dict)
     @catch_all
