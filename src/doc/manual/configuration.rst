@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-23  Jim Easterbrook.
+   Copyright (C)  2012-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Configuration
@@ -182,28 +182,6 @@ You can reorder the tabs by reordering this list.
 You could even use a tab provided by another Python package by adding its module name to the list.
 See :doc:`extending` for more information.
 
-Metadata options
-^^^^^^^^^^^^^^^^
-
-Photini can optionally read metadata from "BMFF" based filed types CR3, HEIF, HEIC, and AVIF.
-This requires use of python-exiv2 with libexiv2 v0.27.4 or later.
-(See :ref:`essential-dependencies` for more details about Photini's dependencies.)
-Using BMFF files may infringe patents.
-Please read the `Exiv2 warning`_ before enabling this feature.
-
-To enable BMFF file reading, edit the configuration file and set the ``enable_bmff`` option to ``True``:
-
-.. code-block:: guess
-
-   [metadata]
-   enable_bmff = True
-
-Note that this only affects Photini's ability to read and write BMFF metadata.
-Reading image data (for thumbnails or the image regions tab) will probably need a Qt plugin to be installed.
-This should be easy if you installed PyQt or PySide with your operating system's package manager, but is probably impossible if you installed PyQt or PySide with pip.
-
-.. _Exiv2 warning:
-    https://github.com/exiv2/exiv2#support-for-bmff-files-cr3-heif-heic-and-avif
 .. _gpxpy:
     https://github.com/tkrajina/gpxpy
 .. _IPTC standard:

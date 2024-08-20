@@ -72,7 +72,10 @@ PyQt6 = ["PyQt6 >= 6.2", "PyQt6-WebEngine >= 6.2",
   "PyQt6-Qt6 != 6.6.1; sys_platform == 'darwin'",
   "PyQt6-WebEngine-Qt6 != 6.6.1; sys_platform == 'darwin'"
 ]
-PySide2 = ["PySide2 >= 5.11"]
+PySide2 = [
+  "PySide2 >= 5.11.1; python_version < '3.8'",
+  "PySide2 >= 5.14; python_version >= '3.8'",
+]
 PySide6 = ["PySide6 >= 6.2",
   "PySide6 != 6.6.1; sys_platform == 'darwin'"
 ]

@@ -101,6 +101,7 @@ class BingGeocoder(GeocoderBase):
 
 class TabWidget(PhotiniMap):
     api_key = key_store.get('bingmap', 'api_key')
+    use_layout_direction = False
 
     @staticmethod
     def tab_name():

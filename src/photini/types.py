@@ -1695,6 +1695,9 @@ class RegionBoundaryNumber(MD_Float):
     def compact_form(self):
         return round(self, self.decimals)
 
+    def __eq__(self, other):
+        return round(other, self.decimals) == round(self, self.decimals)
+
     def __str__(self):
         return '{:g}'.format(round(self, self.decimals))
 

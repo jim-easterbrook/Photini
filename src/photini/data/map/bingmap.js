@@ -21,7 +21,7 @@
 var map;
 var layers = [];
 
-function loadMap(lat, lng, zoom)
+function loadMap(lat, lng, zoom, options)
 {
     var mapOptions = {
         center: new Microsoft.Maps.Location(lat, lng),
