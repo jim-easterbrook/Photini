@@ -16,199 +16,270 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-// See https://docs.mapbox.com/mapbox.js/api/v3.3.1/
-// and https://leafletjs.com/reference-1.7.1.html
+// See https://docs.mapbox.com/mapbox-gl-js/guides
 
-var drag_id = -1;
+/* The style switcher control is from https://github.com/el/style-switcher
+ * It appears to be designed for something other than simple scripts so in
+ * mapboxmap.py we define a variable 'exports' before the style switcher
+ * script.
+ */
+
 var map;
 var markers = {};
 var gpsMarkers = {};
-var icon_on;
-var icon_off;
-var gpsBlueCircle;
-var gpsRedCircle
+var lastZoom = 0;
+const padding = {top: 40, bottom: 5, left: 18, right: 18};
+const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
 
-window.addEventListener('load', initialize);
 
-function loadMap(lat, lng, zoom, options)
-{
-    var streets = L.mapbox.styleLayer(
-        'mapbox://styles/mapbox/streets-v11', {tileSize: 512, zoomOffset: -1});
-    var outdoors = L.mapbox.styleLayer(
-        'mapbox://styles/mapbox/outdoors-v11', {tileSize: 512, zoomOffset: -1});
-    var satellite = L.mapbox.styleLayer(
-        'mapbox://styles/mapbox/satellite-v9', {tileSize: 512, zoomOffset: -1});
-    map = L.mapbox.map(document.getElementById("mapDiv"))
-    map.setView([lat, lng], zoom);
-    var baseMaps = {
-        "Street"  : streets,
-        "Outdoors": outdoors,
-        "Aerial"  : satellite,
-    };
-    outdoors.addTo(map);
-    L.control.layers(baseMaps).addTo(map);
-    L.control.scale().addTo(map);
+function loadMap(lat, lng, zoom, options) {
+    options.center = [lng, lat];
+    options.container = 'mapDiv';
+    options.dragRotate = false;
+    options.maxZoom = 19;
+    options.minZoom = 0;
+    options.projection = 'mercator';
+    options.style = 'mapbox://styles/mapbox/outdoors-v12';
+    options.zoom = zoom - 1;
+    lastZoom = options.zoom;
+    map = new mapboxgl.Map(options);
+    const div = document.getElementById("mapDiv");
+    const ltr = getComputedStyle(div).direction == 'ltr';
+    if (ltr)
+        padding.right += 40;
+    else
+        padding.left += 40;
+    map.addControl(new exports.MapboxStyleSwitcherControl([
+        {title: 'Street', uri: 'mapbox://styles/mapbox/streets-v12'},
+        {title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v12'},
+        {title: 'Aerial', uri: 'mapbox://styles/mapbox/satellite-v9'},
+    ], {defaultStyle: 'Outdoors'}), ltr ? 'top-right' : 'top-left');
+    map.addControl(new mapboxgl.NavigationControl({showCompass: false}),
+                   ltr ? 'top-right' : 'top-left');
+    map.addControl(new mapboxgl.ScaleControl());
     map.on('contextmenu', ignoreEvent);
-    map.on('moveend zoomend', newBounds);
-    icon_on = new L.Icon({
-        iconUrl: 'pin_red.png', iconSize: [25, 35], iconAnchor: [11, 35]});
-    icon_off = new L.Icon({
-        iconUrl: 'pin_grey.png', iconSize: [25, 35], iconAnchor: [11, 35]});
-    gpsBlueCircle = new L.Icon({
-        iconUrl: 'circle_blue.png', iconSize: [11, 11], iconAnchor: [5, 5]});
-    gpsRedCircle = new L.Icon({
-        iconUrl: 'circle_red.png', iconSize: [11, 11], iconAnchor: [5, 5]});
-    python.new_status({version: L.version});
+    map.on('moveend', newBounds);
+    map.on('zoomend', newBounds);
     python.initialize_finished();
     newBounds();
 }
 
-function ignoreEvent(event)
-{
+function ignoreEvent(event) {
 }
 
-function newBounds(event)
-{
+function newBounds(event) {
+    lastZoom = map.getZoom();
     var centre = map.getCenter();
-    var bounds = map.getBounds();
-    var sw = bounds.getSouthWest();
-    var ne = bounds.getNorthEast();
+    // Adjust centre to allow for padding
+    const pad = map.getPadding();
+    centre = map.project(centre);
+    centre = map.unproject([centre.x - ((pad.left - pad.right) / 2),
+                            centre.y - ((pad.top - pad.bottom) / 2)]);
+    const bounds = map.getBounds();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
     python.new_status({
         centre: [centre.lat, centre.lng],
         bounds: [ne.lat, ne.lng, sw.lat, sw.lng],
-        zoom: map.getZoom(),
-        });
+        zoom: lastZoom + 1,
+    });
 }
 
-function setView(lat, lng, zoom)
-{
-    map.setView([lat, lng], zoom, {animate: true});
+function setView(lat, lng, zoom) {
+    lastZoom = zoom - 1;
+    map.jumpTo({center: [lng, lat], padding: noPadding, zoom: lastZoom});
 }
 
-function adjustBounds(north, east, south, west)
-{
-    map.fitBounds([[north, east], [south, west]], {animate: true});
-}
-
-function fitPoints(points)
-{
-    var bounds = L.latLngBounds(points);
-    if (map.getBounds().contains(bounds))
+function moveTo(bounds, withPadding, maxZoom) {
+    var ne = bounds.getNorthEast();
+    var sw = bounds.getSouthWest();
+    // Set padding if needed
+    const oldPadding = map.getPadding();
+    const newPadding = withPadding ? padding : noPadding;
+    if (oldPadding.top != newPadding.top ||
+            oldPadding.bottom != newPadding.bottom ||
+            oldPadding.left != newPadding.left ||
+            oldPadding.right != newPadding.right) {
+        // Move centre to allow for padding change
+        var x_shift = ((newPadding.left - newPadding.right) -
+                       (oldPadding.left - oldPadding.right)) / 2;
+        var y_shift = ((newPadding.top - newPadding.bottom) -
+                       (oldPadding.top - oldPadding.bottom)) / 2;
+        var centre = map.getCenter();
+        centre = map.project(centre);
+        centre = map.unproject([centre.x + x_shift, centre.y + y_shift]);
+        map.jumpTo({center: centre, padding: newPadding});
+    }
+    // Get viewport after setting padding
+    const mapBounds = map.getBounds();
+    const map_ne = mapBounds.getNorthEast();
+    const map_sw = mapBounds.getSouthWest();
+    var width = map_ne.lng - map_sw.lng;
+    var height = map_ne.lat - map_sw.lat;
+    // Get centre and zoom needed to fit points
+    var options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
+    // Get pan needed
+    var dx = options.center.lng - mapBounds.getCenter().lng;
+    if (dx > 180) {
+        dx -= 360;
+        bounds = mapboxgl.LngLatBounds.convert([
+            [sw.lng - 360, sw.lat], [ne.lng - 360, ne.lat]]);
+        ne = bounds.getNorthEast();
+        sw = bounds.getSouthWest();
+        options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
+    }
+    else if (dx < -180) {
+        dx += 360;
+        bounds = mapboxgl.LngLatBounds.convert([
+            [sw.lng + 360, sw.lat], [ne.lng + 360, ne.lat]]);
+        ne = bounds.getNorthEast();
+        sw = bounds.getSouthWest();
+        options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
+    }
+    dx = Math.abs(dx)
+    const dy = Math.abs(options.center.lat - mapBounds.getCenter().lat);
+    // Compute normalised pan needed
+    const pan = Math.max(dx / Math.max(ne.lng - sw.lng, width),
+                         dy / Math.max(ne.lat - ne.lng, height));
+    const zoom = map.getZoom();
+    if (pan > 10 || Math.abs(options.zoom - zoom) > 2) {
+        // Long distance, go by air
+        lastZoom = options.zoom;
+        map.flyTo(options);
         return;
-    map.fitBounds(bounds, {
-        paddingTopLeft: [15, 50], paddingBottomRight: [15, 10],
-        maxZoom: map.getZoom(), animate: true});
+    }
+    if (withPadding && options.zoom == zoom && pan < 2) {
+        // Extend bounds to minimise pan
+        if (ne.lng > map_ne.lng)
+            bounds.extend([ne.lng - width, ne.lat]);
+        else if (sw.lng < map_sw.lng)
+            bounds.extend([sw.lng + width, sw.lat]);
+        else {
+            bounds.extend([map_ne.lng, ne.lat]);
+            bounds.extend([map_sw.lng, sw.lat]);
+        }
+        if (ne.lat > map_ne.lat)
+            bounds.extend([ne.lng, ne.lat - height]);
+        else if (sw.lat < map_sw.lat)
+            bounds.extend([sw.lng, sw.lat + height]);
+        else {
+            bounds.extend([ne.lng, map_ne.lat]);
+            bounds.extend([sw.lng, map_sw.lat]);
+        }
+        options = map.cameraForBounds(bounds, {maxZoom: maxZoom});
+        options.zoom = zoom;
+    }
+    lastZoom = options.zoom;
+    map.easeTo(options);
 }
 
-function plotGPS(points)
-{
-    for (var i = 0; i < points.length; i++)
-    {
-        var latlng = L.latLng(points[i][0], points[i][1]);
-        var id = points[i][2];
-        gpsMarkers[id] = L.marker(latlng, {
-            icon: gpsBlueCircle, interactive: false, zIndexOffset: 1001});
-        gpsMarkers[id].addTo(map);
+function adjustBounds(north, east, south, west) {
+    if (east < west)
+        // Spanning 180 degree meridian
+        east += 360;
+    moveTo(mapboxgl.LngLatBounds.convert([[west, south], [east, north]]),
+           false, map.getMaxZoom() - 3);
+}
+
+function fitPoints(points) {
+    var bounds = mapboxgl.LngLatBounds.convert([
+        [points[0][1], points[0][0]], [points[0][1], points[0][0]]]);
+    for (i in points) {
+        var lng = points[i][1];
+        if (bounds.getEast() - lng > 180)
+            lng += 360;
+        else if (lng - bounds.getWest() > 180)
+            lng -= 360;
+        bounds.extend([lng, points[i][0]]);
+    }
+    moveTo(bounds, true, lastZoom);
+}
+
+function plotGPS(points) {
+    for (i in points) {
+        var icon = document.createElement("img");
+        icon.src = 'circle_blue.png';
+        icon.style.zIndex = '0';
+        var marker = new mapboxgl.Marker({
+            anchor: 'center',
+            element: icon,
+        });
+        gpsMarkers[points[i][2]] = marker;
+        marker.setLngLat([points[i][1], points[i][0]]);
+        marker.addTo(map);
     }
 }
 
-function enableGPS(ids)
-{
-    for (var id in gpsMarkers)
-    {
-        var marker = gpsMarkers[id];
-        if (ids.includes(id))
-        {
-            marker.setZIndexOffset(1002);
-            marker.setIcon(gpsRedCircle);
-        }
-        else
-        {
-            marker.setZIndexOffset(1001);
-            marker.setIcon(gpsBlueCircle);
-        }
+function enableGPS(ids) {
+    for (id in gpsMarkers) {
+        var active = ids.includes(id);
+        var icon = gpsMarkers[id].getElement();
+        icon.src = active ? 'circle_red.png' : 'circle_blue.png';
+        icon.style.zIndex = active ? '1' : '0';
     }
 }
 
-function clearGPS()
-{
-    for (var id in gpsMarkers)
+function clearGPS() {
+    for (id in gpsMarkers)
         gpsMarkers[id].remove();
     gpsMarkers = {};
 }
 
-function enableMarker(id, active)
-{
-    var marker = markers[id];
-    if (active)
-    {
-        marker.setZIndexOffset(1000);
-        if (id != drag_id)
-            marker.setIcon(icon_on);
-    }
-    else
-    {
-        marker.setZIndexOffset(0);
-        marker.setIcon(icon_off);
-    }
+function enableMarker(id, active) {
+    var icon = markers[id].getElement();
+    icon.src = active ? 'pin_red.png' : 'pin_grey.png';
+    icon.style.zIndex = active ? '3' : '2';
 }
 
-function addMarker(id, lat, lng, active)
-{
-    var marker = L.marker([lat, lng], {draggable: true, autoPan: true});
-    marker.addTo(map);
+function addMarker(id, lat, lng, active) {
+    var icon = document.createElement("img");
+    icon.src = active ? 'pin_red.png' : 'pin_grey.png';
+    icon.style.cursor = 'pointer';
+    icon.style.zIndex = active ? '3' : '2';
+    var marker = new mapboxgl.Marker({
+        anchor: 'bottom',
+        draggable: true,
+        element: icon,
+        offset: [1.5, 0],
+    });
+    marker.metadata = {id: id};
     markers[id] = marker;
-    marker.on('click', markerClick);
+    marker.setLngLat([lng, lat]);
+    icon.addEventListener('click', markerClick);
     marker.on('dragstart', markerDragStart);
     marker.on('drag', markerDrag);
     marker.on('dragend', markerDragEnd);
-    enableMarker(id, active)
+    marker.addTo(map);
 }
 
-function markerToId(marker)
-{
-    for (var id in markers)
-        if (markers[id] == marker)
-            return id;
+function markerClick() {
+    for (id in markers)
+        if (markers[id].getElement() == this) {
+            python.marker_click(id);
+            return;
+        }
 }
 
-function markerClick(event)
-{
-    python.marker_click(markerToId(this));
+function markerDragStart() {
+    python.marker_click(this.metadata.id);
 }
 
-function markerDragStart(event)
-{
-    // workaround for Leaflet bug #4484 - don't change marker image until end
-    // of drag. https://github.com/Leaflet/Leaflet/issues/4484
-    var id = markerToId(this);
-    drag_id = id;
-    python.marker_click(id);
+function markerDrag() {
+    var pos = this.getLngLat();
+    python.marker_drag(pos.lat, pos.lng);
 }
 
-function markerDrag(event)
-{
-    var loc = this.getLatLng();
-    python.marker_drag(loc.lat, loc.lng);
+function markerDragEnd() {
+    var pos = this.getLngLat();
+    python.marker_drag_end(pos.lat, pos.lng, this.metadata.id);
 }
 
-function markerDragEnd(event)
-{
-    var loc = this.getLatLng();
-    var id = markerToId(this);
-    this.setIcon(icon_on);
-    python.marker_drag_end(loc.lat, loc.lng, id);
-    drag_id = -1;
+function markerDrop(x, y) {
+    var pos = map.unproject([x, y]);
+    python.marker_drop(pos.lat, pos.lng);
 }
 
-function markerDrop(x, y)
-{
-    var position = map.containerPointToLatLng([x, y]);
-    python.marker_drop(position.lat, position.lng);
-}
-
-function delMarker(id)
-{
-    map.removeLayer(markers[id]);
+function delMarker(id) {
+    markers[id].remove();
     delete markers[id];
 }

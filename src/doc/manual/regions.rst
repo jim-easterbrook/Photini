@@ -58,6 +58,9 @@ It can be useful to set cropping regions for an image.
 Many social media web sites crop images, typically to square or 16:9 aspect ratio landscape.
 This often causes problems such as decapitated bodies.
 
+Note that the unselected region is shown with a fainter, dashed outline.
+If regions don't overlap you can select a different region by clicking on it.
+
 .. image:: ../images/screenshot_278.png
 
 The polygon region is initially a triangle shape.

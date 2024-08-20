@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from datetime import timezone
+import locale
 import logging
 import os
 import pickle
@@ -200,6 +201,8 @@ class MapWebView(QWebEngineView):
 
 
 class PhotiniMap(QtWidgets.QWidget):
+    use_layout_direction = True
+
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
@@ -290,11 +293,10 @@ class PhotiniMap(QtWidgets.QWidget):
         # add or remove markers
         self.redraw_markers()
 
-    def get_body(self):
+    def get_body(self, text_dir):
         return '''  <body ondragstart="return false">
-    <div id="mapDiv"></div>
-  </body>
-'''
+    <div id="mapDiv" dir="{text_dir}"></div>
+  </body>'''.format(text_dir=text_dir)
 
     def get_options(self):
         return {}
@@ -302,8 +304,16 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def initialise(self):
+        lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
+        zoom = float(self.app.config_store.get('map', 'zoom', 11))
+        lang, encoding = locale.getlocale()
+        lang = lang or 'en-GB'
+        lang = lang.replace('_', '-')
+        text_dir = ('ltr', 'rtl')[
+            self.use_layout_direction and
+            self.layoutDirection() == Qt.LayoutDirection.RightToLeft]
         page = '''<!DOCTYPE html>
-<html>
+<html lang="{lang}" dir="{text_dir}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
@@ -311,33 +321,25 @@ class PhotiniMap(QtWidgets.QWidget):
       html, body {{ height: 100%; margin: 0; padding: 0 }}
       #mapDiv {{ position: relative; width: 100%; height: 100% }}
     </style>
-{initialize}
-{head}
-  </head>
-{body}
-</html>'''
-        lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
-        zoom = int(self.app.config_store.get('map', 'zoom', 11))
-        initialize = '''    <script type="text/javascript"
+    <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">
     </script>
     <script type="text/javascript">
       var python;
-      function initialize()
-      {{
+      function initialize() {{
           new QWebChannel(qt.webChannelTransport, doLoadMap);
       }}
-      function doLoadMap(channel)
-      {{
+      function doLoadMap(channel) {{
           python = channel.objects.python;
           loadMap({lat}, {lng}, {zoom}, {options});
       }}
-    </script>'''
-        page = page.format(
-            head = self.get_head(),
-            body = self.get_body(),
-            initialize = initialize.format(
-                lat=lat, lng=lng, zoom=zoom, options=self.get_options()))
+    </script>
+{head}
+  </head>
+{body}
+</html>'''.format(lat=lat, lng=lng, zoom=zoom, lang=lang, text_dir=text_dir,
+                  head=self.get_head(), body=self.get_body(text_dir),
+                  options=self.get_options())
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
@@ -362,8 +364,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if self.map_loaded < 2:
             return
         lat, lng = self.app.config_store.get('map', 'centre')
-        zoom = int(self.app.config_store.get('map', 'zoom'))
-        self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
+        zoom = float(self.app.config_store.get('map', 'zoom'))
+        self.JavaScript('setView({!r},{!r},{:f})'.format(lat, lng, zoom))
         self.new_selection(selection, adjust_map=False)
 
     def do_not_close(self):

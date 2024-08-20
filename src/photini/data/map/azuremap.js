@@ -25,6 +25,7 @@ const Pos = atlas.data.Position;
 const Pxl = atlas.Pixel;
 
 var map;
+var lastCamera = {};
 var layers = [];
 var padding = {top: 40, bottom: 5, left: 18, right: 18};
 
@@ -32,6 +33,7 @@ function loadMap(lat, lng, zoom, options) {
     options.center = [lng, lat];
     options.dragRotateInteraction = false;
     options.maxZoom = 19;
+    options.minZoom = 1;
     options.zoom = zoom - 1;
     map = new atlas.Map("mapDiv", options);
     //Wait until the map resources are ready.
@@ -39,13 +41,19 @@ function loadMap(lat, lng, zoom, options) {
 }
 
 function mapReady() {
+    const div = document.getElementById("mapDiv");
+    const ltr = getComputedStyle(div).direction == 'ltr';
+    if (ltr)
+        padding.right += 110;
+    else
+        padding.left += 110;
     map.controls.add(
         [new atlas.control.StyleControl({
             mapStyles: ['road', 'road_shaded_relief',
                         'satellite', 'satellite_road_labels'],
             layout: 'list'}),
          new atlas.control.ZoomControl()],
-        {position: 'top-right'});
+        {position: ltr ? 'top-right' : 'top-left'});
     map.controls.add(
         [new atlas.control.ScaleControl()],
         {position: 'bottom-left'});
@@ -86,20 +94,14 @@ function mapReady() {
     });
 }
 
-//function newCredentials(sessionId) {
-//    python.new_status({
-//        session_id: sessionId,
-//        });
-//    python.initialize_finished();
-//}
-
 function newBounds() {
-    var camera = map.getCamera();
+    lastCamera = map.getCamera();
+    const bounds = lastCamera.bounds;
     python.new_status({
-        centre: [camera.center[1], camera.center[0]],
-        bounds: [camera.bounds[3], camera.bounds[2],
-                 camera.bounds[1], camera.bounds[0]],
-        zoom: camera.zoom + 1,
+        centre: [lastCamera.center[1], lastCamera.center[0]],
+        bounds: [BBox.getNorth(bounds), BBox.getEast(bounds),
+                 BBox.getSouth(bounds), BBox.getWest(bounds)],
+        zoom: lastCamera.zoom + 1,
         });
 }
 
@@ -107,68 +109,105 @@ function setView(lat, lng, zoom) {
     map.setCamera({center: [lng, lat], zoom: zoom - 1});
 }
 
-function adjustBounds(north, east, south, west) {
-    map.setCamera({bounds: [west, south, east, north], padding: padding});
+function normDx(dx) {
+    if (dx > 180)
+        return dx - 360;
+    if (dx < -180)
+        return dx + 360;
+    return dx;
 }
 
-function fitPoints(points) {
-    var positions = [];
-    for (i in points)
-        // NB fromLatLng params are lng, lat
-        positions.push(Pos.fromLatLng(points[i][1], points[i][0]));
-    var bounds = BBox.fromPositions(positions);
-    var mapBounds = map.getCamera().bounds;
-    // Reduce map bounds to allow for padding
-    var zoom = map.getCamera().zoom;
-    positions = [BBox.getNorthEast(mapBounds), BBox.getSouthWest(mapBounds)];
-    pixels = atlas.math.mercatorPositionsToPixels(positions, zoom);
-    pixels = [
-        Pxl(Pxl.getX(pixels[0]) - padding.right,
-            Pxl.getY(pixels[0]) + padding.top),
-        Pxl(Pxl.getX(pixels[1]) + padding.left,
-            Pxl.getY(pixels[1]) - padding.bottom)];
-    positions = atlas.math.mercatorPixelsToPositions(pixels, zoom);
-    mapBounds = BBox.fromPositions(positions);
-    // Get opposite corners of points bounding box
-    var ne = BBox.getNorthEast(bounds);
-    var sw = BBox.getSouthWest(bounds);
-    if (BBox.containsPosition(mapBounds, ne) &&
-        BBox.containsPosition(mapBounds, sw))
-        return;
-    // Compute minimum map pan required
-    var dx = Math.max(0, ne[0] - BBox.getEast(mapBounds));
-    dx = Math.min(dx, sw[0] - BBox.getWest(mapBounds));
-    var dy = Math.max(0, ne[1] - BBox.getNorth(mapBounds));
-    dy = Math.min(dy, sw[1] - BBox.getSouth(mapBounds));
-    // Jump, pan or zoom out?
+function moveTo(bounds, withPadding, maxZoom) {
+    const camera = map.getCamera();
+    var mapBounds = lastCamera.bounds;
+    if (withPadding) {
+        // Reduce map bounds to allow for padding
+        var positions = [
+            BBox.getNorthEast(mapBounds), BBox.getSouthWest(mapBounds)];
+        var pixels = atlas.math.mercatorPositionsToPixels(
+            positions, lastCamera.zoom);
+        pixels = [Pxl(Pxl.getX(pixels[0]) - padding.right,
+                      Pxl.getY(pixels[0]) + padding.top),
+                  Pxl(Pxl.getX(pixels[1]) + padding.left,
+                      Pxl.getY(pixels[1]) - padding.bottom)];
+        positions = atlas.math.mercatorPixelsToPositions(
+            pixels, lastCamera.zoom);
+        mapBounds = BBox.fromPositions(positions);
+    }
+    // Get map and bounds dimensions
     var map_h = BBox.getHeight(mapBounds);
     var map_w = BBox.getWidth(mapBounds);
     var bounds_h = BBox.getHeight(bounds);
     var bounds_w = BBox.getWidth(bounds);
+    // Compute normalised pan needed
+    const boundsCentre = BBox.getCenter(bounds);
+    // If map is mid flight, use current position to determine pan needed
+    const mapCentre = BBox.getCenter(camera.bounds);
+    var dx = normDx(boundsCentre[0] - mapCentre[0]);
+    var dy = boundsCentre[1] - mapCentre[1];
+    const pan = Math.max(Math.abs(dx) / Math.max(bounds_w, map_w),
+                         Math.abs(dy) / Math.max(bounds_h, map_h));
+    // Jump, pan or zoom out?
     var options = {};
-    if (bounds_h > map_h || bounds_w > map_w) {
-        // Zoom out
-        options = {bounds: bounds, padding: padding};
-        map_h = Math.max(map_h, bounds_h);
-        map_w = Math.max(map_w, bounds_w);
+    var new_zoom = lastCamera.zoom - Math.log2(
+        Math.max(1.0e-30, bounds_h / map_h, bounds_w / map_w));
+    if (new_zoom < lastCamera.zoom) {
+        // Zoom out to fit bounds
+        options = {bounds: bounds};
+        if (withPadding)
+            options.padding = padding;
     }
     else {
-        // Don't zoom in
-        options = {zoom: zoom};
-        if (Math.abs(dx) > map_w * 2 || Math.abs(dy) > map_h * 2)
-            options.center = BBox.getCenter(bounds);
-        else {
-            var centre = map.getCamera().center;
-            options.center = Pos.fromLatLng(centre[0] + dx, centre[1] + dy);
+        new_zoom = Math.min(new_zoom, maxZoom);
+        if (withPadding && new_zoom == maxZoom && pan < 1.5) {
+            // Extend bounds to minimise pan
+            var west = BBox.getWest(bounds);
+            var south = BBox.getSouth(bounds);
+            var east = BBox.getEast(bounds);
+            var north = BBox.getNorth(bounds);
+            if (east > BBox.getEast(mapBounds))
+                west = Math.min(west, east - map_w);
+            else if (west < BBox.getWest(mapBounds))
+                east = Math.max(east, west + map_w);
+            else {
+                west = BBox.getWest(mapBounds);
+                east = BBox.getEast(mapBounds);
+            }
+            if (north > BBox.getNorth(mapBounds))
+                south = Math.min(south, north - map_h);
+            else if (south < BBox.getSouth(mapBounds))
+                north = Math.max(north, south + map_h);
+            else {
+                south = BBox.getSouth(mapBounds);
+                north = BBox.getNorth(mapBounds);
+            }
+            bounds = BBox([west, south, east, north])
+            options = {bounds: bounds, padding: padding};
         }
+        else
+            options = {center: BBox.getCenter(bounds), zoom: new_zoom};
     }
-    if (Math.abs(dx) > map_w * 2 || Math.abs(dy) > map_h * 2)
-        options.type = 'jump';
+    if (pan > 10 || Math.abs(new_zoom - camera.zoom) > 2) {
+        // Long distance, go by air
+        options.type = 'fly';
+        options.duration = Math.max(
+            500, Math.log(Math.max(pan, 0.1)) * 1000,
+            Math.abs(new_zoom - camera.zoom) * 400);
+    }
     else {
         options.type = 'ease';
-        options.duration = 250;
+        options.duration = Math.min(500, pan * 200);
     }
     map.setCamera(options);
+}
+
+function adjustBounds(north, east, south, west) {
+    moveTo([west, south, east, north], false, map.getCamera().maxZoom - 3);
+}
+
+function fitPoints(points) {
+    moveTo(BBox.fromPositions(Pos.fromLatLngs(points)),
+           true, lastCamera.zoom);
 }
 
 function plotGPS(points) {

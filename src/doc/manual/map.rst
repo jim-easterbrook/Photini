@@ -1,14 +1,15 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-23  Jim Easterbrook.
+   Copyright (C)  2012-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Geotagging
 ==========
 
 The map tabs allow you to set the location of where a photograph was taken.
-Photini currently uses three different map providers: Google, Bing, and Mapbox/OpenStreetMap.
-All three tabs have similar functionality, but have different styles and levels of detail.
-Google, Bing, and Mapbox also offer aerial (or "satellite") photography.
+Photini currently uses four different map providers: Google, Bing, Azure, and Mapbox/OpenStreetMap.
+(Microsoft have announced that Bing Maps will be "retired" in June 2025. Azure Maps is its replacement.)
+All four tabs have similar functionality, but have different styles and levels of detail.
+Each map has a drop down menu to switch between map and aerial / satellite imagery.
 
 .. image:: ../images/screenshot_130.png
 
@@ -59,7 +60,7 @@ Older versions used a comma but this causes problems with locales that use a dec
 .. image:: ../images/screenshot_136.png
 
 When several photographs have location metadata Photini will pan the map (and zoom out if required) to ensure all the selected images are shown on the map.
-Selected images are shown with coloured markers.
+Selected images are shown with red markers.
 Unselected images are shown with grey markers.
 
 .. image:: ../images/screenshot_137.png
