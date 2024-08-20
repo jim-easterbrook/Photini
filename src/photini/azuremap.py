@@ -46,10 +46,10 @@ class AzureGeocoder(GeocoderBase):
             except Exception as ex:
                 logger.error(str(ex))
                 return []
-        if rsp.status_code >= 400:
-            logger.error('Search error %d', rsp.status_code)
-            return []
         rsp = rsp.json()
+        if 'error' in rsp:
+            logger.error('Search error: %s', rsp['error']['message'])
+            return []
         features = rsp['features']
         if not features:
             logger.error('No results found')
