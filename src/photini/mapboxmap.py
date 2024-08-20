@@ -31,6 +31,7 @@ translate = QtCore.QCoreApplication.translate
 
 
 class MapboxGeocoder(GeocoderBase):
+    # see https://docs.mapbox.com/api/search/geocoding-v5/
     api_key = key_store.get('mapboxmap', 'api_key')
     cache_size = 0
 
@@ -84,7 +85,7 @@ class MapboxGeocoder(GeocoderBase):
                 yield north, east, south, west, feature['place_name']
             elif 'center' in feature:
                 east, north = feature['center']
-                yield north, east, None, None, feature['place_name']
+                yield north, east, north, east, feature['place_name']
 
     def search_terms(self):
         widget = CompactButton(
@@ -110,11 +111,34 @@ class TabWidget(PhotiniMap):
         return MapboxGeocoder(parent=self)
 
     def get_head(self):
-        return '''    <link rel="stylesheet" href="{url}/mapbox.css" />
-    <script type="text/javascript" src="{url}/mapbox.js">
-    </script>
-    <script type="text/javascript">
-      L.mapbox.accessToken = "{key}";
-    </script>
-    <script type="text/javascript" src="mapboxmap.js"></script>'''.format(
-        key=self.api_key, url='https://api.mapbox.com/mapbox.js/v3.3.1')
+        url = 'https://api.mapbox.com/mapbox-gl-js/v3.4.0'
+        return """<script type="text/javascript">
+var exports = {{}};
+</script>
+<script src='{url}/mapbox-gl.js'></script>
+<link href='{url}/mapbox-gl.css' rel='stylesheet' />
+<script
+ src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/index.min.js"
+ integrity="sha512-YUXVABhePA/4bucH67dmr0jHhoAftZaohBcK9iHk4XhwPpV1Tp5I2OhKooiettXrc29cdCe0TER4D+YPJg6HOA=="
+ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet"
+ href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/styles.min.css"
+ integrity="sha512-0Yn+skifSWsXXCwOpPt30lf5Yq3bXo607axVyGBNJZPJPAhMFhTImY/AOMY4oH7Cpd3dwjF9T8YK/n64qPZsDQ=="
+ crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script type="text/javascript" src="mapboxmap.js"></script>""".format(url=url)
+
+    def get_body(self, text_dir):
+        return '''  <body onload="initialize()" ondragstart="return false">
+    <div id="mapDiv" dir="{text_dir}"></div>
+  </body>'''.format(text_dir=text_dir)
+
+    def get_options(self):
+        options = {'accessToken': self.api_key}
+        lang, encoding = locale.getlocale()
+        if lang:
+            lang = lang.replace('_', '-')
+            options['language'] = lang
+            language, sep, region = lang.partition('-')
+            if region:
+                options['worldview'] = region
+        return options

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2023  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2023-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import datetime
 import itertools
 import logging
 import math
@@ -246,7 +247,9 @@ class PixelfedUser(UploaderUser):
             yield 'user', (account['display_name'], rsp and rsp.content)
             # get instance info
             self.client_data['version'] = {'mastodon': None, 'pixelfed': None}
-            self.instance_config = session.api_call('/api/v1/instance')
+            self.instance_config = session.api_call('/api/v2/instance')
+            if not self.instance_config:
+                self.instance_config = session.api_call('/api/v1/instance')
             if not self.instance_config:
                 yield 'connected', False
             self.new_instance_config.emit(self.instance_config)
@@ -322,7 +325,8 @@ class PixelfedUser(UploaderUser):
                         'title': collection['title'] or 'Untitled',
                         'description': collection['description'],
                         'id': collection['id'],
-                        'writeable': collection['post_count'] < 18,
+                        # default max collection length is 100
+                        'writeable': collection['post_count'] < 100,
                         }
 
     def load_user_data(self):
@@ -780,7 +784,8 @@ class TabWidget(PhotiniUploader):
     @catch_all
     def auto_status(self):
         result = {
-            'title': [], 'headline': [], 'description': [], 'keywords': []}
+            'title': [], 'headline': [], 'description': [], 'keywords': [],
+            'date_taken': []}
         for image in self.get_selected_images():
             for key in result:
                 result[key].append(getattr(image.metadata, key))
@@ -791,6 +796,8 @@ class TabWidget(PhotiniUploader):
             x.best_match(lang) for x in result['description'] if x]
         result['keywords'] = [x.human_tags() for x in result['keywords'] if x]
         result['keywords'] = list(itertools.chain(*result['keywords']))
+        result['date_taken'] = [
+            x.to_ISO_8601(precision=3) for x in result['date_taken'] if x]
         strings = []
         for key in ('title', 'headline', 'description'):
             if not result[key]:
@@ -807,8 +814,16 @@ class TabWidget(PhotiniUploader):
             keywords = [re.sub(r'[^\w\s]', '', x, re.UNICODE)
                         for x in result['keywords']]
             # convert to #CamelCase
-            keywords = ['#' + x.title().replace(' ', '') for x in keywords]
+            keywords = ['#' + ''.join([(y, y.capitalize())[y[0].islower()]
+                                       for y in x.split()]) for x in keywords]
             strings.append(' '.join(set(keywords)))
+        if strings and result['date_taken']:
+            start = min(result['date_taken'])
+            stop = max(result['date_taken'])
+            if stop != start:
+                strings[0] = '{}..{}: {}'.format(start, stop, strings[0])
+            elif start != datetime.date.today().isoformat():
+                strings[0] = '{}: {}'.format(start, strings[0])
         self.widget['status'].set_value('\n\n'.join(strings))
 
     @QtSlot()
