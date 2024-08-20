@@ -814,7 +814,8 @@ class TabWidget(PhotiniUploader):
             keywords = [re.sub(r'[^\w\s]', '', x, re.UNICODE)
                         for x in result['keywords']]
             # convert to #CamelCase
-            keywords = ['#' + x.title().replace(' ', '') for x in keywords]
+            keywords = ['#' + ''.join([(y, y.capitalize())[y[0].islower()]
+                                       for y in x.split()]) for x in keywords]
             strings.append(' '.join(set(keywords)))
         if strings and result['date_taken']:
             start = min(result['date_taken'])
