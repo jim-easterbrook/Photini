@@ -100,7 +100,8 @@ class RegionMixin(object):
             pen.setColor(QtGui.QColor(0, 0, 0, 120))
             pen.setWidthF(draw_unit * 5.5)
         else:
-            pen.setColor(Qt.GlobalColor.gray)
+            pen.setColor(Qt.GlobalColor.lightGray)
+            pen.setStyle(Qt.PenStyle.DashLine)
             pen.setWidthF(draw_unit * 1.5)
         self.setPen(pen)
 
