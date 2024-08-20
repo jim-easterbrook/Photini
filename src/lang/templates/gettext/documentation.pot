@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.5.0.post55\n"
+"Project-Id-Version: Photini 2024.5.0.post63\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-13 10:42+0100\n"
+"POT-Creation-Date: 2024-08-20 12:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -854,6 +854,9 @@ msgid "The IPTC specification allows any other metadata to be attached to a regi
 msgstr ""
 
 msgid "It can be useful to set cropping regions for an image. Many social media web sites crop images, typically to square or 16:9 aspect ratio landscape. This often causes problems such as decapitated bodies."
+msgstr ""
+
+msgid "Note that the unselected region is shown with a fainter, dashed outline. If regions don't overlap you can select a different region by clicking on it."
 msgstr ""
 
 msgid "The polygon region is initially a triangle shape. Right-clicking on one of its vertices allows a vertex to be added or deleted."
