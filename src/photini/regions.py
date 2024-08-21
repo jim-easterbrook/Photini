@@ -551,8 +551,20 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 boundary = PointRegion(region, self, draw_unit, active)
             else:
                 boundary = PolygonRegion(region, self, draw_unit, active)
+            if active:
+                boundary.setZValue(100)
             scene.addItem(boundary)
             self.boundaries.append(boundary)
+        for m in range(len(self.boundaries)):
+            item_m = self.boundaries[m]
+            for n in range(m + 1, len(self.boundaries)):
+                item_n = self.boundaries[n]
+                if item_m.collidesWithItem(
+                        item_n, Qt.ItemSelectionMode.ContainsItemBoundingRect):
+                    item_m.setZValue(max(item_m.zValue(), item_n.zValue() + 1))
+                elif item_n.collidesWithItem(
+                        item_m, Qt.ItemSelectionMode.ContainsItemBoundingRect):
+                    item_n.setZValue(max(item_n.zValue(), item_m.zValue() + 1))
         self.ensureVisible(self.boundaries[max(idx, 0)])
 
     def item_clicked(self, scene_item):
