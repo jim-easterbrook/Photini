@@ -45,7 +45,7 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         border = QtWidgets.QGraphicsRectItem(parent=self)
         pen.setColor(Qt.GlobalColor.black)
         border.setPen(pen)
-        r -= 1
+        r = draw_unit * 4
         border.setRect(-r, -r, r * 2, r * 2)
 
     @catch_all
@@ -108,6 +108,11 @@ class RegionMixin(object):
     def item_clicked(self):
         self.display_widget.item_clicked(self)
 
+    def set_scale(self):
+        scale = 1.0 / self.display_widget.transform().m11()
+        for handle in self.handles:
+            handle.setScale(scale)
+
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
     def __init__(self, region, display_widget, draw_unit, active,
@@ -127,6 +132,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
             self.highlight = QtWidgets.QGraphicsRectItem(parent=self)
         self.adjust_handles()
         self.set_style(draw_unit)
+        self.set_scale()
 
     @catch_all
     def itemChange(self, change, value):
@@ -232,6 +238,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
             self.highlight = QtWidgets.QGraphicsEllipseItem(parent=self)
         self.set_geometry(centre, radius)
         self.set_style(draw_unit)
+        self.set_scale()
 
     @catch_all
     def mousePressEvent(self, event):
@@ -298,6 +305,11 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
             self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
             self.highlight.setPolygon(polygon)
         self.set_style(draw_unit)
+        self.set_scale()
+
+    def set_scale(self):
+        scale = 1.0 / self.display_widget.transform().m11()
+        self.setScale(scale)
 
     @catch_all
     def itemChange(self, change, value):
@@ -344,6 +356,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
             self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
             self.highlight.setPolygon(polygon)
         self.set_style(draw_unit)
+        self.set_scale()
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -429,6 +442,20 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.setScene(QtWidgets.QGraphicsScene())
         self.boundaries = []
 
+    @catch_all
+    def wheelEvent(self, event):
+        if not event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            return super(ImageDisplayWidget, self).wheelEvent(event)
+        # zoom in or out
+        delta = event.angleDelta().y()
+        scale = 1.0 + (delta / 1200)
+        anchor = self.transformationAnchor()
+        self.setTransformationAnchor(self.ViewportAnchor.AnchorUnderMouse)
+        self.scale(scale, scale)
+        self.setTransformationAnchor(anchor)
+        for boundary in self.boundaries:
+            boundary.set_scale()
+
     def set_image(self, image):
         self.image = image
         scene = self.scene()
@@ -468,19 +495,19 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 orientation = image.metadata.orientation
                 transform = orientation and orientation.get_transform()
                 if transform:
-                    self.setTransform(transform)
                     rect = transform.mapRect(rect)
-                w, h = pixmap.width(), pixmap.height()
-                if w * rect.height() < h * rect.width():
-                    pixmap = pixmap.scaledToWidth(
-                        rect.width()
-                        - self.verticalScrollBar().sizeHint().width(),
-                        Qt.TransformationMode.SmoothTransformation)
                 else:
-                    pixmap = pixmap.scaledToHeight(
-                        rect.height()
-                        - self.horizontalScrollBar().sizeHint().height(),
-                        Qt.TransformationMode.SmoothTransformation)
+                    transform = QtGui.QTransform()
+                w_im, h_im = pixmap.width(), pixmap.height()
+                w_sc, h_sc = rect.width(), rect.height()
+                if w_im * h_sc < h_im * w_sc:
+                    w_sc -= self.verticalScrollBar().sizeHint().width()
+                    scale = w_sc / w_im
+                else:
+                    h_sc -= self.horizontalScrollBar().sizeHint().height()
+                    scale = h_sc / h_im
+                transform = transform.scale(scale, scale)
+                self.setTransform(transform)
                 item = QtWidgets.QGraphicsPixmapItem(pixmap)
                 scene.addItem(item)
             scene.setSceneRect(item.boundingRect())
