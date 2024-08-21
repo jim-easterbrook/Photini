@@ -695,7 +695,7 @@ class UnitSelector(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def state_changed(self):
-        self.new_value.emit({self._key, self.get_value()})
+        self.new_value.emit({self._key: self.get_value()})
 
     def get_value(self):
         for key, widget in self.buttons.items():
