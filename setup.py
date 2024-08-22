@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ else:
     setup(name = metadata['project']['name'],
           author = metadata['project']['authors'][0]['name'],
           author_email = metadata['project']['authors'][0]['email'],
-          url = metadata['project']['urls']['homepage'],
+          url = metadata['project']['urls']['Homepage'],
           description = metadata['project']['description'],
           long_description = long_description,
           classifiers = metadata['project']['classifiers'],
