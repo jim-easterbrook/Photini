@@ -140,7 +140,7 @@ function moveTo(bounds, withPadding, maxZoom) {
     const dy = Math.abs(options.center.lat - mapBounds.getCenter().lat);
     // Compute normalised pan needed
     const pan = Math.max(dx / Math.max(ne.lng - sw.lng, width),
-                         dy / Math.max(ne.lat - ne.lng, height));
+                         dy / Math.max(ne.lat - sw.lat, height));
     const zoom = map.getZoom();
     if (pan > 10 || Math.abs(options.zoom - zoom) > 2) {
         // Long distance, go by air
