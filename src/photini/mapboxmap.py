@@ -111,7 +111,7 @@ class TabWidget(PhotiniMap):
         return MapboxGeocoder(parent=self)
 
     def get_head(self):
-        url = 'https://api.mapbox.com/mapbox-gl-js/v3.4.0'
+        url = 'https://api.mapbox.com/mapbox-gl-js/v3.6.0'
         return """<script type="text/javascript">
 var exports = {{}};
 </script>
