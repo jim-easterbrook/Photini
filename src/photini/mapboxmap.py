@@ -111,24 +111,49 @@ class TabWidget(PhotiniMap):
         return MapboxGeocoder(parent=self)
 
     def get_head(self):
-        url = 'https://api.mapbox.com/mapbox-gl-js/v3.4.0'
-        return """<script type="text/javascript">
-var exports = {{}};
+        return """<script
+  src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-supported/v2.0.0/mapbox-gl-supported.js'>
 </script>
-<script src='{url}/mapbox-gl.js'></script>
-<link href='{url}/mapbox-gl.css' rel='stylesheet' />
-<script
- src="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/index.min.js"
- integrity="sha512-YUXVABhePA/4bucH67dmr0jHhoAftZaohBcK9iHk4XhwPpV1Tp5I2OhKooiettXrc29cdCe0TER4D+YPJg6HOA=="
- crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet"
- href="https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/styles.min.css"
- integrity="sha512-0Yn+skifSWsXXCwOpPt30lf5Yq3bXo607axVyGBNJZPJPAhMFhTImY/AOMY4oH7Cpd3dwjF9T8YK/n64qPZsDQ=="
- crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script type="text/javascript" src="mapboxmap.js"></script>""".format(url=url)
+<script type="text/javascript">
+function chooseMap() {{
+    if (mapboxgl.supported())
+        loadLibrary('{url_gl}/mapbox-gl.js', '{url_gl}/mapbox-gl.css',
+                    'mapboxmap.js');
+    else
+        loadLibrary('{url_js}/mapbox.js', '{url_js}/mapbox.css',
+                    'mapboxmap_legacy.js');
+}}
+function loadLibrary(jsSource, cssSource, scriptName) {{
+    const headElement = document.getElementsByTagName('head')[0];
+    const scriptElement = document.createElement('script');
+    const styleElement = document.createElement('link');
+
+    styleElement.href = cssSource;
+    styleElement.rel = 'stylesheet';
+    headElement.appendChild(styleElement);
+
+    scriptElement.type = 'text/javascript';
+    scriptElement.onload = function() {{
+        loadScript(scriptName);
+    }};
+    scriptElement.src = jsSource;
+    headElement.appendChild(scriptElement);
+}}
+function loadScript(scriptName) {{
+    const headElement = document.getElementsByTagName('head')[0];
+    const scriptElement = document.createElement('script');
+
+    scriptElement.type = 'text/javascript';
+    scriptElement.onload = initialize;
+    scriptElement.src = scriptName;
+    headElement.appendChild(scriptElement);
+}}
+</script>""".format(
+    url_gl='https://api.mapbox.com/mapbox-gl-js/v3.6.0',
+    url_js='https://api.mapbox.com/mapbox.js/v3.3.1')
 
     def get_body(self, text_dir):
-        return '''  <body onload="initialize()" ondragstart="return false">
+        return '''  <body onload="chooseMap()" ondragstart="return false">
     <div id="mapDiv" dir="{text_dir}"></div>
   </body>'''.format(text_dir=text_dir)
 

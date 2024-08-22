@@ -24,6 +24,7 @@
  * script.
  */
 
+var exports = {};
 var map;
 var markers = {};
 var gpsMarkers = {};
@@ -33,6 +34,24 @@ const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
 
 
 function loadMap(lat, lng, zoom, options) {
+    // Load mapbox-gl-style-switcher script and CSS
+    const headElement = document.getElementsByTagName('head')[0];
+    const scriptElement = document.createElement('script');
+    const styleElement = document.createElement('link');
+
+    styleElement.href = 'https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/styles.min.css';
+    styleElement.rel = 'stylesheet';
+    headElement.appendChild(styleElement);
+
+    scriptElement.type = 'text/javascript';
+    scriptElement.onload = function () {
+        loadMap2(lat, lng, zoom, options);
+    };
+    scriptElement.src = 'https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/index.min.js';
+    headElement.appendChild(scriptElement);
+}
+
+function loadMap2(lat, lng, zoom, options) {
     options.center = [lng, lat];
     options.container = 'mapDiv';
     options.dragRotate = false;
@@ -140,7 +159,7 @@ function moveTo(bounds, withPadding, maxZoom) {
     const dy = Math.abs(options.center.lat - mapBounds.getCenter().lat);
     // Compute normalised pan needed
     const pan = Math.max(dx / Math.max(ne.lng - sw.lng, width),
-                         dy / Math.max(ne.lat - ne.lng, height));
+                         dy / Math.max(ne.lat - sw.lat, height));
     const zoom = map.getZoom();
     if (pan > 10 || Math.abs(options.zoom - zoom) > 2) {
         // Long distance, go by air

@@ -83,10 +83,10 @@ gpxpy = ["gpxpy >= 1.3.5, != 1.6.0"]
 Pillow = []
 
 [project.urls]
-homepage = "https://github.com/jim-easterbrook/Photini"
-documentation = "https://photini.readthedocs.io/"
-repository = "https://github.com/jim-easterbrook/Photini"
-changelog = "https://github.com/jim-easterbrook/Photini/blob/main/CHANGELOG.txt"
+Homepage = "https://github.com/jim-easterbrook/Photini"
+Documentation = "https://photini.readthedocs.io/"
+Repository = "https://github.com/jim-easterbrook/Photini"
+Changelog = "https://github.com/jim-easterbrook/Photini/blob/main/CHANGELOG.txt"
 
 [project.scripts]
 photini-configure = "photini.scripts:configure"
