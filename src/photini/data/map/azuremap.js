@@ -30,6 +30,12 @@ var layers = [];
 var padding = {top: 40, bottom: 5, left: 18, right: 18};
 
 function loadMap(lat, lng, zoom, options) {
+    if (!atlas.isSupported())
+        console.error(
+            'Azure maps is not supported, probably missing WebGL.');
+    else if (!atlas.isSupported(true))
+        console.warn(
+            'Azure maps is supported, but may not perform well.');
     options.center = [lng, lat];
     options.dragRotateInteraction = false;
     options.maxZoom = 19;
