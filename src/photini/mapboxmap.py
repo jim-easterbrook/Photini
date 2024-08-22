@@ -119,9 +119,11 @@ function chooseMap() {{
     if (mapboxgl.supported())
         loadLibrary('{url_gl}/mapbox-gl.js', '{url_gl}/mapbox-gl.css',
                     'mapboxmap.js');
-    else
+    else {{
+        console.warn('Using legacy "mapbox.js" as WebGL not available.');
         loadLibrary('{url_js}/mapbox.js', '{url_js}/mapbox.css',
                     'mapboxmap_legacy.js');
+    }}
 }}
 function loadLibrary(jsSource, cssSource, scriptName) {{
     const headElement = document.getElementsByTagName('head')[0];
