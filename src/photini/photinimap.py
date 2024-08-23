@@ -95,9 +95,9 @@ class CallHandler(QtCore.QObject):
     def log(self, level, message):
         logger.log(level, message)
 
-    @QtSlot()
-    def initialize_finished(self):
-        self.parent().initialize_finished()
+    @QtSlot(bool)
+    def initialize_finished(self, OK):
+        self.parent().initialize_finished(OK)
 
     @QtSlot('QVariant')
     def new_status(self, status):
@@ -167,8 +167,6 @@ class MapWebView(QWebEngineView):
         super(MapWebView, self).__init__(*args, **kwds)
         self.setPage(MapWebPage(call_handler=call_handler, parent=self))
         settings = self.settings()
-        settings.setAttribute(
-            settings.WebAttribute.Accelerated2dCanvasEnabled, False)
         settings.setAttribute(
             settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
         settings.setAttribute(
@@ -258,10 +256,11 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.setRowStretch(7, 1)
         # GPX importer
         if self.app.gpx_importer:
-            button = QtWidgets.QPushButton(
+            self.widgets['load_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Load GPX file'))
-            button.clicked.connect(self.load_gpx)
-            left_side.addWidget(button, 8, 1)
+            self.widgets['load_gpx'].setEnabled(False)
+            self.widgets['load_gpx'].clicked.connect(self.load_gpx)
+            left_side.addWidget(self.widgets['load_gpx'], 8, 1)
             self.widgets['set_from_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Set coords from GPX'))
             self.widgets['set_from_gpx'].setEnabled(False)
@@ -345,10 +344,20 @@ class PhotiniMap(QtWidgets.QWidget):
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
 
     @catch_all
-    def initialize_finished(self):
+    def initialize_finished(self, OK):
         QtWidgets.QApplication.restoreOverrideCursor()
+        if not OK:
+            self.widgets['map'].setHtml('''<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /></head>
+  <body><h1>{}</h1><p>{}</p></body>
+</html>'''.format(translate('PhotiniMap', 'Map unavailable'),
+                  translate('PhotiniMap', 'The map could not be loaded.')))
+            return
         self.map_loaded = 2     # finished loading
         self.widgets['search'].setEnabled(True)
+        if 'load_gpx' in self.widgets:
+            self.widgets['load_gpx'].setEnabled(True)
         self.widgets['map'].setAcceptDrops(True)
         self.new_selection(
             self.app.image_list.get_selected_images(), adjust_map=False)
