@@ -920,6 +920,17 @@
     </message>
 </context>
 <context>
+    <name>MapTabAzure</name>
+    <message>
+        <source>Search provided by Microsoft Azure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map (&amp;Azure)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
@@ -1345,6 +1356,14 @@
         <source> m</source>
         <comment>metres altitude</comment>
         <translation type="vanished"> m</translation>
+    </message>
+    <message>
+        <source>Map unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The map could not be loaded.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

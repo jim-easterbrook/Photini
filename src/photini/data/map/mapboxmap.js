@@ -79,7 +79,7 @@ function loadMap2(lat, lng, zoom, options) {
     map.on('contextmenu', ignoreEvent);
     map.on('moveend', newBounds);
     map.on('zoomend', newBounds);
-    python.initialize_finished();
+    python.initialize_finished(true);
     newBounds();
 }
 

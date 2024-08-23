@@ -95,9 +95,9 @@ class CallHandler(QtCore.QObject):
     def log(self, level, message):
         logger.log(level, message)
 
-    @QtSlot()
-    def initialize_finished(self):
-        self.parent().initialize_finished()
+    @QtSlot(bool)
+    def initialize_finished(self, OK):
+        self.parent().initialize_finished(OK)
 
     @QtSlot('QVariant')
     def new_status(self, status):
@@ -345,8 +345,16 @@ class PhotiniMap(QtWidgets.QWidget):
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
 
     @catch_all
-    def initialize_finished(self):
+    def initialize_finished(self, OK):
         QtWidgets.QApplication.restoreOverrideCursor()
+        if not OK:
+            self.widgets['map'].setHtml('''<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /></head>
+  <body><h1>{}</h1><p>{}</p></body>
+</html>'''.format(translate('PhotiniMap', 'Map unavailable'),
+                  translate('PhotiniMap', 'The map could not be loaded.')))
+            return
         self.map_loaded = 2     # finished loading
         self.widgets['search'].setEnabled(True)
         self.widgets['map'].setAcceptDrops(True)

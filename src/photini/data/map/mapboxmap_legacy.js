@@ -61,7 +61,7 @@ function loadMap(lat, lng, zoom, options) {
     gpsRedCircle = new L.Icon({
         iconUrl: 'circle_red.png', iconSize: [11, 11], iconAnchor: [5, 5]});
     python.new_status({version: L.version});
-    python.initialize_finished();
+    python.initialize_finished(true);
     newBounds();
 }
 
