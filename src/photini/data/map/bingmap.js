@@ -53,7 +53,7 @@ function newCredentials(sessionId)
     python.new_status({
         session_id: sessionId,
         });
-    python.initialize_finished();
+    python.initialize_finished(true);
 }
 
 function newBounds()

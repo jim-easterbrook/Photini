@@ -70,7 +70,7 @@ function loadMap(lat, lng, zoom, options) {
         gpsBlueCircle = {anchor: anchor, url: 'circle_blue.png'};
         gpsRedCircle = {anchor: anchor, url: 'circle_red.png'};
     }
-    python.initialize_finished();
+    python.initialize_finished(true);
 }
 
 function newBounds() {

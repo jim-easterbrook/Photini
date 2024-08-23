@@ -899,6 +899,17 @@
     </message>
 </context>
 <context>
+    <name>MapTabAzure</name>
+    <message>
+        <source>Search provided by Microsoft Azure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map (&amp;Azure)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
@@ -1279,6 +1290,14 @@
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;gjenta søk&gt;</translation>
+    </message>
+    <message>
+        <source>Map unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The map could not be loaded.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
