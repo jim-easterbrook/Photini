@@ -168,8 +168,6 @@ class MapWebView(QWebEngineView):
         self.setPage(MapWebPage(call_handler=call_handler, parent=self))
         settings = self.settings()
         settings.setAttribute(
-            settings.WebAttribute.Accelerated2dCanvasEnabled, False)
-        settings.setAttribute(
             settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
         settings.setAttribute(
             settings.WebAttribute.LocalContentCanAccessFileUrls, True)
