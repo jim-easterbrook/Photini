@@ -75,6 +75,19 @@ Selecting another map tab will show the same location but with data and imagery 
 
 .. image:: ../images/screenshot_139.png
 
+Map failures
+------------
+
+.. image:: ../images/screenshot_140.png
+
+Some map tabs might fail to load, showing the above error message instead.
+This could be because of problems with WebGL_, a sophisticated graphics system used in HTML 5.
+Some of the map providers use WebGL to draw their maps, so if WebGL, or some feature of it, is missing the map won't load.
+
+Problems with WebGL could be caused by having an incompatible graphics card or driver, or by the system configuration.
+Clicking on the link in the error message might provide some useful diagnostic information.
+You could also try using ``photini-configure`` to switch to a different Qt package.
+
 GPX file import
 ---------------
 
@@ -133,4 +146,5 @@ I do not know which of these, if any, is correct for the GPS altitude in a photo
 .. _gpxpy:         https://github.com/tkrajina/gpxpy
 .. _GPX:           https://en.wikipedia.org/wiki/GPS_Exchange_Format
 .. _UTC:           https://en.wikipedia.org/wiki/Coordinated_Universal_Time
+.. _WebGL:         https://www.khronos.org/webgl/
 .. _WGS 84:        https://en.wikipedia.org/wiki/World_Geodetic_System#WGS_84

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.5.0.post63\n"
+"Project-Id-Version: Photini 2024.8.1.post13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-20 12:56+0100\n"
+"POT-Creation-Date: 2024-08-24 14:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -652,6 +652,15 @@ msgstr ""
 msgid "Selecting another map tab will show the same location but with data and imagery from a different provider."
 msgstr ""
 
+msgid "Map failures"
+msgstr ""
+
+msgid "Some map tabs might fail to load, showing the above error message instead. This could be because of problems with WebGL_, a sophisticated graphics system used in HTML 5. Some of the map providers use WebGL to draw their maps, so if WebGL, or some feature of it, is missing the map won't load."
+msgstr ""
+
+msgid "Problems with WebGL could be caused by having an incompatible graphics card or driver, or by the system configuration. Clicking on the link in the error message might provide some useful diagnostic information. You could also try using ``photini-configure`` to switch to a different Qt package."
+msgstr ""
+
 msgid "GPX file import"
 msgstr ""
 
@@ -844,6 +853,9 @@ msgstr ""
 msgid "The small squares at each corner of the rectangle can be dragged to change the size and shape. The entire region can be dragged by clicking within it."
 msgstr ""
 
+msgid "This is made easier if you zoom in by holding down the ``Ctrl`` key while scrolling with the mouse scroll wheel."
+msgstr ""
+
 msgid "The most important metadata for a region is probably its \"role_\". This is chosen from a \"controlled vocabulary\" defined by the IPTC. Photini shows the IPTC names and definitions (as \"tooltips\") in a drop down menu when you click on the ``Role`` entry. You can select one or more roles from the list."
 msgstr ""
 
@@ -856,7 +868,7 @@ msgstr ""
 msgid "It can be useful to set cropping regions for an image. Many social media web sites crop images, typically to square or 16:9 aspect ratio landscape. This often causes problems such as decapitated bodies."
 msgstr ""
 
-msgid "Note that the unselected region is shown with a fainter, dashed outline. If regions don't overlap you can select a different region by clicking on it."
+msgid "Note that the unselected region is shown with a blue & yellow dashed outline. You can select regions by clicking on them."
 msgstr ""
 
 msgid "The polygon region is initially a triangle shape. Right-clicking on one of its vertices allows a vertex to be added or deleted."
