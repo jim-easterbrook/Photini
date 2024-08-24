@@ -36,6 +36,10 @@ The entire region can be dragged by clicking within it.
 
 .. image:: ../images/screenshot_275.png
 
+This is made easier if you zoom in by holding down the ``Ctrl`` key while scrolling with the mouse scroll wheel.
+
+.. image:: ../images/screenshot_276.png
+
 The most important metadata for a region is probably its "role_".
 This is chosen from a "controlled vocabulary" defined by the IPTC.
 Photini shows the IPTC names and definitions (as "tooltips") in a drop down menu when you click on the ``Role`` entry.
@@ -45,32 +49,32 @@ Other, less useful, metadata includes a name and identifier for the region.
 The `content type`_ is another controlled vocabulary that allows you to say what's special about the selected area.
 The most useful of these is probably ``human``.
 
-.. image:: ../images/screenshot_276.png
+.. image:: ../images/screenshot_277.png
 
 The IPTC specification allows any other metadata to be attached to a region.
 Photini includes ``Person shown`` and ``Description``, which I think are most likely to be useful.
 Rectangular subject area regions with a description or person's name attached are used by the :doc:`flickr` and :doc:`ipernity` to create "notes".
 Please let me know if there is anything you would like to be added.
 
-.. image:: ../images/screenshot_277.png
+.. image:: ../images/screenshot_278.png
 
 It can be useful to set cropping regions for an image.
 Many social media web sites crop images, typically to square or 16:9 aspect ratio landscape.
 This often causes problems such as decapitated bodies.
 
-Note that the unselected region is shown with a fainter, dashed outline.
-If regions don't overlap you can select a different region by clicking on it.
+Note that the unselected region is shown with a blue & yellow dashed outline.
+You can select regions by clicking on them.
 
-.. image:: ../images/screenshot_278.png
+.. image:: ../images/screenshot_279.png
 
 The polygon region is initially a triangle shape.
 Right-clicking on one of its vertices allows a vertex to be added or deleted.
 
-.. image:: ../images/screenshot_279.png
+.. image:: ../images/screenshot_280.png
 
 A vertex can also be added by right-clicking anywhere within the polygon.
 
-.. image:: ../images/screenshot_280.png
+.. image:: ../images/screenshot_281.png
 
 Vertices can be added to make shapes of arbitrary complexity.
 Is this useful for anything?
