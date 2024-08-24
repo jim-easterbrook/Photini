@@ -1308,7 +1308,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The map could not be loaded.</source>
+        <source>The map could not be loaded. This might be a WebGL problem. You can test this by clicking on {}.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -132,10 +132,15 @@ class MapWebPage(QWebEnginePage):
         self.profile().setCachePath(
             os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
         logger.debug('user agent: %s', self.profile().httpUserAgent())
+        self.local_links = False
+
+    def set_local_links(self):
+        self.local_links = True
 
     @catch_all
     def acceptNavigationRequest(self, url, type_, isMainFrame):
-        if type_ != self.NavigationType.NavigationTypeLinkClicked:
+        if self.local_links or (
+                type_ != self.NavigationType.NavigationTypeLinkClicked):
             return super(MapWebPage, self).acceptNavigationRequest(
                 url, type_, isMainFrame)
         if url.isLocalFile():
@@ -347,12 +352,17 @@ class PhotiniMap(QtWidgets.QWidget):
     def initialize_finished(self, OK):
         QtWidgets.QApplication.restoreOverrideCursor()
         if not OK:
+            self.widgets['map'].page().set_local_links()
+            link = '<a href="https://webglreport.com/">webglreport.com</a>'
+            msg = translate('PhotiniMap', 'The map could not be loaded.'
+                            ' This might be a WebGL problem. You can test'
+                            ' this by clicking on {}.').format(link)
             self.widgets['map'].setHtml('''<!DOCTYPE html>
 <html>
   <head><meta charset="utf-8" /></head>
-  <body><h1>{}</h1><p>{}</p></body>
-</html>'''.format(translate('PhotiniMap', 'Map unavailable'),
-                  translate('PhotiniMap', 'The map could not be loaded.')))
+  <body><h1>{}</h1><p>{}</p>
+  </body>
+</html>'''.format(translate('PhotiniMap', 'Map unavailable'), msg))
             return
         self.map_loaded = 2     # finished loading
         self.widgets['search'].setEnabled(True)
