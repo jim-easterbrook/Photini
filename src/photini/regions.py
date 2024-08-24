@@ -91,18 +91,22 @@ class RegionMixin(object):
     def set_style(self, draw_unit):
         pen = QtGui.QPen()
         pen.setCosmetic(True)
-        pen.setCapStyle(Qt.PenCapStyle.RoundCap)
-        pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         if self.active:
+            pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+            pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
             pen.setColor(Qt.GlobalColor.white)
             pen.setWidthF(draw_unit * 1.5)
             self.highlight.setPen(pen)
             pen.setColor(QtGui.QColor(0, 0, 0, 120))
             pen.setWidthF(draw_unit * 5.5)
         else:
-            pen.setColor(Qt.GlobalColor.lightGray)
-            pen.setStyle(Qt.PenStyle.DashLine)
             pen.setWidthF(draw_unit * 1.5)
+            dashes = [draw_unit * 2.2, draw_unit * 3.8]
+            pen.setDashPattern(dashes)
+            pen.setColor(Qt.GlobalColor.yellow)
+            self.highlight.setPen(pen)
+            pen.setDashPattern([0, draw_unit * 3.8, draw_unit * 2.2, 0])
+            pen.setColor(Qt.GlobalColor.blue)
         self.setPen(pen)
 
     def item_clicked(self):
@@ -128,8 +132,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         corners = self.to_scene.map(region.to_Qt(self.image))
         rect = QtCore.QRectF(corners.at(0), corners.at(1))
         self.setRect(rect)
-        if active:
-            self.highlight = QtWidgets.QGraphicsRectItem(parent=self)
+        self.highlight = QtWidgets.QGraphicsRectItem(parent=self)
         self.adjust_handles()
         self.set_style(draw_unit)
         self.set_scale()
@@ -214,9 +217,9 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.display_widget.new_boundary(boundary)
 
     def adjust_handles(self):
+        rect = self.rect()
+        self.highlight.setRect(rect)
         if self.active:
-            rect = self.rect()
-            self.highlight.setRect(rect)
             self.handles[0].setPos(rect.topLeft())
             self.handles[1].setPos(rect.topRight())
             self.handles[2].setPos(rect.bottomLeft())
@@ -234,8 +237,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         points = self.to_scene.map(region.to_Qt(self.image))
         centre = points.at(0)
         radius = (points.at(1) - centre).manhattanLength()
-        if active:
-            self.highlight = QtWidgets.QGraphicsEllipseItem(parent=self)
+        self.highlight = QtWidgets.QGraphicsEllipseItem(parent=self)
         self.set_geometry(centre, radius)
         self.set_style(draw_unit)
         self.set_scale()
@@ -279,8 +281,8 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         ry = QtCore.QPointF(0, r)
         rect = QtCore.QRectF(centre - (rx + ry), centre + (rx + ry))
         self.setRect(rect)
+        self.highlight.setRect(rect)
         if self.active:
-            self.highlight.setRect(rect)
             self.handles[0].setPos(centre - rx)
             self.handles[1].setPos(centre - ry)
             self.handles[2].setPos(centre + ry)
@@ -301,9 +303,8 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
                   (0, 0), (dx, -dx), (-dx, dx), (0, 0)):
             polygon.append(QtCore.QPointF(*v))
         self.setPolygon(polygon)
-        if active:
-            self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
-            self.highlight.setPolygon(polygon)
+        self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
+        self.highlight.setPolygon(polygon)
         self.set_style(draw_unit)
         self.set_scale()
 
@@ -352,9 +353,8 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
                 handle.setPos(polygon.at(idx))
                 self.handles.append(handle)
         self.setPolygon(polygon)
-        if active:
-            self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
-            self.highlight.setPolygon(polygon)
+        self.highlight = QtWidgets.QGraphicsPolygonItem(parent=self)
+        self.highlight.setPolygon(polygon)
         self.set_style(draw_unit)
         self.set_scale()
 
