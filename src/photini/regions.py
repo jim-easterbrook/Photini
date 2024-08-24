@@ -386,6 +386,8 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
                 handle.deletable = True
         handle = PolygonHandle(self.draw_unit, parent=self)
         handle.setPos(p0)
+        scale = 1.0 / self.display_widget.transform().m11()
+        handle.setScale(scale)
         self.handles.insert(insert, handle)
 
     @catch_all
