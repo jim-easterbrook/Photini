@@ -17,7 +17,6 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from datetime import timezone
-import locale
 import logging
 import os
 import pickle
@@ -302,9 +301,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def initialise(self):
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
         zoom = float(self.app.config_store.get('map', 'zoom', 11))
-        lang, encoding = locale.getlocale()
-        lang = lang or 'en-GB'
-        lang = lang.replace('_', '-')
+        lang = self.locale().bcp47Name()
         text_dir = ('ltr', 'rtl')[
             self.use_layout_direction and
             self.layoutDirection() == Qt.LayoutDirection.RightToLeft]

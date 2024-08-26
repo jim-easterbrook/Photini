@@ -16,7 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import locale
 import logging
 
 import requests
@@ -40,9 +39,8 @@ class MapboxGeocoder(GeocoderBase):
         del params['query']
         params['access_token'] = self.api_key
         params['autocomplete '] = 'false'
-        lang, encoding = locale.getlocale()
-        if lang:
-            params['language'] = lang
+        lang = self.app.locale.bcp47Name()
+        params['language'] = lang
         query += '.json'
         url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + query
         with Busy():
@@ -161,11 +159,9 @@ function loadScript(scriptName) {{
 
     def get_options(self):
         options = {'accessToken': self.api_key}
-        lang, encoding = locale.getlocale()
-        if lang:
-            lang = lang.replace('_', '-')
-            options['language'] = lang
-            language, sep, region = lang.partition('-')
-            if region:
-                options['worldview'] = region
+        lang = self.locale().bcp47Name()
+        options['language'] = lang
+        lang, sep, region = lang.partition('-')
+        if region:
+            options['worldview'] = region
         return options

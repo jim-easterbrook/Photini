@@ -16,7 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import locale
 import logging
 
 import requests
@@ -76,9 +75,8 @@ class BingGeocoder(GeocoderBase):
             'query' : search_string,
             'maxRes': '20',
             }
-        lang, encoding = locale.getlocale()
-        if lang:
-            params['culture'] = lang.replace('_', '-')
+        lang = self.app.locale.bcp47Name()
+        params['culture'] = lang
         if bounds:
             north, east, south, west = bounds
             params['userMapView'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
@@ -113,12 +111,10 @@ class TabWidget(PhotiniMap):
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         url += '&key=' + self.api_key
-        lang, encoding = locale.getlocale()
-        if lang:
-            culture = lang.replace('_', '-')
-            url += '&setMkt=' + culture
-            language, sep, region = culture.partition('-')
-            url += '&setLang=' + language
+        lang = self.locale().bcp47Name()
+        url += '&setMkt=' + lang
+        lang, sep, region = lang.partition('-')
+        url += '&setLang=' + lang
         if self.app.options.test:
             url += '&branch=experimental'
         return '''    <script type="text/javascript"
