@@ -302,6 +302,7 @@ class PhotiniMap(QtWidgets.QWidget):
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
         zoom = float(self.app.config_store.get('map', 'zoom', 11))
         lang = self.locale().bcp47Name()
+        lang, sep, region = lang.partition('-')
         text_dir = ('ltr', 'rtl')[
             self.use_layout_direction and
             self.layoutDirection() == Qt.LayoutDirection.RightToLeft]

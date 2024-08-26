@@ -66,9 +66,10 @@ class GoogleGeocoder(GeocoderBase):
         return None
 
     def search(self, search_string, bounds=None):
-        params = {'address': search_string}
-        lang = self.app.locale.bcp47Name()
-        params['language'] = lang
+        params = {
+            'address': search_string,
+            'language': self.app.locale.bcp47Name(),
+            }
         if bounds:
             north, east, south, west = bounds
             params['bounds'] = '{:.4f},{:.4f}|{:.4f},{:.4f}'.format(

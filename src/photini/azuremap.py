@@ -147,10 +147,9 @@ var circle_red_data = "data:image/png;base64,{circle_red_data}";
                 'authType': 'subscriptionKey',
                 'subscriptionKey': self.api_key,
                 },
+            'language': self.locale().bcp47Name(),
             }
-        language = self.locale().bcp47Name()
-        options['language'] = language
-        language, sep, country = language.partition('_')
+        language, sep, country = options['language'].partition('_')
         if country:
-            options['View'] = country
+            options['view'] = country
         return options

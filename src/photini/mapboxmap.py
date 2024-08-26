@@ -39,8 +39,7 @@ class MapboxGeocoder(GeocoderBase):
         del params['query']
         params['access_token'] = self.api_key
         params['autocomplete '] = 'false'
-        lang = self.app.locale.bcp47Name()
-        params['language'] = lang
+        params['language'] = self.app.locale.bcp47Name()
         query += '.json'
         url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + query
         with Busy():

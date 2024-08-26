@@ -95,9 +95,10 @@ class OpenCage(GeocoderBase):
         }
 
     def get_address(self, coords):
-        params = {'q': '{:.5f},{:.5f}'.format(*coords)}
-        lang = self.app.locale.bcp47Name()
-        params['language'] = lang
+        params = {
+            'q': '{:.5f},{:.5f}'.format(*coords),
+            'language': self.app.locale.bcp47Name(),
+            }
         results = self.cached_query(params)
         if not results:
             return None

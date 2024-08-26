@@ -72,11 +72,10 @@ class BingGeocoder(GeocoderBase):
 
     def search(self, search_string, bounds=None):
         params = {
-            'query' : search_string,
+            'query': search_string,
             'maxRes': '20',
+            'culture': self.app.locale.bcp47Name(),
             }
-        lang = self.app.locale.bcp47Name()
-        params['culture'] = lang
         if bounds:
             north, east, south, west = bounds
             params['userMapView'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
