@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -19,13 +19,15 @@
 import logging
 import logging.handlers
 import os
+import re
 import sys
 
 from photini._version import version as photini_version
 from photini.ffmpeg import ffmpeg_version
 from photini.exiv2 import exiv2_version
 from photini.pyqt import (
-    catch_all, QtCore, QtSignal, QtSlot, QtWidgets, qt_version, width_for_text)
+    catch_all, QtCore, QtSignal, QtSlot, QWebEngineProfile, QtWidgets,
+    qt_version, width_for_text)
 from photini.spelling import spelling_version
 
 logger = logging.getLogger(__name__)
@@ -37,6 +39,10 @@ def full_version_info():
     version += '\n  Python ' + sys.version
     version += '\n  ' + exiv2_version
     version += '\n  ' + qt_version
+    user_agent = QWebEngineProfile.defaultProfile().httpUserAgent()
+    match = re.search(r'\sChrome/(.*)\s', user_agent)
+    if match:
+        version += ', chrome ' + match.group(1)
     version += '\n  system locale ' + QtCore.QLocale.system().bcp47Name()
     version += ', locales: ' + ' '.join(
         QtCore.QLocale.system().uiLanguages())

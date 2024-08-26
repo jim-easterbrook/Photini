@@ -54,7 +54,7 @@ def import_PySide6():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot, PySide_version
     global QtGui2
-    global QWebChannel, QWebEngineView, QWebEnginePage
+    global QWebChannel, QWebEngineView, QWebEnginePage, QWebEngineProfile
     from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide6.QtCore import Qt
     from PySide6.QtCore import Signal as QtSignal
@@ -63,13 +63,13 @@ def import_PySide6():
     QtGui2 = QtGui
     from PySide6.QtWebChannel import QWebChannel
     from PySide6.QtWebEngineWidgets import QWebEngineView
-    from PySide6.QtWebEngineCore import QWebEnginePage
+    from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 
 def import_PySide2():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot, PySide_version
     global QtGui2
-    global QWebChannel, QWebEngineView, QWebEnginePage
+    global QWebChannel, QWebEngineView, QWebEnginePage, QWebEngineProfile
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtCore import Signal as QtSignal
@@ -77,13 +77,14 @@ def import_PySide2():
     from PySide2 import __version__ as PySide_version
     QtGui2 = QtWidgets
     from PySide2.QtWebChannel import QWebChannel
-    from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
+    from PySide2.QtWebEngineWidgets import (
+        QWebEnginePage, QWebEngineProfile, QWebEngineView)
 
 def import_PyQt6():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot
     global QtGui2
-    global QWebChannel, QWebEngineView, QWebEnginePage
+    global QWebChannel, QWebEngineView, QWebEnginePage, QWebEngineProfile
     from PyQt6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt6.QtCore import Qt
     from PyQt6.QtCore import pyqtSignal as QtSignal
@@ -91,10 +92,10 @@ def import_PyQt6():
     QtGui2 = QtGui
     from PyQt6.QtWebChannel import QWebChannel
     from PyQt6.QtWebEngineWidgets import QWebEngineView
-    from PyQt6.QtWebEngineCore import QWebEnginePage
+    from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
 
 def import_PyQt5():
-    global QtCore, QtGui, QtNetwork, QtWidgets
+    global QtCore, QtGui, QtNetwork, QtWidgets, QWebEngineProfile
     global Qt, QtSignal, QtSlot
     global QtGui2
     global QWebChannel, QWebEngineView, QWebEnginePage
@@ -104,7 +105,8 @@ def import_PyQt5():
     from PyQt5.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtWidgets
     from PyQt5.QtWebChannel import QWebChannel
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
+    from PyQt5.QtWebEngineWidgets import (
+        QWebEnginePage, QWebEngineProfile, QWebEngineView)
 
 # choose Qt package
 if qt_lib == 'auto':
