@@ -26,6 +26,8 @@ import socket
 import sys
 import warnings
 
+import appdirs
+
 from photini import __version__
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
@@ -33,7 +35,7 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.pyqt import QtNetwork, qt_version_info
+from photini.pyqt import QtNetwork, qt_version_info, QWebEngineProfile
 from photini.spelling import SpellCheck
 
 try:
@@ -379,6 +381,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.image_list.selection_changed.connect(self.new_selection)
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
+        # initialise web engine
+        profile = QWebEngineProfile.defaultProfile()
+        logger.debug('maps user agent: %s', profile.httpUserAgent())
+        profile.setCachePath(
+            os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
+        settings = profile.settings()
+        settings.setAttribute(
+            settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
+        settings.setAttribute(
+            settings.WebAttribute.LocalContentCanAccessFileUrls, True)
         # restore size and state
         size = self.width(), self.height()
         self.resize(*self.app.config_store.get('main_window', 'size', size))

@@ -129,9 +129,6 @@ class MapWebPage(QWebEnginePage):
             self.web_channel = QWebChannel(parent=self)
             self.setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
-        self.profile().setCachePath(
-            os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
-        logger.debug('user agent: %s', self.profile().httpUserAgent())
         self.local_links = False
 
     def set_local_links(self):
@@ -171,11 +168,6 @@ class MapWebView(QWebEngineView):
     def __init__(self, call_handler, *args, **kwds):
         super(MapWebView, self).__init__(*args, **kwds)
         self.setPage(MapWebPage(call_handler=call_handler, parent=self))
-        settings = self.settings()
-        settings.setAttribute(
-            settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
-        settings.setAttribute(
-            settings.WebAttribute.LocalContentCanAccessFileUrls, True)
 
     @catch_all
     def dragEnterEvent(self, event):
