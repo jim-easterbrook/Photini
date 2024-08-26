@@ -16,7 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import locale
 import logging
 import re
 
@@ -68,9 +67,8 @@ class GoogleGeocoder(GeocoderBase):
 
     def search(self, search_string, bounds=None):
         params = {'address': search_string}
-        lang, encoding = locale.getlocale()
-        if lang:
-            params['language'] = lang.replace('_', '-')
+        lang = self.app.locale.bcp47Name()
+        params['language'] = lang
         if bounds:
             north, east, south, west = bounds
             params['bounds'] = '{:.4f},{:.4f}|{:.4f},{:.4f}'.format(
@@ -118,12 +116,11 @@ class TabWidget(PhotiniMap):
         if self.app.options.test:
             url += '&v=beta'
         url += '&key=' + self.api_key
-        lang, encoding = locale.getlocale()
-        if lang:
-            language, sep, region = lang.replace('_', '-').partition('-')
-            url += '&language=' + language
-            if region:
-                url += '&region=' + region
+        lang = self.locale().bcp47Name()
+        lang, sep, region = lang.partition('-')
+        url += '&language=' + lang
+        if region:
+            url += '&region=' + region
         return '''    <script type="text/javascript">
       const use_old_markers = {use_old_markers};
     </script>

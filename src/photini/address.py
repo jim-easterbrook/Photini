@@ -17,7 +17,6 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
-import locale
 import logging
 import os
 
@@ -97,9 +96,8 @@ class OpenCage(GeocoderBase):
 
     def get_address(self, coords):
         params = {'q': '{:.5f},{:.5f}'.format(*coords)}
-        lang, encoding = locale.getlocale()
-        if lang:
-            params['language'] = lang
+        lang = self.app.locale.bcp47Name()
+        params['language'] = lang
         results = self.cached_query(params)
         if not results:
             return None

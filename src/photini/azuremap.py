@@ -18,7 +18,6 @@
 #  along with Photini.  If not, see <http://www.gnu.org/licenses/>.
 
 import base64
-import locale
 import logging
 import os
 
@@ -67,11 +66,10 @@ class AzureGeocoder(GeocoderBase):
             north, east, south, west = bounds
             params['bbox'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
                 west, south, east, north)
-        lang, encoding = locale.getlocale()
-        if lang:
-            lang, sep, country = lang.partition('_')
-            if country:
-                params['view'] = country
+        lang = self.app.locale.bcp47Name()
+        lang, sep, country = lang.partition('-')
+        if country:
+            params['view'] = country
         for feature in self.cached_query(
                 params, 'https://atlas.microsoft.com/geocode'):
             properties = feature['properties']
@@ -150,10 +148,9 @@ var circle_red_data = "data:image/png;base64,{circle_red_data}";
                 'subscriptionKey': self.api_key,
                 },
             }
-        language, encoding = locale.getlocale()
-        if language:
-            options['language'] = language.replace('_', '-')
-            language, sep, country = language.partition('_')
-            if country:
-                options['View'] = country
+        language = self.locale().bcp47Name()
+        options['language'] = language
+        language, sep, country = language.partition('_')
+        if country:
+            options['View'] = country
         return options

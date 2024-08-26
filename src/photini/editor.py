@@ -369,6 +369,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # create shared global objects
         self.app = QtWidgets.QApplication.instance()
         self.app.config_store = ConfigStore('editor', parent=self)
+        self.app.locale = QtCore.QLocale.system()
         self.app.spell_check = SpellCheck(parent=self)
         if GpxImporter:
             self.app.gpx_importer = GpxImporter(parent=self)
