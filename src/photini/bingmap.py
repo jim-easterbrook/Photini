@@ -74,7 +74,7 @@ class BingGeocoder(GeocoderBase):
         params = {
             'query': search_string,
             'maxRes': '20',
-            'culture': self.app.locale.bcp47Name(),
+            'culture': self.app.language['bcp47'],
             }
         if bounds:
             north, east, south, west = bounds
@@ -110,10 +110,8 @@ class TabWidget(PhotiniMap):
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         url += '&key=' + self.api_key
-        lang = self.locale().bcp47Name()
-        url += '&setMkt=' + lang
-        lang, sep, region = lang.partition('-')
-        url += '&setLang=' + lang
+        url += '&setMkt=' + self.app.language['bcp47']
+        url += '&setLang=' + self.app.language['primary']
         if self.app.options.test:
             url += '&branch=experimental'
         return '''    <script type="text/javascript"

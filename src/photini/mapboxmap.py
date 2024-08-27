@@ -39,7 +39,7 @@ class MapboxGeocoder(GeocoderBase):
         del params['query']
         params['access_token'] = self.api_key
         params['autocomplete '] = 'false'
-        params['language'] = self.app.locale.bcp47Name()
+        params['language'] = self.app.language['bcp47']
         query += '.json'
         url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + query
         with Busy():
@@ -157,10 +157,10 @@ function loadScript(scriptName) {{
   </body>'''.format(text_dir=text_dir)
 
     def get_options(self):
-        options = {'accessToken': self.api_key}
-        lang = self.locale().bcp47Name()
-        options['language'] = lang
-        lang, sep, region = lang.partition('-')
-        if region:
-            options['worldview'] = region
+        options = {
+            'accessToken': self.api_key,
+            'language': self.app.language['bcp47'],
+            }
+        if self.app.language['region']:
+            options['worldview'] = self.app.language['region']
         return options

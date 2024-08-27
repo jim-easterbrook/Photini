@@ -68,7 +68,7 @@ class GoogleGeocoder(GeocoderBase):
     def search(self, search_string, bounds=None):
         params = {
             'address': search_string,
-            'language': self.app.locale.bcp47Name(),
+            'language': self.app.language['bcp47'],
             }
         if bounds:
             north, east, south, west = bounds
@@ -117,11 +117,9 @@ class TabWidget(PhotiniMap):
         if self.app.options.test:
             url += '&v=beta'
         url += '&key=' + self.api_key
-        lang = self.locale().bcp47Name()
-        lang, sep, region = lang.partition('-')
-        url += '&language=' + lang
-        if region:
-            url += '&region=' + region
+        url += '&language=' + self.app.language['primary']
+        if self.app.language['region']:
+            url += '&region=' + self.app.language['region']
         return '''    <script type="text/javascript">
       const use_old_markers = {use_old_markers};
     </script>

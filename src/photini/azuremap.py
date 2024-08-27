@@ -66,10 +66,8 @@ class AzureGeocoder(GeocoderBase):
             north, east, south, west = bounds
             params['bbox'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
                 west, south, east, north)
-        lang = self.app.locale.bcp47Name()
-        lang, sep, country = lang.partition('-')
-        if country:
-            params['view'] = country
+        if self.app.language['region']:
+            params['view'] = self.app.language['region']
         for feature in self.cached_query(
                 params, 'https://atlas.microsoft.com/geocode'):
             properties = feature['properties']
@@ -147,9 +145,9 @@ var circle_red_data = "data:image/png;base64,{circle_red_data}";
                 'authType': 'subscriptionKey',
                 'subscriptionKey': self.api_key,
                 },
-            'language': self.locale().bcp47Name(),
+            'language': self.app.language['bcp47'],
             }
-        language, sep, country = options['language'].partition('_')
-        if country:
-            options['view'] = country
+        # the 'view' parameter doesn't work for the countries I've tried
+##        if self.app.language['region']:
+##            options['view'] = self.app.language['region']
         return options

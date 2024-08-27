@@ -370,7 +370,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.loggerwindow = LoggerWindow(options.verbose)
         self.app.loggerwindow.setWindowIcon(icon)
         self.app.config_store = ConfigStore('editor', parent=self)
-        self.app.locale = QtCore.QLocale.system()
         self.app.spell_check = SpellCheck(parent=self)
         if GpxImporter:
             self.app.gpx_importer = GpxImporter(parent=self)
@@ -379,6 +378,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.options = options
         self.app.image_list = ImageList()
         self.app.image_list.selection_changed.connect(self.new_selection)
+        # parse locale IETF / BCP 47 name
+        # see https://en.wikipedia.org/wiki/IETF_language_tag
+        self.app.language = {
+            'bcp47': QtCore.QLocale.system().bcp47Name(),
+            'primary': None,
+            'region': None,
+            }
+        subtags = self.app.language['bcp47'].split('-')
+        if len(subtags[0]) > 1:
+            self.app.language['primary'] = subtags[0]
+        for idx in range(1, len(subtags)):
+            if len(subtags[idx]) == 1:
+                # ignore extension and private-use subtags
+                subtags = subtags[:idx]
+                break
+        while len(subtags[-1]) >= 4:
+            # ignore variant subtags
+            subtags = subtags[:-1]
+        if len(subtags) > 1:
+            self.app.language['region'] = subtags[-1]
+        print(self.app.language)
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # initialise web engine
