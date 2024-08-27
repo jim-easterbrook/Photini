@@ -93,6 +93,7 @@ class LoggerWindow(QtWidgets.QWidget):
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.setWindowTitle(translate('LoggerWindow', "Photini error logging"))
         self.setLayout(QtWidgets.QVBoxLayout())
+        self.hidden_words = []
         # main dialog area
         self.text = QtWidgets.QTextEdit()
         self.text.setReadOnly(True)
@@ -123,6 +124,10 @@ class LoggerWindow(QtWidgets.QWidget):
         handler.addFilter(LoggerFilter(threshold))
         self.logger.addHandler(handler)
 
+    def hide_word(self, word):
+        if word not in self.hidden_words:
+            self.hidden_words.append(word)
+
     @QtSlot()
     @catch_all
     def shutdown(self):
@@ -149,6 +154,8 @@ class LoggerWindow(QtWidgets.QWidget):
     @QtSlot(str)
     @catch_all
     def write(self, msg):
+        for word in self.hidden_words:
+            msg = msg.replace(word, 'XXXX')
         self.text.append(msg)
 
     @QtSlot()

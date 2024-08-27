@@ -200,6 +200,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
+        self.app.loggerwindow.hide_word(self.api_key)
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, 'pin_grey.png'))
