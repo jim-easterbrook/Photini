@@ -18,9 +18,10 @@
 
 import ast
 import codecs
-from configparser import RawConfigParser
+from configparser import ConfigParser, RawConfigParser
 import os
 import pprint
+import random
 import stat
 
 import appdirs
@@ -99,37 +100,35 @@ class BaseConfigStore(object):
 
 
 class KeyStore(object):
-    """Store OAuth2 client ids and client 'secrets'.
+    """Store API keys and other 'secret' data.
 
-    Google recognise that client secrets can't be kept secret in an
-    application that runs on a user's computer. See
-    https://developers.google.com/identity/protocols/OAuth2InstalledApp
-    for more background. However, they also say the secret "may not be
-    embedded in open source projects" (see section 4.b.1 of
-    https://developers.google.com/terms/).
+    No data is really secret in an application running on a user's
+    computer. Photini stores the data in a randomly shuffled data block
+    so they won't be recognised by bots scraping GitHub.
 
-    Photini stores the client credentials in a separate file, using mild
-    obfuscation to hide the actual values. If this is insufficient to
-    satisfy Google then the keys file will have to be removed from open
-    source and distributed by other means. Or users will need to create
-    their own by registering as a developer at Google.
-
-    The position with Flickr keys is less clear, but there's no harm in
-    obfuscating them as well.
+    The utils/store_keys.py script generates the shuffled data file that
+    this class reads and unshuffles.
 
     """
     def __init__(self):
-        self.config = RawConfigParser()
-        with open(os.path.join(
-                os.path.dirname(__file__), 'data', 'keys.txt'), 'r') as f:
-            data = f.read()
-        self.config.read_string(data)
+        cfg = ConfigParser(interpolation=None)
+        cfg.read(os.path.join(os.path.dirname(__file__), 'data', 'keys.txt'))
+        data = cfg['data']['data']
+        length = len(data)
+        random.seed(cfg['data']['date'])
+        mapping = random.sample(range(length), k=length)
+        data = ''.join([data[x] for x in mapping])
+        self.config = ConfigParser(interpolation=None)
+        for section in cfg:
+            if section in ('DEFAULT', 'data'):
+                continue
+            self.config[section] = {}
+            for key in cfg[section]:
+                offset, length = eval(cfg[section][key])
+                self.config[section][key] = data[offset:offset+length]
 
     def get(self, section, option):
-        value = self.config.get(section, option)
-        value = value.encode('ascii')
-        value = codecs.decode(value, 'base64_codec')
-        return value.decode('ascii')
+        return self.config[section][option]
 
 
 # create single object for entire application
