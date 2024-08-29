@@ -57,7 +57,7 @@ def main(argv=None):
     data += ''.join(random.choices(charset, k=length - len(data)))
     # shuffle data with a repeatable random mapping
     today = datetime.date.today().isoformat()
-    random.seed(today)
+    random.seed(today, version=2)
     mapping = random.sample(range(length), k=length)
     inverse_map = [None] * length
     for i, j in enumerate(mapping):

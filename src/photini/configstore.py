@@ -115,7 +115,7 @@ class KeyStore(object):
         cfg.read(os.path.join(os.path.dirname(__file__), 'data', 'keys.txt'))
         data = cfg['data']['data']
         length = len(data)
-        random.seed(cfg['data']['date'])
+        random.seed(cfg['data']['date'], version=2)
         mapping = random.sample(range(length), k=length)
         data = ''.join([data[x] for x in mapping])
         self.config = ConfigParser(interpolation=None)
