@@ -398,7 +398,6 @@ class MainWindow(QtWidgets.QMainWindow):
             subtags = subtags[:-1]
         if len(subtags) > 1:
             self.app.language['region'] = subtags[-1]
-        print(self.app.language)
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # initialise web engine
