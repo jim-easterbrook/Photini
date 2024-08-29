@@ -25,6 +25,7 @@ from setuptools.build_meta import *
 
 
 def build_lang(result_directory):
+    tools = ['lrelease6', 'pyside6-lrelease', 'lrelease-qt5']
     src_dir = os.path.join('src', 'lang')
     dst_dir = os.path.join('src', 'photini', 'data', 'lang')
     if os.path.exists(dst_dir) and not os.path.exists(src_dir):
@@ -58,8 +59,15 @@ def build_lang(result_directory):
                     os.stat(dst_file).st_mtime >= os.stat(src_file).st_mtime):
                 continue
             print('compiling {} -> {}'.format(src_file, dst_file))
-            subprocess.check_call([
-                'lrelease-qt5', '-silent', src_file, '-qm', dst_file])
+            for tool in list(tools):
+                try:
+                    subprocess.check_call([
+                        tool, '-silent', src_file, '-qm', dst_file])
+                    break
+                except Exception:
+                    if len(tools) == 1:
+                        raise
+                    tools.remove(tool)
 
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
