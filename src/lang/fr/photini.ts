@@ -179,7 +179,7 @@
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
-        <translation>Entrez un nom court, verbal et lisible pae un être humain pour l&apos;image&#xa0;; ceci peut être le nom du fichier.</translation>
+        <translation>Saisissez un nom court, verbal et lisible par un être humain pour l’image&#x202f;; ceci peut être le nom du fichier.</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
