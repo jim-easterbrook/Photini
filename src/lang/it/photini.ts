@@ -526,21 +526,24 @@
         <translation>
             <numerusform>Ricarica file</numerusform>
             <numerusform>Ricarica i file</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
         <translation>
             <numerusform>Rigenera miniatura</numerusform>
             <numerusform>Rigenera miniature</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Chiudi file</numerusform>
             <numerusform>Chiudi i file</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>new value</source>
@@ -666,7 +669,8 @@
         <translation>
             <numerusform>%n file selezionato</numerusform>
             <numerusform>%n file selezionati</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -871,11 +875,11 @@
     <name>MapTabAzure</name>
     <message>
         <source>Search provided by Microsoft Azure</source>
-        <translation type="unfinished"></translation>
+        <translation>Ricerca fornita da Microsoft Azure</translation>
     </message>
     <message>
         <source>Map (&amp;Azure)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mappa (&amp;Azure)</translation>
     </message>
 </context>
 <context>
@@ -1263,11 +1267,11 @@
     </message>
     <message>
         <source>Map unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Mappa non disponibile</translation>
     </message>
     <message>
         <source>The map could not be loaded. This might be a WebGL problem. You can test this by clicking on {}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile caricare la mappa. Potrebbe trattarsi di un problema di WebGL. Puoi testarlo cliccando su {}.</translation>
     </message>
 </context>
 <context>
