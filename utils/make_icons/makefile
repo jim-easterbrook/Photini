@@ -4,7 +4,9 @@ all : \
 	../../src/photini/data/icons/photini_48.png \
 	../../src/photini/data/icons/photini_win.ico \
 	../../src/photini/data/map/circle_blue.png \
-	../../src/photini/data/map/circle_red.png
+	../../src/photini/data/map/circle_red.png \
+	../../src/photini/data/map/pin_red.png \
+	../../src/photini/data/map/pin_grey.png
 
 # scale master icon to any size
 icon_%.pam : icon_master.png
@@ -27,7 +29,7 @@ icon_%.pam : icon_master.png
 	cat $? | \
 	pamtowinicon >$@
 
-# convert alpha image to RGBA png
+# convert alpha image to RGBA png for map GPX circle markers
 ../../src/photini/data/map/%_blue.png : %_alpha.pgm
 	ppmmake rgb:33/88/ff 11 11 | \
 	pamstack -tupletype=RGB_ALPHA - $< | \
@@ -44,3 +46,26 @@ icon_%.pam : icon_master.png
 	ppmtopgm | \
 	pnminvert | \
 	pamscale -width 11 -height 11 >$@
+
+# map marker pins
+# the source files were found online many years ago. I have no record of
+# where I found them.
+
+# scale RGBA file
+../../src/photini/data/map/pin_%.png : map_pin_%.png
+	pngtopam -alphapam $< | \
+	pamscale -width 25 -height 35 -filter=sinc | \
+	pamtopng >$@
+
+# mix red & yellow, then convert to greyscale and merge alpha channel
+%_grey.png : %_red.pam %_yellow.pam %_alpha.pgm
+	ppmmix 0.5 $*_red.pam $*_yellow.pam | \
+	ppmtopgm | \
+	pamstack -tupletype GRAYSCALE_ALPHA - $*_alpha.pgm | \
+	pamtopng >$@
+
+%.pam : %.png
+	pngtopam $< >$@
+
+%_alpha.pgm : %_red.png
+	pngtopam -alpha $< >$@
