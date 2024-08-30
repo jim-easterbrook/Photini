@@ -17,7 +17,6 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
-import locale
 import logging
 import os
 
@@ -96,10 +95,10 @@ class OpenCage(GeocoderBase):
         }
 
     def get_address(self, coords):
-        params = {'q': '{:.5f},{:.5f}'.format(*coords)}
-        lang, encoding = locale.getlocale()
-        if lang:
-            params['language'] = lang
+        params = {
+            'q': '{:.5f},{:.5f}'.format(*coords),
+            'language': self.app.language['bcp47'],
+            }
         results = self.cached_query(params)
         if not results:
             return None
@@ -137,14 +136,15 @@ class OpenCage(GeocoderBase):
                         del address[key_1]
                         break
         # attempt to format postcode correctly
-        for key in 'city', 'town', 'village', 'suburb', 'state', 'country':
-            if 'postcode' in address and key in address:
-                for fmt in '{0} {1}', '{0}, {1}', '{1} {0}', '{1}, {0}':
-                    guess = fmt.format(address['postcode'], address[key])
-                    if guess in formatted:
-                        address[key] = guess
-                        del address['postcode']
-                        break
+        if 'postcode' in address:
+            for key in self.address_map['Iptc4xmpExt:City'][-3::-1]:
+                if key in address:
+                    for fmt in '{0} {1}', '{0}, {1}', '{1} {0}', '{1}, {0}':
+                        guess = fmt.format(address['postcode'], address[key])
+                        if guess in formatted:
+                            address[key] = guess
+                            del address['postcode']
+                            break
         gps = results[0]['geometry']
         return MD_Location.from_address(gps, address, self.address_map)
 

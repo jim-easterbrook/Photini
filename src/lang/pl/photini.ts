@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="pl" sourcelanguage="en_GB" version="2.1">
+<TS version="2.1" language="pl" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -534,7 +534,8 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -546,7 +547,8 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
@@ -554,7 +556,8 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -665,7 +668,8 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>

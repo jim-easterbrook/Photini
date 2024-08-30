@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015-23  Jim Easterbrook.
+   Copyright (C)  2015-24  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -86,7 +86,7 @@ This is part of the ``PySide6`` package installable with ``pip``.
 The program strings are stored in files with names like ``src/lang/nl/photini.ts``, where ``nl`` is the code for the Dutch language.
 First you should update (or initialise if they don't exist) the translation files with the current program strings::
 
-   $ python3 utils/lang_update.py -l nl
+   $ python3 utils/lang_update.py -l nl -q
 
 Now you can open a translation file in your chosen editor, for example::
 
@@ -151,12 +151,12 @@ It will have the wrong default name so, for example, make sure you save ``photin
 The translation file needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
 This requires the ``pyside6-lrelease`` program, which is part of the ``PySide6`` package on PyPI.
 
-You can easily update and compile all the language files::
+You can easily update all the language files::
 
-   $ python3 utils/lang_update.py
-   $ python3 utils/build_lang.py
+   $ python3 utils/lang_update.py -s
 
-Now you can install Photini with your new translation(s)::
+Now you can install Photini with your new translation(s).
+The translation file is compiled during the installation::
 
    $ pip3 install --user .
 
@@ -189,7 +189,7 @@ The documentation translation uses ``.po`` files as specified by the `GNU gettex
 You can open the translation file in any editor, but a translation tool is best.
 For example::
 
-   $ python3 utils/lang_update.py -l nl -d
+   $ python3 utils/lang_update.py -l nl -d -q
    $ pyside6-linguist src/lang/nl/LC_MESSAGES/documentation.po
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.

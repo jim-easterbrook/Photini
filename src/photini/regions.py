@@ -443,6 +443,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             QtGui.QPainter.RenderHint.SmoothPixmapTransform, True)
         self.setScene(QtWidgets.QGraphicsScene())
         self.boundaries = []
+        self.image = None
 
     @catch_all
     def wheelEvent(self, event):
@@ -1041,6 +1042,8 @@ class TabWidget(QtWidgets.QWidget):
         return False
 
     def new_selection(self, selection):
+        if selection == [self.image_display.image]:
+            return
         if len(selection) != 1:
             self.image_display.set_image(None)
             self.region_tabs.set_image(None)
