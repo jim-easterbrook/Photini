@@ -111,6 +111,8 @@ def extract_program_strings(root):
                     if missing > 0:
                         for i in range(missing):
                             translation.append(unused)
+                    if sys.version_info >= (3, 9):
+                        ET.indent(message, space='    ', level=1)
         with open(path, 'wb') as f:
             f.write(b'<?xml version="1.0" encoding="utf-8"?>\n'
                     b'<!DOCTYPE TS>\n')

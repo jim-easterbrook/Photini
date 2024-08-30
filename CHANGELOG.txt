@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2024.8.2:
+  1/ Fix map tabs localisation problems on Windows.
+
 Changes in v2024.8.1:
   1/ Revert to old "Mapbox" map if WebGL not available.
 

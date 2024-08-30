@@ -112,7 +112,6 @@ These are points with time stamps around the time the photograph was taken.
 .. image:: ../images/screenshot_223.png
 
 After zooming in on the red track points the photograph can be dragged to the map as usual.
-(If you're wondering why there are pairs of circles on the map, it's because we walked there and back along roughly the same route.)
 
 .. image:: ../images/screenshot_224.png
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="cs" sourcelanguage="en_GB" version="2.1">
+<TS version="2.1" language="cs" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -562,7 +562,8 @@
             <numerusform>Obnovit náhled</numerusform>
             <numerusform>Obnovit náhledy</numerusform>
             <numerusform>Obnovit náhledy</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -578,7 +579,8 @@
             <numerusform>Nahrát znovu soubor</numerusform>
             <numerusform>Nahrát znovu soubory</numerusform>
             <numerusform>Nahrát znovu soubory</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
@@ -586,7 +588,8 @@
             <numerusform>Zavřít soubor</numerusform>
             <numerusform>Zavřít soubory</numerusform>
             <numerusform>Zavřít soubory</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -697,7 +700,8 @@
             <numerusform>%n soubor vybrán</numerusform>
             <numerusform>%n soubory vybrány</numerusform>
             <numerusform>%n souborů vybráno</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>

@@ -26,6 +26,8 @@ import socket
 import sys
 import warnings
 
+import appdirs
+
 from photini import __version__
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
@@ -33,7 +35,7 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.pyqt import QtNetwork, qt_version_info
+from photini.pyqt import QtNetwork, qt_version_info, QWebEngineProfile
 from photini.spelling import SpellCheck
 
 try:
@@ -363,11 +365,10 @@ class MainWindow(QtWidgets.QMainWindow):
         icon = QtGui.QIcon(pixmap)
         self.setWindowIcon(icon)
         self.selection = list()
-        # logger window
-        self.loggerwindow = LoggerWindow(options.verbose)
-        self.loggerwindow.setWindowIcon(icon)
         # create shared global objects
         self.app = QtWidgets.QApplication.instance()
+        self.app.loggerwindow = LoggerWindow(options.verbose)
+        self.app.loggerwindow.setWindowIcon(icon)
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
         if GpxImporter:
@@ -377,8 +378,38 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.options = options
         self.app.image_list = ImageList()
         self.app.image_list.selection_changed.connect(self.new_selection)
+        # parse locale IETF / BCP 47 name
+        # see https://en.wikipedia.org/wiki/IETF_language_tag
+        self.app.language = {
+            'bcp47': QtCore.QLocale.system().bcp47Name(),
+            'primary': None,
+            'region': None,
+            }
+        subtags = self.app.language['bcp47'].split('-')
+        if len(subtags[0]) > 1:
+            self.app.language['primary'] = subtags[0]
+        for idx in range(1, len(subtags)):
+            if len(subtags[idx]) == 1:
+                # ignore extension and private-use subtags
+                subtags = subtags[:idx]
+                break
+        while len(subtags[-1]) >= 4:
+            # ignore variant subtags
+            subtags = subtags[:-1]
+        if len(subtags) > 1:
+            self.app.language['region'] = subtags[-1]
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
+        # initialise web engine
+        profile = QWebEngineProfile.defaultProfile()
+        logger.debug('maps user agent: %s', profile.httpUserAgent())
+        profile.setCachePath(
+            os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
+        settings = profile.settings()
+        settings.setAttribute(
+            settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
+        settings.setAttribute(
+            settings.WebAttribute.LocalContentCanAccessFileUrls, True)
         # restore size and state
         size = self.width(), self.height()
         self.resize(*self.app.config_store.get('main_window', 'size', size))

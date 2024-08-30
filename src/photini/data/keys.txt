@@ -1,64 +1,70 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2015-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2024  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
-#  This program is free software: you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License as
-#  published by the Free Software Foundation, either version 3 of the
-#  License, or (at your option) any later version.
+#  This file is part of Photini.
 #
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  Photini is free software: you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation, either version 3 of the License, or (at
+#  your option) any later version.
+#
+#  Photini is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see
-#  <http://www.gnu.org/licenses/>.
+#  along with Photini.  If not, see <http://www.gnu.org/licenses/>.
 
 [flickr]
-client_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
-client_secret = MWUwZDkxMmY1ODZkMGVkMQ==
+client_key = (0, 32)
+client_secret = (32, 16)
 
 [ipernity]
-api_key    = MWYyMzY5MDkwMDAwMjk1MmVlNWRhOTY5ZmMwNThmODk=
-api_secret = ZGU2NmVlYWEwZDdjODY4Nw==
+api_key = (48, 32)
+api_secret = (80, 16)
 
 [googlephotos]
-client_id = OTkxMTQ2MzkyMzc1LWdyOXRjcTc1NWZvbXRqNGUxazQ5NzNmM2FjbWlvN29tLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29t
-client_secret = dnkwV3UtYWVmMmlYeTJXZ2lVaUZDOFlB
+client_id = (96, 72)
+client_secret = (168, 24)
 
 [googlemap]
-api_key = QUl6YVN5Q0NCQkVBenhmS0pwSjJGaTNwNFZ0TzA0OS14S0FkeGk4
+api_key = (192, 39)
 
 [azuremap]
-api_key = QkhNM1BWa3JiTkpnbmlieW1DY0M0a05TNExEZ2lsMkUwaVU1VnhTYk1ybXo0SG5UemViakpRUUo5OUFIQUM1UnFMSnNJeXRRQUFBZ0FaTVBHVUlD
+api_key = (231, 84)
 
 [bingmap]
-api_key = QXFMRjRjcDc3N3IzZVVPNFFQT28zWU9mMV9Ta2hHWEV5ajdlWmZBOEtBclBlaEJLZFlJNHlWQWR5cC1pTXV1bg==
+api_key = (315, 64)
 
 [opencage]
-api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=
+api_key = (379, 32)
 
 [mapboxmap]
-api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc2RUbHJlV001TmpCaVl6SXliWEZyT1RkdVpXcDBiSG9pZlEuWXgxc1RtVmtKWHlDTzlONkZzc2pCdw==
+api_key = (411, 100)
 
 [pixelfed pixelfed.de]
-client_id = NDIyNjQ=
-client_secret = NWI0a0tLMGRmTm9YYUtKdUw2QWJPNFZmeG5Qd1FJeU9nclhjZlpweQ==
+client_id = (511, 5)
+client_secret = (516, 40)
 
 [pixelfed pxlmo.com]
-client_id = MTY1MQ==
-client_secret = cGhuRDZZNElRMW5yd2IzZlUzd1E3Z0hoaVV5MVh5SEs5V3RLdzFxRQ==
+client_id = (556, 4)
+client_secret = (560, 40)
 
 [pixelfed metapixl.com]
-client_id = MTQ5MA==
-client_secret = Q3FRdVZxS09hNmthY1Z5VGR4NnhBT21RV2Z2QWczbXNNUmI2ek5ZNQ==
+client_id = (600, 4)
+client_secret = (604, 40)
 
 [pixelfed pixelfed.tokyo]
-client_id = MTY5Mg==
-client_secret = d0t5TWFoQnpuM0V1N3UwUjg3RVRpZjRrNTA2SnZmR1BObWY3QWJISw==
+client_id = (644, 4)
+client_secret = (648, 40)
 
 [pixelfed pixey.org]
-client_id = MTU2Ng==
-client_secret = TGtKblJwRGdTUENaQVB1eFp1cGN5Sko0S3huWGxaallOTW0yUWVLTg==
+client_id = (688, 4)
+client_secret = (692, 40)
+
+[data]
+data = 101Toi2vm4iBPKeKey5iQ5rxSV1UAaDPtJoOaObIk6iZK5g9OpjSgLbSo9f5ThfifuFD61gr1R42s9bM3oVu1pdi50280rZ6q4pY5KnInuQw6yAGCt8FYYNC3AjQeQUPTLKummIf0cLL9klsio0ZArr0sbaNl9Ad89f640T49Z3lkLJ2WNPYbwzzi9f74iPApV7VCUegy4db3I98CaB_rh7REJfko6BT12mQ6hJp9GzqHCopJ0WfJ5x9..YaprN9CofQlME1yH7bIz47Z8evE7Cga7T1rIr64NuPAnFRa31bft0zcv5dneC02qO8A7Ne18ky5jv0uN4_2t0hyALztb3SJx2jQhAAAUDnfL1redV6nywY7-L4EhcSGwcA4I3Eqz6EAIzI21J5wae7iQfS8deB5p3qP71Ka92xaWJ6Ja4cam7u2czmxXn23fYLAldQ9mM9uiHn1Vw1V6A9zfC156M6mYH2c5Jic18dKRJOicwcKdtDWIa3L0aS9K3AeTtKokV79OjS27O5eUbUfKTWJysGy.jNkZ3CTMRpqmcyewAb5yGKe81VdX0e5VX9CeX4f21pgdJ0WdOxyHO3mdIVphAyns0z-XBGl2z6B0IisIwlxmDpdcJFdmcLiW8-P06LOx0j2VZ3044ekp4bN97lfg3Z7MmamQHoH1Xy6HNU73O4LabvNVufNxK.eKx33obiOf42AQtxNygd6KqO6a7O26MOfsVI67-yYxa0o-inN.1UN4QHnh5CrL3AccaMy69dFsS3T9846wdaPdt3ZSh15Sy457rUg1PbpnIahL60yF9Q5gPMkM7Ee-lbV74WiDP4nh1ehfbhHKpNdhV9wOpyAZb54G6F2dbXwV8J2rf4fF8a.PsJYD3Yufk40Xu3eZQPWj0jCso1oQU87rz3g9yriHBwS4hn1nLN0LqUEYdSEYa3AXn46lciFyOCoe2g6cQ2sCtK2emgenYPuiZu9.5NRg69jFNewJFMYBrc-K-7kUfxcJAhyCg0o31gGIz2wkxy
+date = 2024-08-28
+

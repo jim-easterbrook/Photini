@@ -51,8 +51,7 @@ Before a new release of Photini::
 
    git checkout main                    # switch to main branch
    git pull                             # fetch new content
-   python3 utils/lang_update.py -q      # update from source, suitable for Qt Linguist
-   python3 utils/build_lang.py          # "compile" language files
+   python3 utils/lang_update.py -s      # update from source
 
 Plurals
 -------
