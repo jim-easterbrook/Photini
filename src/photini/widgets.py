@@ -606,7 +606,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def _regularise_default(self):
         if not self.value[MD_LangAlt.DEFAULT]:
             return True
-        prompt = QtCore.QLocale.system().bcp47Name()
+        prompt = self.locale().bcp47Name()
         if prompt in self.value:
             prompt = None
         self.lang.set_value(MD_LangAlt.DEFAULT)
@@ -623,7 +623,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def _define_new_lang(self):
         if not self._regularise_default():
             return None, None
-        prompt = QtCore.QLocale.system().bcp47Name()
+        prompt = self.locale().bcp47Name()
         if prompt in self.value:
             prompt = None
         lang, OK = QtWidgets.QInputDialog.getText(
@@ -689,7 +689,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         lang = self.lang.get_value()
         if lang not in self.value:
             # choose language from locale
-            lang = QtCore.QLocale.system().bcp47Name()
+            lang = self.locale().bcp47Name()
             if lang not in self.value:
                 base_lang = lang.split('-')[0]
                 for lang in self.value:

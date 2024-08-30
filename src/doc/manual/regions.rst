@@ -63,7 +63,7 @@ Many social media web sites crop images, typically to square or 16:9 aspect rati
 This often causes problems such as decapitated bodies.
 
 Note that the unselected region is shown with a blue & yellow dashed outline.
-You can select regions by clicking on them.
+You can select an unselected region by clicking on it.
 
 .. image:: ../images/screenshot_279.png
 

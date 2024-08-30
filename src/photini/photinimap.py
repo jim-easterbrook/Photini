@@ -17,7 +17,6 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from datetime import timezone
-import locale
 import logging
 import os
 import pickle
@@ -129,9 +128,6 @@ class MapWebPage(QWebEnginePage):
             self.web_channel = QWebChannel(parent=self)
             self.setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
-        self.profile().setCachePath(
-            os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
-        logger.debug('user agent: %s', self.profile().httpUserAgent())
         self.local_links = False
 
     def set_local_links(self):
@@ -171,11 +167,6 @@ class MapWebView(QWebEngineView):
     def __init__(self, call_handler, *args, **kwds):
         super(MapWebView, self).__init__(*args, **kwds)
         self.setPage(MapWebPage(call_handler=call_handler, parent=self))
-        settings = self.settings()
-        settings.setAttribute(
-            settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
-        settings.setAttribute(
-            settings.WebAttribute.LocalContentCanAccessFileUrls, True)
 
     @catch_all
     def dragEnterEvent(self, event):
@@ -209,6 +200,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
+        self.app.loggerwindow.hide_word(self.api_key)
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, 'pin_grey.png'))
@@ -310,9 +302,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def initialise(self):
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
         zoom = float(self.app.config_store.get('map', 'zoom', 11))
-        lang, encoding = locale.getlocale()
-        lang = lang or 'en-GB'
-        lang = lang.replace('_', '-')
+        lang = self.app.language['primary']
         text_dir = ('ltr', 'rtl')[
             self.use_layout_direction and
             self.layoutDirection() == Qt.LayoutDirection.RightToLeft]
