@@ -37,10 +37,10 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 class Image(QtWidgets.QFrame):
     styles = ('''
-QWidget {background: palette(base); color: palette(text)}
+QFrame {background: palette(base); color: palette(text)}
 #thumbnail {color: palette(dark)}''',
               '''
-QWidget {background: palette(highlight); color: palette(highlighted-text)}
+QFrame {background: palette(highlight); color: palette(highlighted-text)}
 #thumbnail {color: palette(dark)}''')
 
     def __init__(self, path, thumb_size=4, *arg, **kw):
