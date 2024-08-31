@@ -457,8 +457,11 @@ class ThumbsLayout(QtWidgets.QLayout):
         height_hint = top + bottom
         if self.item_list and self.scroll_area:
             item_size = self.item_list[0].sizeHint()
-            item_h = item_size.height()
-            item_w = item_size.width()
+            overlap = self.item_list[0].widget().lineWidth()
+            item_h = item_size.height() - overlap
+            item_w = item_size.width() - overlap
+            width_hint += overlap
+            height_hint += overlap
             row_height = item_h + height_hint
             self.scroll_area.set_minimum_height(row_height)
             view_width, view_height = self.scroll_area.usable_size()
