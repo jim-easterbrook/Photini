@@ -80,7 +80,7 @@ QWidget {background: palette(highlight); color: palette(highlighted-text)}
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(
             QtWidgets.QFrame.Shape.Panel | QtWidgets.QFrame.Shadow.Plain)
-        self.setLineWidth(2)
+        self.setLineWidth(width_for_text(self, 'X' * 10) // 40)
         self.setObjectName("thumbnail")
         self.set_selected(False)
         self.show_status(False)
