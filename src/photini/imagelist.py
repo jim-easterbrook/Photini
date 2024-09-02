@@ -37,11 +37,11 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 class Image(QtWidgets.QFrame):
     styles = ('''
-QFrame {background: palette(base); color: palette(text)}
-#thumbnail {color: palette(dark)}''',
+QFrame {background: palette(base); color: palette(dark)}
+QLabel {background: palette(base); color: palette(text)}''',
               '''
-QFrame {background: palette(highlight); color: palette(highlighted-text)}
-#thumbnail {color: palette(dark)}''')
+QFrame {background: palette(highlight); color: palette(dark)}
+QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
 
     def __init__(self, path, thumb_size=4, *arg, **kw):
         super(Image, self).__init__(*arg, **kw)
@@ -80,8 +80,7 @@ QFrame {background: palette(highlight); color: palette(highlighted-text)}
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(
             QtWidgets.QFrame.Shape.Panel | QtWidgets.QFrame.Shadow.Plain)
-        self.setLineWidth(width_for_text(self, 'X' * 10) // 40)
-        self.setObjectName("thumbnail")
+        self.setLineWidth(max(1, width_for_text(self, 'X' * 10) // 40))
         self.set_selected(False)
         self.show_status(False)
         self._set_thumb_size(thumb_size)
