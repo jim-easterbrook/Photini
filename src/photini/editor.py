@@ -34,6 +34,7 @@ from photini.editsettings import EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
 from photini.metadata import ImageMetadata
+from photini.photinimap import MapIconFactory
 from photini.pyqt import *
 from photini.pyqt import QtNetwork, qt_version_info, QWebEngineProfile
 from photini.spelling import SpellCheck
@@ -378,6 +379,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.options = options
         self.app.image_list = ImageList()
         self.app.image_list.selection_changed.connect(self.new_selection)
+        self.app.map_icon_factory = MapIconFactory(parent=self)
         # parse locale IETF / BCP 47 name
         # see https://en.wikipedia.org/wiki/IETF_language_tag
         self.app.language = {

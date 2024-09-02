@@ -28,6 +28,7 @@ var map;
 var lastCamera = {};
 var layers = [];
 var padding = {top: 40, bottom: 5, left: 18, right: 18};
+var marker_data = ['', ''];
 
 function loadMap(lat, lng, zoom, options) {
     if (!atlas.isSupported()) {
@@ -115,6 +116,12 @@ function newBounds() {
 
 function setView(lat, lng, zoom) {
     map.setCamera({center: [lng, lat], zoom: zoom - 1});
+}
+
+function setIconData(pin, active, url) {
+    if (pin) {
+        marker_data[active] = url;
+    }
 }
 
 function normDx(dx) {
@@ -251,32 +258,29 @@ function enableMarker(id, active) {
     for (i in markers) {
         var marker = markers[i];
         if (marker.metadata.id == id) {
-            marker.setOptions({text: active ? 'red' : 'grey'});
+            marker.getOptions().htmlContent.src = marker_data[active];
             return;
         }
     }
 }
 
 function addMarker(id, lat, lng, active) {
+    var icon = document.createElement("img");
+    icon.src = marker_data[active];
+    icon.style.cursor = 'pointer';
+    icon.style.margin = '0px';
     var marker = new atlas.HtmlMarker({
-        anchor: 'top-left',
+        anchor: 'bottom',
         draggable: true,
-        htmlContent: '<img src="pin_{text}.png" />',
-        pixelOffset: [-11, -35],
+        htmlContent: icon,
+        pixelOffset: [0, 0],
         position: [lng, lat],
-        text: active ? 'red' : 'grey',
     });
     marker.metadata = {id: id};
     map.events.add('click', marker, markerClick);
     map.events.add('dragstart', marker, markerClick);
     map.events.add('drag', marker, markerDrag);
     map.events.add('dragend', marker, markerDragEnd);
-    map.events.add('mouseover', marker, function () {
-        map.getCanvasContainer().style.cursor = 'pointer';
-    });
-    map.events.add('mouseout', marker, function () {
-        map.getCanvasContainer().style.cursor = 'grab';
-    });
     map.markers.add(marker);
 }
 

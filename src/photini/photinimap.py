@@ -16,13 +16,16 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import base64
 from datetime import timezone
+import io
 import logging
 import os
 import pickle
 
 import appdirs
 import cachetools
+import PIL.Image as PIL
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
@@ -33,6 +36,27 @@ from photini.widgets import AltitudeDisplay, ComboBox, Label, LatLongDisplay
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+class MapIconFactory(QtCore.QObject):
+    def __init__(self, *args, **kwds):
+        super(MapIconFactory, self).__init__(*args, **kwds)
+        self.src_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
+        self.pin_icons = []
+        # resize master icons
+        marker_height = width_for_text(self.parent(), 'X' * 35) // 8
+        for name in ('pin_grey_master.png', 'pin_red_master.png'):
+            marker = PIL.open(os.path.join(self.src_dir, name))
+            w, h = marker.size
+            w = (w * marker_height) // h
+            h = marker_height
+            self.pin_icons.append(marker.resize((w, h), PIL.LANCZOS))
+
+    def get_pin_as_url(self, active):
+        data = io.BytesIO()
+        self.pin_icons[active].save(data, 'PNG')
+        data = data.getvalue()
+        return 'data:image/png;base64,' + base64.b64encode(data).decode('ascii')
 
 
 class GeocoderBase(QtCore.QObject):
@@ -355,12 +379,16 @@ class PhotiniMap(QtWidgets.QWidget):
 </html>'''.format(translate('PhotiniMap', 'Map unavailable'), msg))
             return
         self.map_loaded = 2     # finished loading
+        self.set_icon_data()
         self.widgets['search'].setEnabled(True)
         if 'load_gpx' in self.widgets:
             self.widgets['load_gpx'].setEnabled(True)
         self.widgets['map'].setAcceptDrops(True)
         self.new_selection(
             self.app.image_list.get_selected_images(), adjust_map=False)
+
+    def set_icon_data(self):
+        pass
 
     def refresh(self):
         self.app.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)

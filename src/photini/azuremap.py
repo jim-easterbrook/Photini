@@ -151,3 +151,9 @@ var circle_red_data = "data:image/png;base64,{circle_red_data}";
 ##        if self.app.language['region']:
 ##            options['view'] = self.app.language['region']
         return options
+
+    def set_icon_data(self):
+        self.JavaScript('setIconData({!r},{!r},{!r})'.format(
+            1, 0, self.app.map_icon_factory.get_pin_as_url(False)))
+        self.JavaScript('setIconData({!r},{!r},{!r})'.format(
+            1, 1, self.app.map_icon_factory.get_pin_as_url(True)))
