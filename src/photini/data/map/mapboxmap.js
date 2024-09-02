@@ -27,6 +27,7 @@
 var exports = {};
 var map;
 var markers = {};
+var marker_data = ['', ''];
 var gpsMarkers = {};
 var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
@@ -244,22 +245,28 @@ function clearGPS() {
     gpsMarkers = {};
 }
 
+function setIconData(pin, active, url, size) {
+    if (pin) {
+        marker_data[active] = url;
+    }
+}
+
 function enableMarker(id, active) {
     var icon = markers[id].getElement();
-    icon.src = active ? 'pin_red.png' : 'pin_grey.png';
+    icon.src = marker_data[active];
     icon.style.zIndex = active ? '3' : '2';
 }
 
 function addMarker(id, lat, lng, active) {
     var icon = document.createElement("img");
-    icon.src = active ? 'pin_red.png' : 'pin_grey.png';
+    icon.src = marker_data[active];
     icon.style.cursor = 'pointer';
     icon.style.zIndex = active ? '3' : '2';
     var marker = new mapboxgl.Marker({
         anchor: 'bottom',
         draggable: true,
         element: icon,
-        offset: [1.5, 0],
+        offset: [0, 0],
     });
     marker.metadata = {id: id};
     markers[id] = marker;

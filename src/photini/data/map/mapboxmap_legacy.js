@@ -52,10 +52,8 @@ function loadMap(lat, lng, zoom, options) {
     L.control.scale().addTo(map);
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
-    icon_on = new L.Icon({
-        iconUrl: 'pin_red.png', iconSize: [25, 35], iconAnchor: [11, 35]});
-    icon_off = new L.Icon({
-        iconUrl: 'pin_grey.png', iconSize: [25, 35], iconAnchor: [11, 35]});
+    icon_on = new L.Icon.Default();
+    icon_off = new L.Icon.Default();
     gpsBlueCircle = new L.Icon({
         iconUrl: 'circle_blue.png', iconSize: [11, 11], iconAnchor: [5, 5]});
     gpsRedCircle = new L.Icon({
@@ -124,6 +122,18 @@ function clearGPS() {
     for (var id in gpsMarkers)
         gpsMarkers[id].remove();
     gpsMarkers = {};
+}
+
+function setIconData(pin, active, url, size) {
+    if (pin) {
+        if (active) {
+            icon_on = new L.Icon({iconUrl: url, iconSize: size,
+                iconAnchor: [size[0] / 2, size[1]]});
+        } else {
+            icon_off = new L.Icon({iconUrl: url, iconSize: size,
+                iconAnchor: [size[0] / 2, size[1]]});
+        }
+    }
 }
 
 function enableMarker(id, active) {

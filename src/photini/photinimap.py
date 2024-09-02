@@ -58,6 +58,9 @@ class MapIconFactory(QtCore.QObject):
         data = data.getvalue()
         return 'data:image/png;base64,' + base64.b64encode(data).decode('ascii')
 
+    def get_pin_size(self):
+        return list(self.pin_icons[False].size)
+
 
 class GeocoderBase(QtCore.QObject):
     interval = 5000
