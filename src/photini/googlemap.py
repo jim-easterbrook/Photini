@@ -128,3 +128,11 @@ class TabWidget(PhotiniMap):
     </script>
     <script type="text/javascript" src="googlemap.js"></script>'''.format(
         use_old_markers=('false', 'true')[use_old_markers], url=url)
+
+    def set_icon_data(self):
+        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
+            1, 0, self.app.map_icon_factory.get_pin_as_url(False),
+            self.app.map_icon_factory.get_pin_size()))
+        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
+            1, 1, self.app.map_icon_factory.get_pin_as_url(True),
+            self.app.map_icon_factory.get_pin_size()))

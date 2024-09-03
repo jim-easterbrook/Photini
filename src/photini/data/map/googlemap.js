@@ -20,12 +20,11 @@
 
 var map;
 var markers = {};
+var marker_data = ['', ''];
 var gpsMarkers = {};
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const maxZoom = 20;
 if (use_old_markers) {
-    var icon_on;
-    var icon_off;
     var gpsBlueCircle;
     var gpsRedCircle;
 }
@@ -63,10 +62,7 @@ function loadMap(lat, lng, zoom, options) {
         padding.left += 130;
     google.maps.event.addListener(map, 'idle', newBounds);
     if (use_old_markers) {
-        var anchor = new google.maps.Point(11, 35);
-        icon_on = {anchor: anchor, url: 'pin_red.png'};
-        icon_off = {anchor: anchor, url: 'pin_grey.png'};
-        anchor = new google.maps.Point(5, 5);
+        var anchor = new google.maps.Point(5, 5);
         gpsBlueCircle = {anchor: anchor, url: 'circle_blue.png'};
         gpsRedCircle = {anchor: anchor, url: 'circle_red.png'};
     }
@@ -192,16 +188,20 @@ function clearGPS() {
     gpsMarkers = {};
 }
 
+function setIconData(pin, active, url, size) {
+    if (pin) {
+        marker_data[active] = url;
+    }
+}
+
 function enableMarker(id, active) {
     var marker = markers[id];
     if (use_old_markers) {
-        if (active)
-            marker.setOptions({icon: icon_on, zIndex: 1});
-        else
-            marker.setOptions({icon: icon_off, zIndex: 0});
+        marker.setIcon({url: marker_data[active]});
+        marker.setZIndex(active ? 1 : 0);
     }
     else {
-        marker.content.src = active ? 'pin_red.png' : 'pin_grey.png';
+        marker.content.src = marker_data[active];
         marker.zIndex = active ? 1 : 0;
     }
 }
@@ -209,22 +209,24 @@ function enableMarker(id, active) {
 function addMarker(id, lat, lng, active) {
     if (use_old_markers) {
         var marker = new google.maps.Marker({
-            icon: icon_off,
+            icon: {url: marker_data[active]},
             position: new google.maps.LatLng(lat, lng),
             map: map,
             draggable: true,
             crossOnDrag: false,
+            zIndex: active ? 1 : 0,
         });
     }
     else {
         var icon = document.createElement("img");
-        icon.src = 'pin_grey.png';
-        icon.style.transform = 'translate(1.5px,3px)';
+        icon.src = marker_data[active];
+        icon.style.transform = 'translate(0px,3px)';
         var marker = new google.maps.marker.AdvancedMarkerElement({
             content: icon,
             position: new google.maps.LatLng(lat, lng),
             map: map,
             gmpDraggable: true,
+            zIndex: active ? 1 : 0,
         });
     }
     marker.id = id;
@@ -233,7 +235,6 @@ function addMarker(id, lat, lng, active) {
     google.maps.event.addListener(marker, 'dragstart', markerClick);
     google.maps.event.addListener(marker, 'drag', markerDrag);
     google.maps.event.addListener(marker, 'dragend', markerDragEnd);
-    enableMarker(id, active)
 }
 
 function markerClick(event) {
