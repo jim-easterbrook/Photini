@@ -39,11 +39,16 @@ translate = QtCore.QCoreApplication.translate
 
 
 class MapIconFactory(QtCore.QObject):
+    icons_changed = QtSignal()
+
     def __init__(self, *args, **kwds):
         super(MapIconFactory, self).__init__(*args, **kwds)
-        app = QtWidgets.QApplication.instance()
+        self.app = QtWidgets.QApplication.instance()
         self.src_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.pin_icons = {}
+        self.new_colours()
+
+    def new_colours(self):
         # get source elements
         image = PIL.Image.open(os.path.join(self.src_dir, 'pin_image.png'))
         alpha = PIL.Image.open(os.path.join(self.src_dir, 'pin_alpha.png'))
@@ -51,7 +56,7 @@ class MapIconFactory(QtCore.QObject):
         marker_height = width_for_text(self.parent(), 'X' * 35) // 8
         for active in (False, True):
             colour = {False: '#a8a8a8', True: '#ff3000'}[active]
-            colour = app.config_store.get(
+            colour = self.app.config_store.get(
                 'map', 'pin_colour_{}'.format(active), colour)
             marker = PIL.Image.composite(
                 PIL.Image.new('RGB', alpha.size, colour), image, alpha)
@@ -59,6 +64,7 @@ class MapIconFactory(QtCore.QObject):
             w = (w * marker_height) // h
             h = marker_height
             self.pin_icons[active] = marker.resize((w, h), PIL.Image.LANCZOS)
+        self.icons_changed.emit()
 
     def get_pin_as_pixmap(self, active):
         data = io.BytesIO()
@@ -323,6 +329,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.layout().setStretch(1, 1)
         # other init
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
+        self.app.map_icon_factory.icons_changed.connect(self.set_icon_data)
 
     @QtSlot()
     @catch_all
@@ -406,12 +413,17 @@ class PhotiniMap(QtWidgets.QWidget):
         self.new_selection(
             self.app.image_list.get_selected_images(), adjust_map=False)
 
+    @QtSlot()
+    @catch_all
     def set_icon_data(self):
+        if self.map_loaded < 2:
+            return
         size = self.app.map_icon_factory.get_pin_size()
         self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
             1, 0, self.app.map_icon_factory.get_pin_as_url(False), size))
         self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
             1, 1, self.app.map_icon_factory.get_pin_as_url(True), size))
+        self.redraw_markers(force=True)
 
     def refresh(self):
         self.app.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
@@ -512,7 +524,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.redraw_gps_track(selection)
         self.update_display(selection, adjust_map=adjust_map)
 
-    def redraw_markers(self):
+    def redraw_markers(self, force=False):
         if self.map_loaded < 2:
             return
         for info in self.marker_info.values():
@@ -546,10 +558,12 @@ class PhotiniMap(QtWidgets.QWidget):
             if not info['images']:
                 self.JavaScript('delMarker({:d})'.format(marker_id))
                 del self.marker_info[marker_id]
-            elif info['selected'] != any([x.selected for x in info['images']]):
-                info['selected'] = not info['selected']
-                self.JavaScript(
-                    'enableMarker({:d},{:d})'.format(marker_id, info['selected']))
+            else:
+                selected = any([x.selected for x in info['images']])
+                if force or info['selected'] != selected:
+                    info['selected'] = selected
+                    self.JavaScript(
+                        'enableMarker({:d},{:d})'.format(marker_id, selected))
 
     def redraw_gps_track(self, selected_images=None):
         if self.map_loaded < 2:

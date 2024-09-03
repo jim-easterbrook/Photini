@@ -229,4 +229,5 @@ class EditSettings(QtWidgets.QDialog):
             self.config_store.set(
                 'map', 'pin_colour_{}'.format(active),
                 self.map_pin[active]['colour'].name())
+        self.app.map_icon_factory.new_colours()
         return self.accept()
