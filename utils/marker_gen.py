@@ -20,7 +20,7 @@
 import os
 import sys
 
-import PIL.Image as PIL
+import PIL.Image, PIL.ImageChops
 
 
 def main(argv=None):
@@ -29,25 +29,23 @@ def main(argv=None):
     dst_dir = os.path.join(root, 'src', 'photini', 'data', 'map')
     # amount to pad images by to make them symmetric
     PAD = 40
-    # open source files and pad them
-    red_src = PIL.open(os.path.join(src_dir, 'map_pin_red.png'))
-    pad = PIL.new('RGBA', (red_src.size[0] + PAD, red_src.size[1]))
+    # open source file and pad it
+    red_src = PIL.Image.open(os.path.join(src_dir, 'map_pin_red.png'))
+    pad = PIL.Image.new('RGBA', (red_src.size[0] + PAD, red_src.size[1]))
     pad.paste(red_src, (PAD, 0))
     red_src = pad
-    yellow_src = PIL.open(os.path.join(src_dir, 'map_pin_yellow.png'))
-    pad = PIL.new('RGBA', (yellow_src.size[0] + PAD, yellow_src.size[1]))
-    pad.paste(yellow_src, (PAD, 0))
-    yellow_src = pad
-    # save red master marker
-    path = os.path.join(dst_dir, 'pin_red_master.png')
+    # make greyscale version
+    marker_fg = red_src.convert('LA').convert('RGBA')
+    path = os.path.join(dst_dir, 'pin_image.png')
     print('writing', path)
-    red_src.save(path)
-    # mix red and yellow markers then convert to greyscale
-    grey_marker = PIL.blend(red_src, yellow_src, 0.5)
-    grey_marker = grey_marker.convert('LA').convert('RGBA')
-    path = os.path.join(dst_dir, 'pin_grey_master.png')
+    marker_fg.save(path)
+    # make colour infill alpha
+    fg = red_src.getchannel('R')
+    bg = red_src.convert('LA').getchannel('L')
+    alpha = PIL.ImageChops.subtract(fg, bg, scale=0.35, offset=-160)
+    path = os.path.join(dst_dir, 'pin_alpha.png')
     print('writing', path)
-    grey_marker.save(path)
+    alpha.save(path)
     return 0
 
 

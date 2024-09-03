@@ -25,7 +25,7 @@ import pickle
 
 import appdirs
 import cachetools
-import PIL.Image as PIL
+import PIL.Image
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
@@ -43,14 +43,18 @@ class MapIconFactory(QtCore.QObject):
         super(MapIconFactory, self).__init__(*args, **kwds)
         self.src_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.pin_icons = []
-        # resize master icons
+        # get source elements
+        image = PIL.Image.open(os.path.join(self.src_dir, 'pin_image.png'))
+        alpha = PIL.Image.open(os.path.join(self.src_dir, 'pin_alpha.png'))
+        # composite elements and resize to make icons
         marker_height = width_for_text(self.parent(), 'X' * 35) // 8
-        for name in ('pin_grey_master.png', 'pin_red_master.png'):
-            marker = PIL.open(os.path.join(self.src_dir, name))
+        for colour in ((0xa8, 0xa8, 0xa8), (0xff, 0x30, 0x00)):
+            marker = PIL.Image.composite(
+                PIL.Image.new('RGB', alpha.size, colour), image, alpha)
             w, h = marker.size
             w = (w * marker_height) // h
             h = marker_height
-            self.pin_icons.append(marker.resize((w, h), PIL.LANCZOS))
+            self.pin_icons.append(marker.resize((w, h), PIL.Image.LANCZOS))
 
     def get_pin_as_pixmap(self, active):
         data = io.BytesIO()
