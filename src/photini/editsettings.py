@@ -154,33 +154,60 @@ class EditSettings(QtWidgets.QDialog):
             self.map_pin[active]['button'].setFlat(True)
             self.map_pin[active]['button'].setFixedHeight(
                 self.iptc_always.sizeHint().height())
-            self._set_map_pin_button_colour(active)
+            self._set_map_pin_button_colour(self.map_pin[active])
             self.map_pin[active]['button'].setStyleSheet('text-align: left;')
+        self.map_gps = {}
+        self.map_gps[True] = {'button': QtWidgets.QPushButton(
+            translate('EditSettings', 'GPS track point (selected)'))}
+        self.map_gps[True]['button'].clicked.connect(self._get_map_gps_true)
+        panel.layout().addRow('', self.map_gps[True]['button'])
+        self.map_gps[False] = {'button': QtWidgets.QPushButton(
+            translate('EditSettings', 'GPS track point (unselected)'))}
+        self.map_gps[False]['button'].clicked.connect(self._get_map_gps_false)
+        panel.layout().addRow('', self.map_gps[False]['button'])
+        for active in self.map_gps:
+            self.map_gps[active]['colour'] = QtGui.QColor(
+                self.config_store.get('map', 'gps_colour_{}'.format(active)))
+            self.map_gps[active]['button'].setFlat(True)
+            self.map_gps[active]['button'].setFixedHeight(
+                self.iptc_always.sizeHint().height())
+            self._set_map_pin_button_colour(self.map_gps[active])
+            self.map_gps[active]['button'].setStyleSheet('text-align: left;')
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
-    def _set_map_pin_button_colour(self, active):
-        icon = QtGui.QPixmap(self.map_pin[active]['button'].iconSize())
-        icon.fill(self.map_pin[active]['colour'])
-        self.map_pin[active]['button'].setIcon(QtGui.QIcon(icon))
+    def _set_map_pin_button_colour(self, details):
+        icon = QtGui.QPixmap(details['button'].iconSize())
+        icon.fill(details['colour'])
+        details['button'].setIcon(QtGui.QIcon(icon))
 
     @QtSlot()
     @catch_all
     def _get_map_pin_true(self):
-        self.do_colour_dialog(True)
+        self.do_colour_dialog(self.map_pin[True])
 
     @QtSlot()
     @catch_all
     def _get_map_pin_false(self):
-        self.do_colour_dialog(False)
+        self.do_colour_dialog(self.map_pin[False])
 
-    def do_colour_dialog(self, active):
-        colour = self.map_pin[active]['colour']
-        colour = QtWidgets.QColorDialog.getColor(initial=colour, parent=self)
+    @QtSlot()
+    @catch_all
+    def _get_map_gps_true(self):
+        self.do_colour_dialog(self.map_gps[True])
+
+    @QtSlot()
+    @catch_all
+    def _get_map_gps_false(self):
+        self.do_colour_dialog(self.map_gps[False])
+
+    def do_colour_dialog(self, details):
+        colour = QtWidgets.QColorDialog.getColor(
+            initial=details['colour'], parent=self)
         if not colour.isValid():
             return
-        self.map_pin[active]['colour'] = colour
-        self._set_map_pin_button_colour(active)
+        details['colour'] = colour
+        self._set_map_pin_button_colour(details)
 
     @QtSlot()
     @catch_all
@@ -229,5 +256,9 @@ class EditSettings(QtWidgets.QDialog):
             self.config_store.set(
                 'map', 'pin_colour_{}'.format(active),
                 self.map_pin[active]['colour'].name())
+        for active in self.map_gps:
+            self.config_store.set(
+                'map', 'gps_colour_{}'.format(active),
+                self.map_gps[active]['colour'].name())
         self.app.map_icon_factory.new_colours()
         return self.accept()

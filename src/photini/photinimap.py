@@ -25,7 +25,7 @@ import pickle
 
 import appdirs
 import cachetools
-import PIL.Image
+import PIL.Image, PIL.ImageDraw
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
@@ -45,14 +45,14 @@ class MapIconFactory(QtCore.QObject):
         super(MapIconFactory, self).__init__(*args, **kwds)
         self.app = QtWidgets.QApplication.instance()
         self.src_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
-        self.pin_icons = {}
+        self._icons = {True: {}, False: {}}
         self.new_colours()
 
     def new_colours(self):
         # get source elements
         image = PIL.Image.open(os.path.join(self.src_dir, 'pin_image.png'))
         alpha = PIL.Image.open(os.path.join(self.src_dir, 'pin_alpha.png'))
-        # composite elements and resize to make icons
+        # composite elements and resize to make pin icons
         marker_height = width_for_text(self.parent(), 'X' * 35) // 8
         for active in (False, True):
             colour = {False: '#a8a8a8', True: '#ff3000'}[active]
@@ -63,25 +63,44 @@ class MapIconFactory(QtCore.QObject):
             w, h = marker.size
             w = (w * marker_height) // h
             h = marker_height
-            self.pin_icons[active] = marker.resize((w, h), PIL.Image.LANCZOS)
+            self._icons[True][active] = marker.resize((w, h), PIL.Image.LANCZOS)
+        # draw GPS track markers
+        marker_size = width_for_text(self.parent(), 'X' * 11) // 8
+        w = marker_size * 8
+        d = w // 10
+        alpha = PIL.Image.new("L", (w, w), 0)
+        draw = PIL.ImageDraw.Draw(alpha)
+        draw.ellipse((d, d, w - d, w - d), fill=64, outline=255, width=w // 10)
+        # resize alpha to get anti-aliased drawing
+        alpha = alpha.resize((marker_size, marker_size), PIL.Image.LANCZOS)
+        # composite with colours
+        for active in (False, True):
+            colour = {False: '#3388ff', True: '#ff0000'}[active]
+            colour = self.app.config_store.get(
+                'map', 'gps_colour_{}'.format(active), colour)
+            self._icons[False][active] = PIL.Image.new(
+                'RGB', alpha.size, colour)
+            self._icons[False][active].putalpha(alpha)
+            self._icons[False][active] = self._icons[False][active].copy()
+##            self._icons[False][active].resize((100, 100), PIL.Image.NEAREST).show()
         self.icons_changed.emit()
 
-    def get_pin_as_pixmap(self, active):
+    def get_pin_as_pixmap(self, pin, active):
         data = io.BytesIO()
-        self.pin_icons[active].save(data, 'PNG')
+        self._icons[pin][active].save(data, 'PNG')
         buf = QtCore.QBuffer()
         buf.setData(data.getvalue())
         reader = QtGui.QImageReader(buf)
         return QtGui.QPixmap.fromImage(reader.read())
 
-    def get_pin_as_url(self, active):
+    def get_pin_as_url(self, pin, active):
         data = io.BytesIO()
-        self.pin_icons[active].save(data, 'PNG')
+        self._icons[pin][active].save(data, 'PNG')
         data = data.getvalue()
         return 'data:image/png;base64,' + base64.b64encode(data).decode('ascii')
 
-    def get_pin_size(self):
-        return list(self.pin_icons[False].size)
+    def get_pin_size(self, pin):
+        return list(self._icons[pin][False].size)
 
 
 class GeocoderBase(QtCore.QObject):
@@ -251,8 +270,8 @@ class PhotiniMap(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.app.loggerwindow.hide_word(self.api_key)
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
-        self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(False)
-        w, h = self.app.map_icon_factory.get_pin_size()
+        self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(True, False)
+        w, h = self.app.map_icon_factory.get_pin_size(True)
         self.drag_hotspot = w / 2, h
         self.search_string = None
         self.map_loaded = 0     # not loaded
@@ -418,11 +437,13 @@ class PhotiniMap(QtWidgets.QWidget):
     def set_icon_data(self):
         if self.map_loaded < 2:
             return
-        size = self.app.map_icon_factory.get_pin_size()
-        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
-            1, 0, self.app.map_icon_factory.get_pin_as_url(False), size))
-        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
-            1, 1, self.app.map_icon_factory.get_pin_as_url(True), size))
+        for pin in (False, True):
+            size = self.app.map_icon_factory.get_pin_size(pin)
+            for active in (False, True):
+                self.JavaScript('setIconData({:d},{:d},{!r},{!r})'.format(
+                    pin, active,
+                    self.app.map_icon_factory.get_pin_as_url(pin, active),
+                    size))
         self.redraw_markers(force=True)
 
     def refresh(self):
