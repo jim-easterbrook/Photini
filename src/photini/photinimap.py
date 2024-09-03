@@ -52,6 +52,14 @@ class MapIconFactory(QtCore.QObject):
             h = marker_height
             self.pin_icons.append(marker.resize((w, h), PIL.LANCZOS))
 
+    def get_pin_as_pixmap(self, active):
+        data = io.BytesIO()
+        self.pin_icons[active].save(data, 'PNG')
+        buf = QtCore.QBuffer()
+        buf.setData(data.getvalue())
+        reader = QtGui.QImageReader(buf)
+        return QtGui.QPixmap.fromImage(reader.read())
+
     def get_pin_as_url(self, active):
         data = io.BytesIO()
         self.pin_icons[active].save(data, 'PNG')
@@ -229,9 +237,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.app.loggerwindow.hide_word(self.api_key)
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
-        self.drag_icon = QtGui.QPixmap(
-            os.path.join(self.script_dir, 'pin_grey.png'))
-        self.drag_hotspot = 11, 35
+        self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(False)
+        w, h = self.app.map_icon_factory.get_pin_size()
+        self.drag_hotspot = w / 2, h
         self.search_string = None
         self.map_loaded = 0     # not loaded
         self.marker_info = {}

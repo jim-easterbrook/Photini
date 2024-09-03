@@ -4,9 +4,7 @@ all : \
 	../../src/photini/data/icons/photini_48.png \
 	../../src/photini/data/icons/photini_win.ico \
 	../../src/photini/data/map/circle_blue.png \
-	../../src/photini/data/map/circle_red.png \
-	../../src/photini/data/map/pin_red.png \
-	../../src/photini/data/map/pin_grey.png
+	../../src/photini/data/map/circle_red.png
 
 # scale master icon to any size
 icon_%.pam : icon_master.png
