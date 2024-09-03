@@ -20,6 +20,8 @@
 
 var map;
 var layers = [];
+var marker_data = ['', ''];
+var marker_anchor;
 
 function loadMap(lat, lng, zoom, options)
 {
@@ -155,6 +157,13 @@ function clearGPS()
     layers[3].clear();
 }
 
+function setIconData(pin, active, url, size) {
+    if (pin) {
+        marker_data[active] = url;
+        marker_anchor = new Microsoft.Maps.Point(size[0] / 2, size[1]);
+    }
+}
+
 function adjustMarker(id, fromLayer, toLayer, icon)
 {
     var markers = fromLayer.getPrimitives();
@@ -174,17 +183,17 @@ function adjustMarker(id, fromLayer, toLayer, icon)
 function enableMarker(id, active)
 {
     if (active)
-        adjustMarker(id, layers[0], layers[1], 'pin_red.png');
+        adjustMarker(id, layers[0], layers[1], marker_data[active]);
     else
-        adjustMarker(id, layers[1], layers[0], 'pin_grey.png');
+        adjustMarker(id, layers[1], layers[0], marker_data[active]);
 }
 
 function addMarker(id, lat, lng, active)
 {
     var marker = new Microsoft.Maps.Pushpin(
         new Microsoft.Maps.Location(lat, lng), {
-            anchor   : new Microsoft.Maps.Point(11, 35),
-            icon     : active ? 'pin_red.png' : 'pin_grey.png',
+            anchor   : marker_anchor,
+            icon     : marker_data[active],
             draggable: true
         });
     marker.metadata = {id: id};

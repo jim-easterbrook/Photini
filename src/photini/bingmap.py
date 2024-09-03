@@ -125,3 +125,11 @@ class TabWidget(PhotiniMap):
         if 'session_id' in status:
             # use map session key to make API calls non-billable
             self.geocoder.api_key = status['session_id']
+
+    def set_icon_data(self):
+        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
+            1, 0, self.app.map_icon_factory.get_pin_as_url(False),
+            self.app.map_icon_factory.get_pin_size()))
+        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
+            1, 1, self.app.map_icon_factory.get_pin_as_url(True),
+            self.app.map_icon_factory.get_pin_size()))
