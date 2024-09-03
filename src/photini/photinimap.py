@@ -41,20 +41,24 @@ translate = QtCore.QCoreApplication.translate
 class MapIconFactory(QtCore.QObject):
     def __init__(self, *args, **kwds):
         super(MapIconFactory, self).__init__(*args, **kwds)
+        app = QtWidgets.QApplication.instance()
         self.src_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
-        self.pin_icons = []
+        self.pin_icons = {}
         # get source elements
         image = PIL.Image.open(os.path.join(self.src_dir, 'pin_image.png'))
         alpha = PIL.Image.open(os.path.join(self.src_dir, 'pin_alpha.png'))
         # composite elements and resize to make icons
         marker_height = width_for_text(self.parent(), 'X' * 35) // 8
-        for colour in ((0xa8, 0xa8, 0xa8), (0xff, 0x30, 0x00)):
+        for active in (False, True):
+            colour = {False: '#a8a8a8', True: '#ff3000'}[active]
+            colour = app.config_store.get(
+                'map', 'pin_colour_{}'.format(active), colour)
             marker = PIL.Image.composite(
                 PIL.Image.new('RGB', alpha.size, colour), image, alpha)
             w, h = marker.size
             w = (w * marker_height) // h
             h = marker_height
-            self.pin_icons.append(marker.resize((w, h), PIL.Image.LANCZOS))
+            self.pin_icons[active] = marker.resize((w, h), PIL.Image.LANCZOS)
 
     def get_pin_as_pixmap(self, active):
         data = io.BytesIO()

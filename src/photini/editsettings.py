@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -19,7 +19,7 @@
 import logging
 
 from photini.pyqt import (
-    catch_all, FormLayout, Qt, QtCore, QtSlot, QtWidgets, width_for_text)
+    catch_all, FormLayout, Qt, QtCore, QtGui, QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -137,8 +137,50 @@ class EditSettings(QtWidgets.QDialog):
                 self.config_store.get('map', 'gpx_altitude', True))
             panel.layout().addRow(
                 translate('EditSettings', 'GPX importer'), self.gpx_altitude)
+        # map icon colours
+        self.map_pin = {}
+        self.map_pin[True] = {'button': QtWidgets.QPushButton(
+            translate('EditSettings', 'location pin (selected)'))}
+        self.map_pin[True]['button'].clicked.connect(self._get_map_pin_true)
+        panel.layout().addRow(translate('EditSettings', 'Map icon colours'),
+                              self.map_pin[True]['button'])
+        self.map_pin[False] = {'button': QtWidgets.QPushButton(
+            translate('EditSettings', 'location pin (unselected)'))}
+        self.map_pin[False]['button'].clicked.connect(self._get_map_pin_false)
+        panel.layout().addRow('', self.map_pin[False]['button'])
+        for active in self.map_pin:
+            self.map_pin[active]['colour'] = QtGui.QColor(
+                self.config_store.get('map', 'pin_colour_{}'.format(active)))
+            self.map_pin[active]['button'].setFlat(True)
+            self.map_pin[active]['button'].setFixedHeight(
+                self.iptc_always.sizeHint().height())
+            self._set_map_pin_button_colour(active)
+            self.map_pin[active]['button'].setStyleSheet('text-align: left;')
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
+
+    def _set_map_pin_button_colour(self, active):
+        icon = QtGui.QPixmap(self.map_pin[active]['button'].iconSize())
+        icon.fill(self.map_pin[active]['colour'])
+        self.map_pin[active]['button'].setIcon(QtGui.QIcon(icon))
+
+    @QtSlot()
+    @catch_all
+    def _get_map_pin_true(self):
+        self.do_colour_dialog(True)
+
+    @QtSlot()
+    @catch_all
+    def _get_map_pin_false(self):
+        self.do_colour_dialog(False)
+
+    def do_colour_dialog(self, active):
+        colour = self.map_pin[active]['colour']
+        colour = QtWidgets.QColorDialog.getColor(initial=colour, parent=self)
+        if not colour.isValid():
+            return
+        self.map_pin[active]['colour'] = colour
+        self._set_map_pin_button_colour(active)
 
     @QtSlot()
     @catch_all
@@ -183,4 +225,8 @@ class EditSettings(QtWidgets.QDialog):
         if self.app.gpx_importer:
             self.config_store.set(
                 'map', 'gpx_altitude', self.gpx_altitude.isChecked())
+        for active in self.map_pin:
+            self.config_store.set(
+                'map', 'pin_colour_{}'.format(active),
+                self.map_pin[active]['colour'].name())
         return self.accept()
