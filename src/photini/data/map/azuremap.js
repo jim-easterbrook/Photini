@@ -52,10 +52,6 @@ function loadMap(lat, lng, zoom, options) {
 function mapReady() {
     const div = document.getElementById("mapDiv");
     const ltr = getComputedStyle(div).direction == 'ltr';
-    if (ltr)
-        padding.right += 110;
-    else
-        padding.left += 110;
     map.controls.add(
         [new atlas.control.StyleControl({
             mapStyles: ['road', 'road_shaded_relief',
@@ -118,9 +114,19 @@ function setView(lat, lng, zoom) {
     map.setCamera({center: [lng, lat], zoom: zoom - 1});
 }
 
-function setIconData(pin, active, url) {
+function setIconData(pin, active, url, size) {
     if (pin) {
         marker_data[active] = url;
+        padding.left = 5 + ((size[0] * 3) / 7);
+        padding.right = padding.left;
+        padding.bottom = 5;
+        padding.top = padding.bottom + size[1];
+        const div = document.getElementById("mapDiv");
+        const ltr = getComputedStyle(div).direction == 'ltr';
+        if (ltr)
+            padding.right += 110;
+        else
+            padding.left += 110;
     }
 }
 

@@ -19,9 +19,8 @@
 // See https://docs.mapbox.com/mapbox-gl-js/guides
 
 /* The style switcher control is from https://github.com/el/style-switcher
- * It appears to be designed for something other than simple scripts so in
- * mapboxmap.py we define a variable 'exports' before the style switcher
- * script.
+ * It appears to be designed for something other than simple scripts so we
+ * define a variable 'exports' before loading the style switcher script.
  */
 
 var exports = {};
@@ -65,10 +64,6 @@ function loadMap2(lat, lng, zoom, options) {
     map = new mapboxgl.Map(options);
     const div = document.getElementById("mapDiv");
     const ltr = getComputedStyle(div).direction == 'ltr';
-    if (ltr)
-        padding.right += 40;
-    else
-        padding.left += 40;
     map.addControl(new exports.MapboxStyleSwitcherControl([
         {title: 'Street', uri: 'mapbox://styles/mapbox/streets-v12'},
         {title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v12'},
@@ -248,6 +243,16 @@ function clearGPS() {
 function setIconData(pin, active, url, size) {
     if (pin) {
         marker_data[active] = url;
+        padding.left = 5 + ((size[0] * 3) / 7);
+        padding.right = padding.left;
+        padding.bottom = 5;
+        padding.top = padding.bottom + size[1];
+        const div = document.getElementById("mapDiv");
+        const ltr = getComputedStyle(div).direction == 'ltr';
+        if (ltr)
+            padding.right += 40;
+        else
+            padding.left += 40;
     }
 }
 

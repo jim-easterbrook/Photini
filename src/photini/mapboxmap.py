@@ -164,11 +164,3 @@ function loadScript(scriptName) {{
         if self.app.language['region']:
             options['worldview'] = self.app.language['region']
         return options
-
-    def set_icon_data(self):
-        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
-            1, 0, self.app.map_icon_factory.get_pin_as_url(False),
-            self.app.map_icon_factory.get_pin_size()))
-        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
-            1, 1, self.app.map_icon_factory.get_pin_as_url(True),
-            self.app.map_icon_factory.get_pin_size()))

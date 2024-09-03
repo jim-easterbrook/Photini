@@ -55,11 +55,6 @@ function loadMap(lat, lng, zoom, options) {
     };
     const div = document.getElementById("mapDiv");
     map = new google.maps.Map(div, mapOptions);
-    // Ensure selected markers aren't hidden by type control
-    if (getComputedStyle(div).direction == 'ltr')
-        padding.right += 130;
-    else
-        padding.left += 130;
     google.maps.event.addListener(map, 'idle', newBounds);
     if (use_old_markers) {
         var anchor = new google.maps.Point(5, 5);
@@ -191,6 +186,16 @@ function clearGPS() {
 function setIconData(pin, active, url, size) {
     if (pin) {
         marker_data[active] = url;
+        padding.left = 5 + ((size[0] * 3) / 7);
+        padding.right = padding.left;
+        padding.bottom = 5;
+        padding.top = padding.bottom + size[1];
+        const div = document.getElementById("mapDiv");
+        // Ensure selected markers aren't hidden by type control
+        if (getComputedStyle(div).direction == 'ltr')
+            padding.right += 130;
+        else
+            padding.left += 130;
     }
 }
 

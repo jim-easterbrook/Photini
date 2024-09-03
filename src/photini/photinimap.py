@@ -399,7 +399,11 @@ class PhotiniMap(QtWidgets.QWidget):
             self.app.image_list.get_selected_images(), adjust_map=False)
 
     def set_icon_data(self):
-        pass
+        size = self.app.map_icon_factory.get_pin_size()
+        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
+            1, 0, self.app.map_icon_factory.get_pin_as_url(False), size))
+        self.JavaScript('setIconData({!r},{!r},{!r},{!r})'.format(
+            1, 1, self.app.map_icon_factory.get_pin_as_url(True), size))
 
     def refresh(self):
         self.app.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
