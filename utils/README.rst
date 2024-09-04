@@ -19,6 +19,11 @@ lang_update.py
 Updates or creates files in ``src/lang``.
 Processes GUI strings or documentation (``-d`` option).
 
+marker_gen.py
+-------------
+
+Generates the master files used to compute coloured map pins at runtime.
+
 store_keys.py
 -------------
 
@@ -42,7 +47,7 @@ The tag can be converted to a release on Github's "tags" page.
 make_icons
 ----------
 
-Source files and a ``makefile`` to generate map markers and various size Photini program icons.
+Source files and a ``makefile`` to generate various size Photini program icons.
 
 
 .. _sphinx: https://www.sphinx-doc.org/
