@@ -19,15 +19,16 @@
 // See https://docs.mapbox.com/mapbox-gl-js/guides
 
 /* The style switcher control is from https://github.com/el/style-switcher
- * It appears to be designed for something other than simple scripts so in
- * mapboxmap.py we define a variable 'exports' before the style switcher
- * script.
+ * It appears to be designed for something other than simple scripts so we
+ * define a variable 'exports' before loading the style switcher script.
  */
 
 var exports = {};
 var map;
 var markers = {};
+var markerIcon = ['', ''];
 var gpsMarkers = {};
+var gpsMarkerIcon = ['', ''];
 var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
@@ -64,10 +65,6 @@ function loadMap2(lat, lng, zoom, options) {
     map = new mapboxgl.Map(options);
     const div = document.getElementById("mapDiv");
     const ltr = getComputedStyle(div).direction == 'ltr';
-    if (ltr)
-        padding.right += 40;
-    else
-        padding.left += 40;
     map.addControl(new exports.MapboxStyleSwitcherControl([
         {title: 'Street', uri: 'mapbox://styles/mapbox/streets-v12'},
         {title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v12'},
@@ -217,7 +214,7 @@ function fitPoints(points) {
 function plotGPS(points) {
     for (i in points) {
         var icon = document.createElement("img");
-        icon.src = 'circle_blue.png';
+        icon.src = gpsMarkerIcon[0];
         icon.style.zIndex = '0';
         var marker = new mapboxgl.Marker({
             anchor: 'center',
@@ -231,9 +228,9 @@ function plotGPS(points) {
 
 function enableGPS(ids) {
     for (id in gpsMarkers) {
-        var active = ids.includes(id);
+        const active = ids.includes(id) ? 1 : 0;
         var icon = gpsMarkers[id].getElement();
-        icon.src = active ? 'circle_red.png' : 'circle_blue.png';
+        icon.src = gpsMarkerIcon[active];
         icon.style.zIndex = active ? '1' : '0';
     }
 }
@@ -244,22 +241,40 @@ function clearGPS() {
     gpsMarkers = {};
 }
 
+function setIconData(pin, active, url, size) {
+    if (pin) {
+        markerIcon[active] = url;
+        padding.left = 5 + ((size[0] * 3) / 7);
+        padding.right = padding.left;
+        padding.bottom = 5;
+        padding.top = padding.bottom + size[1];
+        const div = document.getElementById("mapDiv");
+        const ltr = getComputedStyle(div).direction == 'ltr';
+        if (ltr)
+            padding.right += 40;
+        else
+            padding.left += 40;
+    } else {
+        gpsMarkerIcon[active] = url;
+    }
+}
+
 function enableMarker(id, active) {
     var icon = markers[id].getElement();
-    icon.src = active ? 'pin_red.png' : 'pin_grey.png';
+    icon.src = markerIcon[active];
     icon.style.zIndex = active ? '3' : '2';
 }
 
 function addMarker(id, lat, lng, active) {
     var icon = document.createElement("img");
-    icon.src = active ? 'pin_red.png' : 'pin_grey.png';
+    icon.src = markerIcon[active];
     icon.style.cursor = 'pointer';
     icon.style.zIndex = active ? '3' : '2';
     var marker = new mapboxgl.Marker({
         anchor: 'bottom',
         draggable: true,
         element: icon,
-        offset: [1.5, 0],
+        offset: [0, 0],
     });
     marker.metadata = {id: id};
     markers[id] = marker;

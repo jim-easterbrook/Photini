@@ -36,6 +36,13 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 
 class Image(QtWidgets.QFrame):
+    styles = ('''
+QFrame {background: palette(base); color: palette(dark)}
+QLabel {background: palette(base); color: palette(text)}''',
+              '''
+QFrame {background: palette(highlight); color: palette(dark)}
+QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
+
     def __init__(self, path, thumb_size=4, *arg, **kw):
         super(Image, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
@@ -73,7 +80,7 @@ class Image(QtWidgets.QFrame):
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(
             QtWidgets.QFrame.Shape.Panel | QtWidgets.QFrame.Shadow.Plain)
-        self.setObjectName("thumbnail")
+        self.setLineWidth(max(1, width_for_text(self, 'X' * 10) // 40))
         self.set_selected(False)
         self.show_status(False)
         self._set_thumb_size(thumb_size)
@@ -326,10 +333,7 @@ class Image(QtWidgets.QFrame):
 
     def set_selected(self, value):
         self.selected = value
-        if self.selected:
-            self.setStyleSheet("#thumbnail {border: 2px solid red}")
-        else:
-            self.setStyleSheet("#thumbnail {border: 2px solid grey}")
+        self.setStyleSheet(self.styles[self.selected])
 
     def get_selected(self):
         return self.selected
@@ -452,8 +456,11 @@ class ThumbsLayout(QtWidgets.QLayout):
         height_hint = top + bottom
         if self.item_list and self.scroll_area:
             item_size = self.item_list[0].sizeHint()
-            item_h = item_size.height()
-            item_w = item_size.width()
+            overlap = self.item_list[0].widget().lineWidth()
+            item_h = item_size.height() - overlap
+            item_w = item_size.width() - overlap
+            width_hint += overlap
+            height_hint += overlap
             row_height = item_h + height_hint
             self.scroll_area.set_minimum_height(row_height)
             view_width, view_height = self.scroll_area.usable_size()

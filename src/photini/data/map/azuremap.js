@@ -28,6 +28,7 @@ var map;
 var lastCamera = {};
 var layers = [];
 var padding = {top: 40, bottom: 5, left: 18, right: 18};
+var marker_data = ['', ''];
 
 function loadMap(lat, lng, zoom, options) {
     if (!atlas.isSupported()) {
@@ -51,10 +52,6 @@ function loadMap(lat, lng, zoom, options) {
 function mapReady() {
     const div = document.getElementById("mapDiv");
     const ltr = getComputedStyle(div).direction == 'ltr';
-    if (ltr)
-        padding.right += 110;
-    else
-        padding.left += 110;
     map.controls.add(
         [new atlas.control.StyleControl({
             mapStyles: ['road', 'road_shaded_relief',
@@ -72,34 +69,25 @@ function mapReady() {
         layers.push(new atlas.source.DataSource());
         map.sources.add(layers[i]);
     }
-    // Load GPS marker image data
-    var promises = [
-        map.imageSprite.add('circle_red', circle_red_data),
-        map.imageSprite.add('circle_blue', circle_blue_data),
-    ];
-    // Once loaded, set up GPS marker data layers
-    Promise.all(promises).then(function () {
-        var symbolLayer = new atlas.layer.SymbolLayer(layers[0], null, {
-            iconOptions: {
-                allowOverlap: false,
-                ignorePlacement: true,
-                image: 'circle_blue',
-                anchor: 'top-left',
-                offset: [-5, -5],
-            }});
-        map.layers.add(symbolLayer);
-        symbolLayer = new atlas.layer.SymbolLayer(layers[1], null, {
-            iconOptions: {
-                allowOverlap: true,
-                ignorePlacement: true,
-                image: 'circle_red',
-                anchor: 'top-left',
-                offset: [-5, -5],
-            }});
-        map.layers.add(symbolLayer);
-        python.initialize_finished(true);
-        newBounds();
-    });
+    // Set up GPS marker data layers
+    var symbolLayer = new atlas.layer.SymbolLayer(
+        layers[0], 'gps_false', {
+        iconOptions: {
+            allowOverlap: false,
+            ignorePlacement: true,
+            anchor: 'center',
+        }});
+    map.layers.add(symbolLayer);
+    symbolLayer = new atlas.layer.SymbolLayer(
+        layers[1], 'gps_true', {
+        iconOptions: {
+            allowOverlap: true,
+            ignorePlacement: true,
+            anchor: 'center',
+        }});
+    map.layers.add(symbolLayer);
+    python.initialize_finished(true);
+    newBounds();
 }
 
 function newBounds() {
@@ -115,6 +103,32 @@ function newBounds() {
 
 function setView(lat, lng, zoom) {
     map.setCamera({center: [lng, lat], zoom: zoom - 1});
+}
+
+function setIconData(pin, active, url, size) {
+    if (pin) {
+        marker_data[active] = url;
+        padding.left = 5 + ((size[0] * 3) / 7);
+        padding.right = padding.left;
+        padding.bottom = 5;
+        padding.top = padding.bottom + size[1];
+        const div = document.getElementById("mapDiv");
+        const ltr = getComputedStyle(div).direction == 'ltr';
+        if (ltr)
+            padding.right += 110;
+        else
+            padding.left += 110;
+    } else {
+        const id = active ? 'gps_true' : 'gps_false';
+        if (map.imageSprite.hasImage(id))
+            map.imageSprite.remove(id);
+        map.imageSprite.add(id, url).then(function () {
+            const layer = map.layers.getLayerById(id);
+            var options = layer.getOptions();
+            options.iconOptions.image = id;
+            layer.setOptions(options);
+        });
+    }
 }
 
 function normDx(dx) {
@@ -251,32 +265,29 @@ function enableMarker(id, active) {
     for (i in markers) {
         var marker = markers[i];
         if (marker.metadata.id == id) {
-            marker.setOptions({text: active ? 'red' : 'grey'});
+            marker.getOptions().htmlContent.src = marker_data[active];
             return;
         }
     }
 }
 
 function addMarker(id, lat, lng, active) {
+    var icon = document.createElement("img");
+    icon.src = marker_data[active];
+    icon.style.cursor = 'pointer';
+    icon.style.margin = '0px';
     var marker = new atlas.HtmlMarker({
-        anchor: 'top-left',
+        anchor: 'bottom',
         draggable: true,
-        htmlContent: '<img src="pin_{text}.png" />',
-        pixelOffset: [-11, -35],
+        htmlContent: icon,
+        pixelOffset: [0, 0],
         position: [lng, lat],
-        text: active ? 'red' : 'grey',
     });
     marker.metadata = {id: id};
     map.events.add('click', marker, markerClick);
     map.events.add('dragstart', marker, markerClick);
     map.events.add('drag', marker, markerDrag);
     map.events.add('dragend', marker, markerDragEnd);
-    map.events.add('mouseover', marker, function () {
-        map.getCanvasContainer().style.cursor = 'pointer';
-    });
-    map.events.add('mouseout', marker, function () {
-        map.getCanvasContainer().style.cursor = 'grab';
-    });
     map.markers.add(marker);
 }
 
