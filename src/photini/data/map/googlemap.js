@@ -26,7 +26,8 @@ var gpsMarkerIcon = ['', ''];
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const maxZoom = 20;
 
-function loadMap(lat, lng, zoom, options) {
+async function loadMap(lat, lng, zoom, options) {
+    const { Map } = await google.maps.importLibrary("maps");
     var mapOptions = {
         center: new google.maps.LatLng(lat, lng),
         controlSize: 30,
@@ -51,7 +52,7 @@ function loadMap(lat, lng, zoom, options) {
         },
     };
     const div = document.getElementById("mapDiv");
-    map = new google.maps.Map(div, mapOptions);
+    map = new Map(div, mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
     python.initialize_finished(true);
 }
@@ -136,7 +137,7 @@ function fitPoints(points) {
     moveTo(bounds, true, map.getZoom());
 }
 
-function plotGPS(points) {
+async function plotGPS(points) {
     for (i in points) {
         const latlng = new google.maps.LatLng(points[i][0], points[i][1]);
         const id = points[i][2];
@@ -145,10 +146,12 @@ function plotGPS(points) {
                 map: map, position: latlng,
                 icon: gpsMarkerIcon[0], zIndex: 2, clickable: false});
         else {
+            const {AdvancedMarkerElement} =
+                await google.maps.importLibrary("marker");
             var circle = document.createElement("img");
             circle.src = gpsMarkerIcon[0].src;
             circle.style.transform = gpsMarkerIcon[0].transform;
-            gpsMarkers[id] = new google.maps.marker.AdvancedMarkerElement({
+            gpsMarkers[id] = new AdvancedMarkerElement({
                 map: map, position: latlng, content: circle, zIndex: 2});
         }
     }
@@ -211,7 +214,7 @@ function enableMarker(id, active) {
     }
 }
 
-function addMarker(id, lat, lng, active) {
+async function addMarker(id, lat, lng, active) {
     if (use_old_markers) {
         var marker = new google.maps.Marker({
             icon: {url: markerIcon[active]},
@@ -223,10 +226,12 @@ function addMarker(id, lat, lng, active) {
         });
     }
     else {
+        const {AdvancedMarkerElement} =
+            await google.maps.importLibrary("marker");
         var icon = document.createElement("img");
         icon.src = markerIcon[active];
         icon.style.transform = 'translate(0px,3px)';
-        var marker = new google.maps.marker.AdvancedMarkerElement({
+        var marker = new AdvancedMarkerElement({
             content: icon,
             position: new google.maps.LatLng(lat, lng),
             map: map,

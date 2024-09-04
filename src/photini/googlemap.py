@@ -112,8 +112,6 @@ class TabWidget(PhotiniMap):
                '&loading=async')
         # AdvancedMarkerElement requires Chrome v86+
         use_old_markers = chrome_version < 86
-        if not use_old_markers:
-            url += '&libraries=marker'
         if self.app.options.test:
             url += '&v=beta'
         url += '&key=' + self.api_key
