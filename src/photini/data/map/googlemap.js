@@ -20,14 +20,11 @@
 
 var map;
 var markers = {};
-var marker_data = ['', ''];
+var markerIcon = ['', ''];
 var gpsMarkers = {};
+var gpsMarkerIcon = ['', ''];
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const maxZoom = 20;
-if (use_old_markers) {
-    var gpsBlueCircle;
-    var gpsRedCircle;
-}
 
 function loadMap(lat, lng, zoom, options) {
     var mapOptions = {
@@ -56,11 +53,6 @@ function loadMap(lat, lng, zoom, options) {
     const div = document.getElementById("mapDiv");
     map = new google.maps.Map(div, mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
-    if (use_old_markers) {
-        var anchor = new google.maps.Point(5, 5);
-        gpsBlueCircle = {anchor: anchor, url: 'circle_blue.png'};
-        gpsRedCircle = {anchor: anchor, url: 'circle_red.png'};
-    }
     python.initialize_finished(true);
 }
 
@@ -151,11 +143,11 @@ function plotGPS(points) {
         if (use_old_markers)
             gpsMarkers[id] = new google.maps.Marker({
                 map: map, position: latlng,
-                icon: gpsBlueCircle, zIndex: 2, clickable: false});
+                icon: gpsMarkerIcon[0], zIndex: 2, clickable: false});
         else {
             var circle = document.createElement("img");
-            circle.src = 'circle_blue.png';
-            circle.style.transform = 'translate(0.5px,8.5px)';
+            circle.src = gpsMarkerIcon[0].src;
+            circle.style.transform = gpsMarkerIcon[0].transform;
             gpsMarkers[id] = new google.maps.marker.AdvancedMarkerElement({
                 map: map, position: latlng, content: circle, zIndex: 2});
         }
@@ -163,18 +155,18 @@ function plotGPS(points) {
 }
 
 function enableGPS(ids) {
-    for (id in gpsMarkers)
+    for (id in gpsMarkers) {
+        const active = ids.includes(id) ? 1 : 0;
+        const marker = gpsMarkers[id];
         if (use_old_markers) {
-            if (ids.includes(id))
-                gpsMarkers[id].setOptions({icon: gpsRedCircle, zIndex: 3});
-            else
-                gpsMarkers[id].setOptions({icon: gpsBlueCircle, zIndex: 2});
+            marker.setIcon(gpsMarkerIcon[active]);
+            marker.setZIndex(active ? 3 : 2);
         }
         else {
-            gpsMarkers[id].content.src =
-                ids.includes(id) ? 'circle_red.png' : 'circle_blue.png';
-            gpsMarkers[id].zIndex = ids.includes(id) ? 3 : 2;
+            marker.content.src = gpsMarkerIcon[active].src;
+            marker.zIndex = active ? 3 : 2;
         }
+    }
 }
 
 function clearGPS() {
@@ -185,7 +177,7 @@ function clearGPS() {
 
 function setIconData(pin, active, url, size) {
     if (pin) {
-        marker_data[active] = url;
+        markerIcon[active] = url;
         padding.left = 5 + ((size[0] * 3) / 7);
         padding.right = padding.left;
         padding.bottom = 5;
@@ -196,17 +188,25 @@ function setIconData(pin, active, url, size) {
             padding.right += 130;
         else
             padding.left += 130;
+    } else if (use_old_markers) {
+        gpsMarkerIcon[active] = {
+            anchor: new google.maps.Point(size[0] / 2, size[1] / 2),
+            url: url};
+    } else {
+        var dy = 3 + (size[1] / 2);
+        gpsMarkerIcon[active] = {
+            src: url, transform: 'translate(0px,' + dy + 'px)'};
     }
 }
 
 function enableMarker(id, active) {
     var marker = markers[id];
     if (use_old_markers) {
-        marker.setIcon({url: marker_data[active]});
+        marker.setIcon({url: markerIcon[active]});
         marker.setZIndex(active ? 1 : 0);
     }
     else {
-        marker.content.src = marker_data[active];
+        marker.content.src = markerIcon[active];
         marker.zIndex = active ? 1 : 0;
     }
 }
@@ -214,7 +214,7 @@ function enableMarker(id, active) {
 function addMarker(id, lat, lng, active) {
     if (use_old_markers) {
         var marker = new google.maps.Marker({
-            icon: {url: marker_data[active]},
+            icon: {url: markerIcon[active]},
             position: new google.maps.LatLng(lat, lng),
             map: map,
             draggable: true,
@@ -224,7 +224,7 @@ function addMarker(id, lat, lng, active) {
     }
     else {
         var icon = document.createElement("img");
-        icon.src = marker_data[active];
+        icon.src = markerIcon[active];
         icon.style.transform = 'translate(0px,3px)';
         var marker = new google.maps.marker.AdvancedMarkerElement({
             content: icon,
