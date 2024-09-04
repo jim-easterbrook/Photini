@@ -262,14 +262,14 @@ function setIconData(pin, active, url, size) {
 function enableMarker(id, active) {
     var icon = markers[id].getElement();
     icon.src = markerIcon[active];
-    icon.style.zIndex = active ? '3' : '2';
+    icon.style.zIndex = active ? '2' : '1';
 }
 
 function addMarker(id, lat, lng, active) {
     var icon = document.createElement("img");
     icon.src = markerIcon[active];
     icon.style.cursor = 'pointer';
-    icon.style.zIndex = active ? '3' : '2';
+    icon.style.zIndex = active ? '2' : '1';
     var marker = new mapboxgl.Marker({
         anchor: 'bottom',
         draggable: true,
