@@ -20,11 +20,11 @@
 
 var map;
 var layers = [];
-var marker_data = ['', ''];
-var marker_anchor;
+var markerOptions = ['', ''];
+var gpsMarkerOptions = ['', ''];
 
-function loadMap(lat, lng, zoom, options)
-{
+
+function loadMap(lat, lng, zoom, options) {
     var mapOptions = {
         center: new Microsoft.Maps.Location(lat, lng),
         zoom: zoom,
@@ -36,10 +36,9 @@ function loadMap(lat, lng, zoom, options)
         maxZoom: 20,
         navigationBarMode: Microsoft.Maps.NavigationBarMode.compact,
         navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
-        };
+    };
     map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
-    for (var i = 0; i < 4; i++)
-    {
+    for (var i = 0; i < 4; i++) {
         layers.push(new Microsoft.Maps.Layer());
         map.layers.insert(layers[i]);
     }
@@ -50,16 +49,12 @@ function loadMap(lat, lng, zoom, options)
     map.getCredentials(newCredentials);
 }
 
-function newCredentials(sessionId)
-{
-    python.new_status({
-        session_id: sessionId,
-        });
+function newCredentials(sessionId) {
+    python.new_status({session_id: sessionId});
     python.initialize_finished(true);
 }
 
-function newBounds()
-{
+function newBounds() {
     var centre = map.getCenter();
     var bounds = map.getBounds();
     python.new_status({
@@ -67,22 +62,19 @@ function newBounds()
         bounds: [bounds.getNorth(), bounds.getEast(),
                  bounds.getSouth(), bounds.getWest()],
         zoom: map.getZoom(),
-        });
+    });
 }
 
-function setView(lat, lng, zoom)
-{
+function setView(lat, lng, zoom) {
     map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
 }
 
-function adjustBounds(north, east, south, west)
-{
+function adjustBounds(north, east, south, west) {
     var bounds = Microsoft.Maps.LocationRect.fromEdges(north, west, south, east);
     map.setView({bounds: bounds});
 }
 
-function fitPoints(points)
-{
+function fitPoints(points) {
     var locations = [];
     for (var i = 0; i < points.length; i++)
         locations.push(new Microsoft.Maps.Location(points[i][0], points[i][1]));
@@ -97,8 +89,7 @@ function fitPoints(points)
     if (mapBounds.contains(nw) && mapBounds.contains(se))
         return;
     bounds = Microsoft.Maps.LocationRect.fromCorners(nw, se);
-    if (bounds.height > mapBounds.height || bounds.width > mapBounds.width)
-    {
+    if (bounds.height > mapBounds.height || bounds.width > mapBounds.width) {
         map.setView({bounds: bounds});
         return;
     }
@@ -114,64 +105,70 @@ function fitPoints(points)
         map.setView({center: bounds.center});
 }
 
-function plotGPS(points)
-{
-    for (var i = 0; i < points.length; i++)
-    {
+function plotGPS(points) {
+    var markers = [];
+    for (i in points) {
         var latlng = new Microsoft.Maps.Location(points[i][0], points[i][1]);
         var id = points[i][2];
-        var marker = new Microsoft.Maps.Pushpin(latlng, {
-            icon: 'circle_blue.png',
-            anchor: new Microsoft.Maps.Point(5, 5)});
+        var marker = new Microsoft.Maps.Pushpin(latlng, gpsMarkerOptions[0]);
         marker.metadata = {id: id};
-        layers[2].add(marker);
+        markers.push(marker);
     }
+    layers[2].add(markers);
 }
 
-function enableGPS(ids)
-{
-    var markers = layers[3].getPrimitives();
-    for (var i = 0; i < markers.length; i++)
-    {
-        var marker = markers[i];
-        marker.setOptions({icon: 'circle_blue.png'});
-        layers[2].add(marker);
-    }
-    layers[3].clear();
+function enableGPS(ids) {
     var markers = layers[2].getPrimitives();
-    for (var i = 0; i < markers.length; i++)
-    {
+    var moved = [];
+    for (i in markers) {
         var marker = markers[i];
-        if (ids.includes(marker.metadata.id))
-        {
-            layers[2].remove(marker);
-            marker.setOptions({icon: 'circle_red.png'});
-            layers[3].add(marker);
+        if (ids.includes(marker.metadata.id)) {
+            moved.push(marker);
+            marker.setOptions({icon: gpsMarkerOptions[1].icon});
         }
     }
+    for (i in moved)
+        layers[2].remove(moved[i]);
+    layers[3].add(moved);
+    markers = layers[3].getPrimitives();
+    moved = [];
+    for (i in markers) {
+        var marker = markers[i];
+        if (!ids.includes(marker.metadata.id)) {
+            moved.push(marker);
+            marker.setOptions({icon: gpsMarkerOptions[0].icon});
+        }
+    }
+    for (i in moved)
+        layers[3].remove(moved[i]);
+    layers[2].add(moved);
 }
 
-function clearGPS()
-{
+function clearGPS() {
     layers[2].clear();
     layers[3].clear();
 }
 
 function setIconData(pin, active, url, size) {
     if (pin) {
-        marker_data[active] = url;
-        marker_anchor = new Microsoft.Maps.Point(size[0] / 2, size[1]);
+        markerOptions[active] = {
+            anchor: new Microsoft.Maps.Point(size[0] / 2, size[1]),
+            draggable: true,
+            icon: url,
+        };
+    } else {
+        gpsMarkerOptions[active] = {
+            anchor: new Microsoft.Maps.Point(size[0] / 2, size[1] / 2),
+            icon: url,
+        };
     }
 }
 
-function adjustMarker(id, fromLayer, toLayer, icon)
-{
+function adjustMarker(id, fromLayer, toLayer, icon) {
     var markers = fromLayer.getPrimitives();
-    for (var i = 0; i < markers.length; i++)
-    {
+    for (var i = 0; i < markers.length; i++) {
         var marker = markers[i];
-        if (marker.metadata.id == id)
-        {
+        if (marker.metadata.id == id) {
             fromLayer.remove(marker);
             marker.setOptions({icon: icon});
             toLayer.add(marker);
@@ -180,22 +177,16 @@ function adjustMarker(id, fromLayer, toLayer, icon)
     }
 }
 
-function enableMarker(id, active)
-{
+function enableMarker(id, active) {
     if (active)
-        adjustMarker(id, layers[0], layers[1], marker_data[active]);
+        adjustMarker(id, layers[0], layers[1], markerOptions[active].icon);
     else
-        adjustMarker(id, layers[1], layers[0], marker_data[active]);
+        adjustMarker(id, layers[1], layers[0], markerOptions[active].icon);
 }
 
-function addMarker(id, lat, lng, active)
-{
+function addMarker(id, lat, lng, active) {
     var marker = new Microsoft.Maps.Pushpin(
-        new Microsoft.Maps.Location(lat, lng), {
-            anchor   : marker_anchor,
-            icon     : marker_data[active],
-            draggable: true
-        });
+        new Microsoft.Maps.Location(lat, lng), markerOptions[active]);
     marker.metadata = {id: id};
     layers[active ? 1 : 0].add(marker);
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
@@ -203,41 +194,34 @@ function addMarker(id, lat, lng, active)
     Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
 }
 
-function markerClick(event)
-{
+function markerClick(event) {
     var marker = event.target;
     python.marker_click(marker.metadata.id);
 }
 
-function markerDrag(event)
-{
+function markerDrag(event) {
     var marker = event.target;
     var loc = marker.getLocation();
     python.marker_drag(loc.latitude, loc.longitude);
 }
 
-function markerDragEnd(event)
-{
+function markerDragEnd(event) {
     var marker = event.target;
     var loc = marker.getLocation();
     python.marker_drag_end(loc.latitude, loc.longitude, marker.metadata.id);
 }
 
-function markerDrop(x, y)
-{
+function markerDrop(x, y) {
     var position = map.tryPixelToLocation(
         new Microsoft.Maps.Point(x, y), Microsoft.Maps.PixelReference.page);
     python.marker_drop(position.latitude, position.longitude);
 }
 
-function delMarker(id)
-{
-    for (var j = 0; j < 2; j++)
-    {
+function delMarker(id) {
+    for (var j = 0; j < 2; j++) {
         var markers = layers[j].getPrimitives();
         for (var i = 0; i < markers.length; i++)
-            if (markers[i].metadata.id == id)
-            {
+            if (markers[i].metadata.id == id) {
                 layers[j].remove(markers[i]);
                 return;
             }
