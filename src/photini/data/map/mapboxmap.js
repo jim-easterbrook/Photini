@@ -26,8 +26,9 @@
 var exports = {};
 var map;
 var markers = {};
-var marker_data = ['', ''];
+var markerIcon = ['', ''];
 var gpsMarkers = {};
+var gpsMarkerIcon = ['', ''];
 var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
@@ -213,7 +214,7 @@ function fitPoints(points) {
 function plotGPS(points) {
     for (i in points) {
         var icon = document.createElement("img");
-        icon.src = 'circle_blue.png';
+        icon.src = gpsMarkerIcon[0];
         icon.style.zIndex = '0';
         var marker = new mapboxgl.Marker({
             anchor: 'center',
@@ -227,9 +228,9 @@ function plotGPS(points) {
 
 function enableGPS(ids) {
     for (id in gpsMarkers) {
-        var active = ids.includes(id);
+        const active = ids.includes(id) ? 1 : 0;
         var icon = gpsMarkers[id].getElement();
-        icon.src = active ? 'circle_red.png' : 'circle_blue.png';
+        icon.src = gpsMarkerIcon[active];
         icon.style.zIndex = active ? '1' : '0';
     }
 }
@@ -242,7 +243,7 @@ function clearGPS() {
 
 function setIconData(pin, active, url, size) {
     if (pin) {
-        marker_data[active] = url;
+        markerIcon[active] = url;
         padding.left = 5 + ((size[0] * 3) / 7);
         padding.right = padding.left;
         padding.bottom = 5;
@@ -253,18 +254,20 @@ function setIconData(pin, active, url, size) {
             padding.right += 40;
         else
             padding.left += 40;
+    } else {
+        gpsMarkerIcon[active] = url;
     }
 }
 
 function enableMarker(id, active) {
     var icon = markers[id].getElement();
-    icon.src = marker_data[active];
+    icon.src = markerIcon[active];
     icon.style.zIndex = active ? '3' : '2';
 }
 
 function addMarker(id, lat, lng, active) {
     var icon = document.createElement("img");
-    icon.src = marker_data[active];
+    icon.src = markerIcon[active];
     icon.style.cursor = 'pointer';
     icon.style.zIndex = active ? '3' : '2';
     var marker = new mapboxgl.Marker({
