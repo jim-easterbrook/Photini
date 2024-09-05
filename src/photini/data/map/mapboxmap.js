@@ -212,6 +212,10 @@ function moveTo(bounds, withPadding, maxZoom) {
         options.zoom = zoom;
     }
     lastZoom = options.zoom;
+    if (options.zoom == zoom &&
+            mapBounds.contains(bounds.getNorthEast()) &&
+            mapBounds.contains(bounds.getSouthWest()))
+        return;
     map.easeTo(options);
 }
 
