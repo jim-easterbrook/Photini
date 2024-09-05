@@ -255,7 +255,9 @@ function clearGPS() {
 }
 
 function enableMarker(id, active) {
-    markers[id].getElement().src = markerIcon[active];
+    var icon = markers[id].getElement();
+    icon.src = markerIcon[active];
+    icon.style.zIndex = active ? '1' : '0';
 }
 
 function addMarker(id, lat, lng, active) {
@@ -263,6 +265,7 @@ function addMarker(id, lat, lng, active) {
     icon.src = markerIcon[active];
     icon.style.cursor = 'pointer';
     icon.style.margin = '0px';
+    icon.style.zIndex = active ? '1' : '0';
     var marker = new atlas.HtmlMarker({
         anchor: 'bottom',
         draggable: true,
