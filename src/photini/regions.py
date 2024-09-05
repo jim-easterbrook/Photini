@@ -360,6 +360,8 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
+        if not self.active:
+            return super(PolygonRegion, self).contextMenuEvent(event)
         self.new_vertex(event.pos())
 
     def new_vertex(self, p0):
