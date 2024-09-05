@@ -26,7 +26,7 @@ const Pxl = atlas.Pixel;
 
 var map;
 var lastCamera = {};
-var layers = [];
+const gpsLayerId = ['gps_false', 'gps_true'];
 var padding = {top: 40, bottom: 5, left: 18, right: 18};
 var marker_data = ['', ''];
 
@@ -65,27 +65,17 @@ function mapReady() {
     map.events.add('dragend', newBounds);
     map.events.add('moveend', newBounds);
     map.events.add('zoomend', newBounds);
-    for (var i = 0; i < 2; i++) {
-        layers.push(new atlas.source.DataSource());
-        map.sources.add(layers[i]);
-    }
     // Set up GPS marker data layers
-    var symbolLayer = new atlas.layer.SymbolLayer(
-        layers[0], 'gps_false', {
-        iconOptions: {
-            allowOverlap: false,
-            ignorePlacement: true,
-            anchor: 'center',
-        }});
-    map.layers.add(symbolLayer);
-    symbolLayer = new atlas.layer.SymbolLayer(
-        layers[1], 'gps_true', {
-        iconOptions: {
-            allowOverlap: true,
-            ignorePlacement: true,
-            anchor: 'center',
-        }});
-    map.layers.add(symbolLayer);
+    for (active in gpsLayerId) {
+        const id = gpsLayerId[active];
+        const dataSource = new atlas.source.DataSource(id);
+        map.sources.add(dataSource);
+        map.layers.add(new atlas.layer.SymbolLayer(
+            dataSource, id, {iconOptions: {
+                allowOverlap: active == 1,
+                ignorePlacement: true,
+                anchor: 'center',}}));
+    }
     python.initialize_finished(true);
     newBounds();
 }
@@ -119,7 +109,7 @@ function setIconData(pin, active, url, size) {
         else
             padding.left += 110;
     } else {
-        const id = active ? 'gps_true' : 'gps_false';
+        const id = gpsLayerId[active];
         if (map.imageSprite.hasImage(id))
             map.imageSprite.remove(id);
         map.imageSprite.add(id, url).then(function () {
@@ -233,31 +223,34 @@ function fitPoints(points) {
 }
 
 function plotGPS(points) {
+    const dataSource = map.sources.getById('gps_false');
     for (i in points) {
-        layers[0].add(new atlas.data.Feature(
-            new atlas.data.Point([points[i][1], points[i][0]]), {}, points[i][2]));
+        const geometry = new atlas.data.Point([points[i][1], points[i][0]]);
+        const id = points[i][2];
+        dataSource.add(new atlas.data.Feature(geometry, {}, id));
     }
 }
 
 function enableGPS(ids) {
-    var markers = layers[1].getShapes();
-    for (i in markers) {
-        layers[0].add(markers[i]);
-    }
-    layers[1].clear();
-    var markers = layers[0].getShapes();
+    const dataTrue = map.sources.getById('gps_true');
+    const dataFalse = map.sources.getById('gps_false');
+    dataFalse.add(dataTrue.getShapes());
+    dataTrue.clear();
+    var markers = dataFalse.getShapes();
     for (i in markers) {
         var marker = markers[i];
         if (ids.includes(marker.getId())) {
-            layers[0].remove(marker);
-            layers[1].add(marker);
+            dataFalse.remove(marker);
+            dataTrue.add(marker);
         }
     }
 }
 
 function clearGPS() {
-    layers[0].clear();
-    layers[1].clear();
+    for (active in gpsLayerId) {
+        const id = gpsLayerId[active];
+        map.sources.getById(id).clear();
+    }
 }
 
 function enableMarker(id, active) {
