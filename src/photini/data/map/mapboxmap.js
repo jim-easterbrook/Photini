@@ -27,8 +27,8 @@ var exports = {};
 var map;
 var markers = {};
 var markerIcon = ['', ''];
+const gpsLayerId = ['gps_false', 'gps_true'];
 var gpsMarkers = {};
-var gpsMarkerIcon = ['', ''];
 var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
@@ -76,6 +76,30 @@ function loadMap2(lat, lng, zoom, options) {
     map.on('contextmenu', ignoreEvent);
     map.on('moveend', newBounds);
     map.on('zoomend', newBounds);
+    map.on('load', loadMap3);
+}
+
+function loadMap3() {
+    // Set up GPS marker data layers
+    for (const id of gpsLayerId) {
+        map.addSource(id, {
+            type: 'geojson',
+            dynamic: true,
+            data: {
+                type: 'FeatureCollection',
+                features: [],
+            }
+        });
+        map.addLayer({
+            id: id,
+            type: 'symbol',
+            layout: {
+                'icon-image': id,
+                'icon-allow-overlap': true,
+            },
+            source: id,
+        });
+    }
     python.initialize_finished(true);
     newBounds();
 }
@@ -200,44 +224,71 @@ function adjustBounds(north, east, south, west) {
 function fitPoints(points) {
     var bounds = mapboxgl.LngLatBounds.convert([
         [points[0][1], points[0][0]], [points[0][1], points[0][0]]]);
-    for (i in points) {
-        var lng = points[i][1];
+    for (const point of points) {
+        var lng = point[1];
         if (bounds.getEast() - lng > 180)
             lng += 360;
         else if (lng - bounds.getWest() > 180)
             lng -= 360;
-        bounds.extend([lng, points[i][0]]);
+        bounds.extend([lng, point[0]]);
     }
     moveTo(bounds, true, lastZoom);
 }
 
 function plotGPS(points) {
-    for (i in points) {
-        var icon = document.createElement("img");
-        icon.src = gpsMarkerIcon[0];
-        icon.style.zIndex = '0';
-        var marker = new mapboxgl.Marker({
-            anchor: 'center',
-            element: icon,
+    var features = [];
+    for (const point of points) {
+        const id = point[2];
+        gpsMarkers[id] = {
+            active: 0,
+            geometry: {
+                type: 'Point',
+                coordinates: [point[1], point[0]],
+            }
+        }
+        features.push({
+            id: id,
+            type: 'Feature',
+            geometry: gpsMarkers[id].geometry,
         });
-        gpsMarkers[points[i][2]] = marker;
-        marker.setLngLat([points[i][1], points[i][0]]);
-        marker.addTo(map);
     }
+    map.getSource(gpsLayerId[0]).updateData({
+        type: 'FeatureCollection',
+        features: features,
+    });
 }
 
 function enableGPS(ids) {
+    var updates = [[],[]];
     for (id in gpsMarkers) {
         const active = ids.includes(id) ? 1 : 0;
-        var icon = gpsMarkers[id].getElement();
-        icon.src = gpsMarkerIcon[active];
-        icon.style.zIndex = active ? '1' : '0';
+        if (gpsMarkers[id].active != active) {
+            updates[active].push({
+                id: id,
+                type: 'Feature',
+                geometry: gpsMarkers[id].geometry,
+            });
+            updates[1-active].push({
+                id: id,
+                type: 'Feature',
+                geometry: null,
+            });
+            gpsMarkers[id].active = active;
+        }
     }
+    for (active in gpsLayerId)
+        map.getSource(gpsLayerId[active]).updateData({
+            type: 'FeatureCollection',
+            features: updates[active],
+        });
 }
 
 function clearGPS() {
-    for (id in gpsMarkers)
-        gpsMarkers[id].remove();
+    for (const id of gpsLayerId)
+        map.getSource(id).setData({
+            type: 'FeatureCollection',
+            features: [],
+        });
     gpsMarkers = {};
 }
 
@@ -255,7 +306,14 @@ function setIconData(pin, active, url, size) {
         else
             padding.left += 40;
     } else {
-        gpsMarkerIcon[active] = url;
+        const id = gpsLayerId[active];
+        map.loadImage(url, (error, image) => {
+            if (error) throw error;
+            if (map.hasImage(id))
+                map.updateImage(id, image);
+            else
+                map.addImage(id, image);
+        });
     }
 }
 
