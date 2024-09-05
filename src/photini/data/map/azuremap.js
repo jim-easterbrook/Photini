@@ -28,7 +28,8 @@ var map;
 var lastCamera = {};
 const gpsLayerId = ['gps_false', 'gps_true'];
 var padding = {top: 40, bottom: 5, left: 18, right: 18};
-var marker_data = ['', ''];
+var markers = {};
+var markerIcon = ['', ''];
 
 function loadMap(lat, lng, zoom, options) {
     if (!atlas.isSupported()) {
@@ -97,7 +98,7 @@ function setView(lat, lng, zoom) {
 
 function setIconData(pin, active, url, size) {
     if (pin) {
-        marker_data[active] = url;
+        markerIcon[active] = url;
         padding.left = 5 + ((size[0] * 3) / 7);
         padding.right = padding.left;
         padding.bottom = 5;
@@ -236,12 +237,12 @@ function enableGPS(ids) {
     const dataFalse = map.sources.getById('gps_false');
     dataFalse.add(dataTrue.getShapes());
     dataTrue.clear();
-    var markers = dataFalse.getShapes();
-    for (i in markers) {
-        var marker = markers[i];
-        if (ids.includes(marker.getId())) {
-            dataFalse.remove(marker);
-            dataTrue.add(marker);
+    var gpsMarkers = dataFalse.getShapes();
+    for (i in gpsMarkers) {
+        var gpsMarker = gpsMarkers[i];
+        if (ids.includes(gpsMarker.getId())) {
+            dataFalse.remove(gpsMarker);
+            dataTrue.add(gpsMarker);
         }
     }
 }
@@ -254,19 +255,12 @@ function clearGPS() {
 }
 
 function enableMarker(id, active) {
-    var markers = map.markers.getMarkers();
-    for (i in markers) {
-        var marker = markers[i];
-        if (marker.metadata.id == id) {
-            marker.getOptions().htmlContent.src = marker_data[active];
-            return;
-        }
-    }
+    markers[id].getElement().src = markerIcon[active];
 }
 
 function addMarker(id, lat, lng, active) {
     var icon = document.createElement("img");
-    icon.src = marker_data[active];
+    icon.src = markerIcon[active];
     icon.style.cursor = 'pointer';
     icon.style.margin = '0px';
     var marker = new atlas.HtmlMarker({
@@ -276,7 +270,8 @@ function addMarker(id, lat, lng, active) {
         pixelOffset: [0, 0],
         position: [lng, lat],
     });
-    marker.metadata = {id: id};
+    marker.id = id;
+    markers[id] = marker;
     map.events.add('click', marker, markerClick);
     map.events.add('dragstart', marker, markerClick);
     map.events.add('drag', marker, markerDrag);
@@ -286,7 +281,7 @@ function addMarker(id, lat, lng, active) {
 
 function markerClick(event) {
     var marker = event.target;
-    python.marker_click(marker.metadata.id);
+    python.marker_click(marker.id);
 }
 
 function markerDrag(event) {
@@ -298,21 +293,15 @@ function markerDrag(event) {
 function markerDragEnd(event) {
     var marker = event.target;
     var pos = marker.getOptions().position;
-    python.marker_drag_end(pos[1], pos[0], marker.metadata.id);
+    python.marker_drag_end(pos[1], pos[0], marker.id);
 }
 
 function markerDrop(x, y) {
-    positions = map.pixelsToPositions([Pxl(x, y)]);
-    python.marker_drop(positions[0][1], positions[0][0]);
+    pos = map.pixelsToPositions([Pxl(x, y)])[0];
+    python.marker_drop(pos[1], pos[0]);
 }
 
 function delMarker(id) {
-    var markers = map.markers.getMarkers();
-    for (i in markers) {
-        var marker = markers[i];
-        if (marker.metadata.id == id) {
-            map.markers.remove(marker);
-            return;
-        }
-    }
+    map.markers.remove(markers[id]);
+    delete markers[id];
 }
