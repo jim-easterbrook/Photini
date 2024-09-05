@@ -67,13 +67,12 @@ function mapReady() {
     map.events.add('moveend', newBounds);
     map.events.add('zoomend', newBounds);
     // Set up GPS marker data layers
-    for (active in gpsLayerId) {
-        const id = gpsLayerId[active];
+    for (const id of gpsLayerId) {
         const dataSource = new atlas.source.DataSource(id);
         map.sources.add(dataSource);
         map.layers.add(new atlas.layer.SymbolLayer(
             dataSource, id, {iconOptions: {
-                allowOverlap: active == 1,
+                allowOverlap: true,
                 ignorePlacement: true,
                 anchor: 'center',}}));
     }
@@ -229,33 +228,33 @@ function fitPoints(points) {
 
 function plotGPS(points) {
     const dataSource = map.sources.getById('gps_false');
-    for (i in points) {
-        const geometry = new atlas.data.Point([points[i][1], points[i][0]]);
-        const id = points[i][2];
+    for (const point of points) {
+        const geometry = new atlas.data.Point([point[1], point[0]]);
+        const id = point[2];
         dataSource.add(new atlas.data.Feature(geometry, {}, id));
     }
 }
 
 function enableGPS(ids) {
-    const dataTrue = map.sources.getById('gps_true');
-    const dataFalse = map.sources.getById('gps_false');
-    dataFalse.add(dataTrue.getShapes());
-    dataTrue.clear();
-    var gpsMarkers = dataFalse.getShapes();
-    for (i in gpsMarkers) {
-        var gpsMarker = gpsMarkers[i];
-        if (ids.includes(gpsMarker.getId())) {
-            dataFalse.remove(gpsMarker);
-            dataTrue.add(gpsMarker);
-        }
-    }
+    const dataTrue = map.sources.getById(gpsLayerId[1]);
+    const dataFalse = map.sources.getById(gpsLayerId[0]);
+    var promoted = [];
+    for (const gpsMarker of dataFalse.getShapes())
+        if (ids.includes(gpsMarker.getId()))
+            promoted.push(gpsMarker);
+    var demoted = [];
+    for (const gpsMarker of dataTrue.getShapes())
+        if (!ids.includes(gpsMarker.getId()))
+            demoted.push(gpsMarker);
+    dataTrue.add(promoted);
+    dataFalse.remove(promoted);
+    dataFalse.add(demoted);
+    dataTrue.remove(demoted);
 }
 
 function clearGPS() {
-    for (active in gpsLayerId) {
-        const id = gpsLayerId[active];
+    for (const id of gpsLayerId)
         map.sources.getById(id).clear();
-    }
 }
 
 function enableMarker(id, active) {
