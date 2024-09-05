@@ -26,8 +26,12 @@ var markerIcon = ['', ''];
 var gpsMarkers = {};
 var gpsMarkerIcon = ['', ''];
 
+const url_js = 'https://api.mapbox.com/mapbox.js/v3.3.1';
 
-function loadMap(lat, lng, zoom, options) {
+async function loadMap(lat, lng, zoom, options) {
+    // Load mapbox library and style sheet
+    loadCSS(url_js + '/mapbox.css');
+    await import(url_js + '/mapbox.js');
     L.mapbox.accessToken = options.accessToken;
     var baseMaps = {
         "Street"  : L.mapbox.styleLayer(

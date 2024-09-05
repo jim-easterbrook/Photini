@@ -112,44 +112,29 @@ class TabWidget(PhotiniMap):
   src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-supported/v2.0.0/mapbox-gl-supported.js'>
 </script>
 <script type="text/javascript">
-function chooseMap() {{
+const headElement = document.getElementsByTagName('head')[0];
+function chooseMap() {
     if (mapboxgl.supported())
-        loadLibrary('{url_gl}/mapbox-gl.js', '{url_gl}/mapbox-gl.css',
-                    'mapboxmap.js');
-    else {{
+        loadScript('mapboxmap.js');
+    else {
         console.warn('Using legacy "mapbox.js" as WebGL not available.');
-        loadLibrary('{url_js}/mapbox.js', '{url_js}/mapbox.css',
-                    'mapboxmap_legacy.js');
-    }}
-}}
-function loadLibrary(jsSource, cssSource, scriptName) {{
-    const headElement = document.getElementsByTagName('head')[0];
-    const scriptElement = document.createElement('script');
+        loadScript('mapboxmap_legacy.js');
+    }
+}
+function loadCSS(src) {
     const styleElement = document.createElement('link');
-
-    styleElement.href = cssSource;
+    styleElement.href = src;
     styleElement.rel = 'stylesheet';
     headElement.appendChild(styleElement);
-
-    scriptElement.type = 'text/javascript';
-    scriptElement.onload = function() {{
-        loadScript(scriptName);
-    }};
-    scriptElement.src = jsSource;
-    headElement.appendChild(scriptElement);
-}}
-function loadScript(scriptName) {{
-    const headElement = document.getElementsByTagName('head')[0];
+}
+function loadScript(scriptName) {
     const scriptElement = document.createElement('script');
-
     scriptElement.type = 'text/javascript';
     scriptElement.onload = initialize;
     scriptElement.src = scriptName;
     headElement.appendChild(scriptElement);
-}}
-</script>""".format(
-    url_gl='https://api.mapbox.com/mapbox-gl-js/v3.6.0',
-    url_js='https://api.mapbox.com/mapbox.js/v3.3.1')
+}
+</script>"""
 
     def get_body(self, text_dir):
         return '''  <body onload="chooseMap()" ondragstart="return false">

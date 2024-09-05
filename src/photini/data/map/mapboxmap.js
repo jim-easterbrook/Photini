@@ -33,26 +33,19 @@ var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
 
+const url_gl = 'https://api.mapbox.com/mapbox-gl-js/v3.6.0';
+const url_ss =
+    'https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11';
 
-function loadMap(lat, lng, zoom, options) {
-    // Load mapbox-gl-style-switcher script and CSS
-    const headElement = document.getElementsByTagName('head')[0];
-    const scriptElement = document.createElement('script');
-    const styleElement = document.createElement('link');
 
-    styleElement.href = 'https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/styles.min.css';
-    styleElement.rel = 'stylesheet';
-    headElement.appendChild(styleElement);
-
-    scriptElement.type = 'text/javascript';
-    scriptElement.onload = function () {
-        loadMap2(lat, lng, zoom, options);
-    };
-    scriptElement.src = 'https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11/index.min.js';
-    headElement.appendChild(scriptElement);
-}
-
-function loadMap2(lat, lng, zoom, options) {
+async function loadMap(lat, lng, zoom, options) {
+    // Load mapbox library and style sheet
+    loadCSS(url_gl + '/mapbox-gl.css');
+    let loadMB = import(url_gl + '/mapbox-gl.js');
+    // Load style switcher control & style sheet
+    loadCSS(url_ss + '/styles.min.css');
+    let loadSS = import(url_ss + '/index.min.js');
+    // Set up map
     options.center = [lng, lat];
     options.container = 'mapDiv';
     options.dragRotate = false;
@@ -62,24 +55,25 @@ function loadMap2(lat, lng, zoom, options) {
     options.style = 'mapbox://styles/mapbox/outdoors-v12';
     options.zoom = zoom - 1;
     lastZoom = options.zoom;
+    await loadMB;
     map = new mapboxgl.Map(options);
     const div = document.getElementById("mapDiv");
     const ltr = getComputedStyle(div).direction == 'ltr';
+    await loadSS;
     map.addControl(new exports.MapboxStyleSwitcherControl([
         {title: 'Street', uri: 'mapbox://styles/mapbox/streets-v12'},
         {title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v12'},
-        {title: 'Aerial', uri: 'mapbox://styles/mapbox/satellite-v9'},
-    ], {defaultStyle: 'Outdoors'}), ltr ? 'top-right' : 'top-left');
+        {title: 'Aerial', uri: 'mapbox://styles/mapbox/satellite-v9'},], {defaultStyle: 'Outdoors'}), ltr ? 'top-right' : 'top-left');
     map.addControl(new mapboxgl.NavigationControl({showCompass: false}),
                    ltr ? 'top-right' : 'top-left');
     map.addControl(new mapboxgl.ScaleControl());
     map.on('contextmenu', ignoreEvent);
     map.on('moveend', newBounds);
     map.on('zoomend', newBounds);
-    map.on('load', loadMap3);
+    map.on('load', loadMap2);
 }
 
-function loadMap3() {
+function loadMap2() {
     // Set up GPS marker data layers
     for (const id of gpsLayerId) {
         map.addSource(id, {
