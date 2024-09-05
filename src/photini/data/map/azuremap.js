@@ -200,6 +200,10 @@ function moveTo(bounds, withPadding, maxZoom) {
         else
             options = {center: BBox.getCenter(bounds), zoom: new_zoom};
     }
+    if (new_zoom == camera.zoom &&
+            BBox.containsPosition(mapBounds, BBox.getNorthEast(bounds)) &&
+            BBox.containsPosition(mapBounds, BBox.getSouthWest(bounds)))
+        return;
     if (pan > 10 || Math.abs(new_zoom - camera.zoom) > 2) {
         // Long distance, go by air
         options.type = 'fly';
