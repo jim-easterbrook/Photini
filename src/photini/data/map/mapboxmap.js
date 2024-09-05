@@ -28,6 +28,7 @@ var map;
 var markers = {};
 var markerIcon = ['', ''];
 const gpsLayerId = ['gps_false', 'gps_true'];
+var gpsMarkerIcon = ['', ''];
 var gpsMarkers = {};
 var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
@@ -70,30 +71,11 @@ async function loadMap(lat, lng, zoom, options) {
     map.on('contextmenu', ignoreEvent);
     map.on('moveend', newBounds);
     map.on('zoomend', newBounds);
-    map.on('load', loadMap2);
+    map.on('style.load', newStyle);
+    map.on('load', doneLoading);
 }
 
-function loadMap2() {
-    // Set up GPS marker data layers
-    for (const id of gpsLayerId) {
-        map.addSource(id, {
-            type: 'geojson',
-            dynamic: true,
-            data: {
-                type: 'FeatureCollection',
-                features: [],
-            }
-        });
-        map.addLayer({
-            id: id,
-            type: 'symbol',
-            layout: {
-                'icon-image': id,
-                'icon-allow-overlap': true,
-            },
-            source: id,
-        });
-    }
+function doneLoading() {
     python.initialize_finished(true);
     newBounds();
 }
@@ -117,6 +99,32 @@ function newBounds(event) {
         bounds: [ne.lat, ne.lng, sw.lat, sw.lng],
         zoom: lastZoom + 1,
     });
+}
+
+function newStyle() {
+    // Set up GPS marker data layers
+    for (const id of gpsLayerId) {
+        map.addSource(id, {
+            type: 'geojson',
+            dynamic: true,
+            data: {type: 'FeatureCollection', features: []}
+        });
+        map.addLayer({
+            id: id,
+            type: 'symbol',
+            layout: {'icon-image': id, 'icon-allow-overlap': true},
+            source: id,
+        });
+    }
+    var features = [[], []];
+    for (id in gpsMarkers)
+        features[gpsMarkers[id].active].push({
+            id: id, type: 'Feature', geometry: gpsMarkers[id].geometry});
+    for (active in features) {
+        updateGPSMarkerImage(active);
+        map.getSource(gpsLayerId[active]).setData({
+            type: 'FeatureCollection', features: features[active]});
+    }
 }
 
 function setView(lat, lng, zoom) {
@@ -235,16 +243,10 @@ function plotGPS(points) {
         const id = point[2];
         gpsMarkers[id] = {
             active: 0,
-            geometry: {
-                type: 'Point',
-                coordinates: [point[1], point[0]],
-            }
+            geometry: {type: 'Point', coordinates: [point[1], point[0]]}
         }
         features.push({
-            id: id,
-            type: 'Feature',
-            geometry: gpsMarkers[id].geometry,
-        });
+            id: id, type: 'Feature', geometry: gpsMarkers[id].geometry});
     }
     map.getSource(gpsLayerId[0]).updateData({
         type: 'FeatureCollection',
@@ -258,31 +260,21 @@ function enableGPS(ids) {
         const active = ids.includes(id) ? 1 : 0;
         if (gpsMarkers[id].active != active) {
             updates[active].push({
-                id: id,
-                type: 'Feature',
-                geometry: gpsMarkers[id].geometry,
-            });
+                id: id, type: 'Feature', geometry: gpsMarkers[id].geometry});
             updates[1-active].push({
-                id: id,
-                type: 'Feature',
-                geometry: null,
-            });
+                id: id, type: 'Feature', geometry: null});
             gpsMarkers[id].active = active;
         }
     }
     for (active in gpsLayerId)
         map.getSource(gpsLayerId[active]).updateData({
-            type: 'FeatureCollection',
-            features: updates[active],
-        });
+            type: 'FeatureCollection', features: updates[active]});
 }
 
 function clearGPS() {
     for (const id of gpsLayerId)
         map.getSource(id).setData({
-            type: 'FeatureCollection',
-            features: [],
-        });
+            type: 'FeatureCollection', features: []});
     gpsMarkers = {};
 }
 
@@ -300,15 +292,21 @@ function setIconData(pin, active, url, size) {
         else
             padding.left += 40;
     } else {
-        const id = gpsLayerId[active];
-        map.loadImage(url, (error, image) => {
-            if (error) throw error;
-            if (map.hasImage(id))
-                map.updateImage(id, image);
-            else
-                map.addImage(id, image);
-        });
+        gpsMarkerIcon[active] = url;
+        updateGPSMarkerImage(active);
     }
+}
+
+function updateGPSMarkerImage(active) {
+    if (!gpsMarkerIcon[active]) return;
+    const id = gpsLayerId[active];
+    map.loadImage(gpsMarkerIcon[active], (error, image) => {
+        if (error) throw error;
+        if (map.hasImage(id))
+            map.updateImage(id, image);
+        else
+            map.addImage(id, image);
+    });
 }
 
 function enableMarker(id, active) {
