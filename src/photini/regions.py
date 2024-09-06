@@ -448,12 +448,26 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.image = None
 
     @catch_all
+    def keyPressEvent(self, event):
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if event.key() == Qt.Key.Key_Plus:
+                self.adjust_zoom(0.1)
+                return
+            if event.key() == Qt.Key.Key_Minus:
+                self.adjust_zoom(-0.1)
+                return
+        super(ImageDisplayWidget, self).keyPressEvent(event)
+
+    @catch_all
     def wheelEvent(self, event):
         if not event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             return super(ImageDisplayWidget, self).wheelEvent(event)
         # zoom in or out
         delta = event.angleDelta().y()
-        scale = 1.0 + (delta / 1200)
+        self.adjust_zoom(delta / 1200)
+
+    def adjust_zoom(self, delta):
+        scale = 1.0 + delta
         anchor = self.transformationAnchor()
         self.setTransformationAnchor(self.ViewportAnchor.AnchorUnderMouse)
         self.scale(scale, scale)
