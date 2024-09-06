@@ -23,7 +23,6 @@
  * define a variable 'exports' before loading the style switcher script.
  */
 
-var exports = {};
 var map;
 var markers = {};
 var markerIcon = ['', ''];
@@ -34,19 +33,8 @@ var lastZoom = 0;
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
 
-const url_gl = 'https://api.mapbox.com/mapbox-gl-js/v3.6.0';
-const url_ss =
-    'https://cdnjs.cloudflare.com/ajax/libs/mapbox-gl-style-switcher/1.0.11';
 
-
-async function loadMap(lat, lng, zoom, options) {
-    // Load mapbox library and style sheet
-    loadCSS(url_gl + '/mapbox-gl.css');
-    let loadMB = import(url_gl + '/mapbox-gl.js');
-    // Load style switcher control & style sheet
-    loadCSS(url_ss + '/styles.min.css');
-    let loadSS = import(url_ss + '/index.min.js');
-    // Set up map
+function loadMap(lat, lng, zoom, options) {
     options.center = [lng, lat];
     options.container = 'mapDiv';
     options.dragRotate = false;
@@ -56,11 +44,9 @@ async function loadMap(lat, lng, zoom, options) {
     options.style = 'mapbox://styles/mapbox/outdoors-v12';
     options.zoom = zoom - 1;
     lastZoom = options.zoom;
-    await loadMB;
     map = new mapboxgl.Map(options);
     const div = document.getElementById("mapDiv");
     const ltr = getComputedStyle(div).direction == 'ltr';
-    await loadSS;
     map.addControl(new exports.MapboxStyleSwitcherControl([
         {title: 'Street', uri: 'mapbox://styles/mapbox/streets-v12'},
         {title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v12'},

@@ -99,6 +99,7 @@ class MapboxGeocoder(GeocoderBase):
 
 class TabWidget(PhotiniMap):
     api_key = key_store.get('mapboxmap', 'api_key')
+    map_choice = None
 
     @staticmethod
     def tab_name():
@@ -107,45 +108,72 @@ class TabWidget(PhotiniMap):
     def get_geocoder(self):
         return MapboxGeocoder(parent=self)
 
-    def get_head(self):
-        return """<script
-  src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-supported/v2.0.0/mapbox-gl-supported.js'>
-</script>
+    # The first time get_head is called it returns a script to test if
+    # mapbox-gl is supported. This script calls initialize_finished with
+    # the result. Our over-ride of initialize_finished then calls
+    # initialise again. The second call to get_head returns the wanted
+    # scripts and style sheets.
+
+    head_gl = """
 <script type="text/javascript">
-const headElement = document.getElementsByTagName('head')[0];
-function chooseMap() {
-    if (mapboxgl.supported())
-        loadScript('mapboxmap.js');
-    else {
-        console.warn('Using legacy "mapbox.js" as WebGL not available.');
-        loadScript('mapboxmap_legacy.js');
-    }
-}
-function loadCSS(src) {
-    const styleElement = document.createElement('link');
-    styleElement.href = src;
-    styleElement.rel = 'stylesheet';
-    headElement.appendChild(styleElement);
-}
-function loadScript(scriptName) {
-    const scriptElement = document.createElement('script');
-    scriptElement.type = 'text/javascript';
-    scriptElement.onload = initialize;
-    scriptElement.src = scriptName;
-    headElement.appendChild(scriptElement);
-}
-</script>"""
+var exports = {{}};
+</script>
+<link href="{url_mb}/mapbox-gl.css" rel="stylesheet">
+<script src="{url_mb}/mapbox-gl.js"></script>
+<link href="{url_ss}/styles.min.css" rel="stylesheet">
+<script src="{url_ss}/index.min.js"></script>
+<script type="text/javascript" src="mapboxmap.js"></script>
+"""
+    head_js = """
+<link href="{url}/mapbox.css" rel="stylesheet">
+<script src="{url}/mapbox.js"></script>
+<script type="text/javascript" src="mapboxmap_legacy.js"></script>
+"""
+    head_test = """
+<script src='{url}/mapbox-gl-supported.js'></script>
+<script type="text/javascript">
+function loadMap(lat, lng, zoom, options) {{
+    python.initialize_finished(mapboxgl.supported());
+}}
+</script>
+"""
+    def get_head(self):
+        if self.map_choice == 'mapbox-gl':
+            return self.head_gl.format(
+                url_mb='https://api.mapbox.com/mapbox-gl-js/v3.6.0',
+                url_ss='https://cdnjs.cloudflare.com/ajax/libs'
+                       '/mapbox-gl-style-switcher/1.0.11')
+        if self.map_choice == 'mapbox.js':
+            return self.head_js.format(
+                url='https://api.mapbox.com/mapbox.js/v3.3.1')
+        return self.head_test.format(
+            url='https://api.mapbox.com/mapbox-gl-js/plugins'
+                '/mapbox-gl-supported/v2.0.0')
 
     def get_body(self, text_dir):
-        return '''  <body onload="chooseMap()" ondragstart="return false">
+        return '''  <body onload="initialize()" ondragstart="return false">
     <div id="mapDiv" dir="{text_dir}"></div>
   </body>'''.format(text_dir=text_dir)
 
     def get_options(self):
-        options = {
-            'accessToken': self.api_key,
-            'language': self.app.language['bcp47'],
-            }
-        if self.app.language['region']:
-            options['worldview'] = self.app.language['region']
-        return options
+        if self.map_choice:
+            options = {
+                'accessToken': self.api_key,
+                'language': self.app.language['bcp47'],
+                }
+            if self.app.language['region']:
+                options['worldview'] = self.app.language['region']
+            return options
+        return {}
+
+    @catch_all
+    def initialize_finished(self, OK):
+        if self.map_choice:
+            return super(TabWidget, self).initialize_finished(OK)
+        QtWidgets.QApplication.restoreOverrideCursor()
+        if OK:
+            self.map_choice = 'mapbox-gl'
+        else:
+            logger.warning('Using legacy "mapbox.js" as WebGL not available.')
+            self.map_choice = 'mapbox.js'
+        self.initialise()
