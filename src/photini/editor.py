@@ -481,7 +481,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtSlot()
     @catch_all
     def open_initial_files(self):
-        self.app.image_list.open_file_list(self.initial_files)
+        self.app.image_list.open_file_list(self.initial_files, select=False)
 
     @QtSlot()
     @catch_all
