@@ -623,7 +623,9 @@ def main(argv=None):
     # create GUI and run application event loop
     main = MainWindow(options, args)
     main.show()
-    return execute(app)
+    result = execute(app)
+    os.unlink(BaseConfigStore('instance').file_name)
+    return result
 
 if __name__ == "__main__":
     sys.exit(main())
