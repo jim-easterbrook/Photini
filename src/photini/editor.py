@@ -115,6 +115,8 @@ class ServerSocket(QtCore.QObject):
     @QtSlot()
     @catch_all
     def socket_disconnected(self):
+        while self.socket.bytesAvailable():
+            self.read_data()
         file_list = [x.decode('utf-8') for x in self.data.split(b'\n') if x]
         if file_list:
             self.new_files.emit(file_list)
