@@ -18,9 +18,7 @@
 
 [build-system]
 requires = ["setuptools >= 59.6", "setuptools_scm[toml]>=6.2", "toml"]
-#build-backend = "setuptools.build_meta"
-build-backend = "backend"
-backend-path = ["custom_build"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "Photini"
