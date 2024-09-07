@@ -22,7 +22,6 @@ import locale
 import logging
 from optparse import OptionParser
 import os
-import socket
 import sys
 import warnings
 
@@ -105,35 +104,37 @@ class ServerSocket(QtCore.QObject):
         super(ServerSocket, self).__init__(*arg, **kw)
         self.socket = socket
         self.data = b''
-        self.socket.setParent(self)
         self.socket.readyRead.connect(self.read_data)
-        self.socket.disconnected.connect(self.deleteLater)
+        self.socket.disconnected.connect(self.socket_disconnected)
 
     @QtSlot()
     @catch_all
     def read_data(self):
-        file_list = []
-        while self.socket.bytesAvailable():
-            self.data += self.socket.readAll().data()
-            while b'\n' in self.data:
-                line, sep, self.data = self.data.partition(b'\n')
-                string = line.decode('utf-8')
-                file_list.append(string)
+        self.data += self.socket.readAll().data()
+
+    @QtSlot()
+    @catch_all
+    def socket_disconnected(self):
+        file_list = [x.decode('utf-8') for x in self.data.split(b'\n') if x]
         if file_list:
             self.new_files.emit(file_list)
+        self.socket.deleteLater()
 
 
-class InstanceServer(QtNetwork.QTcpServer):
+class InstanceServer(QtNetwork.QLocalServer):
     new_files = QtSignal(list)
 
     def __init__(self, *arg, **kw):
         super(InstanceServer, self).__init__(*arg, **kw)
         config = BaseConfigStore('instance')
         self.newConnection.connect(self.new_connection)
-        if not self.listen(QtNetwork.QHostAddress.SpecialAddress.LocalHost):
+        self.setSocketOptions(self.SocketOption.UserAccessOption)
+        name = 'photini_' + str(
+            QtWidgets.QApplication.instance().applicationPid())
+        if not self.listen(name):
             logger.error('Failed to start instance server:', self.errorString())
             return
-        config.set('server', 'port', self.serverPort())
+        config.set('server', 'name', name)
         config.save()
 
     @QtSlot()
@@ -152,17 +153,20 @@ class InstanceServer(QtNetwork.QTcpServer):
 
 def SendToInstance(files):
     config = BaseConfigStore('instance')
-    port = config.get('server', 'port')
-    if not port:
+    name = config.get('server', 'name')
+    if not name:
         return False
-    try:
-        sock = socket.create_connection(('127.0.0.1', int(port)), timeout=1000)
-    except ConnectionRefusedError:
-        return False
+    sock = QtNetwork.QLocalSocket()
+    sock.connectToServer(name)
+    while not sock.waitForConnected(500):
+        error = sock.error()
+        if error != sock.LocalSocketError.SocketTimeoutError:
+            return False
     for path in files:
         data = os.path.abspath(path).encode('utf-8') + b'\n'
-        sock.sendall(data)
-    sock.close()
+        sock.write(data)
+    sock.flush()
+    sock.disconnectFromServer()
     return True
 
 
