@@ -168,6 +168,7 @@ def SendToInstance(files):
         data = os.path.abspath(path).encode('utf-8') + b'\n'
         sock.write(data)
     sock.flush()
+    sock.waitForBytesWritten(-1)
     sock.disconnectFromServer()
     return True
 
