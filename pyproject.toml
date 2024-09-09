@@ -45,6 +45,7 @@ dependencies = [
   "filetype >= 1.0",
   "Pillow >= 2.0",
   "requests >= 2.4",
+  "pywin32 >= 302; platform_system == 'Windows'",
 ]
 dynamic = ["version"]
 

@@ -139,11 +139,9 @@ def post_install(argv=None):
     if sys.platform == 'win32':
         exec_path += '.exe'
         icon_path = os.path.join(pkg_data, 'icons', 'photini_win.ico')
-        script = os.path.join(pkg_data, 'windows', 'install_shortcuts.vbs')
-        cmd = ['cscript', '/nologo', script, exec_path, icon_path, sys.prefix]
-        if options.remove:
-            cmd.append('/remove')
-        return subprocess.call(cmd)
+        import photini.windows
+        return photini.windows.post_install(
+            exec_path, icon_path, options.remove)
     elif sys.platform.startswith('linux'):
         local_dir = os.path.expanduser('~/.local/share/applications')
         if options.remove:
