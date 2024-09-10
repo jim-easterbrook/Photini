@@ -19,16 +19,10 @@
 
 import os
 import subprocess
-import sys
 import tempfile
 
-try:
-    from photini.pyqt import QtCore
-except ImportError:
-    QtCore = None
 
-
-def post_install(exec_path, icon_path, remove, pkg_data):
+def post_install(exec_path, icon_path, remove, generic_name, comment):
     local_dir = os.path.expanduser('~/.local/share/applications')
     if remove:
         if os.geteuid() != 0:
@@ -53,34 +47,14 @@ def post_install(exec_path, icon_path, remove, pkg_data):
             file.write('''[Desktop Entry]
 Type=Application
 Name=Photini
-Comment=An easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
-GenericName=Photini photo metadata editor
 Terminal=false
 Categories=Graphics;Photography;
 MimeType=image/jpeg;image/jpeg2000;image/tiff;image/png;image/gif;image/svg+xml;image/x-dcraw;
 ''')
             file.write('Exec={} %F\n'.format(exec_path))
             file.write('Icon={}\n'.format(icon_path))
-            # add translations
-            if QtCore:
-                lang_dir = os.path.join(pkg_data, 'lang')
-                translator = QtCore.QTranslator()
-                for name in os.listdir(lang_dir):
-                    lang = name.split('.')[1]
-                    if not translator.load(os.path.join(lang_dir, name)):
-                        print('translator load failed:', lang)
-                        continue
-                    text = translator.translate(
-                        'MenuBar', 'Photini photo metadata editor')
-                    if text:
-                        file.write('GenericName[{}]={}\n'.format(
-                            lang, text.strip()))
-                    text = translator.translate(
-                        'MenuBar', 'An easy to use digital photograph metadata'
-                        ' (Exif, IPTC, XMP) editing application.')
-                    if text:
-                        file.write('Comment[{}]={}\n'.format(
-                            lang, text.strip()))
+            file.write('GenericName={}\n'.format(generic_name))
+            file.write('Comment={}\n'.format(comment))
         print('Installing', path)
         cmd = ['desktop-file-install']
         if os.geteuid() != 0:

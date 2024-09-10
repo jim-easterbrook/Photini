@@ -16,9 +16,9 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import argparse
 import importlib.util
 import logging
-from optparse import OptionParser
 import os
 import platform
 import site
@@ -26,6 +26,10 @@ import subprocess
 import sys
 
 from photini.configstore import BaseConfigStore
+try:
+    from photini.pyqt import QtCore
+except ImportError:
+    QtCore = None
 
 
 def configure(argv=None):
@@ -115,24 +119,41 @@ def configure(argv=None):
 def post_install(argv=None):
     if argv:
         sys.argv = argv
-    parser = OptionParser(
-        usage='Usage: %prog [options] [file_name, ...]',
+    parser = argparse.ArgumentParser(
         description='Install Photini start/application menu entry')
-    parser.add_option(
+    parser.add_argument(
+        '-l', '--language', metavar='xx', help='localise command description')
+    parser.add_argument(
         '-r', '--remove', action='store_true', help='uninstall menu entry')
-    options, args = parser.parse_args()
+    options = parser.parse_args()
+    pkg_data = os.path.join(os.path.dirname(__file__), 'data')
+    # localise descriptive metadata if possible
+    generic_name = 'Photini photo metadata editor'
+    comment = ('An easy to use digital photograph metadata (Exif,'
+               ' IPTC, XMP) editing application.')
+    if options.language and QtCore:
+        qm_file = os.path.join(
+            pkg_data, 'lang', 'photini.{}.qm'.format(options.language))
+        translator = QtCore.QTranslator()
+        if translator.load(qm_file):
+            generic_name = translator.translate(
+                'MenuBar', generic_name) or generic_name
+            comment = translator.translate(
+                'MenuBar', comment) or comment
+        else:
+            print('translator load failed:', options.language)
+    # run OS specific command(s)
     exec_path = os.path.abspath(
         os.path.join(os.path.dirname(sys.argv[0]), 'photini'))
-    pkg_data = os.path.join(os.path.dirname(__file__), 'data')
     if sys.platform == 'win32':
         exec_path += '.exe'
         icon_path = os.path.join(pkg_data, 'icons', 'photini_win.ico')
         import photini.windows
         return photini.windows.post_install(
-            exec_path, icon_path, options.remove)
+            exec_path, icon_path, options.remove, generic_name)
     if sys.platform.startswith('linux'):
         icon_path = os.path.join(pkg_data, 'icons', 'photini_48.png')
         import photini.linux
         return photini.linux.post_install(
-            exec_path, icon_path, options.remove, pkg_data)
+            exec_path, icon_path, options.remove, generic_name, comment)
     return 0

@@ -27,7 +27,7 @@ import win32con
 # See https://learn.microsoft.com/en-us/windows/win32/shell/app-registration
 # for registry entries
 
-def post_install(exec_path, icon_path, remove):
+def post_install(exec_path, icon_path, remove, generic_name):
     shell = win32com.client.Dispatch("WScript.Shell")
     # test for administrator rights
     all_users = False
@@ -79,7 +79,7 @@ def post_install(exec_path, icon_path, remove):
         print('Writing', path)
         shortcut = shell.CreateShortcut(path)
         shortcut.TargetPath = exec_path
-        shortcut.Description = "Photini metadata editor"
+        shortcut.Description = generic_name
         shortcut.IconLocation = icon_path
         shortcut.Save()
     print('Writing', documentation_link)
