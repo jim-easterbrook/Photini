@@ -614,6 +614,11 @@ def main(argv=None):
         '-v', '--verbose', action='count', default=0,
         help=translate('CLIHelp', 'increase number of logging messages'))
     options, args = parser.parse_args()
+    if sys.platform == 'win32':
+        # args might not be utf-8 encoded
+        lang, encoding = locale.getdefaultlocale()
+        if encoding.lower() not in ('utf-8', 'utf_8', 'utf8'):
+            args = [x.encode(encoding).decode('utf-8') for x in args]
     # if an instance of Photini is already running, send it the list of
     # files to open
     if SendToInstance(args):

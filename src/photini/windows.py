@@ -97,7 +97,7 @@ def post_install(exec_path, icon_path, remove):
     print('Writing', r'{}\{}\{}'.format(root_name, applications_key, reg_name))
     key = win32api.RegCreateKey(root_key, r'{}\{}\shell\open\command'.format(
         applications_key, reg_name))
-    win32api.RegSetValue(key, None, win32con.REG_SZ, exec_path + ' %1')
+    win32api.RegSetValue(key, None, win32con.REG_SZ, exec_path + ' "%1"')
     key = win32api.RegCreateKey(root_key, r'{}\{}\SupportedTypes'.format(
         applications_key, reg_name))
     for ext in ('.bmp', '.dib', '.rle', '.jpg', '.jpeg', '.jpe', '.jfif',
