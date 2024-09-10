@@ -604,35 +604,44 @@ class ImageList(QtWidgets.QWidget):
         path_list = path_list[0]
         if not path_list:
             return
-        self.open_file_list(path_list)
+        self.open_file_list(path_list, select=False)
 
     @QtSlot(list)
     @catch_all
-    def open_file_list(self, path_list, top_level=True, dir_list=[]):
-        last_path = None
-        types = ['.' + x for x in (image_types_lower() + video_types_lower())]
+    def open_file_list(self, path_list, select=True):
+        dir_list = []
+        opened_images = []
         with Busy():
-            for path in path_list:
-                if os.path.basename(path).startswith('.'):
-                    # don't open .directory or .thumbs
+            opened_images = self._open_file_list(path_list, dir_list)
+        if opened_images:
+            self.done_opening(opened_images[-1].path)
+            if select:
+                self.select_images(opened_images)
+
+    def _open_file_list(self, path_list, dir_list, types=None):
+        opened_images = []
+        for path in path_list:
+            if os.path.basename(path).startswith('.'):
+                # don't open .directory or .thumbs
+                continue
+            if os.path.isdir(path):
+                types = types or ['.' + x for x in
+                                  (image_types_lower() + video_types_lower())]
+                path = os.path.realpath(path)
+                if path in dir_list:
+                    # don't open directories we've already opened
                     continue
-                if os.path.isdir(path):
-                    path = os.path.realpath(path)
-                    if path in dir_list:
-                        # don't open directories we've already opened
-                        continue
-                    dir_list.append(path)
-                    last_path = self.open_file_list(
-                        [os.path.join(path, x) for x in os.listdir(path)],
-                        top_level=False, dir_list=dir_list) or last_path
-                elif (not top_level and
-                          os.path.splitext(path)[1].lower() not in types):
-                    pass
-                elif self.open_file(path):
-                    last_path = path
-        if top_level and last_path:
-            self.done_opening(last_path)
-        return last_path
+                dir_list.append(path)
+                files = [os.path.join(path, x) for x in os.listdir(path)]
+                files = [x for x in files if os.path.isdir(x) or
+                         os.path.splitext(x)[1].lower() in types]
+                opened_images += self._open_file_list(
+                    files, dir_list, types=types)
+            else:
+                image = self.open_file(path)
+                if image:
+                    opened_images.append(image)
+        return opened_images
 
     def open_file(self, path):
         path = os.path.realpath(path)
@@ -648,16 +657,16 @@ class ImageList(QtWidgets.QWidget):
                     if b == base and e.lower() != '.xmp':
                         break
                 else:
-                    return False
+                    return None
         if not os.path.isfile(path):
-            return False
-        if self.get_image(path):
-            # already opened this path
-            return True
-        image = Image(path, thumb_size=self.thumb_size)
-        self.images.append(image)
-        self.show_thumbnail(image)
-        return True
+            return None
+        # may have already opened this path
+        image = self.get_image(path)
+        if not image:
+            image = Image(path, thumb_size=self.thumb_size)
+            self.images.append(image)
+            self.show_thumbnail(image)
+        return image
 
     def done_opening(self, path):
         self.app.config_store.set(

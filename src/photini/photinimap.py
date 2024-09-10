@@ -550,7 +550,7 @@ class PhotiniMap(QtWidgets.QWidget):
             return
         for info in self.marker_info.values():
             info['images'] = []
-        # assign images to existing markers or create new markers
+        # assign images to existing markers or create new marker_info
         for image in self.app.image_list.get_images():
             gps = image.metadata.gps_info
             if not gps['exif:GPSLatitude']:
@@ -569,22 +569,26 @@ class PhotiniMap(QtWidgets.QWidget):
                 self.marker_info[marker_id] = {
                     'images'  : [image],
                     'location': location,
-                    'selected': image.selected,
                     }
-                self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
-                    marker_id, location[0], location[1], image.selected))
-        # delete redundant markers and enable markers with selected images
+        # update markers on map
         for marker_id in list(self.marker_info.keys()):
             info = self.marker_info[marker_id]
+            selected = any([x.selected for x in info['images']])
             if not info['images']:
+                # delete redundant marker
                 self.JavaScript('delMarker({:d})'.format(marker_id))
                 del self.marker_info[marker_id]
-            else:
-                selected = any([x.selected for x in info['images']])
-                if force or info['selected'] != selected:
-                    info['selected'] = selected
-                    self.JavaScript(
-                        'enableMarker({:d},{:d})'.format(marker_id, selected))
+            elif 'selected' not in info:
+                # create new marker
+                info['selected'] = selected
+                location = info['location']
+                self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
+                    marker_id, location[0], location[1], selected))
+            elif force or info['selected'] != selected:
+                # update existing marker
+                info['selected'] = selected
+                self.JavaScript(
+                    'enableMarker({:d},{:d})'.format(marker_id, selected))
 
     def redraw_gps_track(self, selected_images=None):
         if self.map_loaded < 2:

@@ -18,6 +18,7 @@
 
 // See https://developers.google.com/maps/documentation/javascript/reference
 
+var legacyMarkers = true;
 var map;
 var markers = {};
 var markerIcon = ['', ''];
@@ -26,7 +27,7 @@ var gpsMarkerIcon = ['', ''];
 const padding = {top: 40, bottom: 5, left: 18, right: 18};
 const maxZoom = 20;
 
-function loadMap(lat, lng, zoom, options) {
+async function loadMap(lat, lng, zoom, options) {
     var mapOptions = {
         center: new google.maps.LatLng(lat, lng),
         controlSize: 30,
@@ -51,7 +52,18 @@ function loadMap(lat, lng, zoom, options) {
         },
     };
     const div = document.getElementById("mapDiv");
+    const { Map } = await google.maps.importLibrary("maps");
     map = new google.maps.Map(div, mapOptions);
+    const mapCapabilities = map.getMapCapabilities();
+    if (mapCapabilities.isAdvancedMarkersAvailable) {
+        const { AdvancedMarkerElement } =
+            await google.maps.importLibrary("marker");
+        legacyMarkers = false;
+    } else {
+        console.warning(
+            'Using legacy markers as advanced markers are not supported.');
+    }
+
     google.maps.event.addListener(map, 'idle', newBounds);
     python.initialize_finished(true);
 }
@@ -140,7 +152,7 @@ function plotGPS(points) {
     for (i in points) {
         const latlng = new google.maps.LatLng(points[i][0], points[i][1]);
         const id = points[i][2];
-        if (use_old_markers)
+        if (legacyMarkers)
             gpsMarkers[id] = new google.maps.Marker({
                 map: map, position: latlng,
                 icon: gpsMarkerIcon[0], zIndex: 2, clickable: false});
@@ -158,7 +170,7 @@ function enableGPS(ids) {
     for (id in gpsMarkers) {
         const active = ids.includes(id) ? 1 : 0;
         const marker = gpsMarkers[id];
-        if (use_old_markers) {
+        if (legacyMarkers) {
             marker.setIcon(gpsMarkerIcon[active]);
             marker.setZIndex(active ? 3 : 2);
         }
@@ -188,7 +200,7 @@ function setIconData(pin, active, url, size) {
             padding.right += 130;
         else
             padding.left += 130;
-    } else if (use_old_markers) {
+    } else if (legacyMarkers) {
         gpsMarkerIcon[active] = {
             anchor: new google.maps.Point(size[0] / 2, size[1] / 2),
             url: url};
@@ -201,7 +213,7 @@ function setIconData(pin, active, url, size) {
 
 function enableMarker(id, active) {
     var marker = markers[id];
-    if (use_old_markers) {
+    if (legacyMarkers) {
         marker.setIcon({url: markerIcon[active]});
         marker.setZIndex(active ? 1 : 0);
     }
@@ -212,7 +224,7 @@ function enableMarker(id, active) {
 }
 
 function addMarker(id, lat, lng, active) {
-    if (use_old_markers) {
+    if (legacyMarkers) {
         var marker = new google.maps.Marker({
             icon: {url: markerIcon[active]},
             position: new google.maps.LatLng(lat, lng),
