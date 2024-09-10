@@ -36,6 +36,13 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 
 class Image(QtWidgets.QFrame):
+    styles = ('''
+QFrame {background: palette(base); color: palette(dark)}
+QLabel {background: palette(base); color: palette(text)}''',
+              '''
+QFrame {background: palette(highlight); color: palette(dark)}
+QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
+
     def __init__(self, path, thumb_size=4, *arg, **kw):
         super(Image, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
@@ -73,7 +80,7 @@ class Image(QtWidgets.QFrame):
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(
             QtWidgets.QFrame.Shape.Panel | QtWidgets.QFrame.Shadow.Plain)
-        self.setObjectName("thumbnail")
+        self.setLineWidth(max(1, width_for_text(self, 'X' * 10) // 40))
         self.set_selected(False)
         self.show_status(False)
         self._set_thumb_size(thumb_size)
@@ -326,10 +333,7 @@ class Image(QtWidgets.QFrame):
 
     def set_selected(self, value):
         self.selected = value
-        if self.selected:
-            self.setStyleSheet("#thumbnail {border: 2px solid red}")
-        else:
-            self.setStyleSheet("#thumbnail {border: 2px solid grey}")
+        self.setStyleSheet(self.styles[self.selected])
 
     def get_selected(self):
         return self.selected
@@ -452,8 +456,11 @@ class ThumbsLayout(QtWidgets.QLayout):
         height_hint = top + bottom
         if self.item_list and self.scroll_area:
             item_size = self.item_list[0].sizeHint()
-            item_h = item_size.height()
-            item_w = item_size.width()
+            overlap = self.item_list[0].widget().lineWidth()
+            item_h = item_size.height() - overlap
+            item_w = item_size.width() - overlap
+            width_hint += overlap
+            height_hint += overlap
             row_height = item_h + height_hint
             self.scroll_area.set_minimum_height(row_height)
             view_width, view_height = self.scroll_area.usable_size()
@@ -597,35 +604,44 @@ class ImageList(QtWidgets.QWidget):
         path_list = path_list[0]
         if not path_list:
             return
-        self.open_file_list(path_list)
+        self.open_file_list(path_list, select=False)
 
     @QtSlot(list)
     @catch_all
-    def open_file_list(self, path_list, top_level=True, dir_list=[]):
-        last_path = None
-        types = ['.' + x for x in (image_types_lower() + video_types_lower())]
+    def open_file_list(self, path_list, select=True):
+        dir_list = []
+        opened_images = []
         with Busy():
-            for path in path_list:
-                if os.path.basename(path).startswith('.'):
-                    # don't open .directory or .thumbs
+            opened_images = self._open_file_list(path_list, dir_list)
+        if opened_images:
+            self.done_opening(opened_images[-1].path)
+            if select:
+                self.select_images(opened_images)
+
+    def _open_file_list(self, path_list, dir_list, types=None):
+        opened_images = []
+        for path in path_list:
+            if os.path.basename(path).startswith('.'):
+                # don't open .directory or .thumbs
+                continue
+            if os.path.isdir(path):
+                types = types or ['.' + x for x in
+                                  (image_types_lower() + video_types_lower())]
+                path = os.path.realpath(path)
+                if path in dir_list:
+                    # don't open directories we've already opened
                     continue
-                if os.path.isdir(path):
-                    path = os.path.realpath(path)
-                    if path in dir_list:
-                        # don't open directories we've already opened
-                        continue
-                    dir_list.append(path)
-                    last_path = self.open_file_list(
-                        [os.path.join(path, x) for x in os.listdir(path)],
-                        top_level=False, dir_list=dir_list) or last_path
-                elif (not top_level and
-                          os.path.splitext(path)[1].lower() not in types):
-                    pass
-                elif self.open_file(path):
-                    last_path = path
-        if top_level and last_path:
-            self.done_opening(last_path)
-        return last_path
+                dir_list.append(path)
+                files = [os.path.join(path, x) for x in os.listdir(path)]
+                files = [x for x in files if os.path.isdir(x) or
+                         os.path.splitext(x)[1].lower() in types]
+                opened_images += self._open_file_list(
+                    files, dir_list, types=types)
+            else:
+                image = self.open_file(path)
+                if image:
+                    opened_images.append(image)
+        return opened_images
 
     def open_file(self, path):
         path = os.path.realpath(path)
@@ -641,16 +657,16 @@ class ImageList(QtWidgets.QWidget):
                     if b == base and e.lower() != '.xmp':
                         break
                 else:
-                    return False
+                    return None
         if not os.path.isfile(path):
-            return False
-        if self.get_image(path):
-            # already opened this path
-            return True
-        image = Image(path, thumb_size=self.thumb_size)
-        self.images.append(image)
-        self.show_thumbnail(image)
-        return True
+            return None
+        # may have already opened this path
+        image = self.get_image(path)
+        if not image:
+            image = Image(path, thumb_size=self.thumb_size)
+            self.images.append(image)
+            self.show_thumbnail(image)
+        return image
 
     def done_opening(self, path):
         self.app.config_store.set(

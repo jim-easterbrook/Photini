@@ -16,8 +16,9 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import argparse
+import importlib.util
 import logging
-from optparse import OptionParser
 import os
 import platform
 import site
@@ -29,9 +30,6 @@ try:
     from photini.pyqt import QtCore
 except ImportError:
     QtCore = None
-
-
-logger = logging.getLogger(__name__)
 
 
 def configure(argv=None):
@@ -50,16 +48,10 @@ def configure(argv=None):
     default = None
     n = 0
     for package in packages:
-        # run separate python interpreter for each to avoid interactions
-        cmd = [sys.executable, '-c', '"import {}.QtCore"'.format(package)]
-        if subprocess.run(' '.join(cmd), shell=True,
-                          stderr=subprocess.DEVNULL).returncode == 0:
+        if importlib.util.find_spec(package):
             status = 'installed'
             # check for QtWebEngine
-            cmd = [sys.executable,
-                   '-c', '"import {}.QtWebEngineWidgets"'.format(package)]
-            if subprocess.run(' '.join(cmd), shell=True,
-                              stderr=subprocess.DEVNULL).returncode == 0:
+            if importlib.util.find_spec(package + '.QtWebEngineWidgets'):
                 installed.append(package)
             else:
                 status += ', WebEngine not installed'
@@ -127,68 +119,41 @@ def configure(argv=None):
 def post_install(argv=None):
     if argv:
         sys.argv = argv
-    parser = OptionParser(
-        usage='Usage: %prog [options] [file_name, ...]',
+    parser = argparse.ArgumentParser(
         description='Install Photini start/application menu entry')
-    parser.add_option(
+    parser.add_argument(
+        '-l', '--language', metavar='xx', help='localise command description')
+    parser.add_argument(
         '-r', '--remove', action='store_true', help='uninstall menu entry')
-    options, args = parser.parse_args()
+    options = parser.parse_args()
+    pkg_data = os.path.join(os.path.dirname(__file__), 'data')
+    # localise descriptive metadata if possible
+    generic_name = 'Photini photo metadata editor'
+    comment = ('An easy to use digital photograph metadata (Exif,'
+               ' IPTC, XMP) editing application.')
+    if options.language and QtCore:
+        qm_file = os.path.join(
+            pkg_data, 'lang', 'photini.{}.qm'.format(options.language))
+        translator = QtCore.QTranslator()
+        if translator.load(qm_file):
+            generic_name = translator.translate(
+                'MenuBar', generic_name) or generic_name
+            comment = translator.translate(
+                'MenuBar', comment) or comment
+        else:
+            print('translator load failed:', options.language)
+    # run OS specific command(s)
     exec_path = os.path.abspath(
         os.path.join(os.path.dirname(sys.argv[0]), 'photini'))
-    pkg_data = os.path.join(os.path.dirname(__file__), 'data')
     if sys.platform == 'win32':
         exec_path += '.exe'
         icon_path = os.path.join(pkg_data, 'icons', 'photini_win.ico')
-        script = os.path.join(pkg_data, 'windows', 'install_shortcuts.vbs')
-        cmd = ['cscript', '/nologo', script, exec_path, icon_path, sys.prefix]
-        if options.remove:
-            cmd.append('/remove')
-        return subprocess.call(cmd)
-    elif sys.platform.startswith('linux'):
-        local_dir = os.path.expanduser('~/.local/share/applications')
-        if options.remove:
-            if os.geteuid() != 0:
-                # not running as root
-                paths = [local_dir]
-            else:
-                paths = ['/usr/share/applications/',
-                         '/usr/local/share/applications/']
-            for dir_name in paths:
-                path = os.path.join(dir_name, 'photini.desktop')
-                if os.path.exists(path):
-                    print('Deleting', path)
-                    os.unlink(path)
-                    return 0
-            print('No "desktop" file found.')
-            return 1
+        import photini.windows
+        return photini.windows.post_install(
+            exec_path, icon_path, options.remove, generic_name)
+    if sys.platform.startswith('linux'):
         icon_path = os.path.join(pkg_data, 'icons', 'photini_48.png')
-        cmd = ['desktop-file-install']
-        if os.geteuid() != 0:
-            # not running as root
-            cmd.append('--dir={}'.format(local_dir))
-        cmd += ['--set-key=Exec', '--set-value={} %F'.format(exec_path)]
-        cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
-        # add translations
-        if QtCore:
-            lang_dir = os.path.join(pkg_data, 'lang')
-            translator = QtCore.QTranslator()
-            for name in os.listdir(lang_dir):
-                lang = name.split('.')[1]
-                if not translator.load(os.path.join(lang_dir, name)):
-                    print('load failed:', lang)
-                    continue
-                text = translator.translate(
-                    'MenuBar', 'Photini photo metadata editor')
-                if text:
-                    cmd += ['--set-key=GenericName[{}]'.format(lang),
-                            '--set-value={}'.format(text.strip())]
-                text = translator.translate(
-                    'MenuBar', 'An easy to use digital photograph metadata'
-                    ' (Exif, IPTC, XMP) editing application.')
-                if text:
-                    cmd += ['--set-key=Comment[{}]'.format(lang),
-                            '--set-value={}'.format(text.strip())]
-        cmd.append(os.path.join(pkg_data, 'linux', 'photini.desktop'))
-        print(' \\\n  '.join(cmd))
-        return subprocess.call(cmd)
+        import photini.linux
+        return photini.linux.post_install(
+            exec_path, icon_path, options.remove, generic_name, comment)
     return 0

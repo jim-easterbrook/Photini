@@ -22,13 +22,10 @@
 var drag_id = -1;
 var map;
 var markers = {};
+var markerIcon = ['', ''];
 var gpsMarkers = {};
-var icon_on;
-var icon_off;
-var gpsBlueCircle;
-var gpsRedCircle
+var gpsMarkerIcon = ['', ''];
 
-//window.addEventListener('load', initialize);
 
 function loadMap(lat, lng, zoom, options) {
     L.mapbox.accessToken = options.accessToken;
@@ -52,14 +49,6 @@ function loadMap(lat, lng, zoom, options) {
     L.control.scale().addTo(map);
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
-    icon_on = new L.Icon({
-        iconUrl: 'pin_red.png', iconSize: [25, 35], iconAnchor: [11, 35]});
-    icon_off = new L.Icon({
-        iconUrl: 'pin_grey.png', iconSize: [25, 35], iconAnchor: [11, 35]});
-    gpsBlueCircle = new L.Icon({
-        iconUrl: 'circle_blue.png', iconSize: [11, 11], iconAnchor: [5, 5]});
-    gpsRedCircle = new L.Icon({
-        iconUrl: 'circle_red.png', iconSize: [11, 11], iconAnchor: [5, 5]});
     python.new_status({version: L.version});
     python.initialize_finished(true);
     newBounds();
@@ -102,7 +91,7 @@ function plotGPS(points) {
         var latlng = L.latLng(points[i][0], points[i][1]);
         var id = points[i][2];
         gpsMarkers[id] = L.marker(latlng, {
-            icon: gpsBlueCircle, interactive: false, zIndexOffset: 1001});
+            icon: gpsMarkerIcon[0], interactive: false, zIndexOffset: 1001});
         gpsMarkers[id].addTo(map);
     }
 }
@@ -110,13 +99,9 @@ function plotGPS(points) {
 function enableGPS(ids) {
     for (var id in gpsMarkers) {
         var marker = gpsMarkers[id];
-        if (ids.includes(id)) {
-            marker.setZIndexOffset(1002);
-            marker.setIcon(gpsRedCircle);
-        } else {
-            marker.setZIndexOffset(1001);
-            marker.setIcon(gpsBlueCircle);
-        }
+        var active = ids.includes(id) ? 1 : 0;
+        marker.setZIndexOffset(active ? 1002 : 1001);
+        marker.setIcon(gpsMarkerIcon[active]);
     }
 }
 
@@ -126,16 +111,25 @@ function clearGPS() {
     gpsMarkers = {};
 }
 
+function setIconData(pin, active, url, size) {
+    if (pin) {
+        markerIcon[active] = new L.Icon({
+            iconUrl: url,
+            iconSize: size,
+            iconAnchor: [size[0] / 2, size[1]]});
+    } else {
+        gpsMarkerIcon[active] = new L.Icon({
+            iconUrl: url,
+            iconSize: size,
+            iconAnchor: [size[0] / 2, size[1] / 2]});
+    }
+}
+
 function enableMarker(id, active) {
     var marker = markers[id];
-    if (active) {
-        marker.setZIndexOffset(1000);
-        if (id != drag_id)
-            marker.setIcon(icon_on);
-    } else {
-        marker.setZIndexOffset(0);
-        marker.setIcon(icon_off);
-    }
+    if (id != drag_id || !active)
+        marker.setIcon(markerIcon[active]);
+    marker.setZIndexOffset(active ? 1000 : 0);
 }
 
 function addMarker(id, lat, lng, active) {
@@ -175,7 +169,7 @@ function markerDrag(event) {
 function markerDragEnd(event) {
     var loc = this.getLatLng();
     var id = markerToId(this);
-    this.setIcon(icon_on);
+    this.setIcon(markerIcon[1]);
     python.marker_drag_end(loc.lat, loc.lng, id);
     drag_id = -1;
 }

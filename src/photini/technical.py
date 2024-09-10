@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -897,7 +897,7 @@ class TabWidget(QtWidgets.QWidget):
         if not (value and value['lens_model']):
             return
         spec = value['lens_model']['spec']
-        if not spec:
+        if not spec['min_fl']:
             return
         tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
                     '<th width="70">{th_max}</th></tr>'

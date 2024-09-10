@@ -288,6 +288,26 @@
         <source>GPX importer</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>location pin (selected)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map icon colours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>location pin (unselected)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GPS track point (selected)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GPS track point (unselected)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>

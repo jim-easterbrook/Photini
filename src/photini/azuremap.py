@@ -115,24 +115,13 @@ class TabWidget(PhotiniMap):
         return AzureGeocoder(parent=self)
 
     def get_head(self):
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        with open(os.path.join(data_dir, 'map', 'circle_blue.png'), 'rb') as f:
-            circle_blue_data = f.read()
-        with open(os.path.join(data_dir, 'map', 'circle_red.png'), 'rb') as f:
-            circle_red_data = f.read()
         url_base = 'https://atlas.microsoft.com/sdk/javascript/mapcontrol/3/'
         url_js = url_base + 'atlas.min.js'
         url_css = url_base + 'atlas.min.css'
-        return '''<script type="text/javascript">
-var circle_blue_data = "data:image/png;base64,{circle_blue_data}";
-var circle_red_data = "data:image/png;base64,{circle_red_data}";
-    </script>
-    <link rel="stylesheet" href="{url_css}" type="text/css" />
+        return '''<link rel="stylesheet" href="{url_css}" type="text/css" />
     <script type="text/javascript" src="{url_js}"></script>
     <script type="text/javascript" src="azuremap.js"></script>'''.format(
-        url_css=url_css, url_js=url_js,
-        circle_blue_data=base64.b64encode(circle_blue_data).decode('ascii'),
-        circle_red_data=base64.b64encode(circle_red_data).decode('ascii'))
+        url_css=url_css, url_js=url_js)
 
     def get_body(self, text_dir):
         return '''  <body onload="initialize()" ondragstart="return false">

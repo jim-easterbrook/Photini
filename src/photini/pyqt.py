@@ -19,6 +19,7 @@
 from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
+import importlib.util
 import logging
 import os
 import sys
@@ -109,28 +110,24 @@ def import_PyQt5():
         QWebEnginePage, QWebEngineProfile, QWebEngineView)
 
 # choose Qt package
-if qt_lib == 'auto':
-    _libs = ('PyQt5', 'PyQt6', 'PySide2', 'PySide6')
-else:
-    _libs = (qt_lib,)
-_error = ['']
-for key in _libs:
-    try:
-        {'PyQt5': import_PyQt5,
-         'PyQt6': import_PyQt6,
-         'PySide2': import_PySide2,
-         'PySide6': import_PySide6,
-         }[key]()
-        qt_lib = key
+_libs = ['PyQt5', 'PyQt6', 'PySide6', 'PySide2']
+if qt_lib != 'auto':
+    _libs = [qt_lib] + _libs
+for qt_lib in _libs:
+    if (importlib.util.find_spec(qt_lib) and
+        importlib.util.find_spec(qt_lib + '.QtWebEngineWidgets')):
         break
-    except KeyError:
-        raise ImportError('Unknown Qt library ' + key) from None
-    except ImportError as ex:
-        if qt_lib != 'auto':
-            raise ex
-        _error.append('{} import failed: {}'.format(key, str(ex)))
 else:
-    raise ImportError('\n'.join(_error))
+    qt_lib = 'PyQt5'
+
+# import chosen package
+{
+    'PyQt5': import_PyQt5,
+    'PyQt6': import_PyQt6,
+    'PySide2': import_PySide2,
+    'PySide6': import_PySide6,
+    }[qt_lib]()
+
 using_pyside = 'PySide' in qt_lib
 
 style = config.get('pyqt', 'style')
