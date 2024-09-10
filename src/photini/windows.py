@@ -100,7 +100,7 @@ def post_install(exec_path, icon_path, remove, generic_name):
     win32api.RegSetValue(key, None, win32con.REG_SZ, exec_path + ' "%1"')
     key = win32api.RegCreateKey(root_key, r'{}\{}\SupportedTypes'.format(
         applications_key, reg_name))
-    for ext in ('.bmp', '.dib', '.rle', '.jpg', '.jpeg', '.jpe', '.jfif',
-                '.gif', '.emf', '.wmf', '.tif', '.tiff', '.png', '.ico'):
+    for ext in ('.jpg', '.jpeg', '.jpe', '.jfif', '.gif', '.tif', '.tiff',
+                '.png', '.xmp'):
         win32api.RegSetValueEx(key, ext, 0, win32con.REG_SZ, '')
     return 0

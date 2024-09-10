@@ -49,7 +49,7 @@ Type=Application
 Name=Photini
 Terminal=false
 Categories=Graphics;Photography;
-MimeType=image/jpeg;image/jpeg2000;image/tiff;image/png;image/gif;image/svg+xml;image/x-dcraw;
+MimeType=image/jpeg;image/jpeg2000;image/tiff;image/png;image/gif;image/x-dcraw;application/rdf+xml;
 ''')
             file.write('Exec={} %F\n'.format(exec_path))
             file.write('Icon={}\n'.format(icon_path))
