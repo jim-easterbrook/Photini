@@ -18,9 +18,7 @@
 
 [build-system]
 requires = ["setuptools >= 59.6", "setuptools_scm[toml]>=6.2", "toml"]
-#build-backend = "setuptools.build_meta"
-build-backend = "backend"
-backend-path = ["custom_build"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "Photini"
@@ -47,6 +45,7 @@ dependencies = [
   "filetype >= 1.0",
   "Pillow >= 2.0",
   "requests >= 2.4",
+  "pywin32 >= 302; platform_system == 'Windows'",
 ]
 dynamic = ["version"]
 

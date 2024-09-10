@@ -280,6 +280,26 @@
         <source>GPX importer</source>
         <translation>GPX importer</translation>
     </message>
+    <message>
+        <source>location pin (selected)</source>
+        <translation>location pin (selected)</translation>
+    </message>
+    <message>
+        <source>Map icon colours</source>
+        <translation>Map icon colours</translation>
+    </message>
+    <message>
+        <source>location pin (unselected)</source>
+        <translation>location pin (unselected)</translation>
+    </message>
+    <message>
+        <source>GPS track point (selected)</source>
+        <translation>GPS track point (selected)</translation>
+    </message>
+    <message>
+        <source>GPS track point (unselected)</source>
+        <translation>GPS track point (unselected)</translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
@@ -854,11 +874,11 @@
     <name>MapTabAzure</name>
     <message>
         <source>Search provided by Microsoft Azure</source>
-        <translation type="unfinished"></translation>
+        <translation>Search provided by Microsoft Azure</translation>
     </message>
     <message>
         <source>Map (&amp;Azure)</source>
-        <translation type="unfinished"></translation>
+        <translation>Map (&amp;Azure)</translation>
     </message>
 </context>
 <context>
@@ -1237,11 +1257,11 @@
     </message>
     <message>
         <source>Map unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Map unavailable</translation>
     </message>
     <message>
         <source>The map could not be loaded. This might be a WebGL problem. You can test this by clicking on {}.</source>
-        <translation type="unfinished"></translation>
+        <translation>The map could not be loaded. This might be a WebGL problem. You can test this by clicking on {}.</translation>
     </message>
 </context>
 <context>
