@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.8.1.post15\n"
+"Project-Id-Version: Photini 2024.8.2.post104\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-24 15:22+0100\n"
+"POT-Creation-Date: 2024-09-10 14:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2086,16 +2086,16 @@ msgstr ""
 msgid "Translating the program text"
 msgstr ""
 
-msgid "If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically. For example, this is what it might look like if your computer is configured to use Spanish."
-msgstr ""
-
-msgid "If you'd like to help by translating Photini into another language, or by improving an existing translation, this is what you need to do."
-msgstr ""
-
 msgid "Translation status"
 msgstr ""
 
 msgid "Translation progress so far"
+msgstr ""
+
+msgid "If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically. For example, this is what it might look like if your computer is configured to use Spanish."
+msgstr ""
+
+msgid "If you'd like to help by translating Photini into another language, or by improving an existing translation, then this page is for you."
 msgstr ""
 
 msgid "Online translation"
@@ -2131,7 +2131,7 @@ msgstr ""
 msgid "Click on your language, then click on \"src..en/photini.ts (transifex)\" to work on the Photini GUI strings."
 msgstr ""
 
-msgid "When you've finished working on a translation there's no need to do anything further. Transifex automatically pushes the translation to GitHub, where I can merge it into the main repository branch. You might like to :ref:`test your translation <localisation-program-testing>` though."
+msgid "When you've finished working on a translation there's no need to do anything further. When I receive a notification from Transifex I can merge the new translations into the project on GitHub. You might like to :ref:`test your translation <localisation-program-testing>` though."
 msgstr ""
 
 msgid "Offline translation"
@@ -2176,16 +2176,10 @@ msgstr ""
 msgid "In Python curly braces are used to include other data in a string. For example, ``File \"{file_name}\" has {size} bytes and exceeds {service}'s limit of {max_size} bytes.`` includes the file name & size and a size limit set by a service such as Flickr. You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language."
 msgstr ""
 
-msgid "Carriage returns"
+msgid "Not HTML markup"
 msgstr ""
 
-msgid "Some of Photini's buttons split their labels over two or more lines to stop the button being too wide. You should split your translation in similar size pieces so it has the same number of lines."
-msgstr ""
-
-msgid "HTML markup"
-msgstr ""
-
-msgid "Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML markup which must be copied to your translated string. Some strings such as ``<multiple values>`` are not HTML. The angle brackets ``<>`` are used to indicate data with a special meaning. These strings should usually be translated."
+msgid "Some strings such as ``<multiple values>`` are not HTML. The angle brackets ``<>`` are used to indicate text with a special meaning. These strings should usually be translated."
 msgstr ""
 
 msgid "Keyboard shortcuts"
@@ -2212,10 +2206,10 @@ msgstr ""
 msgid "The translation file needs to be \"compiled\" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program. This requires the ``pyside6-lrelease`` program, which is part of the ``PySide6`` package on PyPI."
 msgstr ""
 
-msgid "You can easily update and compile all the language files::"
+msgid "You can easily update all the language files::"
 msgstr ""
 
-msgid "Now you can install Photini with your new translation(s)::"
+msgid "Now you can install Photini with your new translation(s). The translation file is compiled during the installation::"
 msgstr ""
 
 msgid "Photini should use your new language if your computer's ``LANG`` environment variable is set appropriately. You can force this when running Photini from the command line::"
