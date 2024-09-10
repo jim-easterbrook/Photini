@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-22  Jim Easterbrook.
+   Copyright (C)  2012-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Image selector
@@ -33,20 +33,32 @@ This is recursive, so beware of accidentally opening too many images in one go.
 
 .. image:: ../images/screenshot_003.png
 
-Clicking on any thumbnail selects that file.
-The selected file is highlighted by a red border.
-Double clicking on a thumbnail should display the full size image, using your default image viewing application.
+If you don't have a large screen you can reduce the image selector height to a single row.
+After doing this it scrolls horizontally instead of vertically.
 
 .. image:: ../images/screenshot_004.png
 
-Multiple files can be selected by holding down the 'shift' key while clicking on a second image.
-To select multiple files that are not adjacent, hold down the 'control' key while clicking on the images.
+Clicking on any thumbnail selects that file.
+The selected file is highlighted.
+The colours used depend on your system configuration.
+Double clicking on a thumbnail should display the full size image, using your default image viewing application.
+
+.. tip::
+
+    If you change to a different image in your viewing application you should be able to right-click on the image and select "open with => Photini".
+    This will select the image in Photini so you can be sure of editing the image you were just looking at.
 
 .. image:: ../images/screenshot_005.png
 
-The keyboard shortcut ``Ctrl+A`` selects all the loaded files.
+Multiple files can be selected by holding down the 'shift' key while clicking on a second image.
 
 .. image:: ../images/screenshot_006.png
+
+To select multiple files that are not adjacent, hold down the 'control' key while clicking on the images.
+
+.. image:: ../images/screenshot_007.png
+
+The keyboard shortcut ``Ctrl+A`` selects all the loaded files.
 
 Selecting multiple files allows you to set metadata, such as the image title, on several files at once.
 This is much quicker than having to edit the metadata of each file separately.
@@ -58,7 +70,7 @@ Context menu
 
 Right-clicking on a thumbnail displays a context menu for all the currently selected files.
 
-.. image:: ../images/screenshot_007.png
+.. image:: ../images/screenshot_008.png
 
 The context menu currently has five items.
 ``Reload file`` discards any metadata changes.
@@ -67,13 +79,13 @@ The context menu currently has five items.
 ``Regenerate thumbnail`` creates a new thumbnail of the image(s).
 ``Close file`` closes the file(s).
 
-.. image:: ../images/screenshot_008.png
+.. image:: ../images/screenshot_009.png
 
 The ``view changes`` context menu item displays all the metadata items that have changed.
 In this example I've set two items that were previously empty.
 If you want to discard any of these changes then select the appropriate ``undo`` checkboxes and click on ``OK``.
 
-.. image:: ../images/screenshot_009.png
+.. image:: ../images/screenshot_010.png
 
 The same menu items also appear in the main ``File`` menu.
 

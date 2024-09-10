@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.8.2.post108\n"
+"Project-Id-Version: Photini 2024.8.2.post112\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-10 16:30+0100\n"
+"POT-Creation-Date: 2024-09-10 17:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -406,10 +406,19 @@ msgstr ""
 msgid "Images can also be loaded by \"drag and drop\" from a file manager window or by adding them to the command line if you run Photini from a command terminal. If you open a directory then all the images in that directory will be opened. This is recursive, so beware of accidentally opening too many images in one go."
 msgstr ""
 
-msgid "Clicking on any thumbnail selects that file. The selected file is highlighted by a red border. Double clicking on a thumbnail should display the full size image, using your default image viewing application."
+msgid "If you don't have a large screen you can reduce the image selector height to a single row. After doing this it scrolls horizontally instead of vertically."
 msgstr ""
 
-msgid "Multiple files can be selected by holding down the 'shift' key while clicking on a second image. To select multiple files that are not adjacent, hold down the 'control' key while clicking on the images."
+msgid "Clicking on any thumbnail selects that file. The selected file is highlighted. The colours used depend on your system configuration. Double clicking on a thumbnail should display the full size image, using your default image viewing application."
+msgstr ""
+
+msgid "If you change to a different image in your viewing application you should be able to right-click on the image and select \"open with => Photini\". This will select the image in Photini so you can be sure of editing the image you were just looking at."
+msgstr ""
+
+msgid "Multiple files can be selected by holding down the 'shift' key while clicking on a second image."
+msgstr ""
+
+msgid "To select multiple files that are not adjacent, hold down the 'control' key while clicking on the images."
 msgstr ""
 
 msgid "The keyboard shortcut ``Ctrl+A`` selects all the loaded files."
