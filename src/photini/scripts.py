@@ -26,13 +26,6 @@ import subprocess
 import sys
 
 from photini.configstore import BaseConfigStore
-try:
-    from photini.pyqt import QtCore
-except ImportError:
-    QtCore = None
-
-
-logger = logging.getLogger(__name__)
 
 
 def configure(argv=None):
@@ -137,51 +130,9 @@ def post_install(argv=None):
         import photini.windows
         return photini.windows.post_install(
             exec_path, icon_path, options.remove)
-    elif sys.platform.startswith('linux'):
-        local_dir = os.path.expanduser('~/.local/share/applications')
-        if options.remove:
-            if os.geteuid() != 0:
-                # not running as root
-                paths = [local_dir]
-            else:
-                paths = ['/usr/share/applications/',
-                         '/usr/local/share/applications/']
-            for dir_name in paths:
-                path = os.path.join(dir_name, 'photini.desktop')
-                if os.path.exists(path):
-                    print('Deleting', path)
-                    os.unlink(path)
-                    return 0
-            print('No "desktop" file found.')
-            return 1
+    if sys.platform.startswith('linux'):
         icon_path = os.path.join(pkg_data, 'icons', 'photini_48.png')
-        cmd = ['desktop-file-install']
-        if os.geteuid() != 0:
-            # not running as root
-            cmd.append('--dir={}'.format(local_dir))
-        cmd += ['--set-key=Exec', '--set-value={} %F'.format(exec_path)]
-        cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
-        # add translations
-        if QtCore:
-            lang_dir = os.path.join(pkg_data, 'lang')
-            translator = QtCore.QTranslator()
-            for name in os.listdir(lang_dir):
-                lang = name.split('.')[1]
-                if not translator.load(os.path.join(lang_dir, name)):
-                    print('load failed:', lang)
-                    continue
-                text = translator.translate(
-                    'MenuBar', 'Photini photo metadata editor')
-                if text:
-                    cmd += ['--set-key=GenericName[{}]'.format(lang),
-                            '--set-value={}'.format(text.strip())]
-                text = translator.translate(
-                    'MenuBar', 'An easy to use digital photograph metadata'
-                    ' (Exif, IPTC, XMP) editing application.')
-                if text:
-                    cmd += ['--set-key=Comment[{}]'.format(lang),
-                            '--set-value={}'.format(text.strip())]
-        cmd.append(os.path.join(pkg_data, 'linux', 'photini.desktop'))
-        print(' \\\n  '.join(cmd))
-        return subprocess.call(cmd)
+        import photini.linux
+        return photini.linux.post_install(
+            exec_path, icon_path, options.remove, pkg_data)
     return 0
