@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import importlib.util
 import logging
 from optparse import OptionParser
 import os
@@ -50,16 +51,10 @@ def configure(argv=None):
     default = None
     n = 0
     for package in packages:
-        # run separate python interpreter for each to avoid interactions
-        cmd = [sys.executable, '-c', '"import {}.QtCore"'.format(package)]
-        if subprocess.run(' '.join(cmd), shell=True,
-                          stderr=subprocess.DEVNULL).returncode == 0:
+        if importlib.util.find_spec(package):
             status = 'installed'
             # check for QtWebEngine
-            cmd = [sys.executable,
-                   '-c', '"import {}.QtWebEngineWidgets"'.format(package)]
-            if subprocess.run(' '.join(cmd), shell=True,
-                              stderr=subprocess.DEVNULL).returncode == 0:
+            if importlib.util.find_spec(package + '.QtWebEngineWidgets'):
                 installed.append(package)
             else:
                 status += ', WebEngine not installed'
