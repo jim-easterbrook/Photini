@@ -26,7 +26,7 @@ from photini._version import version as photini_version
 from photini.ffmpeg import ffmpeg_version
 from photini.exiv2 import exiv2_version
 from photini.pyqt import (
-    catch_all, QtCore, QtSignal, QtSlot, QWebEngineProfile, QtWidgets,
+    catch_all, QtCore, QtSignal, QtSlot, QtWebEngineCore, QtWidgets,
     qt_version, width_for_text)
 from photini.spelling import spelling_version
 
@@ -39,7 +39,8 @@ def full_version_info():
     version += '\n  Python ' + sys.version
     version += '\n  ' + exiv2_version
     version += '\n  ' + qt_version
-    user_agent = QWebEngineProfile.defaultProfile().httpUserAgent()
+    user_agent = QtWebEngineCore.QWebEngineProfile.defaultProfile(
+        ).httpUserAgent()
     match = re.search(r'\sChrome/(.*)\s', user_agent)
     if match:
         version += ', chrome ' + match.group(1)

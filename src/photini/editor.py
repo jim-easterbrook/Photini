@@ -35,7 +35,7 @@ from photini.loggerwindow import full_version_info, LoggerWindow
 from photini.metadata import ImageMetadata
 from photini.photinimap import MapIconFactory
 from photini.pyqt import *
-from photini.pyqt import QtNetwork, qt_version_info, QWebEngineProfile
+from photini.pyqt import QtNetwork, qt_version_info, QtWebEngineCore
 from photini.spelling import SpellCheck
 
 try:
@@ -410,7 +410,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # initialise web engine
-        profile = QWebEngineProfile.defaultProfile()
+        profile = QtWebEngineCore.QWebEngineProfile.defaultProfile()
         logger.debug('maps user agent: %s', profile.httpUserAgent())
         profile.setCachePath(
             os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))

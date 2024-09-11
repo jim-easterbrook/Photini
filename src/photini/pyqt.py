@@ -75,9 +75,7 @@ if qt_lib == 'PySide6':
     from PySide6.QtCore import Slot as QtSlot
     from PySide6 import __version__ as PySide_version
     QtGui2 = QtGui
-    from PySide6.QtWebChannel import QWebChannel
-    from PySide6.QtWebEngineWidgets import QWebEngineView
-    from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
+    from PySide6 import QtWebChannel, QtWebEngineCore, QtWebEngineWidgets
 elif qt_lib == 'PySide2':
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
@@ -85,27 +83,23 @@ elif qt_lib == 'PySide2':
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide_version
     QtGui2 = QtWidgets
-    from PySide2.QtWebChannel import QWebChannel
-    from PySide2.QtWebEngineWidgets import (
-        QWebEnginePage, QWebEngineProfile, QWebEngineView)
+    from PySide2 import QtWebChannel, QtWebEngineWidgets
+    QtWebEngineCore = QtWebEngineWidgets
 elif qt_lib == 'PyQt6':
     from PyQt6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt6.QtCore import Qt
     from PyQt6.QtCore import pyqtSignal as QtSignal
     from PyQt6.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtGui
-    from PyQt6.QtWebChannel import QWebChannel
-    from PyQt6.QtWebEngineWidgets import QWebEngineView
-    from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
+    from PyQt6 import QtWebChannel, QtWebEngineCore, QtWebEngineWidgets
 else:
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtWidgets
-    from PyQt5.QtWebChannel import QWebChannel
-    from PyQt5.QtWebEngineWidgets import (
-        QWebEnginePage, QWebEngineProfile, QWebEngineView)
+    from PyQt5 import QtWebChannel, QtWebEngineWidgets
+    QtWebEngineCore = QtWebEngineWidgets
 
 using_pyside = 'PySide' in qt_lib
 
