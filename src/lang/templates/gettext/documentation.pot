@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.8.2.post112\n"
+"Project-Id-Version: Photini 2024.8.2.post118\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-10 17:31+0100\n"
+"POT-Creation-Date: 2024-09-11 15:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,19 +163,22 @@ msgstr ""
 msgid "Descriptive metadata"
 msgstr ""
 
-msgid "The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to edit basic information about your photographs, such as the title and description."
+msgid "The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to edit basic information about your photographs, such as the title and description. The data form is disabled until you select one or more images to edit."
 msgstr ""
 
-msgid "The data form is disabled until you select one or more images to edit. Hovering the mouse over one of the data fields displays a popup \"tooltip\" describing the sort of information to put in that field. This help text is taken from the `IPTC standard`_."
+msgid "The first thing I usually do with a new set of photographs is to set the title. Select all the images that should have the same title, then type the title in the ``Title / Object name`` text editing box. Hovering the mouse over the data field displays a popup \"tooltip\" describing the sort of information to put in that field. This help text is taken from the `IPTC standard`_."
 msgstr ""
 
-msgid "The first thing I usually do with a new set of photographs is to set the title. Select all the images that should have the same title, then type the title in the ``Title / Object name`` text editing box. Note that the title (and headline and keywords) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail). You may prefer to leave these fields blank."
+msgid "Note that the title (and headline and keywords) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail). You may prefer to leave these fields blank."
 msgstr ""
 
 msgid "The legacy IPTC-IIM standard has a maximum number of bytes for each data item. If your text has more bytes then the excess is shown underlined in blue. You can ignore this if you don't need compatibility with old software that relies on IPTC-IIM data. This warning can be turned off in Photini's :doc:`configuration <configuration>`."
 msgstr ""
 
-msgid "The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu. The word \"Château-Gontier\" is not in the British English dictionary, as indicated by the red underlining. Right-clicking on a misspelled word shows any suggested alternatives, one of which can be chosen by clicking on it."
+msgid "The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu. The word \"Château-Gontier\" is not in the British English dictionary, as indicated by the red wiggly underlining."
+msgstr ""
+
+msgid "Right-clicking on a misspelled word shows any suggested alternatives, one of which can be chosen by clicking on it."
 msgstr ""
 
 msgid "Note that all the image thumbnails now have a warning symbol (|hazard|) displayed next to them. This shows that they have unsaved metadata edits. The ``File`` menu ``Save images with new data`` item (keyboard shortcut ``Ctrl+S``) saves your edits and clears the warning symbols, as shown below. I do this frequently to avoid losing any of my work."
@@ -184,7 +187,7 @@ msgstr ""
 msgid "Now you can add more detail in the ``Headline`` and / or ``Description / Caption`` boxes. (My descriptions are usually so short that a separate headline summary isn't needed.) There are probably only one or two photographs that share the same description, so select those images first."
 msgstr ""
 
-msgid "If you select a group of images you may see ``<multiple values>`` displayed in some of the text boxes. You can right-click on the box to bring up a context menu from which you can choose a value to be copied to all the selected photographs. Very long texts are elided with ``...`` replacing some of the text."
+msgid "If you select several images you may see ``<multiple values>`` displayed in some of the text boxes. You can right-click on the box to bring up a context menu from which you can choose a value to be copied to all the selected photographs. Very long texts are elided with ``...`` replacing some of the text."
 msgstr ""
 
 msgid "The ``Alt Text (Accessibility)`` and ``Extended Description (Accessibility)`` boxes are where you describe the photograph for visually impaired users. These are a recent addition to the `IPTC standard`_ - in future image display programs and web sites should use this metadata to create their \"ALT text\" image description."
