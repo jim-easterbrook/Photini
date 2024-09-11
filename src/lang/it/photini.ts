@@ -313,6 +313,22 @@
         <source>GPS track point (unselected)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Qt package</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: restart required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restart required.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The change of Qt package will take effect when Photini is restarted.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
