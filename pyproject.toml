@@ -48,6 +48,7 @@ dependencies = [
   "pywin32 >= 302; platform_system == 'Windows'",
 ]
 dynamic = ["version"]
+requires-python = ">= 3.6"
 
 [project.optional-dependencies]
 flickr = ["photini[keyring,requests-oauthlib,requests-toolbelt]"]
@@ -66,21 +67,38 @@ requests-toolbelt = ["requests-toolbelt >= 0.9"]
 # the following are intended for use by the photini-configure script
 PyQt5 = ["PyQt5 >= 5.9", "PyQtWebEngine >= 5.12"]
 PyQt6 = [
-  "PyQt6 >= 6.2; sys_platform != 'win32' or platform_release != '7'",
-  "PyQt6-WebEngine >= 6.2; sys_platform != 'win32' or platform_release != '7'",
-  "PyQt6-Qt6 < 6.3; python_version == '3.6.*'",
-  "PyQt6-WebEngine-Qt6 < 6.3; python_version == '3.6.*'",
-  "PyQt6-Qt6 != 6.6.1; sys_platform == 'darwin'",
-  "PyQt6-WebEngine-Qt6 != 6.6.1; sys_platform == 'darwin'",
+  "photini[PyQt6-linux]; platform_system == 'Linux'",
+  "photini[PyQt6-windows]; platform_system == 'Windows'",
+  "photini[PyQt6-darwin]; platform_system == 'Darwin'",
+]
+PyQt6-linux = [
+  "PyQt6 >= 6.2;                  python_version != '3.6.*'",
+  "PyQt6-WebEngine >= 6.2;        python_version != '3.6.*'",
+  "PyQt6 >= 6.2, < 6.3;           python_version == '3.6.*'",
+  "PyQt6-Qt6 < 6.3;               python_version == '3.6.*'",
+  "PyQt6-WebEngine >= 6.2, < 6.3; python_version == '3.6.*'",
+  "PyQt6-WebEngine-Qt6 < 6.3;     python_version == '3.6.*'",
+]
+PyQt6-windows = [
+  "PyQt6 >= 6.2; platform_release != '7'",
+  "PyQt6-WebEngine >= 6.2; platform_release != '7'",
+]
+PyQt6-darwin = [
+  "PyQt6-Qt6 >= 6.2, != 6.6.1",
+  "PyQt6-WebEngine-Qt6 >= 6.2, != 6.6.1",
 ]
 PySide2 = [
   "PySide2 >= 5.11.1; python_version < '3.8'",
   "PySide2 >= 5.14; python_version >= '3.8'",
 ]
 PySide6 = [
-  "PySide6 >= 6.2; sys_platform != 'win32' or platform_release != '7'",
-  "PySide6 != 6.6.1; sys_platform == 'darwin'",
+  "photini[PySide6-linux]; platform_system == 'Linux'",
+  "photini[PySide6-windows]; platform_system == 'Windows'",
+  "photini[PySide6-darwin]; platform_system == 'Darwin'",
 ]
+PySide6-linux = ["PySide6 >= 6.2"]
+PySide6-windows = ["PySide6 >= 6.2; platform_release != '7'"]
+PySide6-darwin = ["PySide6 >= 6.2, != 6.6.1"]
 gpxpy = ["gpxpy >= 1.3.5, != 1.6.0"]
 Pillow = []
 
