@@ -81,7 +81,7 @@ It is already installed on many computers, but on Windows you will probably need
 
         .. image:: ../images/screenshot_092.png
 
-        * Install for all users: this is essential if you'd like to share one installation of Photini between two or more users. I also recommend it for single users as it helps keep your Python installation separate from your Photini installation.
+        * Install for all users: this is almost essential if you'd like to share one installation of Photini between two or more users. I also recommend it for single users as it helps keep your Python installation separate from your Photini installation.
         * Associate files with Python: recommended.
         * Create shortcuts for installed applications: optional.
         * Add Python to environment variables: I don't recommend this. The py launcher (previous screen) is a cleaner way to run Python than adding things to your PATH environment variable.
@@ -170,14 +170,16 @@ I use the name ``photini`` and create it in my home directory:
             (photini) C:\Users\Jim>python -m pip install -U pip
             Requirement already satisfied: pip in c:\users\jim\photini\lib\site-packages (21.1.1)
             Collecting pip
-              Downloading pip-23.3.1-py3-none-any.whl (2.1 MB)
-                 |████████████████████████████████| 2.1 MB 327 kB/s
+              Downloading pip-24.2-py3-none-any.whl (1.8 MB)
+                 |████████████████████████████████| 1.8 MB 1.7 MB/s
             Installing collected packages: pip
               Attempting uninstall: pip
                 Found existing installation: pip 21.1.1
                 Uninstalling pip-21.1.1:
                   Successfully uninstalled pip-21.1.1
-            Successfully installed pip-23.3.1
+            Successfully installed pip-24.2
+
+            (photini) C:\Users\Jim>
 
         Note that after activating the virtual environment the ``py`` command is not needed.
         Python, pip, and other Python based commands are run directly.
@@ -226,43 +228,45 @@ Firstly install Photini with pip_:
 
         (photini) C:\Users\Jim>pip install photini
         Collecting photini
-          Downloading Photini-2023.10.0-py3-none-any.whl.metadata (10 kB)
+          Downloading Photini-2024.8.2-py3-none-any.whl.metadata (11 kB)
         Collecting appdirs>=1.3 (from photini)
-          Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
+          Downloading appdirs-1.4.4-py2.py3-none-any.whl.metadata (9.0 kB)
         Collecting cachetools>=3.0 (from photini)
-          Downloading cachetools-5.3.2-py3-none-any.whl.metadata (5.2 kB)
+          Downloading cachetools-5.5.0-py3-none-any.whl.metadata (5.3 kB)
         Collecting chardet>=3.0 (from photini)
           Downloading chardet-5.2.0-py3-none-any.whl.metadata (3.4 kB)
-        Collecting exiv2>=0.14 (from photini)
-          Downloading exiv2-0.14.1-cp38-cp38-win_amd64.whl.metadata (7.6 kB)
+        Collecting exiv2>=0.16 (from photini)
+          Downloading exiv2-0.17.0-cp38-cp38-win_amd64.whl.metadata (7.3 kB)
+        Collecting filetype>=1.0 (from photini)
+          Downloading filetype-1.2.0-py2.py3-none-any.whl.metadata (6.5 kB)
+        Collecting Pillow>=2.0 (from photini)
+          Downloading pillow-10.4.0-cp38-cp38-win_amd64.whl.metadata (9.3 kB)
         Collecting requests>=2.4 (from photini)
-          Downloading requests-2.31.0-py3-none-any.whl.metadata (4.6 kB)
+          Downloading requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
         Collecting charset-normalizer<4,>=2 (from requests>=2.4->photini)
-          Downloading charset_normalizer-3.3.1-cp38-cp38-win_amd64.whl.metadata (33 kB)
+          Downloading charset_normalizer-3.3.2-cp38-cp38-win_amd64.whl.metadata (34 kB)
         Collecting idna<4,>=2.5 (from requests>=2.4->photini)
-          Downloading idna-3.4-py3-none-any.whl (61 kB)
-             -------------------------------------- 61.5/61.5 kB 205.2 kB/s eta 0:00:00
+          Downloading idna-3.8-py3-none-any.whl.metadata (9.9 kB)
         Collecting urllib3<3,>=1.21.1 (from requests>=2.4->photini)
-          Downloading urllib3-2.0.7-py3-none-any.whl.metadata (6.6 kB)
+          Downloading urllib3-2.2.2-py3-none-any.whl.metadata (6.4 kB)
         Collecting certifi>=2017.4.17 (from requests>=2.4->photini)
-          Downloading certifi-2023.7.22-py3-none-any.whl.metadata (2.2 kB)
-        Downloading Photini-2023.10.0-py3-none-any.whl (382 kB)
-           -------------------------------------- 382.4/382.4 kB 540.9 kB/s eta 0:00:00
-        Downloading cachetools-5.3.2-py3-none-any.whl (9.3 kB)
+          Downloading certifi-2024.8.30-py3-none-any.whl.metadata (2.2 kB)
+        Downloading Photini-2024.8.2-py3-none-any.whl (418 kB)
+        Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
+        Downloading cachetools-5.5.0-py3-none-any.whl (9.5 kB)
         Downloading chardet-5.2.0-py3-none-any.whl (199 kB)
-           -------------------------------------- 199.4/199.4 kB 483.7 kB/s eta 0:00:00
-        Downloading exiv2-0.14.1-cp38-cp38-win_amd64.whl (1.8 MB)
-           ---------------------------------------- 1.8/1.8 MB 884.3 kB/s eta 0:00:00
-        Downloading requests-2.31.0-py3-none-any.whl (62 kB)
-           ---------------------------------------- 62.6/62.6 kB 239.0 kB/s eta 0:00:00
-        Downloading certifi-2023.7.22-py3-none-any.whl (158 kB)
-           -------------------------------------- 158.3/158.3 kB 430.5 kB/s eta 0:00:00
-        Downloading charset_normalizer-3.3.1-cp38-cp38-win_amd64.whl (97 kB)
-           ---------------------------------------- 98.0/98.0 kB 373.4 kB/s eta 0:00:00
-        Downloading urllib3-2.0.7-py3-none-any.whl (124 kB)
-           -------------------------------------- 124.2/124.2 kB 430.1 kB/s eta 0:00:00
-        Installing collected packages: exiv2, appdirs, urllib3, idna, charset-normalizer, chardet, certifi, cachetools, requests, photini
-        Successfully installed appdirs-1.4.4 cachetools-5.3.2 certifi-2023.7.22 chardet-5.2.0 charset-normalizer-3.3.1 exiv2-0.14.1 idna-3.4 photini-2023.10.0 requests-2.31.0 urllib3-2.0.7
+        Downloading exiv2-0.17.0-cp38-cp38-win_amd64.whl (8.5 MB)
+           ---------------------------------------- 8.5/8.5 MB 924.2 kB/s eta 0:00:00
+        Downloading filetype-1.2.0-py2.py3-none-any.whl (19 kB)
+        Downloading pillow-10.4.0-cp38-cp38-win_amd64.whl (2.6 MB)
+           ---------------------------------------- 2.6/2.6 MB 900.1 kB/s eta 0:00:00
+        Downloading requests-2.32.3-py3-none-any.whl (64 kB)
+        Downloading certifi-2024.8.30-py3-none-any.whl (167 kB)
+        Downloading charset_normalizer-3.3.2-cp38-cp38-win_amd64.whl (99 kB)
+        Downloading idna-3.8-py3-none-any.whl (66 kB)
+        Downloading urllib3-2.2.2-py3-none-any.whl (121 kB)
+        Installing collected packages: filetype, exiv2, appdirs, urllib3, Pillow, idna, charset-normalizer, chardet, certifi, cachetools, requests, photini
+        Successfully installed Pillow-10.4.0 appdirs-1.4.4 cachetools-5.5.0 certifi-2024.8.30 chardet-5.2.0 charset-normalizer-3.3.2 exiv2-0.17.0 filetype-1.2.0 idna-3.8 photini-2024.8.2 requests-2.32.3 urllib3-2.2.2
 
 Photini's optional dependencies can be included in the installation by listing them as "extras" in the pip command.
 For example, if you want to be able to upload to Flickr and Ipernity:
@@ -316,44 +320,46 @@ Now run the ``photini-configure`` command to choose which Qt package to use.
         Which Qt package would you like to use?
           0 PyQt5 [not installed]
           1 PySide2 [not installed]
-        Choose 0/1 [0]: 0
+        Choose 0/1 [1]: 0
         Would you like to upload pictures to Flickr? (y/n) [y]: n
         Would you like to upload pictures to Google Photos? (y/n) [y]: n
         Would you like to upload pictures to Ipernity? (y/n) [y]: n
         Would you like to upload pictures to Pixelfed or Mastodon? (y/n) [y]: n
         Would you like to check spelling of metadata? (y/n) [y]: n
         Would you like to import GPS track data? (y/n) [y]: n
-        Would you like to make higher quality thumbnails? (y/n) [y]: n
         c:\users\jim\photini\scripts\python.exe -m pip install photini[PyQt5]
-        Requirement already satisfied: photini[PyQt5] in c:\users\jim\photini\lib\site-packages (2023.10.0)
+        Requirement already satisfied: photini[PyQt5] in c:\users\jim\photini\lib\site-packages (2024.8.2)
         Requirement already satisfied: appdirs>=1.3 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (1.4.4)
-        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (5.3.2)
+        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (5.5.0)
         Requirement already satisfied: chardet>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (5.2.0)
-        Requirement already satisfied: exiv2>=0.14 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (0.14.1)
-        Requirement already satisfied: requests>=2.4 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (2.31.0)
+        Requirement already satisfied: exiv2>=0.16 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (0.17.0)
+        Requirement already satisfied: filetype>=1.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (1.2.0)
+        Requirement already satisfied: Pillow>=2.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (10.4.0)
+        Requirement already satisfied: requests>=2.4 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (2.32.3)
         Collecting PyQt5>=5.9 (from photini[PyQt5])
-          Downloading PyQt5-5.15.10-cp37-abi3-win_amd64.whl.metadata (2.2 kB)
+          Downloading PyQt5-5.15.11-cp38-abi3-win_amd64.whl.metadata (2.1 kB)
         Collecting PyQtWebEngine>=5.12 (from photini[PyQt5])
-          Downloading PyQtWebEngine-5.15.6-cp37-abi3-win_amd64.whl (182 kB)
-             ------------------------------------ 182.7/182.7 kB 424.7 kB/s eta 0:00:00
-        Collecting PyQt5-sip<13,>=12.13 (from PyQt5>=5.9->photini[PyQt5])
-          Downloading PyQt5_sip-12.13.0-cp38-cp38-win_amd64.whl.metadata (524 bytes)
-        Collecting PyQt5-Qt5>=5.15.2 (from PyQt5>=5.9->photini[PyQt5])
-          Downloading PyQt5_Qt5-5.15.2-py3-none-win_amd64.whl (50.1 MB)
-             -------------------------------------- 50.1/50.1 MB 952.1 kB/s eta 0:00:00
-        Collecting PyQtWebEngine-Qt5>=5.15.0 (from PyQtWebEngine>=5.12->photini[PyQt5])
-          Downloading PyQtWebEngine_Qt5-5.15.2-py3-none-win_amd64.whl (60.0 MB)
-             -------------------------------------- 60.0/60.0 MB 970.9 kB/s eta 0:00:00
-        Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (3.3.1)
-        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (3.4)
-        Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (2.0.7)
-        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (2023.7.22)
-        Downloading PyQt5-5.15.10-cp37-abi3-win_amd64.whl (6.8 MB)
-           ---------------------------------------- 6.8/6.8 MB 1.0 MB/s eta 0:00:00
-        Downloading PyQt5_sip-12.13.0-cp38-cp38-win_amd64.whl (78 kB)
-           ---------------------------------------- 78.3/78.3 kB 217.3 kB/s eta 0:00:00
+          Downloading PyQtWebEngine-5.15.7-cp38-abi3-win_amd64.whl.metadata (1.9 kB)
+        Collecting PyQt5-sip<13,>=12.15 (from PyQt5>=5.9->photini[PyQt5])
+          Downloading PyQt5_sip-12.15.0-cp38-cp38-win_amd64.whl.metadata (439 bytes)
+        Collecting PyQt5-Qt5<5.16.0,>=5.15.2 (from PyQt5>=5.9->photini[PyQt5])
+          Downloading PyQt5_Qt5-5.15.2-py3-none-win_amd64.whl.metadata (552 bytes)
+        Collecting PyQtWebEngine-Qt5<5.16.0,>=5.15.0 (from PyQtWebEngine>=5.12->photini[PyQt5])
+          Downloading PyQtWebEngine_Qt5-5.15.2-py3-none-win_amd64.whl.metadata (584 bytes)
+        Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (3.3.2)
+        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (3.8)
+        Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (2.2.2)
+        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (2024.8.30)
+        Downloading PyQt5-5.15.11-cp38-abi3-win_amd64.whl (6.9 MB)
+           ---------------------------------------- 6.9/6.9 MB 928.9 kB/s eta 0:00:00
+        Downloading PyQtWebEngine-5.15.7-cp38-abi3-win_amd64.whl (184 kB)
+        Downloading PyQt5_Qt5-5.15.2-py3-none-win_amd64.whl (50.1 MB)
+           ---------------------------------------- 50.1/50.1 MB 938.1 kB/s eta 0:00:00
+        Downloading PyQt5_sip-12.15.0-cp38-cp38-win_amd64.whl (59 kB)
+        Downloading PyQtWebEngine_Qt5-5.15.2-py3-none-win_amd64.whl (60.0 MB)
+           ---------------------------------------- 60.0/60.0 MB 939.9 kB/s eta 0:00:00
         Installing collected packages: PyQtWebEngine-Qt5, PyQt5-Qt5, PyQt5-sip, PyQt5, PyQtWebEngine
-        Successfully installed PyQt5-5.15.10 PyQt5-Qt5-5.15.2 PyQt5-sip-12.13.0 PyQtWebEngine-5.15.6 PyQtWebEngine-Qt5-5.15.2
+        Successfully installed PyQt5-5.15.11 PyQt5-Qt5-5.15.2 PyQt5-sip-12.15.0 PyQtWebEngine-5.15.7 PyQtWebEngine-Qt5-5.15.2
 
 The command asks a series of questions, then runs pip_ to install any extra dependencies that are needed, then updates your Photini configuration file.
 
@@ -533,57 +539,62 @@ Although you can run Photini from a command shell, most users would probably pre
 These can be installed with the ``photini-post-install`` command:
 
 .. tabs::
-    .. code-tab:: none Linux/MacOS
+    .. code-tab:: none Linux
 
         (photini) jim@mint:~$ photini-post-install
-        desktop-file-install \
-          --dir=/home/jim/.local/share/applications \
-          --set-key=Exec \
-          --set-value=/home/jim/photini/bin/photini %F \
-          --set-key=Icon \
-          --set-value=/home/jim/photini/lib/python3.8/site-packages/photini/data/icons/photini_48.png \
-          --set-key=GenericName[ca] \
-          --set-value=Photini editor de metadades de foto \
-          --set-key=Comment[ca] \
-          --set-value=Un editor de metadades de foto digital fàcil d'usar. \
-          --set-key=GenericName[cs] \
-          --set-value=Editor fotografických popisných údajů Photini \
-          --set-key=Comment[cs] \
-          --set-value=Snadno se používající editor popisů digitálních fotografií. \
-          --set-key=GenericName[de] \
-          --set-value=Photini-Fotometadateneditor \
-          --set-key=Comment[de] \
-          --set-value=Ein einfach zu bedienender Metadaten-Editor für digitale Bilder. \
-          --set-key=GenericName[es] \
-          --set-value=Photini editor de metadatos fotográficos \
-          --set-key=Comment[es] \
-          --set-value=Un editor de metadatos fotográficos fácil de usar. \
-          --set-key=GenericName[fr] \
-          --set-value=Éditeur de métadonnées de photos Photini \
-          --set-key=Comment[fr] \
-          --set-value=Une application d'édition des métadonnées des photographies numériques (Exif, IPTC, XMP) facile à utiliser. \
-          --set-key=GenericName[it] \
-          --set-value=Editor di metadati fotografici di Photini \
-          --set-key=Comment[it] \
-          --set-value=Un'applicazione di modifica dei metadati delle fotografie digitali (Exif, IPTC, XMP) facile da usare. \
-          --set-key=GenericName[pl] \
-          --set-value=Photini edytor metadanych zdjęcia \
-          --set-key=Comment[pl] \
-          --set-value=Łatwy w użyciu edytor metadanych fotografii cyfrowej. \
-          /home/jim/photini/lib/python3.8/site-packages/photini/data/linux/photini.desktop
+        Creating /tmp/tmpj9rn81aj/photini.desktop
+        Installing /tmp/tmpj9rn81aj/photini.desktop
+         to /home/jim/.local/share/applications
     .. code-tab:: none Windows
 
         (photini) C:\Users\Jim>photini-post-install
         Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
-        Creating C:\Users\Jim\Desktop\Photini.lnk
-        Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
-        Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Writing C:\Users\Jim\Desktop\Photini.lnk
+        Writing C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Writing C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Updating registry
+        Writing HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
+        Writing HKEY_CURRENT_USER\Software\Classes\Applications\photini.exe
+
+The ``photini-post-install`` command also sets "file associations" for some common image file types.
+This allows things like right-clicking on an image in a viewer application and selecting "open with Photini" from the context menu.
+
+MacOS
+"""""
+
+Unfortunately the ``photini-post-install`` command doesn't do anything on MacOS.
+I don't have a MacOS computer to try things out on and have no idea how to set up shortcuts and file associations on a Mac.
+If you'd like to help develop and test a solution, do get in touch with me.
+
+Localisation
+""""""""""""
+
+The ``photini-post-install`` command has a ``--language`` option that can set the language used for the description that accompaines a desktop icon (if Photini has been translated into that language).
+
+.. tabs::
+    .. code-tab:: none Linux
+
+        (photini) jim@mint:~$ photini-post-install --language fr
+        Creating /tmp/tmpbav0qrsb/photini.desktop
+        Installing /tmp/tmpbav0qrsb/photini.desktop
+         to /home/jim/.local/share/applications
+    .. code-tab:: none Windows
+
+        (photini) C:\Users\Jim>photini-post-install --language fr
+        Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
+        Writing C:\Users\Jim\Desktop\Photini.lnk
+        Writing C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Writing C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Updating registry
+        Writing HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
+        Writing HKEY_CURRENT_USER\Software\Classes\Applications\photini.exe
 
 Additional users
 ^^^^^^^^^^^^^^^^
 
 If you have installed Photini in a virtual environment then other users should be able to run the ``photini`` command using its full path.
-(On Windows you will need to share the virtual environment top level directory first.)
+(On Windows you will need to share the virtual environment top level directory first.
+Only read permission is needed.)
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
@@ -596,7 +607,7 @@ If you have installed Photini in a virtual environment then other users should b
 This is not a very convenient way to run Photini, so most users will want to add it to their start / application menu:
 
 .. tabs::
-    .. code-tab:: none Linux/MacOS
+    .. code-tab:: none Linux
 
         sarah@mint:~$ /home/jim/photini/bin/photini-post-install 
         desktop-file-install \
@@ -638,15 +649,18 @@ This is not a very convenient way to run Photini, so most users will want to add
 
         C:\Users\Sarah>..\Jim\photini\Scripts\photini-post-install.exe
         Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
-        Creating C:\Users\Sarah\Desktop\Photini.lnk
-        Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
-        Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Writing C:\Users\Sarah\Desktop\Photini.lnk
+        Writing C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Writing C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Updating registry
+        Writing HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
+        Writing HKEY_CURRENT_USER\Software\Classes\Applications\photini.exe
 
 To install Photini menu shortcuts for all users you can run the post install command as root (Linux) or in a command window run as administrator (Windows).
 It is important to use the full path to the post install command:
 
 .. tabs::
-    .. code-tab:: none Linux/MacOS
+    .. code-tab:: none Linux
 
         jim@mint:~$ sudo /home/jim/photini/bin/photini-post-install
         [sudo] password for jim:        
@@ -688,9 +702,12 @@ It is important to use the full path to the post install command:
 
         C:\Windows\system32>c:\Users\Jim\photini\Scripts\photini-post-install.exe
         Creating C:\ProgramData\Microsoft\Windows\Start Menu\Photini
-        Creating C:\Users\Public\Desktop\Photini.lnk
-        Creating C:\ProgramData\Microsoft\Windows\Start Menu\Photini\Photini.lnk
-        Creating C:\ProgramData\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Writing C:\Users\Public\Desktop\Photini.lnk
+        Writing C:\ProgramData\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Writing C:\ProgramData\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Updating registry
+        Writing HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
+        Writing HKEY_LOCAL_MACHINE\Software\Classes\Applications\photini.exe
 
 Uninstalling Photini
 ^^^^^^^^^^^^^^^^^^^^
