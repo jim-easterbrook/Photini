@@ -51,82 +51,55 @@ qt_scale_factor = config.get('pyqt', 'scale_factor', 1)
 if qt_scale_factor != 1:
     os.environ['QT_SCALE_FACTOR'] = str(qt_scale_factor)
 
-def import_PySide6():
-    global QtCore, QtGui, QtNetwork, QtWidgets
-    global Qt, QtSignal, QtSlot, PySide_version
-    global QtGui2
-    global QWebChannel, QWebEngineView, QWebEnginePage, QWebEngineProfile
+# choose Qt package
+available_packages = []
+for _lib in ('PyQt6', 'PyQt5', 'PySide6', 'PySide2'):
+    if importlib.util.find_spec(_lib):
+        if importlib.util.find_spec(_lib + '.QtWebEngineWidgets'):
+            available_packages.append(_lib)
+        else:
+            print(_lib, 'is installed without QtWebEngine')
+if not available_packages:
+    print('')
+    print('No Qt package installed. Installation instructions can be found')
+    print('at https://photini.readthedocs.io/')
+    sys.exit(1)
+if qt_lib not in available_packages:
+    qt_lib = available_packages[0]
+
+# import chosen package
+if qt_lib == 'PySide6':
     from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide6.QtCore import Qt
     from PySide6.QtCore import Signal as QtSignal
     from PySide6.QtCore import Slot as QtSlot
     from PySide6 import __version__ as PySide_version
     QtGui2 = QtGui
-    from PySide6.QtWebChannel import QWebChannel
-    from PySide6.QtWebEngineWidgets import QWebEngineView
-    from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
-
-def import_PySide2():
-    global QtCore, QtGui, QtNetwork, QtWidgets
-    global Qt, QtSignal, QtSlot, PySide_version
-    global QtGui2
-    global QWebChannel, QWebEngineView, QWebEnginePage, QWebEngineProfile
+    from PySide6 import QtWebChannel, QtWebEngineCore, QtWebEngineWidgets
+elif qt_lib == 'PySide2':
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide_version
     QtGui2 = QtWidgets
-    from PySide2.QtWebChannel import QWebChannel
-    from PySide2.QtWebEngineWidgets import (
-        QWebEnginePage, QWebEngineProfile, QWebEngineView)
-
-def import_PyQt6():
-    global QtCore, QtGui, QtNetwork, QtWidgets
-    global Qt, QtSignal, QtSlot
-    global QtGui2
-    global QWebChannel, QWebEngineView, QWebEnginePage, QWebEngineProfile
+    from PySide2 import QtWebChannel, QtWebEngineWidgets
+    QtWebEngineCore = QtWebEngineWidgets
+elif qt_lib == 'PyQt6':
     from PyQt6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt6.QtCore import Qt
     from PyQt6.QtCore import pyqtSignal as QtSignal
     from PyQt6.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtGui
-    from PyQt6.QtWebChannel import QWebChannel
-    from PyQt6.QtWebEngineWidgets import QWebEngineView
-    from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile
-
-def import_PyQt5():
-    global QtCore, QtGui, QtNetwork, QtWidgets, QWebEngineProfile
-    global Qt, QtSignal, QtSlot
-    global QtGui2
-    global QWebChannel, QWebEngineView, QWebEnginePage
+    from PyQt6 import QtWebChannel, QtWebEngineCore, QtWebEngineWidgets
+else:
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtWidgets
-    from PyQt5.QtWebChannel import QWebChannel
-    from PyQt5.QtWebEngineWidgets import (
-        QWebEnginePage, QWebEngineProfile, QWebEngineView)
-
-# choose Qt package
-_libs = ['PyQt5', 'PyQt6', 'PySide6', 'PySide2']
-if qt_lib != 'auto':
-    _libs = [qt_lib] + _libs
-for qt_lib in _libs:
-    if (importlib.util.find_spec(qt_lib) and
-        importlib.util.find_spec(qt_lib + '.QtWebEngineWidgets')):
-        break
-else:
-    qt_lib = 'PyQt5'
-
-# import chosen package
-{
-    'PyQt5': import_PyQt5,
-    'PyQt6': import_PyQt6,
-    'PySide2': import_PySide2,
-    'PySide6': import_PySide6,
-    }[qt_lib]()
+    from PyQt5 import QtWebChannel, QtWebEngineWidgets
+    QtWebEngineCore = QtWebEngineWidgets
 
 using_pyside = 'PySide' in qt_lib
 

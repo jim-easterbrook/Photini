@@ -13,13 +13,6 @@ You can use an online service (Weblate_ or Transifex_) or a suitable text editor
 Translating the program text
 ----------------------------
 
-If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically.
-For example, this is what it might look like if your computer is configured to use Spanish.
-
-.. image:: ../images/screenshot_37.png
-
-If you'd like to help by translating Photini into another language, or by improving an existing translation, this is what you need to do.
-
 .. figure:: https://hosted.weblate.org/widgets/photini/-/gui/multi-auto.svg
     :alt: Translation status
     :target: https://hosted.weblate.org/engage/photini/
@@ -27,6 +20,13 @@ If you'd like to help by translating Photini into another language, or by improv
     :align: center
 
     Translation progress so far
+
+If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically.
+For example, this is what it might look like if your computer is configured to use Spanish.
+
+.. image:: ../images/screenshot_37.png
+
+If you'd like to help by translating Photini into another language, or by improving an existing translation, then this page is for you.
 
 Online translation
 ^^^^^^^^^^^^^^^^^^
@@ -71,7 +71,7 @@ Once your language is added you can ask to join the language team and then start
 Click on your language, then click on "src..en/photini.ts (transifex)" to work on the Photini GUI strings.
 
 When you've finished working on a translation there's no need to do anything further.
-Transifex automatically pushes the translation to GitHub, where I can merge it into the main repository branch.
+When I receive a notification from Transifex I can merge the new translations into the project on GitHub.
 You might like to :ref:`test your translation <localisation-program-testing>` though.
 
 Offline translation
@@ -117,14 +117,9 @@ Formatting strings
    For example, ``File "{file_name}" has {size} bytes and exceeds {service}'s limit of {max_size} bytes.`` includes the file name & size and a size limit set by a service such as Flickr.
    You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language.
 
-Carriage returns
-   Some of Photini's buttons split their labels over two or more lines to stop the button being too wide.
-   You should split your translation in similar size pieces so it has the same number of lines.
-
-HTML markup
-   Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML markup which must be copied to your translated string.
+Not HTML markup
    Some strings such as ``<multiple values>`` are not HTML.
-   The angle brackets ``<>`` are used to indicate data with a special meaning.
+   The angle brackets ``<>`` are used to indicate text with a special meaning.
    These strings should usually be translated.
 
 Keyboard shortcuts
@@ -189,7 +184,7 @@ The documentation translation uses ``.po`` files as specified by the `GNU gettex
 You can open the translation file in any editor, but a translation tool is best.
 For example::
 
-   $ python3 utils/lang_update.py -l nl -d -q
+   $ python3 utils/lang_update.py -l nl -d
    $ pyside6-linguist src/lang/nl/LC_MESSAGES/documentation.po
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.

@@ -19,7 +19,8 @@
 import logging
 
 from photini.pyqt import (
-    catch_all, FormLayout, Qt, QtCore, QtGui, QtSlot, QtWidgets, width_for_text)
+    available_packages, catch_all, execute, FormLayout, qt_lib, QtCore, QtGui,
+    QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -173,6 +174,17 @@ class EditSettings(QtWidgets.QDialog):
                 self.iptc_always.sizeHint().height())
             self._set_map_pin_button_colour(self.map_gps[active])
             self.map_gps[active]['button'].setStyleSheet('text-align: left;')
+        # Qt package
+        self.qt_package = {}
+        if len(available_packages) > 1:
+            lhs = translate('EditSettings', 'Qt package')
+            button_group = QtWidgets.QButtonGroup(parent=self)
+            for package in available_packages:
+                self.qt_package[package] = QtWidgets.QRadioButton(package)
+                self.qt_package[package].setChecked(qt_lib == package)
+                button_group.addButton(self.qt_package[package])
+                panel.layout().addRow(lhs, self.qt_package[package])
+                lhs = ''
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
@@ -261,4 +273,19 @@ class EditSettings(QtWidgets.QDialog):
                 'map', 'gps_colour_{}'.format(active),
                 self.map_gps[active]['colour'].name())
         self.app.map_icon_factory.new_colours()
+        for package, button in self.qt_package.items():
+            if button.isChecked():
+                if package != qt_lib:
+                    self.config_store.set('pyqt', 'qt_lib', package)
+                    dialog = QtWidgets.QMessageBox(parent=self)
+                    dialog.setWindowTitle(translate(
+                        'EditSettings', 'Photini: restart required'))
+                    dialog.setText('<h3>{}</h3>'.format(translate(
+                        'EditSettings', 'Restart required.')))
+                    dialog.setInformativeText(translate(
+                        'EditSettings', 'The change of Qt package will take'
+                        ' effect when Photini is restarted.'))
+                    dialog.setIcon(dialog.Icon.Information)
+                    execute(dialog)
+                    break
         return self.accept()

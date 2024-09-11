@@ -29,8 +29,8 @@ import PIL.Image, PIL.ImageDraw
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
-from photini.pyqt import (
-    QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, qt_version_info)
+from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
+                          QtWebEngineWidgets, qt_version_info)
 from photini.widgets import AltitudeDisplay, ComboBox, Label, LatLongDisplay
 
 
@@ -187,13 +187,13 @@ class CallHandler(QtCore.QObject):
         self.parent().marker_drop(lat, lng)
 
 
-class MapWebPage(QWebEnginePage):
+class MapWebPage(QtWebEngineCore.QWebEnginePage):
     def __init__(self, *args, call_handler=None, transient=False, **kwds):
         super(MapWebPage, self).__init__(*args, **kwds)
         self.call_handler = call_handler
         self.transient = transient
         if self.call_handler:
-            self.web_channel = QWebChannel(parent=self)
+            self.web_channel = QtWebChannel.QWebChannel(parent=self)
             self.setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
         self.local_links = False
@@ -229,7 +229,7 @@ class MapWebPage(QWebEnginePage):
         logger.log(level, '%s line %d: %s', source, line, msg)
 
 
-class MapWebView(QWebEngineView):
+class MapWebView(QtWebEngineWidgets.QWebEngineView):
     drop_text = QtSignal(int, int, str)
 
     def __init__(self, call_handler, *args, **kwds):
