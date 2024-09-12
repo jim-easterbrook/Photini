@@ -37,6 +37,7 @@ The entire region can be dragged by clicking within it.
 .. image:: ../images/screenshot_275.png
 
 This is made easier if you zoom in by holding down the ``Ctrl`` key while scrolling with the mouse scroll wheel.
+(The zoom can also be adjusted with ``Ctrl-Plus`` and ``Ctrl-Minus`` key combinations.)
 
 .. image:: ../images/screenshot_276.png
 
