@@ -1028,7 +1028,7 @@ class RegionTabs(QtWidgets.QTabWidget):
         md.image_region = md.image_region.new_region(region, idx)
         if key == 'Iptc4xmpExt:rRole':
             # aspect ratio constraint may have changed
-            self.new_regions.emit(idx, md.image_region)
+            self.new_regions.emit(idx, list(md.image_region))
 
 
 class TabWidget(QtWidgets.QWidget):

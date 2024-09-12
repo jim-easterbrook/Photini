@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.8.2.post118\n"
+"Project-Id-Version: Photini 2024.8.2.post121\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-11 15:55+0100\n"
+"POT-Creation-Date: 2024-09-12 09:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -865,7 +865,7 @@ msgstr ""
 msgid "The small squares at each corner of the rectangle can be dragged to change the size and shape. The entire region can be dragged by clicking within it."
 msgstr ""
 
-msgid "This is made easier if you zoom in by holding down the ``Ctrl`` key while scrolling with the mouse scroll wheel."
+msgid "This is made easier if you zoom in by holding down the ``Ctrl`` key while scrolling with the mouse scroll wheel. (The zoom can also be adjusted with ``Ctrl-Plus`` and ``Ctrl-Minus`` key combinations.)"
 msgstr ""
 
 msgid "The most important metadata for a region is probably its \"role_\". This is chosen from a \"controlled vocabulary\" defined by the IPTC. Photini shows the IPTC names and definitions (as \"tooltips\") in a drop down menu when you click on the ``Role`` entry. You can select one or more roles from the list."
