@@ -79,7 +79,8 @@ class BuildLang(Command):
 
     def run(self):
         self.announce('running build_lang')
-        self.tools = ['lrelease6', 'pyside6-lrelease', 'lrelease-qt5']
+        self.tools = ['lrelease', 'lrelease6', 'pyside6-lrelease',
+                      'lrelease-qt5']
         self.mkpath(self.output_dir)
         self.mkpath(self.build_temp)
         numerus_count = {'cs': 3, 'es': 2, 'fr': 2, 'it': 2, 'pl': 3}

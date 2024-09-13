@@ -590,17 +590,18 @@ def main(argv=None):
     if 'en' not in langs:
         langs += ['en']
     installed = []
-    for lang in reversed(langs):
-        if lang in installed:
-            continue
-        file = os.path.join(lang_dir, 'photini.{}.qm'.format(lang))
-        if not os.path.isfile(file):
-            file = os.path.join(lang_dir, 'photini.{}.qm'.format(lang.lower()))
+    # create translators in language preference order
+    translators = []
+    for lang in langs:
         translator = QtCore.QTranslator()
-        if os.path.isfile(file) and translator.load(file):
-            translator.setParent(app)
-            app.installTranslator(translator)
-            installed.append(lang)
+        if (translator.load('photini.' + lang, lang_dir)
+                and translator.language()
+                not in [x.language() for x in translators]):
+            translators.append(translator)
+    # load translators in reverse order, so preferred language is used first
+    for translator in reversed(translators):
+        translator.setParent(app)
+        app.installTranslator(translator)
     # parse remaining arguments
     version = full_version_info()
     parser = OptionParser(

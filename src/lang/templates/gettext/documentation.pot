@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.8.2.post121\n"
+"Project-Id-Version: Photini 2024.8.2.post126\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-12 09:35+0100\n"
+"POT-Creation-Date: 2024-09-13 10:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1462,19 +1462,13 @@ msgstr ""
 msgid "Python should already be installed, but make sure you have Python |nbsp| 3. Open a terminal window and run the ``python3`` command::"
 msgstr ""
 
-msgid "Note that the command is ``python3``. On many machines the ``python`` command still runs Python |nbsp| 2. If you do not have Python |nbsp| 3 installed then use your operating system's package manager to install it."
+msgid "Note that the command is ``python3``. On some machines the ``python`` command still runs Python |nbsp| 2. If you do not have Python |nbsp| 3 installed then use your operating system's package manager to install it."
 msgstr ""
 
 msgid "You should also check what version of pip_ is installed::"
 msgstr ""
 
-msgid "Most Linux systems suppress pip's normal version check, but I recommend upgrading pip anyway::"
-msgstr ""
-
-msgid "Note that pip has installed the new version in ``/home/jim/.local`` as normal users can't write to ``/usr``. (Don't be tempted to get round this by using ``sudo`` to run pip. ``/usr/lib/python3/dist-packages`` should only be written by the operating system's package manager.) You may need to log out and then log in again to update your PATH settings. (On some Linux distributions you can simply run ``source ~/.profile`` instead of logging out & in.)"
-msgstr ""
-
-msgid "Running ``pip --version`` again shows the new version::"
+msgid "Although pip_ is a Python package manager it should not be used to install packges under ``/usr/lib/``. This system directory should only be used by the operating system's package manager. With recent Python and pip versions you have to use a virtual environment to install other packages such as Photini."
 msgstr ""
 
 msgid "Windows"
@@ -1543,10 +1537,10 @@ msgstr ""
 msgid "Installing Photini"
 msgstr ""
 
-msgid "Before installing Photini you need to decide if you are installing it for a single user or for multiple users. Multi-user installations use a Python `virtual environment`_ to create a self contained installation that can easily be shared. Using a virtual environment has other advantages, such as easy uninstallation, so I recommend using it for a single user installation."
+msgid "Before installing Photini you need to decide if you are installing it for a single user or for multiple users. Multi-user installations use a Python `virtual environment`_ to create a self contained installation that can easily be shared. Using a virtual environment has other advantages, such as easy uninstallation, so I also recommend using it for a single user installation."
 msgstr ""
 
-msgid "Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager. For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_. All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 / PySide2 / PyQt6 / PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins, and so that you get the same GUI style as other Qt based applications."
+msgid "Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager. For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_. All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 / PySide2 / PyQt6 / PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins, and so that you get the same GUI style as other Qt based applications. (Don't forget to install the QtWebEngine stuff as well if it's in a seaprate package.)"
 msgstr ""
 
 msgid "Virtual environment"
@@ -1555,10 +1549,13 @@ msgstr ""
 msgid "If you are using a virtual environment you should set it up now. You can create a virtual environment in any writeable directory. I use the name ``photini`` and create it in my home directory:"
 msgstr ""
 
-msgid "The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment. Note that pip may need to be updated again from within the virtual environment."
+msgid "The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PyQt6) available within the virtual environment."
 msgstr ""
 
-msgid "Note that after activating the virtual environment the ``py`` command is not needed. Python, pip, and other Python based commands are run directly. After creating the virtual environment you should update ``pip`` as shown above. This ensures that the latest version will be used to install Photini."
+msgid "Note that after activating the virtual environment the ``py`` command is not needed. Python, pip, and other Python based commands are run directly."
+msgstr ""
+
+msgid "After creating the virtual environment you should update ``pip`` as shown above. This ensures that the latest version will be used to install Photini."
 msgstr ""
 
 msgid "You should stay in this virtual environment while installing and testing Photini. After that Photini can be run without activating the virtual environment."
@@ -1570,28 +1567,67 @@ msgstr ""
 msgid "Photini uses the Qt_ Framework for its graphical user interface. There are two current versions of Qt (Qt5 and Qt6) and each has two Python interfaces (PyQt and PySide). Hence there are four Python Qt packages - PyQt5, PyQt6, PySide2, and PySide6. Photini works with any one of these, but there isn't one of them that works on all platforms. For example, Qt6 does not work on Windows versions earlier than Windows |nbsp| 10."
 msgstr ""
 
-msgid "After installing Photini the ``photini-configure`` command can be used to choose a Qt package. This allows you to try each until you find one that works satisfactorily on your computer."
+msgid "I recommend PyQt rather than PySide, and Qt6 rather than Qt5. However, if your operating system already has one of the packages installed then there's probably no reason to use any other."
+msgstr ""
+
+msgid "If you install more than one Qt package you can choose which one Photini uses in its :doc:`configuration <../manual/configuration>`. This allows you to try each until you find one that works satisfactorily on your computer."
+msgstr ""
+
+msgid "\"Extras\""
+msgstr ""
+
+msgid "Photini has a number of optional extras that can be installed with pip_. These are:"
+msgstr ""
+
+msgid "flickr: Enable uploading pictures to Flickr_."
+msgstr ""
+
+msgid "google: Enable uploading pictures to `Google Photos`_."
+msgstr ""
+
+msgid "ipernity: Enable uploading pictures to Ipernity_."
+msgstr ""
+
+msgid "pixelfed: Enable uploading pictures to Pixelfed_ or Mastodon_."
+msgstr ""
+
+msgid "importer: Import photos directly from a camera (not available on Windows)."
+msgstr ""
+
+msgid "spelling: Install a spell checker for Photini's text entry fields."
+msgstr ""
+
+msgid "gpxpy: Allow importing of GPS data from a phone tracking app or similar."
+msgstr ""
+
+msgid "all: All of the above."
+msgstr ""
+
+msgid "You can also choose to install one or more Qt packages:"
+msgstr ""
+
+msgid "pyqt5"
+msgstr ""
+
+msgid "pyqt6"
+msgstr ""
+
+msgid "pyside2"
+msgstr ""
+
+msgid "pyside6"
+msgstr ""
+
+msgid "The extras are listed in square brackets when running pip_. For example::"
+msgstr ""
+
+msgid "Note that the extras' names are not case sensitive."
 msgstr ""
 
 msgid "Initial installation"
 msgstr ""
 
-msgid "Firstly install Photini with pip_:"
-msgstr ""
-
-msgid "Photini's optional dependencies can be included in the installation by listing them as \"extras\" in the pip command. For example, if you want to be able to upload to Flickr and Ipernity:"
-msgstr ""
-
-msgid "Note that the extras' names are not case-sensitive."
-msgstr ""
-
-msgid "You can install all of Photini's optional dependencies by adding an ``all`` extra. You can also install any of the Qt packages as extras:"
-msgstr ""
-
-msgid "Now run the ``photini-configure`` command to choose which Qt package to use. (The Windows example is running Windows |nbsp| 7, so PyQt6 and PySide6 are not available):"
-msgstr ""
-
-msgid "The command asks a series of questions, then runs pip_ to install any extra dependencies that are needed, then updates your Photini configuration file."
+msgid "Firstly install Photini and any required extras with pip_. Make sure you include at least one Qt package:"
 msgstr ""
 
 msgid "Test the installation"
@@ -1612,13 +1648,13 @@ msgstr ""
 msgid "Optional dependencies"
 msgstr ""
 
-msgid "Most of the dependencies required for Photini's optional features can also be installed with ``photini-configure``. Default answers are given in square brackets:"
+msgid "If you'd like to add any of the \"extras\" listed earlier to your Photini installation, you just need to run pip_ again:"
 msgstr ""
 
 msgid "Photini's spelling checker may require some other files to be installed. See the `pyenchant documentation`_ for platform specific instructions."
 msgstr ""
 
-msgid "One optional dependency that cannot be installed with pip_ or ``photini-configure`` is FFmpeg_. This is used to read metadata from video files. Linux & MacOS users can install it with the system package manager, but installing it on Windows is non-trivial."
+msgid "One optional dependency that cannot be installed with pip_ is FFmpeg_. This is used to read metadata from video files. Linux & MacOS users can install it with the system package manager, but installing it on Windows is non-trivial."
 msgstr ""
 
 msgid "Start menu / application menu"
@@ -1639,7 +1675,7 @@ msgstr ""
 msgid "Localisation"
 msgstr ""
 
-msgid "The ``photini-post-install`` command has a ``--language`` option that can set the language used for the description that accompaines a desktop icon (if Photini has been translated into that language)."
+msgid "The ``photini-post-install`` command has an option ``--language`` (or ``-l``) that can set the language used for the description that accompaines a desktop icon (if Photini has been translated into that language)."
 msgstr ""
 
 msgid "Additional users"
@@ -1651,7 +1687,7 @@ msgstr ""
 msgid "This is not a very convenient way to run Photini, so most users will want to add it to their start / application menu:"
 msgstr ""
 
-msgid "To install Photini menu shortcuts for all users you can run the post install command as root (Linux) or in a command window run as administrator (Windows). It is important to use the full path to the post install command:"
+msgid "To install Photini menu shortcuts for all users (not recommended) you can run the post install command as root (Linux) or in a command window run as administrator (Windows). It is important to use the full path to the post install command:"
 msgstr ""
 
 msgid "Uninstalling Photini"
@@ -1795,10 +1831,10 @@ msgstr ""
 msgid "requests"
 msgstr ""
 
-msgid "[1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI framework. Photini can use any of them (although PyQt is preferred), so you can install whichever one you prefer that is available for your operating system. (Note that PyQt6 and PySide6 are not compatible with Windows versions earlier than Windows 10.) If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>` or by running ``photini-configure``."
+msgid "[1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI framework. Photini can use any of them (although PyQt is preferred), so you can install whichever one you prefer that is available for your operating system. (Note that PyQt6 and PySide6 are not compatible with Windows versions earlier than Windows 10.) If more than one of them is installed you can choose which one Photini uses in its :doc:`configuration <../manual/configuration>`"
 msgstr ""
 
-msgid "[2] Photini needs the Python interface to QtWebEngine_. This is included in PySide6_ and some PyQt_ or PySide2_ installations, otherwise you need to install a separate package. The ``photini-configure`` command will tell you if it's missing."
+msgid "[2] Photini needs the Python interface to QtWebEngine_. This is included in PySide6_ and some PyQt_ or PySide2_ installations, otherwise you need to install a separate package."
 msgstr ""
 
 msgid "Some of Photini's features are optional - if you don't install these packages Photini will work but the relevant feature will not be available. Linux package manager names will probably have ``python-`` or ``python3-`` prefixes."
@@ -1894,10 +1930,7 @@ msgstr ""
 msgid "Troubleshooting"
 msgstr ""
 
-msgid "If you ever have problems running Photini the first thing to do is to run it in a command window. If you installed Photini in a `virtual environment`_ then activate that environment, for example:"
-msgstr ""
-
-msgid "Start the Photini program as follows. If it fails to run you should get some diagnostic information:"
+msgid "If you ever have problems running Photini the first thing to do is to run it in a command window. If you installed Photini in a `virtual environment`_ then activate that environment first. Run the Photini program as a Python module. If it fails to run you should get some diagnostic information:"
 msgstr ""
 
 msgid "Note the use of the ``-v`` option to increase the verbosity of Photini's message logging. This option can be repeated for even more verbosity."
