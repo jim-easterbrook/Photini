@@ -589,16 +589,23 @@ def main(argv=None):
     # always have English translation as a fallback (to get correct plurals)
     if 'en' not in langs:
         langs += ['en']
-    installed = []
     # create translators in language preference order
     translators = []
+    if qt_version_info < (5, 15):
+        loaded = []
     for lang in langs:
         translator = QtCore.QTranslator()
-        if (translator.load('photini.' + lang, lang_dir)
-                and translator.language()
-                not in [x.language() for x in translators]):
-            translators.append(translator)
-    # load translators in reverse order, so preferred language is used first
+        if translator.load('photini.' + lang, lang_dir):
+            if qt_version_info < (5, 15):
+                lang = lang.split('_')[0]
+                if lang not in loaded:
+                    loaded.append(lang)
+                    translators.append(translator)
+            else:
+                if translator.language() not in [
+                        x.language() for x in translators]:
+                    translators.append(translator)
+    # install translators in reverse order, so preferred language is used first
     for translator in reversed(translators):
         translator.setParent(app)
         app.installTranslator(translator)
