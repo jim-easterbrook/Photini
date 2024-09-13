@@ -24,40 +24,30 @@ It is already installed on many computers, but on Windows you will probably need
         Python should already be installed, but make sure you have Python |nbsp| 3.
         Open a terminal window and run the ``python3`` command::
 
-            jim@mint:~$ python3 -V
-            Python 3.8.10
+            jim@mint22:~$ python3 -V
+            Python 3.12.3
 
         Note that the command is ``python3``.
-        On many machines the ``python`` command still runs Python |nbsp| 2.
+        On some machines the ``python`` command still runs Python |nbsp| 2.
         If you do not have Python |nbsp| 3 installed then use your operating system's package manager to install it.
 
         You should also check what version of pip_ is installed::
 
-            jim@mint:~$ pip3 --version
-            pip 20.0.2 from /usr/lib/python3/dist-packages/pip (python 3.8)
+            jim@mint22:~$ pip3 show pip
+            Name: pip
+            Version: 24.0
+            Summary: The PyPA recommended tool for installing Python packages.
+            Home-page: 
+            Author: 
+            Author-email: The pip developers <distutils-sig@python.org>
+            License: MIT
+            Location: /usr/lib/python3/dist-packages
+            Requires: 
+            Required-by: 
 
-        Most Linux systems suppress pip's normal version check, but I recommend upgrading pip anyway::
-
-            jim@mint:~$ python3 -m pip install -U pip
-            Collecting pip
-              Downloading pip-23.1.2-py3-none-any.whl (2.1 MB)
-                 |████████████████████████████████| 2.1 MB 755 kB/s 
-            Installing collected packages: pip
-              WARNING: The scripts pip, pip3, pip3.10 and pip3.8 are installed in '/home/jim/.local/bin' which is not on PATH.
-              Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
-            Successfully installed pip-23.1.2
-
-        Note that pip has installed the new version in ``/home/jim/.local`` as normal users can't write to ``/usr``.
-        (Don't be tempted to get round this by using ``sudo`` to run pip.
-        ``/usr/lib/python3/dist-packages`` should only be written by the operating system's package manager.)
-        You may need to log out and then log in again to update your PATH settings.
-        (On some Linux distributions you can simply run ``source ~/.profile`` instead of logging out & in.)
-
-        Running ``pip --version`` again shows the new version::
-
-            jim@mint:~$ pip --version
-            pip 23.1.2 from /home/jim/.local/lib/python3.8/site-packages/pip (python 3.8)
-
+        Although pip_ is a Python package manager it should not be used to install packges under ``/usr/lib/``.
+        This system directory should only be used by the operating system's package manager.
+        With recent Python and pip versions you have to use a virtual environment to install other packages such as Photini.
 
     .. group-tab:: Windows
 
@@ -117,7 +107,7 @@ It is already installed on many computers, but on Windows you will probably need
 
         If you install packages with ``pip`` as a normal user (i.e. without administrator privileges) it will put them under your "roaming" application data directory, e.g. ``c:\users\jim\appdata\roaming\python\python38\site-packages``.
         I think this is a curious choice of location and strongly recommend using a "virtual environment" to install Photini and its dependencies in your choice of location.
-        
+
         The following instructions assume a virtual environment is in use and activated.
         If you don't use a virtual environment then replace ``python`` with ``py`` and ``pip`` with ``py -m pip``.
 
@@ -126,11 +116,12 @@ Installing Photini
 
 Before installing Photini you need to decide if you are installing it for a single user or for multiple users.
 Multi-user installations use a Python `virtual environment`_ to create a self contained installation that can easily be shared.
-Using a virtual environment has other advantages, such as easy uninstallation, so I recommend using it for a single user installation.
+Using a virtual environment has other advantages, such as easy uninstallation, so I also recommend using it for a single user installation.
 
 Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager.
 For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_.
 All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 / PySide2 / PyQt6 / PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins, and so that you get the same GUI style as other Qt based applications.
+(Don't forget to install the QtWebEngine stuff as well if it's in a seaprate package.)
 
 Virtual environment
 ^^^^^^^^^^^^^^^^^^^
@@ -144,20 +135,22 @@ I use the name ``photini`` and create it in my home directory:
 
         ::
 
-            jim@mint:~$ python3 -m venv photini --system-site-packages
-            jim@mint:~$ source photini/bin/activate
-            (photini) jim@mint:~$ python3 -m pip install -U pip
+            jim@mint22:~$ python3 -m venv photini --system-site-packages
+            jim@mint22:~$ source photini/bin/activate
+            (photini) jim@mint22:~$ python -m pip install -U pip
+            Requirement already satisfied: pip in ./photini/lib/python3.12/site-packages (24.0)
             Collecting pip
-              Using cached pip-23.1.2-py3-none-any.whl (2.1 MB)
+              Downloading pip-24.2-py3-none-any.whl.metadata (3.6 kB)
+            Downloading pip-24.2-py3-none-any.whl (1.8 MB)
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 694.4 kB/s eta 0:00:00
             Installing collected packages: pip
               Attempting uninstall: pip
-                Found existing installation: pip 20.0.2
-                Uninstalling pip-20.0.2:
-                  Successfully uninstalled pip-20.0.2
-            Successfully installed pip-23.1.2
+                Found existing installation: pip 24.0
+                Uninstalling pip-24.0:
+                  Successfully uninstalled pip-24.0
+            Successfully installed pip-24.2
 
-        The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment.
-        Note that pip may need to be updated again from within the virtual environment.
+        The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PyQt6) available within the virtual environment.
 
     .. group-tab:: Windows
 
@@ -179,12 +172,11 @@ I use the name ``photini`` and create it in my home directory:
                   Successfully uninstalled pip-21.1.1
             Successfully installed pip-24.2
 
-            (photini) C:\Users\Jim>
-
         Note that after activating the virtual environment the ``py`` command is not needed.
         Python, pip, and other Python based commands are run directly.
-        After creating the virtual environment you should update ``pip`` as shown above.
-        This ensures that the latest version will be used to install Photini.
+
+After creating the virtual environment you should update ``pip`` as shown above.
+This ensures that the latest version will be used to install Photini.
 
 You should stay in this virtual environment while installing and testing Photini.
 After that Photini can be run without activating the virtual environment.
@@ -198,170 +190,147 @@ Hence there are four Python Qt packages - PyQt5, PyQt6, PySide2, and PySide6.
 Photini works with any one of these, but there isn't one of them that works on all platforms.
 For example, Qt6 does not work on Windows versions earlier than Windows |nbsp| 10.
 
-After installing Photini the ``photini-configure`` command can be used to choose a Qt package.
+I recommend PyQt rather than PySide, and Qt6 rather than Qt5.
+However, if your operating system already has one of the packages installed then there's probably no reason to use any other.
+
+If you install more than one Qt package you can choose which one Photini uses in its :doc:`configuration <../manual/configuration>`.
 This allows you to try each until you find one that works satisfactorily on your computer.
+
+"Extras"
+^^^^^^^^
+
+Photini has a number of optional extras that can be installed with pip_.
+These are:
+
+* flickr: Enable uploading pictures to Flickr_.
+* google: Enable uploading pictures to `Google Photos`_.
+* ipernity: Enable uploading pictures to Ipernity_.
+* pixelfed: Enable uploading pictures to Pixelfed_ or Mastodon_.
+* importer: Import photos directly from a camera (not available on Windows).
+* spelling: Install a spell checker for Photini's text entry fields.
+* gpxpy: Allow importing of GPS data from a phone tracking app or similar.
+* all: All of the above.
+
+You can also choose to install one or more Qt packages:
+
+* pyqt5
+* pyqt6
+* pyside2
+* pyside6
+
+The extras are listed in square brackets when running pip_.
+For example::
+
+    pip install photini[pyqt6,spelling,gpxpy]
+
+Note that the extras' names are not case sensitive.
 
 Initial installation
 ^^^^^^^^^^^^^^^^^^^^
 
-Firstly install Photini with pip_:
+Firstly install Photini and any required extras with pip_.
+Make sure you include at least one Qt package:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        (photini) jim@mint:~$ pip3 install photini
-        Collecting photini
-          Downloading Photini-2023.7.0-py3-none-any.whl (381 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 381.9/381.9 kB 561.1 kB/s eta 0:00:00
-        Collecting appdirs>=1.3 (from photini)
-          Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
-        Collecting cachetools>=3.0 (from photini)
-          Downloading cachetools-5.3.1-py3-none-any.whl (9.3 kB)
-        Requirement already satisfied: chardet>=3.0 in /usr/lib/python3/dist-packages (from photini) (3.0.4)
-        Collecting exiv2>=0.14 (from photini)
-          Downloading exiv2-0.14.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (7.8 MB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.8/7.8 MB 703.9 kB/s eta 0:00:00
-        Requirement already satisfied: requests>=2.4 in /usr/lib/python3/dist-packages (from photini) (2.22.0)
-        Installing collected packages: exiv2, appdirs, cachetools, photini
-        Successfully installed appdirs-1.4.4 cachetools-5.3.1 exiv2-0.14.1 photini-2023.7.0
+        (photini) jim@mint22:~$ pip install photini[pyqt5,gpxpy,spelling]
+        Collecting photini[gpxpy,pyqt5,spelling]
+          Downloading Photini-2024.8.2-py3-none-any.whl.metadata (11 kB)
+        Collecting appdirs>=1.3 (from photini[gpxpy,pyqt5,spelling])
+          Downloading appdirs-1.4.4-py2.py3-none-any.whl.metadata (9.0 kB)
+        Collecting cachetools>=3.0 (from photini[gpxpy,pyqt5,spelling])
+          Downloading cachetools-5.5.0-py3-none-any.whl.metadata (5.3 kB)
+        Requirement already satisfied: chardet>=3.0 in /usr/lib/python3/dist-packages (from photini[gpxpy,pyqt5,spelling]) (5.2.0)
+        Collecting exiv2>=0.16 (from photini[gpxpy,pyqt5,spelling])
+          Downloading exiv2-0.17.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (7.1 kB)
+        Requirement already satisfied: filetype>=1.0 in /usr/lib/python3/dist-packages (from photini[gpxpy,pyqt5,spelling]) (1.2.0)
+        Requirement already satisfied: Pillow>=2.0 in /usr/lib/python3/dist-packages (from photini[gpxpy,pyqt5,spelling]) (10.2.0)
+        Requirement already satisfied: requests>=2.4 in /usr/lib/python3/dist-packages (from photini[gpxpy,pyqt5,spelling]) (2.31.0)
+        Requirement already satisfied: PyQt5>=5.9 in /usr/lib/python3/dist-packages (from photini[gpxpy,pyqt5,spelling]) (5.15.10)
+        Requirement already satisfied: PyQtWebEngine>=5.12 in /usr/lib/python3/dist-packages (from photini[gpxpy,pyqt5,spelling]) (5.15.6)
+        Collecting gpxpy!=1.6.0,>=1.3.5 (from photini[gpxpy,pyqt5,spelling])
+          Downloading gpxpy-1.6.2-py3-none-any.whl.metadata (5.9 kB)
+        Collecting pyenchant>=2.0 (from photini[gpxpy,pyqt5,spelling])
+          Downloading pyenchant-3.2.2-py3-none-any.whl.metadata (3.8 kB)
+        Requirement already satisfied: PyQt5-sip<13,>=12.13 in /usr/lib/python3/dist-packages (from PyQt5>=5.9->photini[gpxpy,pyqt5,spelling]) (12.13.0)
+        Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
+        Downloading cachetools-5.5.0-py3-none-any.whl (9.5 kB)
+        Downloading exiv2-0.17.0-cp312-cp312-manylinux_2_28_x86_64.whl (15.3 MB)
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.3/15.3 MB 852.8 kB/s eta 0:00:00
+        Downloading gpxpy-1.6.2-py3-none-any.whl (42 kB)
+        Downloading pyenchant-3.2.2-py3-none-any.whl (55 kB)
+        Downloading Photini-2024.8.2-py3-none-any.whl (418 kB)
+        Installing collected packages: exiv2, appdirs, pyenchant, gpxpy, cachetools, photini
+        Successfully installed appdirs-1.4.4 cachetools-5.5.0 exiv2-0.17.0 gpxpy-1.6.2 photini-2024.8.2 pyenchant-3.2.2
     .. code-tab:: none Windows
 
-        (photini) C:\Users\Jim>pip install photini
-        Collecting photini
+        (photini) C:\Users\Jim>pip install photini[pyqt5,gpxpy,spelling]
+        Collecting photini[gpxpy,pyqt5,spelling]
           Downloading Photini-2024.8.2-py3-none-any.whl.metadata (11 kB)
-        Collecting appdirs>=1.3 (from photini)
+        Collecting appdirs>=1.3 (from photini[gpxpy,pyqt5,spelling])
           Downloading appdirs-1.4.4-py2.py3-none-any.whl.metadata (9.0 kB)
-        Collecting cachetools>=3.0 (from photini)
+        Collecting cachetools>=3.0 (from photini[gpxpy,pyqt5,spelling])
           Downloading cachetools-5.5.0-py3-none-any.whl.metadata (5.3 kB)
-        Collecting chardet>=3.0 (from photini)
+        Collecting chardet>=3.0 (from photini[gpxpy,pyqt5,spelling])
           Downloading chardet-5.2.0-py3-none-any.whl.metadata (3.4 kB)
-        Collecting exiv2>=0.16 (from photini)
+        Collecting exiv2>=0.16 (from photini[gpxpy,pyqt5,spelling])
           Downloading exiv2-0.17.0-cp38-cp38-win_amd64.whl.metadata (7.3 kB)
-        Collecting filetype>=1.0 (from photini)
+        Collecting filetype>=1.0 (from photini[gpxpy,pyqt5,spelling])
           Downloading filetype-1.2.0-py2.py3-none-any.whl.metadata (6.5 kB)
-        Collecting Pillow>=2.0 (from photini)
+        Collecting Pillow>=2.0 (from photini[gpxpy,pyqt5,spelling])
           Downloading pillow-10.4.0-cp38-cp38-win_amd64.whl.metadata (9.3 kB)
-        Collecting requests>=2.4 (from photini)
+        Collecting requests>=2.4 (from photini[gpxpy,pyqt5,spelling])
           Downloading requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
-        Collecting charset-normalizer<4,>=2 (from requests>=2.4->photini)
+        Collecting PyQt5>=5.9 (from photini[gpxpy,pyqt5,spelling])
+          Downloading PyQt5-5.15.11-cp38-abi3-win_amd64.whl.metadata (2.1 kB)
+        Collecting PyQtWebEngine>=5.12 (from photini[gpxpy,pyqt5,spelling])
+          Downloading PyQtWebEngine-5.15.7-cp38-abi3-win_amd64.whl.metadata (1.9 kB)
+        Collecting pyenchant>=2.0 (from photini[gpxpy,pyqt5,spelling])
+          Downloading pyenchant-3.2.2-py3-none-win_amd64.whl.metadata (3.8 kB)
+        Collecting gpxpy!=1.6.0,>=1.3.5 (from photini[gpxpy,pyqt5,spelling])
+          Downloading gpxpy-1.6.2-py3-none-any.whl.metadata (5.9 kB)
+        Collecting PyQt5-sip<13,>=12.15 (from PyQt5>=5.9->photini[gpxpy,pyqt5,spelling])
+          Downloading PyQt5_sip-12.15.0-cp38-cp38-win_amd64.whl.metadata (439 bytes)
+        Collecting PyQt5-Qt5<5.16.0,>=5.15.2 (from PyQt5>=5.9->photini[gpxpy,pyqt5,spelling])
+          Downloading PyQt5_Qt5-5.15.2-py3-none-win_amd64.whl.metadata (552 bytes)
+        Collecting PyQtWebEngine-Qt5<5.16.0,>=5.15.0 (from PyQtWebEngine>=5.12->photini[gpxpy,pyqt5,spelling])
+          Downloading PyQtWebEngine_Qt5-5.15.2-py3-none-win_amd64.whl.metadata (584 bytes)
+        Collecting charset-normalizer<4,>=2 (from requests>=2.4->photini[gpxpy,pyqt5,spelling])
           Downloading charset_normalizer-3.3.2-cp38-cp38-win_amd64.whl.metadata (34 kB)
-        Collecting idna<4,>=2.5 (from requests>=2.4->photini)
+        Collecting idna<4,>=2.5 (from requests>=2.4->photini[gpxpy,pyqt5,spelling])
           Downloading idna-3.8-py3-none-any.whl.metadata (9.9 kB)
-        Collecting urllib3<3,>=1.21.1 (from requests>=2.4->photini)
-          Downloading urllib3-2.2.2-py3-none-any.whl.metadata (6.4 kB)
-        Collecting certifi>=2017.4.17 (from requests>=2.4->photini)
+        Collecting urllib3<3,>=1.21.1 (from requests>=2.4->photini[gpxpy,pyqt5,spelling])
+          Downloading urllib3-2.2.3-py3-none-any.whl.metadata (6.5 kB)
+        Collecting certifi>=2017.4.17 (from requests>=2.4->photini[gpxpy,pyqt5,spelling])
           Downloading certifi-2024.8.30-py3-none-any.whl.metadata (2.2 kB)
-        Downloading Photini-2024.8.2-py3-none-any.whl (418 kB)
         Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
         Downloading cachetools-5.5.0-py3-none-any.whl (9.5 kB)
         Downloading chardet-5.2.0-py3-none-any.whl (199 kB)
         Downloading exiv2-0.17.0-cp38-cp38-win_amd64.whl (8.5 MB)
-           ---------------------------------------- 8.5/8.5 MB 924.2 kB/s eta 0:00:00
+           ---------------------------------------- 8.5/8.5 MB 453.3 kB/s eta 0:00:00
         Downloading filetype-1.2.0-py2.py3-none-any.whl (19 kB)
+        Downloading gpxpy-1.6.2-py3-none-any.whl (42 kB)
         Downloading pillow-10.4.0-cp38-cp38-win_amd64.whl (2.6 MB)
-           ---------------------------------------- 2.6/2.6 MB 900.1 kB/s eta 0:00:00
+           ---------------------------------------- 2.6/2.6 MB 457.0 kB/s eta 0:00:00
+        Downloading pyenchant-3.2.2-py3-none-win_amd64.whl (11.9 MB)
+           ---------------------------------------- 11.9/11.9 MB 393.6 kB/s eta 0:00:00
+        Downloading PyQt5-5.15.11-cp38-abi3-win_amd64.whl (6.9 MB)
+           ---------------------------------------- 6.9/6.9 MB 411.9 kB/s eta 0:00:00
+        Downloading PyQtWebEngine-5.15.7-cp38-abi3-win_amd64.whl (184 kB)
         Downloading requests-2.32.3-py3-none-any.whl (64 kB)
+        Downloading Photini-2024.8.2-py3-none-any.whl (418 kB)
         Downloading certifi-2024.8.30-py3-none-any.whl (167 kB)
         Downloading charset_normalizer-3.3.2-cp38-cp38-win_amd64.whl (99 kB)
         Downloading idna-3.8-py3-none-any.whl (66 kB)
-        Downloading urllib3-2.2.2-py3-none-any.whl (121 kB)
-        Installing collected packages: filetype, exiv2, appdirs, urllib3, Pillow, idna, charset-normalizer, chardet, certifi, cachetools, requests, photini
-        Successfully installed Pillow-10.4.0 appdirs-1.4.4 cachetools-5.5.0 certifi-2024.8.30 chardet-5.2.0 charset-normalizer-3.3.2 exiv2-0.17.0 filetype-1.2.0 idna-3.8 photini-2024.8.2 requests-2.32.3 urllib3-2.2.2
-
-Photini's optional dependencies can be included in the installation by listing them as "extras" in the pip command.
-For example, if you want to be able to upload to Flickr and Ipernity:
-
-.. tabs::
-    .. code-tab:: none Linux/MacOS
-
-        (photini) jim@mint:~$ pip3 install "photini[flickr,ipernity]"
-    .. code-tab:: none Windows
-
-        (photini) C:\Users\Jim>pip install photini[flickr,ipernity]
-
-Note that the extras' names are not case-sensitive.
-
-.. versionadded:: 2023.7.0
-    You can install all of Photini's optional dependencies by adding an ``all`` extra.
-    You can also install any of the Qt packages as extras:
-
-.. tabs::
-    .. code-tab:: none Linux/MacOS
-
-        (photini) jim@mint:~$ pip3 install "photini[all,pyqt5,pyside6]"
-    .. code-tab:: none Windows
-
-        (photini) C:\Users\Jim>pip install photini[all,pyqt5,pyside6]
-
-Now run the ``photini-configure`` command to choose which Qt package to use.
-(The Windows example is running Windows |nbsp| 7, so PyQt6 and PySide6 are not available):
-
-.. tabs::
-    .. code-tab:: none Linux/MacOS
-
-        (photini) jim@mint:~$ photini-configure
-        Which Qt package would you like to use?
-          0 PyQt5 [installed]
-          1 PySide2 [installed]
-          2 PyQt6 [not installed]
-          3 PySide6 [not installed]
-        Choose 0/1/2/3: 0
-        Would you like to upload pictures to Flickr? (y/n): 
-        Would you like to upload pictures to Google Photos? (y/n): 
-        Would you like to upload pictures to Ipernity? (y/n): 
-        Would you like to upload pictures to Pixelfed or Mastodon? (y/n): 
-        Would you like to check spelling of metadata? (y/n) [y]: n
-        Would you like to import GPS track data? (y/n) [y]: n
-        Would you like to make higher quality thumbnails? (y/n) [y]: n
-        Would you like to import pictures from a camera? (y/n): 
-    .. code-tab:: none Windows
-
-        (photini) C:\Users\Jim>photini-configure
-        Which Qt package would you like to use?
-          0 PyQt5 [not installed]
-          1 PySide2 [not installed]
-        Choose 0/1 [1]: 0
-        Would you like to upload pictures to Flickr? (y/n) [y]: n
-        Would you like to upload pictures to Google Photos? (y/n) [y]: n
-        Would you like to upload pictures to Ipernity? (y/n) [y]: n
-        Would you like to upload pictures to Pixelfed or Mastodon? (y/n) [y]: n
-        Would you like to check spelling of metadata? (y/n) [y]: n
-        Would you like to import GPS track data? (y/n) [y]: n
-        c:\users\jim\photini\scripts\python.exe -m pip install photini[PyQt5]
-        Requirement already satisfied: photini[PyQt5] in c:\users\jim\photini\lib\site-packages (2024.8.2)
-        Requirement already satisfied: appdirs>=1.3 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (1.4.4)
-        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (5.5.0)
-        Requirement already satisfied: chardet>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (5.2.0)
-        Requirement already satisfied: exiv2>=0.16 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (0.17.0)
-        Requirement already satisfied: filetype>=1.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (1.2.0)
-        Requirement already satisfied: Pillow>=2.0 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (10.4.0)
-        Requirement already satisfied: requests>=2.4 in c:\users\jim\photini\lib\site-packages (from photini[PyQt5]) (2.32.3)
-        Collecting PyQt5>=5.9 (from photini[PyQt5])
-          Downloading PyQt5-5.15.11-cp38-abi3-win_amd64.whl.metadata (2.1 kB)
-        Collecting PyQtWebEngine>=5.12 (from photini[PyQt5])
-          Downloading PyQtWebEngine-5.15.7-cp38-abi3-win_amd64.whl.metadata (1.9 kB)
-        Collecting PyQt5-sip<13,>=12.15 (from PyQt5>=5.9->photini[PyQt5])
-          Downloading PyQt5_sip-12.15.0-cp38-cp38-win_amd64.whl.metadata (439 bytes)
-        Collecting PyQt5-Qt5<5.16.0,>=5.15.2 (from PyQt5>=5.9->photini[PyQt5])
-          Downloading PyQt5_Qt5-5.15.2-py3-none-win_amd64.whl.metadata (552 bytes)
-        Collecting PyQtWebEngine-Qt5<5.16.0,>=5.15.0 (from PyQtWebEngine>=5.12->photini[PyQt5])
-          Downloading PyQtWebEngine_Qt5-5.15.2-py3-none-win_amd64.whl.metadata (584 bytes)
-        Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (3.3.2)
-        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (3.8)
-        Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (2.2.2)
-        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[PyQt5]) (2024.8.30)
-        Downloading PyQt5-5.15.11-cp38-abi3-win_amd64.whl (6.9 MB)
-           ---------------------------------------- 6.9/6.9 MB 928.9 kB/s eta 0:00:00
-        Downloading PyQtWebEngine-5.15.7-cp38-abi3-win_amd64.whl (184 kB)
         Downloading PyQt5_Qt5-5.15.2-py3-none-win_amd64.whl (50.1 MB)
-           ---------------------------------------- 50.1/50.1 MB 938.1 kB/s eta 0:00:00
+           ---------------------------------------- 50.1/50.1 MB 439.4 kB/s eta 0:00:00
         Downloading PyQt5_sip-12.15.0-cp38-cp38-win_amd64.whl (59 kB)
         Downloading PyQtWebEngine_Qt5-5.15.2-py3-none-win_amd64.whl (60.0 MB)
-           ---------------------------------------- 60.0/60.0 MB 939.9 kB/s eta 0:00:00
-        Installing collected packages: PyQtWebEngine-Qt5, PyQt5-Qt5, PyQt5-sip, PyQt5, PyQtWebEngine
-        Successfully installed PyQt5-5.15.11 PyQt5-Qt5-5.15.2 PyQt5-sip-12.15.0 PyQtWebEngine-5.15.7 PyQtWebEngine-Qt5-5.15.2
-
-The command asks a series of questions, then runs pip_ to install any extra dependencies that are needed, then updates your Photini configuration file.
+           ---------------------------------------- 60.0/60.0 MB 399.9 kB/s eta 0:00:00
+        Downloading urllib3-2.2.3-py3-none-any.whl (126 kB)
+        Installing collected packages: PyQtWebEngine-Qt5, PyQt5-Qt5, filetype, exiv2, appdirs, urllib3, PyQt5-sip, pyenchant, Pillow, idna, gpxpy, charset-normalizer, chardet, certifi, cachetools, requests, PyQt5, PyQtWebEngine, photini
+        Successfully installed Pillow-10.4.0 PyQt5-5.15.11 PyQt5-Qt5-5.15.2 PyQt5-sip-12.15.0 PyQtWebEngine-5.15.7 PyQtWebEngine-Qt5-5.15.2 appdirs-1.4.4 cachetools-5.5.0 certifi-2024.8.30 chardet-5.2.0 charset-normalizer-3.3.2 exiv2-0.17.0 filetype-1.2.0 gpxpy-1.6.2 idna-3.8 photini-2024.8.2 pyenchant-3.2.2 requests-2.32.3 urllib3-2.2.3
 
 Test the installation
 ^^^^^^^^^^^^^^^^^^^^^
@@ -371,9 +340,8 @@ Now you should be able to run photini:
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        (photini) jim@mint:~$ python3 -m photini
-        No module named 'enchant'
-        No module named 'gpxpy'
+        (photini) jim@mint22:~$ python -m photini
+        ffmpeg or ffprobe not found
         No module named 'requests_oauthlib'
         No module named 'requests_toolbelt'
         No module named 'requests_oauthlib'
@@ -382,8 +350,6 @@ Now you should be able to run photini:
 
         (photini) C:\Users\Jim>python -m photini
         ffmpeg or ffprobe not found
-        No module named 'enchant'
-        No module named 'gpxpy'
         No module named 'requests_oauthlib'
         No module named 'requests_toolbelt'
         No module named 'requests_oauthlib'
@@ -402,133 +368,112 @@ For example, failing to load a Qt plugin (on Debian) can be cured by installing 
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-Most of the dependencies required for Photini's optional features can also be installed with ``photini-configure``.
-Default answers are given in square brackets:
+If you'd like to add any of the "extras" listed earlier to your Photini installation, you just need to run pip_ again:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        (photini) jim@mint:~$ photini-configure 
-        Which Qt package would you like to use?
-          0 PyQt5 [installed]
-          1 PySide2 [installed]
-          2 PyQt6 [not installed]
-          3 PySide6 [not installed]
-        Choose 0/1/2/3 [0]: 
-        Would you like to upload pictures to Flickr? (y/n) [y]: 
-        Would you like to upload pictures to Google Photos? (y/n) [y]: 
-        Would you like to upload pictures to Ipernity? (y/n) [y]: 
-        Would you like to upload pictures to Pixelfed or Mastodon? (y/n) [y]: 
-        Would you like to check spelling of metadata? (y/n) [y]: 
-        Would you like to import GPS track data? (y/n) [y]: 
-        Would you like to make higher quality thumbnails? (y/n) [y]: 
-        Would you like to import pictures from a camera? (y/n) [y]: 
-        /home/jim/photini/bin/python3 -m pip install photini[flickr,google,ipernity,pixelfed,spelling,gpxpy,Pillow,importer]
-        Requirement already satisfied: photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling] in ./photini/lib/python3.8/site-packages (2023.7.0)
-        Requirement already satisfied: appdirs>=1.3 in ./photini/lib/python3.8/site-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (1.4.4)
-        Requirement already satisfied: cachetools>=3.0 in ./photini/lib/python3.8/site-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (5.3.1)
-        Requirement already satisfied: chardet>=3.0 in /usr/lib/python3/dist-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (3.0.4)
-        Requirement already satisfied: exiv2>=0.14 in ./photini/lib/python3.8/site-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (0.14.1)
-        Requirement already satisfied: requests>=2.4 in /usr/lib/python3/dist-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (2.22.0)
-        Collecting gphoto2>=1.8 (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling])
-          Downloading gphoto2-2.3.4-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (5.9 MB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.9/5.9 MB 699.7 kB/s eta 0:00:00
-        Requirement already satisfied: Pillow>=2.0 in /usr/lib/python3/dist-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (7.0.0)
-        Collecting pyenchant>=2.0 (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling])
-          Downloading pyenchant-3.2.2-py3-none-any.whl (55 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.7/55.7 kB 262.1 kB/s eta 0:00:00
-        Collecting gpxpy>=1.3.5 (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling])
-          Downloading gpxpy-1.5.0.tar.gz (111 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111.6/111.6 kB 411.6 kB/s eta 0:00:00
-          Preparing metadata (setup.py) ... done
-        Requirement already satisfied: keyring>=7.0 in /usr/lib/python3/dist-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (18.0.1)
-        Collecting requests-toolbelt>=0.9 (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling])
-          Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.5/54.5 kB 237.6 kB/s eta 0:00:00
-        Collecting requests-oauthlib>=1.0 (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling])
-          Downloading requests_oauthlib-1.3.1-py2.py3-none-any.whl (23 kB)
-        Requirement already satisfied: secretstorage in /usr/lib/python3/dist-packages (from keyring>=7.0->photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (2.3.1)
-        Requirement already satisfied: oauthlib>=3.0.0 in /usr/lib/python3/dist-packages (from requests-oauthlib>=1.0->photini[Pillow,flickr,google,gpxpy,importer,ipernity,pixelfed,spelling]) (3.1.0)
-        Building wheels for collected packages: gpxpy
-          Building wheel for gpxpy (setup.py) ... done
-          Created wheel for gpxpy: filename=gpxpy-1.5.0-py3-none-any.whl size=42878 sha256=77a7531cbed8cd315f03427adccc74c15fbae41a01fc4e160a4c6c959fc372ff
-          Stored in directory: /home/jim/.cache/pip/wheels/93/15/ce/1cd2782b440b8a517b89c3fa112f79f7015bd6e51b552e1b1a
-        Successfully built gpxpy
-        Installing collected packages: gphoto2, requests-toolbelt, requests-oauthlib, pyenchant, gpxpy
-        Successfully installed gphoto2-2.3.4 gpxpy-1.5.0 pyenchant-3.2.2 requests-oauthlib-1.3.1 requests-toolbelt-1.0.0
+        (photini) jim@mint22:~$ pip install photini[flickr]
+        Requirement already satisfied: photini[flickr] in ./photini/lib/python3.12/site-packages (2024.8.2)
+        Requirement already satisfied: appdirs>=1.3 in ./photini/lib/python3.12/site-packages (from photini[flickr]) (1.4.4)
+        Requirement already satisfied: cachetools>=3.0 in ./photini/lib/python3.12/site-packages (from photini[flickr]) (5.5.0)
+        Requirement already satisfied: chardet>=3.0 in /usr/lib/python3/dist-packages (from photini[flickr]) (5.2.0)
+        Requirement already satisfied: exiv2>=0.16 in ./photini/lib/python3.12/site-packages (from photini[flickr]) (0.17.0)
+        Requirement already satisfied: filetype>=1.0 in /usr/lib/python3/dist-packages (from photini[flickr]) (1.2.0)
+        Requirement already satisfied: Pillow>=2.0 in /usr/lib/python3/dist-packages (from photini[flickr]) (10.2.0)
+        Requirement already satisfied: requests>=2.4 in /usr/lib/python3/dist-packages (from photini[flickr]) (2.31.0)
+        Collecting keyring>=7.0 (from photini[flickr])
+          Downloading keyring-25.3.0-py3-none-any.whl.metadata (20 kB)
+        Collecting requests-oauthlib>=1.0 (from photini[flickr])
+          Downloading requests_oauthlib-2.0.0-py2.py3-none-any.whl.metadata (11 kB)
+        Collecting requests-toolbelt>=0.9 (from photini[flickr])
+          Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)
+        Collecting jaraco.classes (from keyring>=7.0->photini[flickr])
+          Downloading jaraco.classes-3.4.0-py3-none-any.whl.metadata (2.6 kB)
+        Collecting jaraco.functools (from keyring>=7.0->photini[flickr])
+          Downloading jaraco.functools-4.0.2-py3-none-any.whl.metadata (2.8 kB)
+        Collecting jaraco.context (from keyring>=7.0->photini[flickr])
+          Downloading jaraco.context-6.0.1-py3-none-any.whl.metadata (4.1 kB)
+        Collecting SecretStorage>=3.2 (from keyring>=7.0->photini[flickr])
+          Downloading SecretStorage-3.3.3-py3-none-any.whl.metadata (4.0 kB)
+        Collecting jeepney>=0.4.2 (from keyring>=7.0->photini[flickr])
+          Downloading jeepney-0.8.0-py3-none-any.whl.metadata (1.3 kB)
+        Requirement already satisfied: oauthlib>=3.0.0 in /usr/lib/python3/dist-packages (from requests-oauthlib>=1.0->photini[flickr]) (3.2.2)
+        Requirement already satisfied: cryptography>=2.0 in /usr/lib/python3/dist-packages (from SecretStorage>=3.2->keyring>=7.0->photini[flickr]) (41.0.7)
+        Collecting more-itertools (from jaraco.classes->keyring>=7.0->photini[flickr])
+          Downloading more_itertools-10.5.0-py3-none-any.whl.metadata (36 kB)
+        Downloading keyring-25.3.0-py3-none-any.whl (38 kB)
+        Downloading requests_oauthlib-2.0.0-py2.py3-none-any.whl (24 kB)
+        Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
+        Downloading jeepney-0.8.0-py3-none-any.whl (48 kB)
+        Downloading SecretStorage-3.3.3-py3-none-any.whl (15 kB)
+        Downloading jaraco.classes-3.4.0-py3-none-any.whl (6.8 kB)
+        Downloading jaraco.context-6.0.1-py3-none-any.whl (6.8 kB)
+        Downloading jaraco.functools-4.0.2-py3-none-any.whl (9.9 kB)
+        Downloading more_itertools-10.5.0-py3-none-any.whl (60 kB)
+        Installing collected packages: requests-toolbelt, requests-oauthlib, more-itertools, jeepney, jaraco.context, SecretStorage, jaraco.functools, jaraco.classes, keyring
+        Successfully installed SecretStorage-3.3.3 jaraco.classes-3.4.0 jaraco.context-6.0.1 jaraco.functools-4.0.2 jeepney-0.8.0 keyring-25.3.0 more-itertools-10.5.0 requests-oauthlib-2.0.0 requests-toolbelt-1.0.0
     .. code-tab:: none Windows
 
-        (photini) C:\Users\Jim>photini-configure
-        Which Qt package would you like to use?
-          0 PyQt5 [installed]
-          1 PySide2 [not installed]
-        Choose 0/1 [0]:
-        Would you like to upload pictures to Flickr? (y/n) [y]:
-        Would you like to upload pictures to Google Photos? (y/n) [y]:
-        Would you like to upload pictures to Ipernity? (y/n) [y]:
-        Would you like to upload pictures to Pixelfed or Mastodon? (y/n) [y]:
-        Would you like to check spelling of metadata? (y/n) [y]:
-        Would you like to import GPS track data? (y/n) [y]:
-        Would you like to make higher quality thumbnails? (y/n) [y]:
-        c:\users\jim\photini\scripts\python.exe -m pip install photini[flickr,google,ipernity,pixelfed,spelling,gpxpy,Pillow]
-        Requirement already satisfied: photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling] in c:\users\jim\photini\lib\site-packages (2023.10.0)
-        Requirement already satisfied: appdirs>=1.3 in c:\users\jim\photini\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (1.4.4)
-        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (5.3.2)
-        Requirement already satisfied: chardet>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (5.2.0)
-        Requirement already satisfied: exiv2>=0.14 in c:\users\jim\photini\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (0.14.1)
-        Requirement already satisfied: requests>=2.4 in c:\users\jim\photini\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (2.31.0)
-        Collecting gpxpy>=1.3.5 (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading gpxpy-1.6.0-py3-none-any.whl.metadata (5.9 kB)
-        Collecting pyenchant>=2.0 (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading pyenchant-3.2.2-py3-none-win_amd64.whl (11.9 MB)
-             -------------------------------------- 11.9/11.9 MB 973.5 kB/s eta 0:00:00
-        Collecting Pillow>=2.0 (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading Pillow-10.1.0-cp38-cp38-win_amd64.whl.metadata (9.6 kB)
-        Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (3.3.1)
-        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (3.4)
-        Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (2.0.7)
-        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling]) (2023.7.22)
-        Collecting requests-oauthlib>=1.0 (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading requests_oauthlib-1.3.1-py2.py3-none-any.whl (23 kB)
-        Collecting keyring>=7.0 (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading keyring-24.2.0-py3-none-any.whl.metadata (20 kB)
-        Collecting requests-toolbelt>=0.9 (from photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
-             -------------------------------------- 54.5/54.5 kB 202.9 kB/s eta 0:00:00
-        Collecting jaraco.classes (from keyring>=7.0->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading jaraco.classes-3.3.0-py3-none-any.whl.metadata (2.9 kB)
-        Collecting importlib-metadata>=4.11.4 (from keyring>=7.0->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading importlib_metadata-6.8.0-py3-none-any.whl.metadata (5.1 kB)
-        Collecting importlib-resources (from keyring>=7.0->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading importlib_resources-6.1.0-py3-none-any.whl.metadata (4.1 kB)
-        Collecting pywin32-ctypes>=0.2.0 (from keyring>=7.0->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading pywin32_ctypes-0.2.2-py3-none-any.whl.metadata (3.8 kB)
-        Collecting oauthlib>=3.0.0 (from requests-oauthlib>=1.0->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading oauthlib-3.2.2-py3-none-any.whl (151 kB)
-             ------------------------------------ 151.7/151.7 kB 274.1 kB/s eta 0:00:00
-        Collecting zipp>=0.5 (from importlib-metadata>=4.11.4->keyring>=7.0->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading zipp-3.17.0-py3-none-any.whl.metadata (3.7 kB)
-        Collecting more-itertools (from jaraco.classes->keyring>=7.0->photini[Pillow,flickr,google,gpxpy,ipernity,pixelfed,spelling])
-          Downloading more_itertools-10.1.0-py3-none-any.whl.metadata (33 kB)
-        Downloading gpxpy-1.6.0-py3-none-any.whl (42 kB)
-           ---------------------------------------- 42.6/42.6 kB 138.5 kB/s eta 0:00:00
-        Downloading Pillow-10.1.0-cp38-cp38-win_amd64.whl (2.6 MB)
-           ---------------------------------------- 2.6/2.6 MB 950.1 kB/s eta 0:00:00
-        Downloading keyring-24.2.0-py3-none-any.whl (37 kB)
-        Downloading importlib_metadata-6.8.0-py3-none-any.whl (22 kB)
-        Downloading pywin32_ctypes-0.2.2-py3-none-any.whl (30 kB)
-        Downloading importlib_resources-6.1.0-py3-none-any.whl (33 kB)
-        Downloading jaraco.classes-3.3.0-py3-none-any.whl (5.9 kB)
-        Downloading zipp-3.17.0-py3-none-any.whl (7.4 kB)
-        Downloading more_itertools-10.1.0-py3-none-any.whl (55 kB)
-           ---------------------------------------- 55.8/55.8 kB 194.8 kB/s eta 0:00:00
-        Installing collected packages: zipp, pywin32-ctypes, pyenchant, Pillow, oauthlib, more-itertools, gpxpy, requests-toolbelt, requests-oauthlib, jaraco.classes, importlib-resources, importlib-metadata, keyring
-        Successfully installed Pillow-10.1.0 gpxpy-1.6.0 importlib-metadata-6.8.0 importlib-resources-6.1.0 jaraco.classes-3.3.0 keyring-24.2.0 more-itertools-10.1.0 oauthlib-3.2.2 pyenchant-3.2.2 pywin32-ctypes-0.2.2 requests-oauthlib-1.3.1 requests-toolbelt-1.0.0 zipp-3.17.0
+        (photini) C:\Users\Jim>pip install photini[flickr]
+        Requirement already satisfied: photini[flickr] in c:\users\jim\photini\lib\site-packages (2024.8.2)
+        Requirement already satisfied: appdirs>=1.3 in c:\users\jim\photini\lib\site-packages (from photini[flickr]) (1.4.4)
+        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[flickr]) (5.5.0)
+        Requirement already satisfied: chardet>=3.0 in c:\users\jim\photini\lib\site-packages (from photini[flickr]) (5.2.0)
+        Requirement already satisfied: exiv2>=0.16 in c:\users\jim\photini\lib\site-packages (from photini[flickr]) (0.17.0)
+        Requirement already satisfied: filetype>=1.0 in c:\users\jim\photini\lib\site-packages (from photini[flickr]) (1.2.0)
+        Requirement already satisfied: Pillow>=2.0 in c:\users\jim\photini\lib\site-packages (from photini[flickr]) (10.4.0)
+        Requirement already satisfied: requests>=2.4 in c:\users\jim\photini\lib\site-packages (from photini[flickr]) (2.32.3)
+        Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[flickr]) (3.3.2)
+        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[flickr]) (3.8)
+        Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[flickr]) (2.2.3)
+        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini[flickr]) (2024.8.30)
+        Collecting keyring>=7.0 (from photini[flickr])
+          Downloading keyring-25.3.0-py3-none-any.whl.metadata (20 kB)
+        Collecting requests-toolbelt>=0.9 (from photini[flickr])
+          Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)
+        Collecting requests-oauthlib>=1.0 (from photini[flickr])
+          Downloading requests_oauthlib-2.0.0-py2.py3-none-any.whl.metadata (11 kB)
+        Collecting jaraco.classes (from keyring>=7.0->photini[flickr])
+          Downloading jaraco.classes-3.4.0-py3-none-any.whl.metadata (2.6 kB)
+        Collecting jaraco.functools (from keyring>=7.0->photini[flickr])
+          Downloading jaraco.functools-4.0.2-py3-none-any.whl.metadata (2.8 kB)
+        Collecting jaraco.context (from keyring>=7.0->photini[flickr])
+          Downloading jaraco.context-6.0.1-py3-none-any.whl.metadata (4.1 kB)
+        Collecting importlib-metadata>=4.11.4 (from keyring>=7.0->photini[flickr])
+          Downloading importlib_metadata-8.5.0-py3-none-any.whl.metadata (4.8 kB)
+        Collecting importlib-resources (from keyring>=7.0->photini[flickr])
+          Downloading importlib_resources-6.4.5-py3-none-any.whl.metadata (4.0 kB)
+        Collecting pywin32-ctypes>=0.2.0 (from keyring>=7.0->photini[flickr])
+          Downloading pywin32_ctypes-0.2.3-py3-none-any.whl.metadata (3.9 kB)
+        Collecting oauthlib>=3.0.0 (from requests-oauthlib>=1.0->photini[flickr])
+          Downloading oauthlib-3.2.2-py3-none-any.whl.metadata (7.5 kB)
+        Collecting zipp>=3.20 (from importlib-metadata>=4.11.4->keyring>=7.0->photini[flickr])
+          Downloading zipp-3.20.1-py3-none-any.whl.metadata (3.7 kB)
+        Collecting more-itertools (from jaraco.classes->keyring>=7.0->photini[flickr])
+          Downloading more_itertools-10.5.0-py3-none-any.whl.metadata (36 kB)
+        Collecting backports.tarfile (from jaraco.context->keyring>=7.0->photini[flickr])
+          Downloading backports.tarfile-1.2.0-py3-none-any.whl.metadata (2.0 kB)
+        Downloading keyring-25.3.0-py3-none-any.whl (38 kB)
+        Downloading requests_oauthlib-2.0.0-py2.py3-none-any.whl (24 kB)
+        Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)
+        Downloading importlib_metadata-8.5.0-py3-none-any.whl (26 kB)
+        Downloading oauthlib-3.2.2-py3-none-any.whl (151 kB)
+        Downloading pywin32_ctypes-0.2.3-py3-none-any.whl (30 kB)
+        Downloading importlib_resources-6.4.5-py3-none-any.whl (36 kB)
+        Downloading jaraco.classes-3.4.0-py3-none-any.whl (6.8 kB)
+        Downloading jaraco.context-6.0.1-py3-none-any.whl (6.8 kB)
+        Downloading jaraco.functools-4.0.2-py3-none-any.whl (9.9 kB)
+        Downloading zipp-3.20.1-py3-none-any.whl (9.0 kB)
+        Downloading backports.tarfile-1.2.0-py3-none-any.whl (30 kB)
+        Downloading more_itertools-10.5.0-py3-none-any.whl (60 kB)
+        Installing collected packages: zipp, pywin32-ctypes, oauthlib, more-itertools, backports.tarfile, requests-toolbelt, requests-oauthlib, jaraco.functools, jaraco.context, jaraco.classes, importlib-resources, importlib-metadata, keyring
+        Successfully installed backports.tarfile-1.2.0 importlib-metadata-8.5.0 importlib-resources-6.4.5 jaraco.classes-3.4.0 jaraco.context-6.0.1 jaraco.functools-4.0.2 keyring-25.3.0 more-itertools-10.5.0 oauthlib-3.2.2 pywin32-ctypes-0.2.3 requests-oauthlib-2.0.0 requests-toolbelt-1.0.0 zipp-3.20.1
 
 Photini's spelling checker may require some other files to be installed.
 See the `pyenchant documentation`_ for platform specific instructions.
 
-One optional dependency that cannot be installed with pip_ or ``photini-configure`` is FFmpeg_.
+One optional dependency that cannot be installed with pip_ is FFmpeg_.
 This is used to read metadata from video files.
 Linux & MacOS users can install it with the system package manager, but installing it on Windows is non-trivial.
 
@@ -541,7 +486,7 @@ These can be installed with the ``photini-post-install`` command:
 .. tabs::
     .. code-tab:: none Linux
 
-        (photini) jim@mint:~$ photini-post-install
+        (photini) jim@mint22:~$ photini-post-install
         Creating /tmp/tmpj9rn81aj/photini.desktop
         Installing /tmp/tmpj9rn81aj/photini.desktop
          to /home/jim/.local/share/applications
@@ -569,14 +514,14 @@ If you'd like to help develop and test a solution, do get in touch with me.
 Localisation
 """"""""""""
 
-The ``photini-post-install`` command has a ``--language`` option that can set the language used for the description that accompaines a desktop icon (if Photini has been translated into that language).
+The ``photini-post-install`` command has an option ``--language`` (or ``-l``) that can set the language used for the description that accompaines a desktop icon (if Photini has been translated into that language).
 
 .. tabs::
     .. code-tab:: none Linux
 
-        (photini) jim@mint:~$ photini-post-install --language fr
-        Creating /tmp/tmpbav0qrsb/photini.desktop
-        Installing /tmp/tmpbav0qrsb/photini.desktop
+        (photini) jim@mint22:~$ photini-post-install --language fr
+        Creating /tmp/tmpecj_yk1e/photini.desktop
+        Installing /tmp/tmpecj_yk1e/photini.desktop
          to /home/jim/.local/share/applications
     .. code-tab:: none Windows
 
@@ -599,7 +544,7 @@ Only read permission is needed.)
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        sarah@mint:~$ /home/jim/photini/bin/photini
+        sarah@mint22:~$ /home/jim/photini/bin/photini
     .. code-tab:: none Windows
 
         C:\Users\Sarah>..\Jim\photini\Scripts\photini.exe
@@ -609,42 +554,10 @@ This is not a very convenient way to run Photini, so most users will want to add
 .. tabs::
     .. code-tab:: none Linux
 
-        sarah@mint:~$ /home/jim/photini/bin/photini-post-install 
-        desktop-file-install \
-          --dir=/home/sarah/.local/share/applications \
-          --set-key=Exec \
-          --set-value=/home/jim/photini/bin/photini %F \
-          --set-key=Icon \
-          --set-value=/home/jim/photini/lib/python3.8/site-packages/photini/data/icons/photini_48.png \
-          --set-key=GenericName[ca] \
-          --set-value=Photini editor de metadades de foto \
-          --set-key=Comment[ca] \
-          --set-value=Un editor de metadades de foto digital fàcil d'usar. \
-          --set-key=GenericName[cs] \
-          --set-value=Editor fotografických popisných údajů Photini \
-          --set-key=Comment[cs] \
-          --set-value=Snadno se používající editor popisů digitálních fotografií. \
-          --set-key=GenericName[de] \
-          --set-value=Photini-Fotometadateneditor \
-          --set-key=Comment[de] \
-          --set-value=Ein einfach zu bedienender Metadaten-Editor für digitale Bilder. \
-          --set-key=GenericName[es] \
-          --set-value=Photini editor de metadatos fotográficos \
-          --set-key=Comment[es] \
-          --set-value=Un editor de metadatos fotográficos fácil de usar. \
-          --set-key=GenericName[fr] \
-          --set-value=Éditeur de métadonnées de photos Photini \
-          --set-key=Comment[fr] \
-          --set-value=Une application d'édition des métadonnées des photographies numériques (Exif, IPTC, XMP) facile à utiliser. \
-          --set-key=GenericName[it] \
-          --set-value=Editor di metadati fotografici di Photini \
-          --set-key=Comment[it] \
-          --set-value=Un'applicazione di modifica dei metadati delle fotografie digitali (Exif, IPTC, XMP) facile da usare. \
-          --set-key=GenericName[pl] \
-          --set-value=Photini edytor metadanych zdjęcia \
-          --set-key=Comment[pl] \
-          --set-value=Łatwy w użyciu edytor metadanych fotografii cyfrowej. \
-          /home/jim/photini/lib/python3.8/site-packages/photini/data/linux/photini.desktop
+        sarah@mint22:~$ /home/jim/photini/bin/photini-post-install
+        Creating /tmp/tmplavuaj12/photini.desktop
+        Installing /tmp/tmplavuaj12/photini.desktop
+         to /home/sarah/.local/share/applications
     .. code-tab:: none Windows
 
         C:\Users\Sarah>..\Jim\photini\Scripts\photini-post-install.exe
@@ -656,48 +569,15 @@ This is not a very convenient way to run Photini, so most users will want to add
         Writing HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
         Writing HKEY_CURRENT_USER\Software\Classes\Applications\photini.exe
 
-To install Photini menu shortcuts for all users you can run the post install command as root (Linux) or in a command window run as administrator (Windows).
+To install Photini menu shortcuts for all users (not recommended) you can run the post install command as root (Linux) or in a command window run as administrator (Windows).
 It is important to use the full path to the post install command:
 
 .. tabs::
     .. code-tab:: none Linux
 
-        jim@mint:~$ sudo /home/jim/photini/bin/photini-post-install
-        [sudo] password for jim:        
-        desktop-file-install \
-          --set-key=Exec \
-          --set-value=/home/jim/photini/bin/photini %F \
-          --set-key=Icon \
-          --set-value=/home/jim/photini/lib/python3.8/site-packages/photini/data/icons/photini_48.png \
-          --set-key=GenericName[ca] \
-          --set-value=Photini editor de metadades de foto \
-          --set-key=Comment[ca] \
-          --set-value=Un editor de metadades de foto digital fàcil d'usar. \
-          --set-key=GenericName[cs] \
-          --set-value=Editor fotografických popisných údajů Photini \
-          --set-key=Comment[cs] \
-          --set-value=Snadno se používající editor popisů digitálních fotografií. \
-          --set-key=GenericName[de] \
-          --set-value=Photini-Fotometadateneditor \
-          --set-key=Comment[de] \
-          --set-value=Ein einfach zu bedienender Metadaten-Editor für digitale Bilder. \
-          --set-key=GenericName[es] \
-          --set-value=Photini editor de metadatos fotográficos \
-          --set-key=Comment[es] \
-          --set-value=Un editor de metadatos fotográficos fácil de usar. \
-          --set-key=GenericName[fr] \
-          --set-value=Éditeur de métadonnées de photos Photini \
-          --set-key=Comment[fr] \
-          --set-value=Une application d'édition des métadonnées des photographies numériques (Exif, IPTC, XMP) facile à utiliser. \
-          --set-key=GenericName[it] \
-          --set-value=Editor di metadati fotografici di Photini \
-          --set-key=Comment[it] \
-          --set-value=Un'applicazione di modifica dei metadati delle fotografie digitali (Exif, IPTC, XMP) facile da usare. \
-          --set-key=GenericName[pl] \
-          --set-value=Photini edytor metadanych zdjęcia \
-          --set-key=Comment[pl] \
-          --set-value=Łatwy w użyciu edytor metadanych fotografii cyfrowej. \
-          /home/jim/photini/lib/python3.8/site-packages/photini/data/linux/photini.desktop
+        (photini) jim@mint22:~$ sudo /home/jim/photini/bin/photini-post-install 
+        Creating /tmp/tmpkbuvvzs6/photini.desktop
+        Installing /tmp/tmpkbuvvzs6/photini.desktop
     .. code-tab:: none Windows
 
         C:\Windows\system32>c:\Users\Jim\photini\Scripts\photini-post-install.exe
@@ -717,7 +597,7 @@ Before removing Photini you should use the ``photini-post-install`` command to r
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        (photini) jim@mint:~$ photini-post-install --remove
+        (photini) jim@mint22:~$ photini-post-install --remove
         Deleting /home/jim/.local/share/applications/photini.desktop
     .. code-tab:: none Windows
 
@@ -726,6 +606,9 @@ Before removing Photini you should use the ``photini-post-install`` command to r
         Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
         Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
         Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
+        Updating registry
+        Deleting HKEY_CURRENT_USER\Software\Classes\Applications\photini.exe
+        Deleting HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
 
 If you used a virtual environment you can simply delete the top level directory created when setting up the virtual environment.
 Otherwise you can use pip to uninstall Photini and as many of its dependencies as you want to remove:
@@ -733,24 +616,48 @@ Otherwise you can use pip to uninstall Photini and as many of its dependencies a
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ pip3 uninstall photini exiv2
-        Found existing installation: Photini 2023.7.0
-        Uninstalling Photini-2023.7.0:
+        (photini) jim@mint22:~$ pip uninstall photini exiv2
+        Found existing installation: Photini 2024.8.2
+        Uninstalling Photini-2024.8.2:
           Would remove:
-            /home/jim/.local/bin/photini
-            /home/jim/.local/bin/photini-configure
-            /home/jim/.local/bin/photini-post-install
-            /home/jim/.local/lib/python3.8/site-packages/Photini-2023.7.0.dist-info/*
-            /home/jim/.local/lib/python3.8/site-packages/photini/*
+            /home/jim/photini/bin/photini
+            /home/jim/photini/bin/photini-configure
+            /home/jim/photini/bin/photini-post-install
+            /home/jim/photini/lib/python3.12/site-packages/Photini-2024.8.2.dist-info/*
+            /home/jim/photini/lib/python3.12/site-packages/photini/*
         Proceed (Y/n)? y
-          Successfully uninstalled Photini-2023.7.0
-        Found existing installation: exiv2 0.14.1
-        Uninstalling exiv2-0.14.1:
+          Successfully uninstalled Photini-2024.8.2
+        Found existing installation: exiv2 0.17.0
+        Uninstalling exiv2-0.17.0:
           Would remove:
-            /home/jim/.local/lib/python3.8/site-packages/exiv2-0.14.1.dist-info/*
-            /home/jim/.local/lib/python3.8/site-packages/exiv2/*
+            /home/jim/photini/lib/python3.12/site-packages/exiv2-0.17.0.dist-info/*
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libINIReader-cec0f2f5.so.0
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libbrotlicommon-6ce2a53c.so.1.0.6
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libbrotlidec-811d1be3.so.1.0.6
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libcom_err-bb8268a4.so.2.1
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libcrypt-52aca757.so.1.1.0
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libcrypto-401bea5d.so.1.1.1k
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libcurl-bbcbc527.so.4.5.0
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libgssapi_krb5-83c4f835.so.2.2
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libidn2-2f4a5893.so.0.3.6
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libinih-520f2841.so.0
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libk5crypto-99a2d4ba.so.3.1
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libkeyutils-2777d33d.so.1.6
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libkrb5-2dfb1625.so.3.3
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libkrb5support-d61d84d2.so.0.1
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/liblber-2-a32c7900.4.so.2.10.9
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libldap-2-89849551.4.so.2.10.9
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libnghttp2-15973f3b.so.14.17.0
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libpcre2-8-516f4c9d.so.0.7.1
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libpsl-99becdd3.so.5.3.1
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libsasl2-7de4d792.so.3.0.0
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libselinux-64a010fa.so.1
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libssh-8f1ecd37.so.4.8.7
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libssl-52849bc7.so.1.1.1k
+            /home/jim/photini/lib/python3.12/site-packages/exiv2.libs/libunistring-05abdd40.so.2.1.0
+            /home/jim/photini/lib/python3.12/site-packages/exiv2/*
         Proceed (Y/n)? y
-          Successfully uninstalled exiv2-0.14.1
+          Successfully uninstalled exiv2-0.17.0
     .. code-tab:: none Windows
 
         (photini) C:\Users\Jim>pip uninstall photini exiv2
@@ -781,13 +688,52 @@ If you installed Photini in a virtual environment then you need to activate the 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ source photini/bin/activate
-        (photini) jim@mint:~$ pip3 install -U photini
+        jim@mint22:~$ source photini/bin/activate
+        (photini) jim@mint22:~$ pip install -U photini
+        Requirement already satisfied: photini in ./photini/lib/python3.12/site-packages (2024.5.0)
+        Collecting photini
+          Downloading Photini-2024.8.2-py3-none-any.whl.metadata (11 kB)
+        Requirement already satisfied: appdirs>=1.3 in ./photini/lib/python3.12/site-packages (from photini) (1.4.4)
+        Requirement already satisfied: cachetools>=3.0 in ./photini/lib/python3.12/site-packages (from photini) (5.5.0)
+        Requirement already satisfied: chardet>=3.0 in /usr/lib/python3/dist-packages (from photini) (5.2.0)
+        Requirement already satisfied: exiv2>=0.16 in ./photini/lib/python3.12/site-packages (from photini) (0.17.0)
+        Requirement already satisfied: filetype>=1.0 in /usr/lib/python3/dist-packages (from photini) (1.2.0)
+        Requirement already satisfied: Pillow>=2.0 in /usr/lib/python3/dist-packages (from photini) (10.2.0)
+        Requirement already satisfied: requests>=2.4 in /usr/lib/python3/dist-packages (from photini) (2.31.0)
+        Downloading Photini-2024.8.2-py3-none-any.whl (418 kB)
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 418.1/418.1 kB 355.0 kB/s eta 0:00:00
+        Installing collected packages: photini
+          Attempting uninstall: photini
+            Found existing installation: Photini 2024.5.0
+            Uninstalling Photini-2024.5.0:
+              Successfully uninstalled Photini-2024.5.0
+        Successfully installed photini-2024.8.2
     .. code-tab:: none Windows
 
         C:\Users\Jim>photini\Scripts\activate.bat
 
         (photini) C:\Users\Jim>pip install -U photini
+        Requirement already satisfied: photini in c:\users\jim\photini\lib\site-packages (2024.5.0)
+        Collecting photini
+          Downloading Photini-2024.8.2-py3-none-any.whl.metadata (11 kB)
+        Requirement already satisfied: appdirs>=1.3 in c:\users\jim\photini\lib\site-packages (from photini) (1.4.4)
+        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\photini\lib\site-packages (from photini) (5.5.0)
+        Requirement already satisfied: chardet>=3.0 in c:\users\jim\photini\lib\site-packages (from photini) (5.2.0)
+        Requirement already satisfied: exiv2>=0.16 in c:\users\jim\photini\lib\site-packages (from photini) (0.17.0)
+        Requirement already satisfied: filetype>=1.0 in c:\users\jim\photini\lib\site-packages (from photini) (1.2.0)
+        Requirement already satisfied: Pillow>=2.0 in c:\users\jim\photini\lib\site-packages (from photini) (10.4.0)
+        Requirement already satisfied: requests>=2.4 in c:\users\jim\photini\lib\site-packages (from photini) (2.32.3)
+        Requirement already satisfied: charset-normalizer<4,>=2 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini) (3.3.2)
+        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini) (3.8)
+        Requirement already satisfied: urllib3<3,>=1.21.1 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini) (2.2.3)
+        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\photini\lib\site-packages (from requests>=2.4->photini) (2024.8.30)
+        Downloading Photini-2024.8.2-py3-none-any.whl (418 kB)
+        Installing collected packages: photini
+          Attempting uninstall: photini
+            Found existing installation: Photini 2024.5.0
+            Uninstalling Photini-2024.5.0:
+              Successfully uninstalled Photini-2024.5.0
+        Successfully installed photini-2024.8.2
 
 The ``-U`` option tells pip to update Photini to the latest available version.
 
@@ -830,11 +776,10 @@ requests_                      2.4                ``python3-requests``          
 [1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI framework.
 Photini can use any of them (although PyQt is preferred), so you can install whichever one you prefer that is available for your operating system.
 (Note that PyQt6 and PySide6 are not compatible with Windows versions earlier than Windows 10.)
-If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>` or by running ``photini-configure``.
+If more than one of them is installed you can choose which one Photini uses in its :doc:`configuration <../manual/configuration>`
 
 [2] Photini needs the Python interface to QtWebEngine_.
 This is included in PySide6_ and some PyQt_ or PySide2_ installations, otherwise you need to install a separate package.
-The ``photini-configure`` command will tell you if it's missing.
 
 .. _installation-optional:
 
@@ -902,27 +847,18 @@ Troubleshooting
 ---------------
 
 If you ever have problems running Photini the first thing to do is to run it in a command window.
-If you installed Photini in a `virtual environment`_ then activate that environment, for example:
-
-.. tabs::
-    .. code-tab:: none Linux/MacOS
-
-        jim@brains:~$ source /home/jim/photini/bin/activate
-        (photini) jim@brains:~$
-    .. code-tab:: none Windows
-
-        C:\Users\Jim>c:\Users\Jim\photini\Scripts\activate.bat
-
-        (photini) C:\Users\Jim>
-
-Start the Photini program as follows.
+If you installed Photini in a `virtual environment`_ then activate that environment first.
+Run the Photini program as a Python module.
 If it fails to run you should get some diagnostic information:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@brains:~$ python3 -m photini -v
+        jim@brains:~$ source /home/jim/photini/bin/activate
+        (photini) jim@brains:~$ python3 -m photini -v
     .. code-tab:: none Windows
+
+        C:\Users\Jim>photini\Scripts\activate.bat
 
         (photini) C:\Users\Jim>python -m photini -v
 
@@ -934,27 +870,27 @@ To find out what version of Photini and some of its dependencies you are using, 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        (photini) jim@mint:~$ python3 -m photini --version
-        qt5ct: using qt5ct plugin
-        Photini 2023.7.0, build release
-          Python 3.8.10 (default, May 26 2023, 14:05:08)
-        [GCC 9.4.0]
-          python-exiv2 0.14.1, exiv2 0.27.7
-          PyQt 5.14.1, Qt 5.12.8, locale en-GB
+        (photini) jim@mint22:~$ python -m photini --version
+        ffmpeg or ffprobe not found
+        Photini 2024.8.2
+          Python 3.12.3 (main, Jul 31 2024, 17:43:48) [GCC 13.2.0]
+          python-exiv2 0.17.0, exiv2 0.28.3
+          PyQt 5.15.10, Qt 5.15.13
+          system locale en-GB, locales: en-GB en-Latn-GB en en-US en-Latn-US
           PyEnchant 3.2.2
-          ffmpeg version 4.2.7-0ubuntu0.1 Copyright (c) 2000-2022 the FFmpeg developers
-          available styles: cleanlooks, gtk2, cde, motif, plastique, qt5ct-style, Windows, Fusion
-          using style: qt5ct-style
+          styles: cleanlooks, gtk2, cde, motif, plastique, Windows, Fusion
+          using style: fusion
     .. code-tab:: none Windows
 
         (photini) C:\Users\Jim>python -m photini --version
         ffmpeg or ffprobe not found
-        Photini 2023.10.0, build release
+        Photini 2024.8.2
           Python 3.8.10 (tags/v3.8.10:3d8993a, May  3 2021, 11:48:03) [MSC v.1928 64 bit (AMD64)]
-          python-exiv2 0.14.1, exiv2 0.27.7
-          PyQt 5.15.10, Qt 5.15.2, locale en-GB
+          python-exiv2 0.17.0, exiv2 0.28.3
+          PyQt 5.15.11, Qt 5.15.2
+          system locale en-GB, locales: en-US
           PyEnchant 3.2.2
-          available styles: windowsvista, Windows, Fusion
+          styles: windowsvista, Windows, Fusion
           using style: windowsvista
 
 This information is useful if you need to email me (jim@jim-easterbrook.me.uk) with any problems you have running Photini.
@@ -979,15 +915,20 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 
 .. _Exiv2:             http://exiv2.org/
 .. _FFmpeg:            https://ffmpeg.org/
+.. _Flickr:            http://www.flickr.com/
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
+.. _Google Photos:     https://photos.google.com/
 .. _gpxpy:             https://pypi.org/project/gpxpy/
+.. _Ipernity:          http://www.ipernity.com/
 .. _keyring:           https://keyring.readthedocs.io/
 .. _Managing Python packages the right way:
         https://opensource.com/article/19/4/managing-python-packages
+.. _Mastodon:          https://joinmastodon.org/
 .. _MSYS2:             http://www.msys2.org/
 .. _pgi:               https://pgi.readthedocs.io/
 .. _Pillow:            http://pillow.readthedocs.io/
 .. _pip:               https://pip.pypa.io/en/latest/
+.. _Pixelfed:          https://pixelfed.org/
 .. _PyEnchant:         https://pypi.org/project/pyenchant/
 .. _pyenchant documentation:
         https://pyenchant.github.io/pyenchant/install.html
