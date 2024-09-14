@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2019-23  Jim Easterbrook.
+   Copyright (C)  2019-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Location addresses
@@ -30,8 +30,8 @@ The address lookup service is provided by OpenCage_, using data from OpenStreetM
 Other map providers don't allow lookup results to be permanently stored.
 
 Photini attempts to use all the data returned in an address lookup.
-This can lead to some duplication, e.g. Château-Gontier appears twice in ``city``.
-Note also the blue underlining indicating text that is too long to store in IPTC-IIM metadata.
+This can lead to some duplication, e.g. a city name appearing twice in ``City``.
+Note also the blue underlining indicating text (in the ``City`` field) that is too long to store in IPTC-IIM metadata.
 
 .. image:: ../images/screenshot_292.png
 
@@ -41,7 +41,7 @@ The reverse geocoding process chooses a "place" (address, business, landmark, et
 
 .. image:: ../images/screenshot_293.png
 
-It is usually necessary to edit the address quite a lot.
+It is usually necessary to edit the address.
 
 .. image:: ../images/screenshot_294.png
 

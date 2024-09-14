@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.8.2.post133\n"
+"Project-Id-Version: Photini 2024.8.2.post137\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-14 11:34+0100\n"
+"POT-Creation-Date: 2024-09-14 14:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,13 +49,13 @@ msgstr ""
 msgid "The ``Get address from lat, long`` button uses \"reverse geocoding\" to convert latitude & longitude into a hierarchical address. This is a rather imprecise process so you may need to edit the results yourself. The address lookup service is provided by OpenCage_, using data from OpenStreetMap_. Other map providers don't allow lookup results to be permanently stored."
 msgstr ""
 
-msgid "Photini attempts to use all the data returned in an address lookup. This can lead to some duplication, e.g. Château-Gontier appears twice in ``city``. Note also the blue underlining indicating text that is too long to store in IPTC-IIM metadata."
+msgid "Photini attempts to use all the data returned in an address lookup. This can lead to some duplication, e.g. a city name appearing twice in ``City``. Note also the blue underlining indicating text (in the ``City`` field) that is too long to store in IPTC-IIM metadata."
 msgstr ""
 
 msgid "Scrolling down shows the latitude and longitude of the location. Note that these are not the same as the GPS coordinates shown at the top left. The reverse geocoding process chooses a \"place\" (address, business, landmark, etc.) near the actual coordinates and it is the coordinates of that place that are shown in the ``camera`` address."
 msgstr ""
 
-msgid "It is usually necessary to edit the address quite a lot."
+msgid "It is usually necessary to edit the address."
 msgstr ""
 
 msgid "Right-clicking on a location tab displays a context menu that allows the tab to be copied to a new tab or deleted. Copying the ``camera`` location is an easy way to initialise a ``subject`` location. (An empty ``subject 2`` tab is immediately created, in case the photograph has more than one subject.)"
