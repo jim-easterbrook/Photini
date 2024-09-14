@@ -158,22 +158,23 @@ class EditSettings(QtWidgets.QDialog):
             self._set_map_pin_button_colour(self.map_pin[active])
             self.map_pin[active]['button'].setStyleSheet('text-align: left;')
         self.map_gps = {}
-        self.map_gps[True] = {'button': QtWidgets.QPushButton(
-            translate('EditSettings', 'GPS track point (selected)'))}
-        self.map_gps[True]['button'].clicked.connect(self._get_map_gps_true)
-        panel.layout().addRow('', self.map_gps[True]['button'])
-        self.map_gps[False] = {'button': QtWidgets.QPushButton(
-            translate('EditSettings', 'GPS track point (unselected)'))}
-        self.map_gps[False]['button'].clicked.connect(self._get_map_gps_false)
-        panel.layout().addRow('', self.map_gps[False]['button'])
-        for active in self.map_gps:
-            self.map_gps[active]['colour'] = QtGui.QColor(
-                self.config_store.get('map', 'gps_colour_{}'.format(active)))
-            self.map_gps[active]['button'].setFlat(True)
-            self.map_gps[active]['button'].setFixedHeight(
-                self.iptc_always.sizeHint().height())
-            self._set_map_pin_button_colour(self.map_gps[active])
-            self.map_gps[active]['button'].setStyleSheet('text-align: left;')
+        if self.app.gpx_importer:
+            self.map_gps[True] = {'button': QtWidgets.QPushButton(
+                translate('EditSettings', 'GPS track point (selected)'))}
+            self.map_gps[True]['button'].clicked.connect(self._get_map_gps_true)
+            panel.layout().addRow('', self.map_gps[True]['button'])
+            self.map_gps[False] = {'button': QtWidgets.QPushButton(
+                translate('EditSettings', 'GPS track point (unselected)'))}
+            self.map_gps[False]['button'].clicked.connect(self._get_map_gps_false)
+            panel.layout().addRow('', self.map_gps[False]['button'])
+            for active in self.map_gps:
+                self.map_gps[active]['colour'] = QtGui.QColor(
+                    self.config_store.get('map', 'gps_colour_{}'.format(active)))
+                self.map_gps[active]['button'].setFlat(True)
+                self.map_gps[active]['button'].setFixedHeight(
+                    self.iptc_always.sizeHint().height())
+                self._set_map_pin_button_colour(self.map_gps[active])
+                self.map_gps[active]['button'].setStyleSheet('text-align: left;')
         # Qt package
         self.qt_package = {}
         if len(available_packages) > 1:
