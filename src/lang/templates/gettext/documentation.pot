@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2024.8.2.post137\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-14 14:32+0100\n"
+"POT-Creation-Date: 2024-09-14 15:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,10 +70,13 @@ msgstr ""
 msgid "Configuration"
 msgstr ""
 
+msgid "Photini's ``Options`` menu allows you to adjust its operation to suit your personal preferences."
+msgstr ""
+
 msgid "If there are tabs in the Photini GUI that you don't use, you can remove them by deselecting their entry in the ``Options`` menu."
 msgstr ""
 
-msgid "The ``Options`` menu also has a ``Settings`` item which opens the dialog shown below."
+msgid "The ``Options`` menu has a ``Settings`` item which opens the dialog shown above."
 msgstr ""
 
 msgid "The first three items adjust how Photini uses IPTC-IIM \"legacy\" metadata. (Since 2004 the `IPTC standard`_ uses XMP to store metadata. Photini always writes these XMP fields.) The first option is to always write IPTC-IIM metadata. You may need this if you use other software that reads IPTC-IIM but not XMP. The second option only writes IPTC-IIM metadata if it is already present in the file, as recommended by the `Metadata Working Group`_. The third option is to delete any IPTC-IIM metadata that might be present."
@@ -88,7 +91,16 @@ msgstr ""
 msgid "Next there are options to adjust file timestamps. \"Keep original\" leaves image files' timestamps unchanged. \"Set to when photo was taken\" changes files' timestamps to the date & time taken (as shown on the technical tab). \"Set to when the file is saved\" sets files' timestamps to when you save the file with Photini, like most other computer programs do. You may find these options useful if you often use a file browser to sort files by date."
 msgstr ""
 
-msgid "If you have installed gpxpy_ then there is a final option to determine if the altitude is included when a GPX file is used to set pictures' GPS data."
+msgid "You may need to scroll down to see all the settings available."
+msgstr ""
+
+msgid "If you have installed gpxpy_ then there is an option to determine if the altitude is included when a GPX file is used to set pictures' GPS data."
+msgstr ""
+
+msgid "Clicking on one of the \"map icon colours\" fields opens a colour chooser dialog that allows you to click on a colour or type in its values in a variety of formats."
+msgstr ""
+
+msgid "Lastly, if you have more than one Qt package installed then you can choose which one to use. If you change the Qt package Photini informs you that it needs to be restarted to use the new package."
 msgstr ""
 
 msgid "Spell checking"
@@ -109,13 +121,7 @@ msgstr ""
 msgid "PyQt options"
 msgstr ""
 
-msgid "The configuration file includes options to select use of PyQt5, PyQt6, PySide2, or PySide6. These may be useful if one of these components on your computer is incompatible with Photini. There are so many versions of PyQt that it is impossible to test Photini with every one."
-msgstr ""
-
-msgid "The default options in the configuration file are in the ``[pyqt]`` section:"
-msgstr ""
-
-msgid "To force use of a particular Qt library set the value of ``qt_lib`` to ``'PyQt5'``, ``'PyQt6'``, ``'PySide2'``, or ``'PySide6'``. (You can also use the ``photini-configure`` command to set this.) You can check which versions Photini is currently using by running it in a command window with the ``--version`` option::"
+msgid "Some less used Qt options can only be set by editing the configuration file. These options are in the ``[pyqt]`` section:"
 msgstr ""
 
 msgid "If your computer has a high resolution screen, or you have poor eyesight, you may find the Photini user interface's text is too small to read comfortably. Setting ``scale_factor`` to a value larger than ``1`` should enlarge Photini. Using non-integer values is possible, but might show artefacts from the scaling."
@@ -139,7 +145,10 @@ msgstr ""
 msgid "The choice of style affects how some \"widgets\" are drawn. If you find problems such as date or timezone values (on the \"technical metadata\" tab) being partly hidden then it might be worth trying another style."
 msgstr ""
 
-msgid "To find out what styles are available on your computer you can use Photini's ``--version`` flag. (You need to run Photini from a command window to do this, see the :ref:`installation troubleshooting<installation-troubleshooting>` section.) You can then try one of these styles as follows::"
+msgid "To find out what styles are available on your computer you can use Photini's ``--version`` flag. (You need to run Photini from a command window to do this, see the :ref:`installation troubleshooting<installation-troubleshooting>` section.)"
+msgstr ""
+
+msgid "You can then try one of these styles by specifying it on the command line::"
 msgstr ""
 
 msgid "Note that the style names are not case sensitive. If none of the available styles is to your liking you may be able to install extra ones. For example, on some Ubuntu Linux systems the package ``qt5-style-plugins`` is available."
