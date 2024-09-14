@@ -187,6 +187,7 @@ class EditSettings(QtWidgets.QDialog):
                 panel.layout().addRow(lhs, self.qt_package[package])
                 lhs = ''
         # add panel to scroll area after its size is known
+        scroll_area.viewport().setMinimumWidth(panel.sizeHint().width())
         scroll_area.setWidget(panel)
 
     def _set_map_pin_button_colour(self, details):
