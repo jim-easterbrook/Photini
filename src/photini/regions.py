@@ -47,6 +47,7 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         border.setPen(pen)
         r = draw_unit * 4
         border.setRect(-r, -r, r * 2, r * 2)
+        self.setCursor(Qt.CursorShape.CrossCursor)
 
     @catch_all
     def mouseMoveEvent(self, event):
@@ -87,6 +88,7 @@ class RegionMixin(object):
         self.to_scene = QtGui.QTransform().scale(rect.width(), rect.height())
         self.from_scene = self.to_scene.inverted()[0]
         self.display_widget = display_widget
+        self.setCursor(Qt.CursorShape.ArrowCursor)
 
     def set_style(self, draw_unit):
         pen = QtGui.QPen()
@@ -294,6 +296,7 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
     def __init__(self, region, display_widget, draw_unit, active, *arg, **kw):
         super(PointRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
+        self.setCursor(Qt.CursorShape.CrossCursor)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw cross hairs
         pos = self.to_scene.map(region.to_Qt(self.image)).at(0)
@@ -447,6 +450,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.setRenderHint(
             QtGui.QPainter.RenderHint.SmoothPixmapTransform, True)
         self.setScene(QtWidgets.QGraphicsScene())
+        self.setDragMode(self.DragMode.ScrollHandDrag)
         self.boundaries = []
         self.image = None
 
