@@ -220,6 +220,7 @@ class TabWidget(QtWidgets.QWidget):
         widgets['rights/WebStatement'] = RightsDropDown('rights/WebStatement')
         rights_group.layout().addRow(translate('OwnerTab', 'Web Statement'),
                                      widgets['rights/WebStatement'])
+        rights_group.setFixedHeight(rights_group.sizeHint().height())
         form.addRow(translate('OwnerTab', 'Rights'), rights_group)
         # special instructions
         widgets['instructions'] = SingleLineEdit(
