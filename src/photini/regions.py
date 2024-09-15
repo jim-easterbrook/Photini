@@ -113,7 +113,8 @@ class RegionMixin(object):
         self.display_widget.item_clicked(self)
 
     def set_scale(self):
-        scale = 1.0 / self.display_widget.transform().m11()
+        transform = self.display_widget.transform()
+        scale = 1.0 / max(abs(transform.m11()), abs(transform.m21()))
         for handle in self.handles:
             handle.setScale(scale)
 
@@ -309,7 +310,8 @@ class PointRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.set_scale()
 
     def set_scale(self):
-        scale = 1.0 / self.display_widget.transform().m11()
+        transform = self.display_widget.transform()
+        scale = 1.0 / max(abs(transform.m11()), abs(transform.m21()))
         self.setScale(scale)
 
     @catch_all
@@ -388,7 +390,8 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
                 handle.deletable = True
         handle = PolygonHandle(self.draw_unit, parent=self)
         handle.setPos(p0)
-        scale = 1.0 / self.display_widget.transform().m11()
+        transform = self.display_widget.transform()
+        scale = 1.0 / max(abs(transform.m11()), abs(transform.m21()))
         handle.setScale(scale)
         self.handles.insert(insert, handle)
 
