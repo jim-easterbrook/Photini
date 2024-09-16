@@ -714,9 +714,6 @@ class UnitSelector(QtWidgets.QWidget):
     def __init__(self, key, *arg, **kw):
         super(UnitSelector, self).__init__(*arg, **kw)
         self._key = key
-        policy = self.sizePolicy()
-        policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
-        self.setSizePolicy(policy)
         self.setLayout(QtWidgets.QHBoxLayout())
         margins = self.layout().contentsMargins()
         margins.setTop(0)
@@ -737,6 +734,7 @@ class UnitSelector(QtWidgets.QWidget):
             ' x- or the y-axis.')))
         self.buttons['relative'].clicked.connect(self.state_changed)
         self.layout().addWidget(self.buttons['relative'])
+        self.setFixedHeight(self.sizeHint().height())
 
     @QtSlot()
     @catch_all
