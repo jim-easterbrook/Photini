@@ -304,19 +304,21 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
         self.initialise(region, display_widget, active)
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        # single point, draw cross hairs
-        dx1 = draw_unit * 4
+        # single point, draw cross hairs with a centre circle
+        r = draw_unit * 6
+        dx1 = r / 1.35
         dx2 = draw_unit * 20
         self.bg_parts = []
         self.fg_parts = []
-        for ends in ((-dx2, -dx2, -dx1, -dx1), (dx2, -dx2, dx1, -dx1),
-                     (-dx2,  dx2, -dx1,  dx1), (dx2,  dx2, dx1,  dx1)):
-            line = QtWidgets.QGraphicsLineItem(QtCore.QLineF(*ends))
-            self.bg_parts.append(line)
-            self.addToGroup(line)
-            line = QtWidgets.QGraphicsLineItem(QtCore.QLineF(*ends))
-            self.fg_parts.append(line)
-            self.addToGroup(line)
+        for parts in (self.bg_parts, self.fg_parts):
+            for ends in ((-dx2, -dx2, -dx1, -dx1), (dx2, -dx2, dx1, -dx1),
+                         (-dx2,  dx2, -dx1,  dx1), (dx2,  dx2, dx1,  dx1)):
+                line = QtWidgets.QGraphicsLineItem(QtCore.QLineF(*ends))
+                parts.append(line)
+                self.addToGroup(line)
+            circle = QtWidgets.QGraphicsEllipseItem(-r, -r, r * 2, r * 2)
+            parts.append(circle)
+            self.addToGroup(circle)
         pos = self.to_scene.map(region.to_Qt(self.image)).at(0)
         self.setPos(pos)
         self.set_style(draw_unit)
