@@ -16,6 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2024.9.0:
+  1/ Regions tab image display is zoomable and draggable.
+  2/ Qt package preference can be changed in settings dialog.
+  3/ Selected image thumbnails use system "selected text" colour.
+  4/ Map marker colours can be changed in settings dialog.
+  5/ Better handling of missing WebGL in map tabs.
+  6/ Improved 'photini-post-install' command.
+  7/ Other minor improvements and bug fixes.
+
 Changes in v2024.8.2:
   1/ Fix map tabs localisation problems on Windows.
 

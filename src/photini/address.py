@@ -90,8 +90,8 @@ class OpenCage(GeocoderBase):
             'street_name', 'street', 'cycleway', 'footway', 'place', 'square',
             'locality', 'hamlet', 'croft'),
         'ignore': (
-            'ISO_3166-2', 'political_union', 'road_reference',
-            'road_reference_intl', 'road_type'),
+            'ISO_3166-2', 'local_authority', 'political_union',
+            'road_reference', 'road_reference_intl', 'road_type'),
         }
 
     def get_address(self, coords):

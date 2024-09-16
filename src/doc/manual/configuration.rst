@@ -5,11 +5,15 @@
 Configuration
 =============
 
+Photini's ``Options`` menu allows you to adjust its operation to suit your personal preferences.
+
+.. image:: ../images/screenshot_080.png
+
 If there are tabs in the Photini GUI that you don't use, you can remove them by deselecting their entry in the ``Options`` menu.
 
-The ``Options`` menu also has a ``Settings`` item which opens the dialog shown below.
+.. image:: ../images/screenshot_081.png
 
-.. image:: ../images/screenshot_36.png
+The ``Options`` menu has a ``Settings`` item which opens the dialog shown above.
 
 The first three items adjust how Photini uses IPTC-IIM "legacy" metadata.
 (Since 2004 the `IPTC standard`_ uses XMP to store metadata.
@@ -34,12 +38,27 @@ Next there are options to adjust file timestamps.
 "Set to when the file is saved" sets files' timestamps to when you save the file with Photini, like most other computer programs do.
 You may find these options useful if you often use a file browser to sort files by date.
 
-If you have installed gpxpy_ then there is a final option to determine if the altitude is included when a GPX file is used to set pictures' GPS data.
+.. image:: ../images/screenshot_082.png
+
+You may need to scroll down to see all the settings available.
+
+If you have installed gpxpy_ then there is an option to determine if the altitude is included when a GPX file is used to set pictures' GPS data.
+
+.. image:: ../images/screenshot_083.png
+
+Clicking on one of the "map icon colours" fields opens a colour chooser dialog that allows you to click on a colour or type in its values in a variety of formats.
+
+.. image:: ../images/screenshot_084.png
+
+Lastly, if you have more than one Qt package installed then you can choose which one to use.
+If you change the Qt package Photini informs you that it needs to be restarted to use the new package.
 
 .. _configuration-spell:
 
 Spell checking
 ^^^^^^^^^^^^^^
+
+.. image:: ../images/screenshot_085.png
 
 The ``Spelling`` menu allows you to enable or disable spell checking on Photini's text fields, and to select the language dictionary to use.
 The available languages depend on what dictionaries you have installed.
@@ -65,24 +84,15 @@ If you'd like to store it elsewhere (e.g. on a networked drive so you can share 
 PyQt options
 ^^^^^^^^^^^^
 
-The configuration file includes options to select use of PyQt5, PyQt6, PySide2, or PySide6.
-These may be useful if one of these components on your computer is incompatible with Photini.
-There are so many versions of PyQt that it is impossible to test Photini with every one.
-
-The default options in the configuration file are in the ``[pyqt]`` section:
+Some less used Qt options can only be set by editing the configuration file.
+These options are in the ``[pyqt]`` section:
 
 .. code-block:: guess
 
    [pyqt]
-   qt_lib = 'auto'
+   qt_lib = 'PyQt6'
    scale_factor = 1
    native_dialog = True
-
-To force use of a particular Qt library set the value of ``qt_lib`` to ``'PyQt5'``, ``'PyQt6'``, ``'PySide2'``, or ``'PySide6'``.
-(You can also use the ``photini-configure`` command to set this.)
-You can check which versions Photini is currently using by running it in a command window with the ``--version`` option::
-
-   photini --version
 
 If your computer has a high resolution screen, or you have poor eyesight, you may find the Photini user interface's text is too small to read comfortably.
 Setting ``scale_factor`` to a value larger than ``1`` should enlarge Photini.
@@ -111,7 +121,8 @@ If you find problems such as date or timezone values (on the "technical metadata
 
 To find out what styles are available on your computer you can use Photini's ``--version`` flag.
 (You need to run Photini from a command window to do this, see the :ref:`installation troubleshooting<installation-troubleshooting>` section.)
-You can then try one of these styles as follows::
+
+::
 
     $ photini --version
     Photini 2022.3.2, build 2084 (3194bd4)
@@ -122,6 +133,10 @@ You can then try one of these styles as follows::
       ffmpeg version 3.4.9 Copyright (c) 2000-2021 the FFmpeg developers
       available styles: Breeze, bb10dark, bb10bright, cleanlooks, gtk2, cde, motif, plastique, Windows, Fusion
       using style: breeze
+
+You can then try one of these styles by specifying it on the command line::
+
+    $ photini --style motif
 
 Note that the style names are not case sensitive.
 If none of the available styles is to your liking you may be able to install extra ones.
@@ -134,8 +149,7 @@ Note that after doing this you can not set a different style on the command line
 .. code-block:: guess
 
    [pyqt]
-   using_qtwebengine = 'auto'
-   qt_lib = 'auto'
+   qt_lib = 'PyQt5'
    scale_factor = 1
    native_dialog = True
    style = cleanlooks
