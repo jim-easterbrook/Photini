@@ -117,6 +117,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.update_favourites()
         self.favourites.currentIndexChanged.connect(self.add_favourite)
         layout.addWidget(self.favourites)
+        self.setFixedHeight(self.sizeHint().height())
         # adopt child widget methods and signals
         self.get_value = self.edit.get_value
         self.set_value = self.edit.set_value
