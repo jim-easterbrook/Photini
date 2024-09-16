@@ -595,6 +595,10 @@ class NewLensDialog(NewItemDialog):
             for key in self.lens_spec:
                 if spec[key]:
                     self.lens_spec[key].set_value(spec[key])
+        if self.lens_spec['max_fl'].get_value() == self.lens_spec[
+                                                    'min_fl'].get_value():
+            self.lens_spec['max_fl'].set_value(None)
+            self.lens_spec['max_fl_fn'].set_value(None)
 
     def extend_data(self):
         # add lens spec

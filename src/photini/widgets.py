@@ -548,9 +548,6 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         if multi_line:
             self.edit = MultiLineEdit(key, **kw)
         else:
-            policy = self.sizePolicy()
-            policy.setVerticalPolicy(QtWidgets.QSizePolicy.Policy.Fixed)
-            self.setSizePolicy(policy)
             self.edit = SingleLineEdit(key, **kw)
         self.edit.new_value.connect(self._new_value)
         layout.addWidget(self.edit, *edit_pos)
@@ -565,6 +562,8 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
         self.set_value('')
+        if not multi_line:
+            self.setFixedHeight(self.sizeHint().height())
         # adopt some child methods ...
         self.is_multiple = self.edit.is_multiple
         self.set_height = self.edit.set_height
