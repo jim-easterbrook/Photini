@@ -591,7 +591,15 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 elif item_n.collidesWithItem(
                         item_m, Qt.ItemSelectionMode.ContainsItemBoundingRect):
                     item_n.setZValue(max(item_n.zValue(), item_m.zValue() + 1))
-        self.ensureVisible(self.boundaries[max(idx, 0)])
+        # zoom out if needed to make boundary visible
+        boundary = self.boundaries[max(idx, 0)]
+        rect = boundary.boundingRect()
+        visible = self.mapToScene(self.viewport().geometry()).boundingRect()
+        scale = min(visible.width() / rect.width(),
+                    visible.height() / rect.height())
+        if scale < 1.0:
+            self.adjust_zoom(scale - 1.0)
+        self.ensureVisible(boundary)
 
     def item_clicked(self, scene_item):
         for idx, item in enumerate(self.boundaries):
