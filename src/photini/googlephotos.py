@@ -20,6 +20,8 @@ import logging
 import os
 import urllib
 
+import keyring
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 import requests
 from requests_oauthlib import OAuth2Session
 
@@ -52,10 +54,17 @@ class GooglePhotosSession(UploaderSession):
 
     def api_call(self, url, post=False, **params):
         self.open_connection()
-        if post:
-            rsp = self.api.post(url, timeout=5, **params)
-        else:
-            rsp = self.api.get(url, timeout=5, **params)
+        try:
+            if post:
+                rsp = self.api.post(url, timeout=5, **params)
+            else:
+                rsp = self.api.get(url, timeout=5, **params)
+        except InvalidGrantError as ex:
+            # probably an expired token, force new login
+            self.close_connection()
+            if keyring.get_password('photini', 'googlephotos'):
+                keyring.delete_password('photini', 'googlephotos')
+            return {}
         rsp = self.check_response(rsp)
         if not rsp:
             self.close_connection()
@@ -139,7 +148,10 @@ class GooglePhotosUser(UploaderUser):
             rsp = session.api_call(session.oauth_url + 'v2/userinfo')
             if not rsp:
                 yield 'connected', False
-            self.user_data['lang'] = rsp['locale']
+            if 'locale' in rsp:
+                self.user_data['lang'] = rsp['locale']
+            else:
+                self.user_data['lang'] = None
             name = rsp['name']
             rsp = session.check_response(
                 session.api.get(rsp['picture']), decode=False)

@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2024.9.1:
+  1/ Fix problem dragging onto map with some Python/Qt combinations.
+
 Changes in v2024.9.0:
   1/ Regions tab image display is zoomable and draggable.
   2/ Qt package preference can be changed in settings dialog.
