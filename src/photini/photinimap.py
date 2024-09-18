@@ -82,7 +82,6 @@ class MapIconFactory(QtCore.QObject):
                 'RGB', alpha.size, colour)
             self._icons[False][active].putalpha(alpha)
             self._icons[False][active] = self._icons[False][active].copy()
-##            self._icons[False][active].resize((100, 100), PIL.Image.NEAREST).show()
         self.icons_changed.emit()
 
     def get_pin_as_pixmap(self, pin, active):
@@ -272,7 +271,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(True, False)
         w, h = self.app.map_icon_factory.get_pin_size(True)
-        self.drag_hotspot = w / 2, h
+        self.drag_hotspot = w // 2, h
         self.search_string = None
         self.map_loaded = 0     # not loaded
         self.marker_info = {}
