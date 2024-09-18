@@ -269,9 +269,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.app.loggerwindow.hide_word(self.api_key)
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
-        self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(True, False)
+        self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(
+            True, False)
         w, h = self.app.map_icon_factory.get_pin_size(True)
-        self.drag_hotspot = w // 2, h
         self.search_string = None
         self.map_loaded = 0     # not loaded
         self.marker_info = {}
@@ -446,7 +446,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.redraw_markers(force=True)
 
     def refresh(self):
-        self.app.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
+        self.app.image_list.set_drag_to_map(self.drag_icon)
         selection = self.app.image_list.get_selected_images()
         self.update_display(selection, adjust_map=False)
         if self.map_loaded < 1:
