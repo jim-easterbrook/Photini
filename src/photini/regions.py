@@ -569,16 +569,11 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
                 aspect_ratio = 0.0
-                if region.has_uid('Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
-                                  'newscodes/imageregionrole/squareCropping'):
+                if region.has_role('imgregrole:squareCropping'):
                     aspect_ratio = 1.0
-                elif region.has_uid(
-                        'Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
-                        'newscodes/imageregionrole/landscapeCropping'):
+                elif region.has_role('imgregrole:landscapeCropping'):
                     aspect_ratio = 16.0 / 9.0
-                elif region.has_uid(
-                        'Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
-                        'newscodes/imageregionrole/portraitCropping'):
+                elif region.has_role('imgregrole:portraitCropping'):
                     aspect_ratio = 9.0 / 16.0
                 if aspect_ratio and self.transform().isRotating():
                     aspect_ratio = 1.0 / aspect_ratio
@@ -641,9 +636,7 @@ class EntityConceptWidget(SingleLineEdit):
             action = self.menu.addAction(label)
             action.setCheckable(True)
             action.setToolTip('<p>{}</p>'.format(tip))
-            data = {'xmp:Identifier': [item['uri']],
-                    'Iptc4xmpExt:Name': item['name']}
-            action.setData(data)
+            action.setData(item['data'])
             action.toggled.connect(self.update_display)
             action.triggered.connect(self.action_triggered)
             self.actions.append(action)

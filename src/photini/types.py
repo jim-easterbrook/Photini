@@ -24,6 +24,8 @@ import math
 import pprint
 import re
 
+from photini.cv import (image_region_roles, image_region_roles_idx,
+                        image_region_types, image_region_types_idx)
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import *
 from photini.pyqt import qt_version_info, using_pyside
@@ -1857,11 +1859,8 @@ class ImageRegionItem(MD_Structure):
         region['Iptc4xmpExt:rbUnit'] = 'pixel'
         return cls({
             'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [{
-                'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
-                'xmp:Identifier': [
-                    'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea'],
-                }],
+            'Iptc4xmpExt:rRole': [image_region_roles[
+                image_region_roles_idx['imgregrole:mainSubjectArea']]],
             })
 
     def has_uid(self, key, uid):
@@ -1872,10 +1871,13 @@ class ImageRegionItem(MD_Structure):
                 return True
         return False
 
-    def is_main_subject_area(self):
-        return self.has_uid(
-            'Iptc4xmpExt:rRole',
-            'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
+    def has_type(self, qcode):
+        data = image_region_types[image_region_types_idx[qcode]]['data']
+        return self.has_uid('Iptc4xmpExt:rCtype', data['xmp:Identifier'][0])
+
+    def has_role(self, qcode):
+        data = image_region_roles[image_region_roles_idx[qcode]]['data']
+        return self.has_uid('Iptc4xmpExt:rRole', data['xmp:Identifier'][0])
 
     def to_Qt(self, image):
         return self['Iptc4xmpExt:RegionBoundary'].to_Qt(image)
@@ -1913,10 +1915,10 @@ class MD_ImageRegion(MD_StructArray):
         return result
 
     def index(self, other):
-        if other.is_main_subject_area():
+        if other.has_role('imgregrole:mainSubjectArea'):
             # only one main subject area region allowed
             for n, value in enumerate(self):
-                if value.is_main_subject_area():
+                if value.has_role('imgregrole:mainSubjectArea'):
                     return True
             return len(self)
         for n, value in enumerate(self):
@@ -1967,17 +1969,15 @@ class MD_ImageRegion(MD_StructArray):
                 boundary = self.boundary_from_note(note, dims, image)
             if not boundary:
                 continue
-            region = {'Iptc4xmpExt:RegionBoundary': boundary}
-            region['Iptc4xmpExt:rRole'] = [{
-                'xmp:Identifier': [
-                    'http://cv.iptc.org/newscodes/imageregionrole/subjectArea'],
-                'Iptc4xmpExt:Name': {'en-GB': 'subject area'}}]
+            region = {
+                'Iptc4xmpExt:RegionBoundary': boundary,
+                'Iptc4xmpExt:rRole': [image_region_roles[
+                    image_region_roles_idx['imgregrole:subjectArea']]],
+                }
             if note['is_person']:
                 region['Iptc4xmpExt:PersonInImage'] = [note['content']]
-                region['Iptc4xmpExt:rCtype'] = [{
-                    'Iptc4xmpExt:Name': {'en-GB': 'human'},
-                    'xmp:Identifier': [
-                        'http://cv.iptc.org/newscodes/imageregiontype/human']}]
+                region['Iptc4xmpExt:rCtype'] = [image_region_types[
+                    image_region_types_idx['imgregtype:human']]]
             else:
                 region['dc:description'] = {'x-default': note['content']}
             if note['authorrealname']:
@@ -2010,17 +2010,15 @@ class MD_ImageRegion(MD_StructArray):
         for region, note in self.to_note_boundary(image, target_size):
             note['content'] = ''
             note['is_person'] = False
-            if region.has_uid(
-                    'Iptc4xmpExt:rCtype',
-                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
+            if region.has_type('imgregtype:human'):
                 if 'Iptc4xmpExt:PersonInImage' in region:
                     note['content'] = ', '.join(
                         region['Iptc4xmpExt:PersonInImage'])
                 note['is_person'] = True
-            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
-                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
+            elif not any(region.has_role(x) for x in (
+                    'imgregrole:subjectArea',
+                    'imgregrole:mainSubjectArea',
+                    'imgregrole:areaOfInterest')):
                 continue
             if 'dc:description' in region and not note['content']:
                 note['content'] = MD_LangAlt(
