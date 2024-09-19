@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2023  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2023-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -61,9 +61,15 @@ def main(argv=None):
                     if 'note' in concept:
                         data[uri]['note'].update(concept['note'])
                     data[uri]['uri'] = concept['uri']
+                    data[uri]['qcode'] = concept['qcode']
                 py.write(data_name)
                 py.write(' = \\\n')
                 pprint(tuple(data[x] for x in uris), stream=py)
+                py.write('\n')
+                py.write(data_name)
+                py.write('_idx = \\\n')
+                pprint(dict((data[x]['qcode'], n)
+                            for n, x in enumerate(uris)), stream=py)
                 py.write('\n')
     return 0
 
