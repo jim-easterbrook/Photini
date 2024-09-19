@@ -1972,12 +1972,12 @@ class MD_ImageRegion(MD_StructArray):
             region = {
                 'Iptc4xmpExt:RegionBoundary': boundary,
                 'Iptc4xmpExt:rRole': [image_region_roles[
-                    image_region_roles_idx['imgregrole:subjectArea']]],
+                    image_region_roles_idx['imgregrole:subjectArea']]['data']],
                 }
             if note['is_person']:
                 region['Iptc4xmpExt:PersonInImage'] = [note['content']]
                 region['Iptc4xmpExt:rCtype'] = [image_region_types[
-                    image_region_types_idx['imgregtype:human']]]
+                    image_region_types_idx['imgregtype:human']]['data']]
             else:
                 region['dc:description'] = {'x-default': note['content']}
             if note['authorrealname']:
