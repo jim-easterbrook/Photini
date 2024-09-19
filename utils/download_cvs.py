@@ -61,7 +61,6 @@ def main(argv=None):
                     data[uri]['definition'].update(concept['definition'])
                     if 'note' in concept:
                         data[uri]['note'].update(concept['note'])
-                    data[uri]['uri'] = concept['uri']
                     data[uri]['qcode'] = concept['qcode']
                     data[uri]['data'] = {
                         'xmp:Identifier': [concept['uri']],

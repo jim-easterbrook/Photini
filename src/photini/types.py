@@ -2039,24 +2039,20 @@ class MD_ImageRegion(MD_StructArray):
         if transform and transform.isRotating():
             portrait_format = not portrait_format
         if portrait_format:
-            uris = (
-                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
-                )
+            roles = ('imgregrole:landscapeCropping',
+                     'imgregrole:squareCropping',
+                     'imgregrole:recomCropping',
+                     'imgregrole:cropping',
+                     'imgregrole:portraitCropping')
         else:
-            uris = (
-                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
-                )
-        for uri in uris:
+            roles = ('imgregrole:squareCropping',
+                     'imgregrole:portraitCropping',
+                     'imgregrole:landscapeCropping',
+                     'imgregrole:recomCropping',
+                     'imgregrole:cropping')
+        for role in roles:
             for region in self:
-                if not region.has_uid('Iptc4xmpExt:rRole', uri):
+                if not region.has_role(role):
                     continue
                 points = region.to_Qt(image)
                 boundary = region['Iptc4xmpExt:RegionBoundary']
