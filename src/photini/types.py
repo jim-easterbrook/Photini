@@ -1860,7 +1860,7 @@ class ImageRegionItem(MD_Structure):
         return cls({
             'Iptc4xmpExt:RegionBoundary': region,
             'Iptc4xmpExt:rRole': [image_region_roles[
-                image_region_roles_idx['imgregrole:mainSubjectArea']]],
+                image_region_roles_idx['imgregrole:mainSubjectArea']]['data']],
             })
 
     def has_uid(self, key, uid):
