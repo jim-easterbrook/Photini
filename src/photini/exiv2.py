@@ -632,7 +632,7 @@ class MetadataHandler(object):
             return None
         if orientation and mime_type[1] in ('x-fuji-raf', 'x-kodak-dcr'):
             # image data still gets orientation applied somewhere
-            transform = orientation.get_transform().inverted()[0]
+            transform = orientation.get_transform(inverted=True)
             pixmap = pixmap.transformed(transform)
         preview_dims = [pixmap.width(), pixmap.height()]
         preview_dims.sort()

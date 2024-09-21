@@ -1185,7 +1185,7 @@ class MD_Orientation(MD_Int):
             raise ValueError('unrecognised orientation {}'.format(file_value))
         return cls(mapping[file_value])
 
-    def get_transform(self):
+    def get_transform(self, inverted=False):
         bits = self - 1
         if not bits:
             return None
@@ -1206,6 +1206,8 @@ class MD_Orientation(MD_Int):
             transform = transform.translate(-1, 0)
         if transform.m21() + transform.m22() < 0:
             transform = transform.translate(0, -1)
+        if inverted:
+            transform = transform.inverted()[0]
         return transform
 
 
@@ -1932,8 +1934,8 @@ class MD_ImageRegion(MD_StructArray):
         if not ('x' in note and 'y' in note and
                 'w' in note and 'h' in note):
             return None
-        transform = (image.metadata.orientation
-                     and image.metadata.orientation.get_transform())
+        transform = (image.metadata.orientation and
+                     image.metadata.orientation.get_transform(inverted=True))
         w, h = dims
         if transform and transform.isRotating():
             w, h = h, w
@@ -1942,7 +1944,7 @@ class MD_ImageRegion(MD_StructArray):
                              float(note['w']), float(note['h']))
         rect = scale.mapRect(rect)
         if transform:
-            rect = transform.inverted()[0].mapRect(rect)
+            rect = transform.mapRect(rect)
         boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
                     'Iptc4xmpExt:rbUnit': 'relative'}
         (boundary['Iptc4xmpExt:rbX'],
