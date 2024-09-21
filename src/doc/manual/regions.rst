@@ -18,6 +18,11 @@ The user interface is disabled until one image file is selected.
 The image is shown on the right hand side in a scrollable area.
 On the left are one or more tabs showing metadata for each image region.
 
+.. note::
+    You should avoid using "raw" image format photographs as these are often slightly larger than the intended display size.
+    This could lead to errors in the size and position of image regions.
+    Photini attempts to use the correct area of raw photographs, but this cannot be guaranteed to work in all cases.
+
 .. image:: ../images/screenshot_272.png
 
 .. |plus| unicode:: U+002b
