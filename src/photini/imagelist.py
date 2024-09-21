@@ -147,11 +147,8 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
         return data
 
     def get_qt_image(self):
-        reader = QtGui.QImageReader(self.path)
-        reader.setAutoTransform(False)
-        qt_im = reader.read()
-        if not qt_im or qt_im.isNull():
-            logger.error('Image read: %s: %s', self.path, reader.errorString())
+        qt_im = self.metadata.get_image_pixmap()
+        if not qt_im:
             return None
         w = qt_im.width()
         h = qt_im.height()

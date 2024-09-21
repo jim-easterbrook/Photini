@@ -22,8 +22,8 @@ import logging
 import os
 import re
 
-import exiv2
 import chardet
+import exiv2
 
 from photini.pyqt import QtCore, QtGui, using_pyside
 
@@ -621,6 +621,7 @@ class MetadataHandler(object):
                 reader.setAutoTransform(False)
                 pixmap = QtGui.QPixmap.fromImageReader(reader)
                 if pixmap.isNull():
+                    logger.error('%s: %s', self._name, reader.errorString())
                     continue
                 preview_dims = [pixmap.width(), pixmap.height()]
                 return pixmap
