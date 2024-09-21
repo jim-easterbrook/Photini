@@ -502,31 +502,9 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.resetTransform()
         self.boundaries = []
         if image:
-            reader = QtGui.QImageReader(image.path)
-            reader.setAutoTransform(False)
-            pixmap = QtGui.QPixmap.fromImageReader(reader)
-            if pixmap.isNull():
-                w, h = 0, 0
-            else:
-                w, h = pixmap.width(), pixmap.height()
-            # try image previews
-            for data in image.metadata.get_previews():
-                buf = QtCore.QBuffer()
-                # PySide insists on bytes, can't use buffer interface
-                if using_pyside:
-                    data = bytes(data)
-                buf.setData(data)
-                reader = QtGui.QImageReader(buf)
-                reader.setAutoTransform(False)
-                preview = QtGui.QPixmap.fromImageReader(reader)
-                if preview.isNull():
-                    continue
-                if preview.width() > w:
-                    pixmap = preview
-                break
-            if pixmap.isNull():
-                logger.error('%s: %s', os.path.basename(image.path),
-                             reader.errorString())
+            with Busy():
+                pixmap = image.metadata.get_image_pixmap()
+            if not pixmap:
                 item = scene.addText(
                     translate('RegionsTab', 'Unreadable image format'))
             else:

@@ -25,6 +25,8 @@ import re
 import exiv2
 import chardet
 
+from photini.pyqt import QtCore, QtGui, using_pyside
+
 logger = logging.getLogger(__name__)
 
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
@@ -585,6 +587,82 @@ class MetadataHandler(object):
         props = preview_manager.getPreviewProperties()
         for p in props:
             yield p.width_, p.height_
+
+    def get_image_pixmap(self, orientation):
+        mime_type = self.mime_type.split('/')
+        if mime_type[0] != 'image':
+            return None
+        # In raw formats the image is often larger than the final area,
+        # so we accept any preview or image that's up to 2% smaller than
+        # the reported image size.
+        image_dims = [self._image.pixelWidth(), self._image.pixelHeight()]
+        if not all(image_dims):
+            return None
+        image_dims.sort()
+        if mime_type[1].startswith('x-') or mime_type[1] == 'tiff':
+            # probably a raw image format, try largest preview first
+            preview_manager = exiv2.PreviewManager(self._image)
+            props = preview_manager.getPreviewProperties()
+            idx = len(props)
+            while idx:
+                idx -= 1
+                preview_dims = [props[idx]['width'], props[idx]['height']]
+                preview_dims.sort()
+                if min(preview_dims[0] / image_dims[0],
+                       preview_dims[1] / image_dims[1]) < 0.98:
+                    break
+                data = preview_manager.getPreviewImage(props[idx])
+                buf = QtCore.QBuffer()
+                # PySide insists on bytes, can't use buffer interface
+                if using_pyside:
+                    data = bytes(data)
+                buf.setData(data)
+                reader = QtGui.QImageReader(buf)
+                reader.setAutoTransform(False)
+                pixmap = QtGui.QPixmap.fromImageReader(reader)
+                if pixmap.isNull():
+                    continue
+                preview_dims = [pixmap.width(), pixmap.height()]
+                return pixmap
+        reader = QtGui.QImageReader(self._path)
+        reader.setAutoTransform(False)
+        pixmap = QtGui.QPixmap.fromImageReader(reader)
+        if pixmap.isNull():
+            logger.error('%s: %s', self._name, reader.errorString())
+            return None
+        if orientation and mime_type[1] in ('x-fuji-raf', 'x-kodak-dcr'):
+            # image data still gets orientation applied somewhere
+            transform = orientation.get_transform().inverted()[0]
+            pixmap = pixmap.transformed(transform)
+        preview_dims = [pixmap.width(), pixmap.height()]
+        preview_dims.sort()
+        if min(preview_dims[0] / image_dims[0],
+               preview_dims[1] / image_dims[1]) < 0.98:
+            return None
+        crop = [None, None, self._image.pixelWidth(), self._image.pixelHeight()]
+        # look for Exif crop data
+        for datum in self._exifData:
+            key = str(datum.key())
+            family, group, tag = key.split('.')
+            if tag in ('DefaultCropOrigin', 'DefaultCropSize'):
+                pos = self.get_exif_value(
+                    '.'.join((family, group, 'DefaultCropOrigin')))
+                if pos:
+                    crop[0:2] = pos
+                size = self.get_exif_value(
+                    '.'.join((family, group, 'DefaultCropSize')))
+                if size:
+                    crop[2:4] = size
+                break
+        x, y, w_crop, h_crop = crop
+        w_image, h_image = pixmap.width(), pixmap.height()
+        if w_crop > w_image or h_crop > h_image:
+            pass
+        elif w_crop < w_image or h_crop < h_image:
+            x = x or ((w_image - w_crop) // 2)
+            y = y or ((h_image - h_crop) // 2)
+            pixmap = pixmap.copy(x, y, w_crop, h_crop)
+        return pixmap
 
     def set_exif_value(self, tag, value):
         if not value:

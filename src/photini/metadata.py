@@ -800,6 +800,11 @@ class Metadata(object):
             return
         return self._if.get_previews()
 
+    def get_image_pixmap(self):
+        if self._if:
+            return self._if.get_image_pixmap(self.orientation)
+        return None
+
     def get_crop_factor(self):
         md = self._if or self._sc
         if not md:
