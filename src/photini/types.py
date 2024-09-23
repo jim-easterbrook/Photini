@@ -35,9 +35,9 @@ logger = logging.getLogger(__name__)
 # photini.metadata imports these classes
 __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_GPSinfo', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
-    'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
-    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
+    'MD_Dimensions', 'MD_GPSinfo', 'MD_HierarchicalTags', 'MD_ImageRegion',
+    'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation',
+    'MD_MultiString', 'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
     'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
     'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
@@ -1147,6 +1147,24 @@ class MD_MultiString(MD_Value, tuple):
             self.log_merged(info, tag, other)
             return MD_MultiString(result)
         return self
+
+
+class MD_HierarchicalTags(MD_Value, tuple):
+    def __new__(cls, value=None):
+        value = value or []
+        value = [x.strip() for x in value]
+        value = [x.replace('/', '|') for x in value if x]
+        value.sort(key=str.casefold)
+        return super(MD_HierarchicalTags, cls).__new__(cls, value)
+
+    def to_exiv2(self, tag):
+        value = list(self)
+        if tag == 'Xmp.digiKam.TagsList':
+            value = [x.replace('|', '/') for x in value]
+        return value
+
+    def __str__(self):
+        return pprint.pformat(self, compact=True)
 
 
 class MD_Keywords(MD_MultiString):
