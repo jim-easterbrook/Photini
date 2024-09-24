@@ -26,22 +26,27 @@ import stat
 
 import appdirs
 
+
+def get_config_dir():
+    config_dir = os.environ.get('PHOTINI_CONFIG')
+    if config_dir:
+        config_dir = os.path.expanduser(config_dir)
+    elif hasattr(appdirs, 'user_config_dir'):
+        config_dir = appdirs.user_config_dir('photini')
+    else:
+        config_dir = appdirs.user_data_dir('photini')
+    if not os.path.isdir(config_dir):
+        os.makedirs(config_dir, mode=stat.S_IRWXU)
+    return config_dir
+
+
 class BaseConfigStore(object):
     # the actual config store functionality
     def __init__(self, name, *arg, **kw):
         super(BaseConfigStore, self).__init__(*arg, **kw)
         self.dirty = False
         self.config = RawConfigParser()
-        config_dir = os.environ.get('PHOTINI_CONFIG')
-        if config_dir:
-            config_dir = os.path.expanduser(config_dir)
-        elif hasattr(appdirs, 'user_config_dir'):
-            config_dir = appdirs.user_config_dir('photini')
-        else:
-            config_dir = appdirs.user_data_dir('photini')
-        if not os.path.isdir(config_dir):
-            os.makedirs(config_dir, mode=stat.S_IRWXU)
-        self.file_name = os.path.join(config_dir, name + '.ini')
+        self.file_name = os.path.join(get_config_dir(), name + '.ini')
         if os.path.isfile(self.file_name):
             kwds = {'encoding': 'utf-8'}
             with open(self.file_name, 'r', **kwds) as fp:

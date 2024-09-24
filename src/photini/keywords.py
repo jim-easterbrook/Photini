@@ -20,7 +20,9 @@
 from collections import defaultdict
 from datetime import date
 import logging
+import os
 
+from photini.configstore import get_config_dir
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
@@ -155,10 +157,18 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             translate('KeywordsTab', 'keyword'),
             translate('KeywordsTab', 'set'),
             ])
-        self.sort(0)
+        self.file_name = os.path.join(get_config_dir(), 'keywords.txt')
+        self.load_file()
         self.itemChanged.connect(self.item_changed)
 
-    def find_tag(self, tag, create=True):
+    def extend(self, value):
+        # find tags in model, adding them if necessary
+        for tag in value:
+            self.add_tag(tag)
+        # sort model
+        self.sort(0)
+
+    def add_tag(self, tag):
         parent = self.invisibleRootItem()
         for part in tag.split('|'):
             for row in range(parent.rowCount()):
@@ -166,14 +176,11 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
                 if child.text() == part:
                     break
             else:
-                if not create:
-                    return None
                 child = HierarchicalTagDataItem(part)
                 set_item = QtGui.QStandardItem()
                 set_item.setCheckable(True)
                 parent.appendRow([child, set_item])
             parent = child
-        return child
 
     def all_rows(self, parent=None):
         parent = parent or {'name': '', 'node': self.invisibleRootItem()}
@@ -193,6 +200,19 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         # user has deleted text, so delete item
         parent = item.parent() or self.invisibleRootItem()
         parent.removeRow(item.index().row())
+
+    def load_file(self):
+        # clear existing data
+        self.removeRows(0, self.rowCount())
+        # load new data
+        if os.path.exists(self.file_name):
+            with open(self.file_name) as f:
+                self.extend([x.strip() for x in f.readlines()])
+
+    def save_file(self):
+        with open(self.file_name, 'w') as f:
+            for name, nodes in self.all_rows():
+                f.write(name + '\n')
 
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
@@ -289,14 +309,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         dialog.setWindowTitle(
             translate('KeywordsTab', 'Edit keyword hierarchy'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
-        # find tags in model, adding them if necessary
+        # extend model
         value = self.get_value()
-        tag_idx = []
-        for tag in value:
-            child = self.data_model.find_tag(tag)
-            tag_idx.append(child.index())
-        # sort model
-        self.data_model.sort(0)
+        self.data_model.extend(value)
         # tree view of keywords
         tree = QtWidgets.QTreeView()
         tree.setUniformRowHeights(True)
@@ -331,6 +346,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         else:
             self.set_value(value)
             self.emit_value()
+            self.data_model.load_file()
 
     @QtSlot()
     @catch_all
@@ -343,6 +359,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
                 new_value.append(tag)
         self.set_value(new_value)
         self.emit_value()
+        self.data_model.save_file()
 
 
 class TabWidget(QtWidgets.QWidget):
