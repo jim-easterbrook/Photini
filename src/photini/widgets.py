@@ -90,11 +90,13 @@ class Label(QtWidgets.QLabel):
         self.setAlignment(align_h | align_v)
         if lines == 1:
             return
+        padding = (QtWidgets.QLineEdit().sizeHint().height() -
+                   self.sizeHint().height()) // 2
+        margins = self.contentsMargins()
+        margins.setTop(margins.top() + padding)
+        self.setContentsMargins(margins)
         self.setText(wrap_text(self, self.text(), lines))
-        # Qt internally makes labels in form layouts 7/4 as tall, which
-        # is too much for multi=line labels
-        height = self.sizeHint().height() * ((lines * 4) + 3) // (lines * 4)
-        self.setFixedHeight(height)
+        self.setAlignment(align_h | Qt.AlignmentFlag.AlignTop)
 
 
 class PushButton(QtWidgets.QPushButton):
@@ -299,38 +301,23 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
                     self.setFormat(start, end - start, self.spell_formatter)
 
 
-class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
-    def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, length_always=False, length_bytes=True,
-                 min_width=None, **kw):
-        super(MultiLineEdit, self).__init__(*arg, **kw)
-        if min_width:
-            self.setMinimumWidth(width_for_text(self, 'x' * min_width))
-        if self.isRightToLeft():
-            self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
+class TextEditMixin(WidgetMixin):
+    def init_mixin(self, key, spell_check, length_check, length_always,
+                   length_bytes, multi_string, min_width):
         self._key = key
-        self.multiple_values = multiple_values()
-        self.setTabChangesFocus(True)
+        self._multiple_values = multiple_values()
         self._is_multiple = False
         self.spell_check = spell_check
         self.highlighter = TextHighlighter(
             spell_check, length_check, length_always, length_bytes,
             multi_string, self.document())
+        if min_width:
+            self.setMinimumWidth(width_for_text(self, 'x' * min_width))
+        if self.isRightToLeft():
+            self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
+        self.setTabChangesFocus(True)
 
-    @catch_all
-    def focusOutEvent(self, event):
-        self.emit_value()
-        super(MultiLineEdit, self).focusOutEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        if self._is_multiple:
-            self._is_multiple = False
-            self.setPlaceholderText('')
-        super(MultiLineEdit, self).keyPressEvent(event)
-
-    @catch_all
-    def contextMenuEvent(self, event):
+    def context_menu_event(self, event):
         menu = self.createStandardContextMenu()
         suggestion_group = QtGui2.QActionGroup(menu)
         if self._is_multiple:
@@ -372,22 +359,55 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
                 cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
                 cursor.insertText(action.iconText())
 
-    def set_height(self, rows):
-        height = QtWidgets.QLineEdit().sizeHint().height()
-        height += (rows - 1) * self.fontMetrics().lineSpacing()
-        self.setMaximumHeight(height)
-
     def set_length(self, length):
         self.highlighter._length['length'] = length
 
     def set_value(self, value):
-        if self._is_multiple:
-            self._is_multiple = False
-            self.setPlaceholderText('')
-        if not value:
+        self.set_multiple(multiple=False)
+        if value:
+            self.setPlainText(str(value))
+        else:
+            self.clear()
+
+    def set_multiple(self, choices=[], multiple=True):
+        self._is_multiple = multiple
+        self.choices = list(choices)
+        if multiple:
+            self.setPlaceholderText(self._multiple_values)
             self.clear()
         else:
-            self.setPlainText(str(value))
+            self.setPlaceholderText('')
+
+    def is_multiple(self):
+        return self._is_multiple and not bool(self.get_value())
+
+
+class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin):
+    def __init__(self, key, *arg, spell_check=False, length_check=None,
+                 multi_string=False, length_always=False, length_bytes=True,
+                 min_width=None, **kw):
+        super(MultiLineEdit, self).__init__(*arg, **kw)
+        self.init_mixin(key,spell_check, length_check, length_always,
+                        length_bytes, multi_string, min_width)
+
+    @catch_all
+    def focusOutEvent(self, event):
+        self.emit_value()
+        super(MultiLineEdit, self).focusOutEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.set_multiple(multiple=False)
+        super(MultiLineEdit, self).keyPressEvent(event)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu_event(event)
+
+    def set_height(self, rows):
+        height = QtWidgets.QLineEdit().sizeHint().height()
+        height += (rows - 1) * self.fontMetrics().lineSpacing()
+        self.setMaximumHeight(height)
 
     def get_value(self):
         if qt_version_info < (5, 9):
@@ -395,15 +415,6 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, WidgetMixin):
         value = self.document().toRawText()
         value = value.replace('\u2029', '\n')
         return value
-
-    def set_multiple(self, choices=[]):
-        self._is_multiple = True
-        self.choices = list(choices)
-        self.setPlaceholderText(self.multiple_values)
-        self.clear()
-
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
 
     def set_text_alignment(self, alignment):
         options = self.document().defaultTextOption()
