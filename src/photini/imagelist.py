@@ -800,7 +800,7 @@ class ImageList(QtWidgets.QWidget):
             new_md = image.metadata
             old_md = Metadata(image.path)
             for key in ('title', 'headline', 'description', 'alt_text',
-                        'alt_text_ext', 'keywords', 'rating',
+                        'alt_text_ext', 'rating', 'keywords', 'nested_tags',
                         'creator', 'creator_title', 'credit_line', 'copyright',
                         'rights', 'instructions', 'contact_info',
                         'date_taken', 'date_digitised', 'date_modified',
