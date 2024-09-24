@@ -147,6 +147,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
     def __lt__(self, other):
         return self.text().lower() < other.text().lower()
 
+
 class HierarchicalTagDataModel(QtGui.QStandardItemModel):
     def __init__(self, *args, **kwds):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
@@ -155,6 +156,7 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             translate('KeywordsTab', 'set'),
             ])
         self.sort(0)
+        self.itemChanged.connect(self.item_changed)
 
     def find_tag(self, tag, create=True):
         parent = self.invisibleRootItem()
@@ -182,6 +184,15 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             yield name, nodes
             for result in self.all_rows({'name': name + '|', 'node': nodes[0]}):
                 yield result
+
+    @QtSlot("QStandardItem*")
+    @catch_all
+    def item_changed(self, item):
+        if item.text() or not isinstance(item, HierarchicalTagDataItem):
+            return
+        # user has deleted text, so delete item
+        parent = item.parent() or self.invisibleRootItem()
+        parent.removeRow(item.index().row())
 
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
@@ -292,6 +303,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         tree.setSizeAdjustPolicy(
             tree.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
         tree.setModel(self.data_model)
+        tree.header().setSectionsMovable(False)
         # set check boxes and expand all items in value
         for tag, nodes in self.data_model.all_rows():
             set_item = nodes[1]
