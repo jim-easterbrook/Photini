@@ -434,10 +434,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                           Qt.ConnectionType.QueuedConnection)
         # prepare list of tabs and associated stuff
         self.tab_info = {}
-        default_modules = ['photini.descriptive',  'photini.ownership',
-                           'photini.technical',    'photini.regions',
-                           'photini.googlemap',    'photini.bingmap',
-                           'photini.azuremap',
+        default_modules = ['photini.descriptive',  'photini.keywords',
+                           'photini.ownership',    'photini.technical',
+                           'photini.regions',      'photini.googlemap',
+                           'photini.bingmap',      'photini.azuremap',
                            'photini.mapboxmap',    'photini.address',
                            'photini.flickr',       'photini.ipernity',
                            'photini.googlephotos', 'photini.pixelfed',
