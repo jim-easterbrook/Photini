@@ -19,8 +19,10 @@
 
 from collections import defaultdict
 from datetime import date
+import json
 import logging
 import os
+from pprint import pprint
 
 from photini.configstore import get_config_dir
 from photini.metadata import ImageMetadata
@@ -146,51 +148,101 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
 
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):
+    flag_keys = ('is_set', 'copyable')
+
+    def __init__(self, *arg, **kw):
+        super(HierarchicalTagDataItem, self).__init__(*arg, **kw)
+        self.tick_boxes = {}
+        for key in self.flag_keys:
+            self.tick_boxes[key] = QtGui.QStandardItem()
+            self.tick_boxes[key].setCheckable(True)
+
     def __lt__(self, other):
         return self.text().lower() < other.text().lower()
+
+    def clone(self):
+        return HierarchicalTagDataItem(self)
+
+    def all_children(self):
+        for row in range(self.rowCount()):
+            child = self.child(row)
+            yield child
+            for grandchild in child.all_children():
+                yield grandchild
+
+    def extend(self, names):
+        name = names[0]
+        names = names[1:]
+        for row in range(self.rowCount()):
+            child = self.child(row)
+            if child.text() == name:
+                break
+        else:
+            child = HierarchicalTagDataItem(name)
+            self.appendRow(child.get_row())
+        if names:
+            child.extend(names)
+
+    def get_row(self):
+        result = [self]
+        for key in self.flag_keys:
+            result.append(self.tick_boxes[key])
+        return result
+
+    def full_name(self):
+        parent = self.parent()
+        if parent:
+            return parent.full_name() + '|' + self.text()
+        return self.text()
+
+    def checked(self, key):
+        return self.tick_boxes[key].checkState() == Qt.CheckState.Checked
+
+    def set_checked(self, key, checked):
+        self.tick_boxes[key].setCheckState(
+            (Qt.CheckState.Unchecked, Qt.CheckState.Checked)[checked])
+
+    @staticmethod
+    def json_default(self):
+        flags = [key for key in self.tick_boxes if self.checked(key)]
+        children = [self.child(row) for row in range(self.rowCount())]
+        return {'name': self.text(), 'flags': flags, 'children': children}
+
+    @staticmethod
+    def json_object_hook(dict_value):
+        if 'name' in dict_value:
+            self = HierarchicalTagDataItem(dict_value['name'])
+            for key in dict_value['flags']:
+                self.set_checked(key, True)
+            for child in dict_value['children']:
+                self.appendRow(child.get_row())
+            return self
+        return dict_value
 
 
 class HierarchicalTagDataModel(QtGui.QStandardItemModel):
     def __init__(self, *args, **kwds):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
+        self.setItemPrototype(HierarchicalTagDataItem())
         self.setHorizontalHeaderLabels([
             translate('KeywordsTab', 'keyword'),
             translate('KeywordsTab', 'set'),
+            translate('KeywordsTab', 'copy'),
             ])
-        self.file_name = os.path.join(get_config_dir(), 'keywords.txt')
+        self.file_name = os.path.join(get_config_dir(), 'keywords.json')
         self.load_file()
         self.itemChanged.connect(self.item_changed)
 
+    def all_children(self):
+        root = self.invisibleRootItem()
+        return HierarchicalTagDataItem.all_children(root)
+
     def extend(self, value):
-        # find tags in model, adding them if necessary
-        for tag in value:
-            self.add_tag(tag)
+        root = self.invisibleRootItem()
+        for full_name in value:
+            HierarchicalTagDataItem.extend(root, full_name.split('|'))
         # sort model
         self.sort(0)
-
-    def add_tag(self, tag):
-        parent = self.invisibleRootItem()
-        for part in tag.split('|'):
-            for row in range(parent.rowCount()):
-                child = parent.child(row)
-                if child.text() == part:
-                    break
-            else:
-                child = HierarchicalTagDataItem(part)
-                set_item = QtGui.QStandardItem()
-                set_item.setCheckable(True)
-                parent.appendRow([child, set_item])
-            parent = child
-
-    def all_rows(self, parent=None):
-        parent = parent or {'name': '', 'node': self.invisibleRootItem()}
-        for row in range(parent['node'].rowCount()):
-            nodes = [parent['node'].child(row, column)
-                     for column in range(parent['node'].columnCount())]
-            name = parent['name'] + nodes[0].text()
-            yield name, nodes
-            for result in self.all_rows({'name': name + '|', 'node': nodes[0]}):
-                yield result
 
     @QtSlot("QStandardItem*")
     @catch_all
@@ -202,17 +254,21 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         parent.removeRow(item.index().row())
 
     def load_file(self):
-        # clear existing data
-        self.removeRows(0, self.rowCount())
-        # load new data
+        root = self.invisibleRootItem()
+        root.removeRows(0, root.rowCount())
         if os.path.exists(self.file_name):
-            with open(self.file_name) as f:
-                self.extend([x.strip() for x in f.readlines()])
+            with open(self.file_name) as fp:
+                children = json.load(
+                    fp, object_hook=HierarchicalTagDataItem.json_object_hook)
+        for child in children:
+            root.appendRow(child.get_row())
 
     def save_file(self):
-        with open(self.file_name, 'w') as f:
-            for name, nodes in self.all_rows():
-                f.write(name + '\n')
+        root = self.invisibleRootItem()
+        children = [root.child(row) for row in range(root.rowCount())]
+        with open(self.file_name, 'w') as fp:
+            json.dump(children, fp, ensure_ascii=False,
+                      default=HierarchicalTagDataItem.json_default, indent=2)
 
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
@@ -320,16 +376,14 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         tree.setModel(self.data_model)
         tree.header().setSectionsMovable(False)
         # set check boxes and expand all items in value
-        for tag, nodes in self.data_model.all_rows():
-            set_item = nodes[1]
-            if tag in value:
-                set_item.setCheckState(Qt.CheckState.Checked)
-                parent = nodes[0].parent()
+        for child in self.data_model.all_children():
+            is_set = child.full_name() in value
+            child.set_checked('is_set', is_set)
+            if is_set:
+                parent = child.parent()
                 while parent:
                     tree.expand(parent.index())
                     parent = parent.parent()
-            else:
-                set_item.setCheckState(Qt.CheckState.Unchecked)
         tree.resizeColumnToContents(0)
         dialog.layout().addWidget(tree)
         # buttons
@@ -353,10 +407,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     def apply_changes(self):
         # construct new value
         new_value = []
-        for tag, nodes in self.data_model.all_rows():
-            set_item = nodes[1]
-            if set_item.checkState() == Qt.CheckState.Checked:
-                new_value.append(tag)
+        for child in self.data_model.all_children():
+            if child.checked('is_set'):
+                new_value.append(child.full_name())
         self.set_value(new_value)
         self.emit_value()
         self.data_model.save_file()
