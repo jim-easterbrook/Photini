@@ -295,39 +295,39 @@
     </message>
     <message>
         <source>location pin (selected)</source>
-        <translation type="unfinished"></translation>
+        <translation>posizione pin (selezionato)</translation>
     </message>
     <message>
         <source>Map icon colours</source>
-        <translation type="unfinished"></translation>
+        <translation>Colori delle icone della mappa</translation>
     </message>
     <message>
         <source>location pin (unselected)</source>
-        <translation type="unfinished"></translation>
+        <translation>posizione pin (non selezionato)</translation>
     </message>
     <message>
         <source>GPS track point (selected)</source>
-        <translation type="unfinished"></translation>
+        <translation>Punto traccia GPS (selezionato)</translation>
     </message>
     <message>
         <source>GPS track point (unselected)</source>
-        <translation type="unfinished"></translation>
+        <translation>Punto traccia GPS (non selezionato)</translation>
     </message>
     <message>
         <source>Qt package</source>
-        <translation type="unfinished"></translation>
+        <translation>Pacchetto Qt</translation>
     </message>
     <message>
         <source>Photini: restart required</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: riavvio richiesto</translation>
     </message>
     <message>
         <source>Restart required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Riavvio richiesto.</translation>
     </message>
     <message>
         <source>The change of Qt package will take effect when Photini is restarted.</source>
-        <translation type="unfinished"></translation>
+        <translation>La modifica del pacchetto Qt avrà effetto al riavvio di Photini.</translation>
     </message>
 </context>
 <context>
