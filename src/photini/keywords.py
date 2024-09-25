@@ -26,6 +26,7 @@ import os
 from photini.configstore import get_config_dir
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
+from photini.pyqt import qt_version_info
 from photini.widgets import (
     ComboBox, Label, MultiLineEdit, TextEditMixin, WidgetMixin)
 
@@ -248,6 +249,10 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         # sort model
         self.sort(0)
 
+    def find_name(self, name, flags=None):
+        flags = flags or Qt.MatchFlag.MatchFixedString
+        return self.findItems(name, flags | Qt.MatchFlag.MatchRecursive)
+
     def find_full_name(self, full_name):
         names = full_name.split('|')
         for node in self.findItems(names[-1], Qt.MatchFlag.MatchRecursive):
@@ -280,6 +285,130 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         with open(self.file_name, 'w') as fp:
             json.dump(children, fp, ensure_ascii=False,
                       default=HierarchicalTagDataItem.json_default, indent=2)
+
+
+class HierarchicalTagsDialog(QtWidgets.QDialog):
+    def __init__(self, *arg, **kw):
+        super(HierarchicalTagsDialog, self).__init__(*arg, **kw)
+        self.data_model = self.parent().data_model
+        self.setWindowTitle(
+            translate('KeywordsTab', 'Edit keyword hierarchy'))
+        layout = QtWidgets.QGridLayout()
+        self.setLayout(layout)
+        width = width_for_text(self, 'x' * 100)
+        height = width * 3 // 4
+        self.setMinimumWidth(min(width, self.window().width() * 3 // 4))
+        self.setMinimumHeight(min(height, self.window().height() * 3 // 4))
+        # extend model
+        self.initial_value = self.parent().get_value()
+        self.data_model.extend(self.initial_value)
+        # tree view of keywords
+        self.tree_view = QtWidgets.QTreeView()
+        self.tree_view.setUniformRowHeights(True)
+        self.tree_view.setSizeAdjustPolicy(
+            self.tree_view.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
+        self.tree_view.setModel(self.data_model)
+        header = self.tree_view.header()
+        header.setSectionsMovable(False)
+        header.setStretchLastSection(False)
+        header.setSectionResizeMode(0, header.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, header.ResizeMode.Fixed)
+        header.setSectionResizeMode(2, header.ResizeMode.Fixed)
+        # set check boxes and expand all items in value
+        for child in self.data_model.all_children():
+            is_set = child.full_name() in self.initial_value
+            child.set_checked('is_set', is_set)
+            if is_set:
+                parent = child.parent()
+                while parent:
+                    self.tree_view.expand(parent.index())
+                    parent = parent.parent()
+        layout.addWidget(self.tree_view, 0, 0, 1, 3)
+        # search box
+        self.search_box = QtWidgets.QLineEdit()
+        self.search_box.textEdited.connect(self.new_search)
+        layout.addWidget(
+            QtWidgets.QLabel(translate('KeywordsTab', 'Search')), 1, 0)
+        layout.addWidget(self.search_box, 1, 1)
+        layout.setColumnStretch(1, 1)
+        self.search_count = QtWidgets.QLineEdit()
+        self.search_count.setReadOnly(True)
+        self.search_count.setPlaceholderText(
+            translate('KeywordsTab', 'invalid search'))
+        self.search_count.setMinimumWidth(width_for_text(self, 'x' * 15))
+        layout.addWidget(self.search_count, 1, 2)
+        # buttons
+        button_box = QtWidgets.QDialogButtonBox()
+        button_box.addButton(button_box.StandardButton.Ok
+                             ).clicked.connect(self.clicked_ok)
+        button_box.addButton(button_box.StandardButton.Apply
+                             ).clicked.connect(self.clicked_apply)
+        button_box.addButton(button_box.StandardButton.Cancel
+                             ).clicked.connect(self.clicked_cancel)
+        layout.addWidget(button_box, 2, 0, 1, 3)
+
+    @QtSlot(str)
+    @catch_all
+    def new_search(self, text):
+        if len(text) < 2:
+            self.search_count.clear()
+            return
+        matches = self.data_model.find_name(
+            text, flags=Qt.MatchFlag.MatchContains)
+        if qt_version_info >= (6, 0):
+            # pyside6-lupdate doesn't recognise plurals with 'translate'
+            self.search_count.setText(HierarchicalTagsDialog.tr(
+                'KeywordsTab', '%n match(es)', '', len(matches)))
+        else:
+            # Qt5 doesn't handle ClassName.tr correctly
+            self.search_count.setText(translate(
+                'KeywordsTab', '%n match(es)', '', len(matches)))
+        if len(matches) > 10:
+            return
+        # drop down menu from self.search_box
+        menu = QtGui2.QMenu(self)
+        for match in matches:
+            action = menu.addAction(match.full_name())
+            action.setData(match.index())
+        menu.triggered.connect(self.menu_triggered)
+        menu.popup(self.search_box.mapToGlobal(QtCore.QPoint(
+            0, self.search_box.height())))
+        self.search_box.setFocus()
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all
+    def menu_triggered(self, action):
+        index = action.data()
+        self.tree_view.scrollTo(index)
+        selection = self.tree_view.selectionModel()
+        selection.select(index, selection.SelectionFlag.ClearAndSelect |
+                                selection.SelectionFlag.Rows)
+
+    @QtSlot()
+    @catch_all
+    def clicked_ok(self):
+        self.clicked_apply()
+        self.accept()
+
+    @QtSlot()
+    @catch_all
+    def clicked_apply(self):
+        # construct new value
+        new_value = []
+        for child in self.data_model.all_children():
+            if child.checked('is_set'):
+                new_value.append(child.full_name())
+        self.parent().set_value(new_value)
+        self.parent().emit_value()
+        self.data_model.save_file()
+
+    @QtSlot()
+    @catch_all
+    def clicked_cancel(self):
+        self.parent().set_value(self.initial_value)
+        self.parent().emit_value()
+        self.data_model.load_file()
+        self.reject()
 
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
@@ -372,66 +501,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     @QtSlot()
     @catch_all
     def open_tree_view(self):
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(
-            translate('KeywordsTab', 'Edit keyword hierarchy'))
-        dialog.setLayout(QtWidgets.QVBoxLayout())
-        width = width_for_text(dialog, 'x' * 100)
-        height = width * 3 // 4
-        dialog.setMinimumWidth(min(width, self.window().width() * 3 // 4))
-        dialog.setMinimumHeight(min(height, self.window().height() * 3 // 4))
-        # extend model
-        value = self.get_value()
-        self.data_model.extend(value)
-        # tree view of keywords
-        tree = QtWidgets.QTreeView()
-        tree.setUniformRowHeights(True)
-        tree.setSizeAdjustPolicy(
-            tree.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
-        tree.setModel(self.data_model)
-        header = tree.header()
-        header.setSectionsMovable(False)
-        header.setStretchLastSection(False)
-        header.setSectionResizeMode(0, header.ResizeMode.Stretch)
-        header.setSectionResizeMode(1, header.ResizeMode.Fixed)
-        header.setSectionResizeMode(2, header.ResizeMode.Fixed)
-        # set check boxes and expand all items in value
-        for child in self.data_model.all_children():
-            is_set = child.full_name() in value
-            child.set_checked('is_set', is_set)
-            if is_set:
-                parent = child.parent()
-                while parent:
-                    tree.expand(parent.index())
-                    parent = parent.parent()
-        dialog.layout().addWidget(tree)
-        # buttons
-        button_box = QtWidgets.QDialogButtonBox()
-        button_box.addButton(
-            button_box.StandardButton.Ok).clicked.connect(dialog.accept)
-        button_box.addButton(
-            button_box.StandardButton.Apply).clicked.connect(self.apply_changes)
-        button_box.addButton(
-            button_box.StandardButton.Cancel).clicked.connect(dialog.reject)
-        dialog.layout().addWidget(button_box)
-        if execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted:
-            self.apply_changes()
-        else:
-            self.set_value(value)
-            self.emit_value()
-            self.data_model.load_file()
-
-    @QtSlot()
-    @catch_all
-    def apply_changes(self):
-        # construct new value
-        new_value = []
-        for child in self.data_model.all_children():
-            if child.checked('is_set'):
-                new_value.append(child.full_name())
-        self.set_value(new_value)
-        self.emit_value()
-        self.data_model.save_file()
+        # do dialog
+        dialog = HierarchicalTagsDialog(parent=self)
+        execute(dialog)
 
 
 class TabWidget(QtWidgets.QWidget):
@@ -497,9 +569,7 @@ class TabWidget(QtWidgets.QWidget):
         data_model = self.widgets['nested_tags'].data_model
         nested_tags = self.widgets['nested_tags'].get_value()
         for keyword in keywords:
-            for match in data_model.findItems(
-                    keyword, Qt.MatchFlag.MatchFixedString |
-                             Qt.MatchFlag.MatchRecursive):
+            for match in data_model.find_name(keyword):
                 if match.checked('copyable'):
                     full_name = match.full_name()
                     if full_name not in nested_tags:
