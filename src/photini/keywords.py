@@ -361,6 +361,10 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         layout.addWidget(self.tree_view, 0, 0, 1, 3)
         # search box
         self.search_box = QtWidgets.QLineEdit()
+        self.search_box.setToolTip('<p>{}</p>'.format(translate(
+            'KeywordsTab', 'Enter two or more letters to search the keyword'
+            ' tree. When there are few enough results a popup menu will'
+            ' be displayed.')))
         self.search_box.textEdited.connect(self.new_search)
         layout.addWidget(
             QtWidgets.QLabel(translate('KeywordsTab', 'Search')), 1, 0)
@@ -398,7 +402,10 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
             # Qt5 doesn't handle ClassName.tr correctly
             self.search_count.setText(translate(
                 'KeywordsTab', '%n result(s)', '', len(matches)))
-        if len(matches) > 10:
+        if len(matches) == 1:
+            self.highlight_row(matches[0].index())
+            return
+        if len(matches) < 1 or len(matches) > 10:
             return
         # drop down menu from self.search_box
         menu = QtGui2.QMenu(self)
@@ -412,7 +419,9 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
     @QtSlot(QtGui2.QAction)
     @catch_all
     def menu_triggered(self, action):
-        index = action.data()
+        self.highlight_row(action.data())
+
+    def highlight_row(self, index):
         self.tree_view.scrollTo(index)
         selection = self.tree_view.selectionModel()
         selection.select(index, selection.SelectionFlag.ClearAndSelect |
