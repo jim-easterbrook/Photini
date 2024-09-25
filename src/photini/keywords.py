@@ -164,6 +164,18 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         for key in self.flag_keys:
             self.tick_boxes[key] = QtGui.QStandardItem()
             self.tick_boxes[key].setCheckable(True)
+        self.setData('<p>{}</p>'.format(translate(
+            'KeywordsTab', 'One "word" in a keyword hierarchy. This word and'
+            ' its ancestors form a complete keyword.'
+            )), Qt.ItemDataRole.ToolTipRole)
+        self.tick_boxes['is_set'].setData('<p>{}</p>'.format(translate(
+            'KeywordsTab', 'Tick this box to add this keyword to the selected'
+            ' photographs. Untick the box to remove it from the selected'
+            ' photographs.')), Qt.ItemDataRole.ToolTipRole)
+        self.tick_boxes['copyable'].setData('<p>{}</p>'.format(translate(
+            'KeywordsTab', 'Tick this box to allow this keyword to be copied'
+            ' to or from the traditional "flat" keywords.'
+            )), Qt.ItemDataRole.ToolTipRole)
 
     def __lt__(self, other):
         return self.text().lower() < other.text().lower()
@@ -238,8 +250,8 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         self.setItemPrototype(HierarchicalTagDataItem())
         self.setHorizontalHeaderLabels([
             translate('KeywordsTab', 'keyword'),
-            translate('KeywordsTab', 'set'),
-            translate('KeywordsTab', 'copy'),
+            translate('KeywordsTab', 'in photo'),
+            translate('KeywordsTab', 'copyable'),
             ])
         self.file_name = os.path.join(get_config_dir(), 'keywords.json')
         self.load_file()
@@ -381,11 +393,11 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         if qt_version_info >= (6, 0):
             # pyside6-lupdate doesn't recognise plurals with 'translate'
             self.search_count.setText(HierarchicalTagsDialog.tr(
-                'KeywordsTab', '%n match(es)', '', len(matches)))
+                'KeywordsTab', '%n result(s)', '', len(matches)))
         else:
             # Qt5 doesn't handle ClassName.tr correctly
             self.search_count.setText(translate(
-                'KeywordsTab', '%n match(es)', '', len(matches)))
+                'KeywordsTab', '%n result(s)', '', len(matches)))
         if len(matches) > 10:
             return
         # drop down menu from self.search_box
@@ -456,6 +468,10 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         idx = layout.count() - 1
         while idx < rows:
             widget = HtmlTextEdit(str(idx), spell_check=True)
+            widget.setToolTip('<p>{}</p>'.format(translate(
+                'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
+                ' phrases used to express the subject matter in the image.'
+                ' Separate them with "|" or "/" characters.')))
             widget.new_value.connect(self._new_value)
             layout.insertWidget(idx, widget)
             idx += 1
