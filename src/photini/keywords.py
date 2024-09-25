@@ -179,6 +179,9 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
                 break
         else:
             child = HierarchicalTagDataItem(name)
+            if not names:
+                # last name is copyable by default
+                child.set_checked('copyable', True)
             self.appendRow(child.get_row())
         if names:
             child.extend(names)
@@ -204,7 +207,8 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
 
     @staticmethod
     def json_default(self):
-        flags = [key for key in self.tick_boxes if self.checked(key)]
+        flags = [key for key in self.tick_boxes
+                 if key != 'is_set' and self.checked(key)]
         children = [self.child(row) for row in range(self.rowCount())]
         return {'name': self.text(), 'flags': flags, 'children': children}
 
@@ -212,8 +216,8 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
     def json_object_hook(dict_value):
         if 'name' in dict_value:
             self = HierarchicalTagDataItem(dict_value['name'])
-            for key in dict_value['flags']:
-                self.set_checked(key, True)
+            for key in self.flag_keys:
+                self.set_checked(key, key in dict_value['flags'])
             for child in dict_value['children']:
                 self.appendRow(child.get_row())
             return self
@@ -260,8 +264,8 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             with open(self.file_name) as fp:
                 children = json.load(
                     fp, object_hook=HierarchicalTagDataItem.json_object_hook)
-        for child in children:
-            root.appendRow(child.get_row())
+            for child in children:
+                root.appendRow(child.get_row())
 
     def save_file(self):
         root = self.invisibleRootItem()
