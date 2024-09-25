@@ -22,7 +22,6 @@ from datetime import date
 import json
 import logging
 import os
-from pprint import pprint
 
 from photini.configstore import get_config_dir
 from photini.metadata import ImageMetadata
@@ -464,6 +463,10 @@ class TabWidget(QtWidgets.QWidget):
             translate('KeywordsTab', 'Open tree view'))
         buttons.addWidget(self.buttons['open_tree'])
         buttons.addStretch(1)
+        self.buttons['copy_from_flat'] = QtWidgets.QPushButton(
+            translate('KeywordsTab', 'Copy to hierarchy'))
+        self.buttons['copy_from_flat'].clicked.connect(self.copy_from_flat)
+        buttons.addWidget(self.buttons['copy_from_flat'])
         layout.addRow('', buttons)
         # make connections
         self.buttons['open_tree'].clicked.connect(
@@ -471,6 +474,26 @@ class TabWidget(QtWidgets.QWidget):
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
         # disable until an image is selected
         self.setEnabled(False)
+
+    @QtSlot()
+    @catch_all
+    def copy_from_flat(self):
+        keywords = self.widgets['keywords'].get_value()
+        if not keywords:
+            return
+        keywords = [x.strip() for x in keywords.split(';')]
+        data_model = self.widgets['nested_tags'].data_model
+        nested_tags = self.widgets['nested_tags'].get_value()
+        for keyword in keywords:
+            for match in data_model.findItems(
+                    keyword, Qt.MatchFlag.MatchFixedString |
+                             Qt.MatchFlag.MatchRecursive):
+                if match.checked('copyable'):
+                    full_name = match.full_name()
+                    if full_name not in nested_tags:
+                        nested_tags.append(full_name)
+        self.widgets['nested_tags'].set_value(nested_tags)
+        self.widgets['nested_tags'].emit_value()
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -532,3 +555,5 @@ class TabWidget(QtWidgets.QWidget):
         self.setEnabled(True)
         self.buttons['open_tree'].setEnabled(
             not self.widgets['nested_tags'].is_multiple())
+        self.buttons['copy_from_flat'].setEnabled(
+            bool(self.widgets['keywords'].get_value()))
