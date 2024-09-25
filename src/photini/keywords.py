@@ -147,6 +147,13 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
     def get_value(self):
         return self.toPlainText()
 
+    def set_value(self, value):
+        self.set_multiple(multiple=False)
+        if value:
+            self.setHtml(value)
+        else:
+            self.clear()
+
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):
     flag_keys = ('is_set', 'copyable')
@@ -259,6 +266,22 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             if node.full_name() == full_name:
                 return node
         return None
+
+    def formatted_name(self, full_name):
+        node = self.find_full_name(full_name)
+        if node:
+            words = []
+            while node:
+                word = node.text()
+                if node.checked('copyable'):
+                    word = '<i>{}</i>'.format(word)
+                words.insert(0, word)
+                node = node.parent()
+        else:
+            # value is not in model, last word is copyable
+            words = full_name.split('|')
+            words[-1] = '<i>{}</i>'.format(words[-1])
+        return '|'.join(words)
 
     @QtSlot("QStandardItem*")
     @catch_all
@@ -373,7 +396,6 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         menu.triggered.connect(self.menu_triggered)
         menu.popup(self.search_box.mapToGlobal(QtCore.QPoint(
             0, self.search_box.height())))
-        self.search_box.setFocus()
 
     @QtSlot(QtGui2.QAction)
     @catch_all
@@ -469,7 +491,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         for idx in range(layout.count() - 1):
             widget = layout.itemAt(idx).widget()
             if idx < len(value):
-                widget.set_value(value[idx])
+                widget.set_value(self.data_model.formatted_name(value[idx]))
             else:
                 widget.set_value(None)
 
