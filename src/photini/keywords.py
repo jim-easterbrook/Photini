@@ -67,6 +67,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
         self.new_value = self.edit.new_value
+        self.emit_value = self.edit.emit_value
 
     def update_favourites(self):
         self.favourites.clear()
@@ -246,6 +247,13 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             HierarchicalTagDataItem.extend(root, full_name.split('|'))
         # sort model
         self.sort(0)
+
+    def find_full_name(self, full_name):
+        names = full_name.split('|')
+        for node in self.findItems(names[-1], Qt.MatchFlag.MatchRecursive):
+            if node.full_name() == full_name:
+                return node
+        return None
 
     @QtSlot("QStandardItem*")
     @catch_all
@@ -467,6 +475,10 @@ class TabWidget(QtWidgets.QWidget):
             translate('KeywordsTab', 'Copy to hierarchy'))
         self.buttons['copy_from_flat'].clicked.connect(self.copy_from_flat)
         buttons.addWidget(self.buttons['copy_from_flat'])
+        self.buttons['copy_to_flat'] = QtWidgets.QPushButton(
+            translate('KeywordsTab', 'Copy to keywords'))
+        self.buttons['copy_to_flat'].clicked.connect(self.copy_to_flat)
+        buttons.addWidget(self.buttons['copy_to_flat'])
         layout.addRow('', buttons)
         # make connections
         self.buttons['open_tree'].clicked.connect(
@@ -494,6 +506,33 @@ class TabWidget(QtWidgets.QWidget):
                         nested_tags.append(full_name)
         self.widgets['nested_tags'].set_value(nested_tags)
         self.widgets['nested_tags'].emit_value()
+
+    @QtSlot()
+    @catch_all
+    def copy_to_flat(self):
+        nested_tags = self.widgets['nested_tags'].get_value()
+        if not nested_tags:
+            return
+        data_model = self.widgets['nested_tags'].data_model
+        keywords = self.widgets['keywords'].get_value()
+        keywords = [x.strip() for x in keywords.split(';')]
+        for nested_tag in nested_tags:
+            match = data_model.find_full_name(nested_tag)
+            if not match:
+                # not in model, use last word
+                name = nested_tag.split('|')[-1]
+                if name not in keywords:
+                    keywords.append(name)
+                continue
+            # ascend hierarchy, copying all copyable words
+            while match:
+                if match.checked('copyable'):
+                    name = match.text()
+                    if name not in keywords:
+                        keywords.append(name)
+                match = match.parent()
+        self.widgets['keywords'].set_value('; '.join(keywords))
+        self.widgets['keywords'].emit_value()
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -543,6 +582,14 @@ class TabWidget(QtWidgets.QWidget):
             self.widgets[key].set_multiple(choices=[x for x in values if x])
         else:
             self.widgets[key].set_value(values[0])
+        if key == 'nested_tags':
+            self.buttons['open_tree'].setEnabled(
+                not self.widgets[key].is_multiple())
+            self.buttons['copy_to_flat'].setEnabled(
+                bool(self.widgets[key].get_value()))
+        elif key == 'keywords':
+            self.buttons['copy_from_flat'].setEnabled(
+                bool(self.widgets[key].get_value()))
 
     def new_selection(self, selection):
         if not selection:
@@ -553,7 +600,3 @@ class TabWidget(QtWidgets.QWidget):
         for key in self.widgets:
             self._update_widget(key, selection)
         self.setEnabled(True)
-        self.buttons['open_tree'].setEnabled(
-            not self.widgets['nested_tags'].is_multiple())
-        self.buttons['copy_from_flat'].setEnabled(
-            bool(self.widgets['keywords'].get_value()))
