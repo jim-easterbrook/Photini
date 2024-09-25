@@ -365,6 +365,10 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         dialog.setWindowTitle(
             translate('KeywordsTab', 'Edit keyword hierarchy'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
+        width = width_for_text(dialog, 'x' * 100)
+        height = width * 3 // 4
+        dialog.setMinimumWidth(min(width, self.window().width() * 3 // 4))
+        dialog.setMinimumHeight(min(height, self.window().height() * 3 // 4))
         # extend model
         value = self.get_value()
         self.data_model.extend(value)
@@ -374,7 +378,12 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         tree.setSizeAdjustPolicy(
             tree.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
         tree.setModel(self.data_model)
-        tree.header().setSectionsMovable(False)
+        header = tree.header()
+        header.setSectionsMovable(False)
+        header.setStretchLastSection(False)
+        header.setSectionResizeMode(0, header.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, header.ResizeMode.Fixed)
+        header.setSectionResizeMode(2, header.ResizeMode.Fixed)
         # set check boxes and expand all items in value
         for child in self.data_model.all_children():
             is_set = child.full_name() in value
@@ -384,7 +393,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
                 while parent:
                     tree.expand(parent.index())
                     parent = parent.parent()
-        tree.resizeColumnToContents(0)
         dialog.layout().addWidget(tree)
         # buttons
         button_box = QtWidgets.QDialogButtonBox()
