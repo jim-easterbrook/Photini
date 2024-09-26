@@ -119,9 +119,9 @@ class KeywordsEditor(QtWidgets.QWidget):
 
 
 class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
-    def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, length_always=False, length_bytes=True,
-                 min_width=None, **kw):
+    def __init__(self, key, list_view, *arg, spell_check=False,
+                 length_check=None, multi_string=False, length_always=False,
+                 length_bytes=True, min_width=None, **kw):
         super(HtmlTextEdit, self).__init__(*arg, **kw)
         self.init_mixin(key,spell_check, length_check, length_always,
                         length_bytes, multi_string, min_width)
@@ -129,6 +129,30 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
         self.setLineWrapMode(self.LineWrapMode.NoWrap)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.completer = QtWidgets.QCompleter()
+        self.completer.setModel(list_view)
+        self.completer.setModelSorting(
+            self.completer.ModelSorting.CaseInsensitivelySortedModel)
+        self.completer.setFilterMode(Qt.MatchFlag.MatchContains)
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer.setWidget(self)
+        self.completer.activated.connect(self.completer_activated)
+        self.textChanged.connect(self.text_changed)
+
+    @QtSlot()
+    @catch_all
+    def text_changed(self):
+        if not self.hasFocus():
+            return
+        self.completer.setCompletionPrefix(self.toPlainText())
+        self.completer.complete()
+
+    @QtSlot(str)
+    @catch_all
+    def completer_activated(self, text):
+        self.set_value(text)
+        self.emit_value()
+        self.completer.popup().hide()
 
     @catch_all
     def focusOutEvent(self, event):
@@ -245,40 +269,32 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         return dict_value
 
 
-class HierarchicalTagDataModel(QtCore.QSortFilterProxyModel):
+class HierarchicalTagDataModel(QtGui.QStandardItemModel):
     def __init__(self, *args, **kwds):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
-        self.setSourceModel(QtGui.QStandardItemModel())
-        self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.setRecursiveFilteringEnabled(True)
-        self.sourceModel().setItemPrototype(HierarchicalTagDataItem())
-        self.sourceModel().setHorizontalHeaderLabels([
+        self.setItemPrototype(HierarchicalTagDataItem())
+        self.setHorizontalHeaderLabels([
             translate('KeywordsTab', 'keyword'),
             translate('KeywordsTab', 'in photo'),
             translate('KeywordsTab', 'copyable'),
             ])
         self.file_name = os.path.join(get_config_dir(), 'keywords.json')
         self.load_file()
-        self.sourceModel().itemChanged.connect(self.item_changed)
+        self.itemChanged.connect(self.item_changed)
 
     def all_children(self):
-        root = self.sourceModel().invisibleRootItem()
+        root = self.invisibleRootItem()
         return HierarchicalTagDataItem.all_children(root)
 
     def extend(self, value):
-        root = self.sourceModel().invisibleRootItem()
+        root = self.invisibleRootItem()
         for full_name in value:
             HierarchicalTagDataItem.extend(root, full_name.split('|'))
         self.sort(0)
 
     def find_name(self, name, flags=None):
         flags = flags or Qt.MatchFlag.MatchFixedString
-        model = self.sourceModel()
-        start = self.index(0, 0)
-        result = self.match(start, Qt.ItemDataRole.DisplayRole, name, -1,
-                            flags | Qt.MatchFlag.MatchRecursive)
-        result = [model.itemFromIndex(self.mapToSource(x)) for x in result]
-        return result
+        return self.findItems(name, flags | Qt.MatchFlag.MatchRecursive)
 
     def find_full_name(self, full_name):
         names = full_name.split('|')
@@ -309,11 +325,11 @@ class HierarchicalTagDataModel(QtCore.QSortFilterProxyModel):
         if item.text() or not isinstance(item, HierarchicalTagDataItem):
             return
         # user has deleted text, so delete item
-        parent = item.parent() or self.sourceModel().invisibleRootItem()
+        parent = item.parent() or self.invisibleRootItem()
         parent.removeRow(item.index().row())
 
     def load_file(self):
-        root = self.sourceModel().invisibleRootItem()
+        root = self.invisibleRootItem()
         root.removeRows(0, root.rowCount())
         if os.path.exists(self.file_name):
             with open(self.file_name) as fp:
@@ -324,7 +340,7 @@ class HierarchicalTagDataModel(QtCore.QSortFilterProxyModel):
         self.sort(0)
 
     def save_file(self):
-        root = self.sourceModel().invisibleRootItem()
+        root = self.invisibleRootItem()
         children = [root.child(row) for row in range(root.rowCount())]
         with open(self.file_name, 'w') as fp:
             json.dump(children, fp, ensure_ascii=False,
@@ -463,6 +479,44 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         self.reject()
 
 
+class ListProxyModel(QtCore.QAbstractListModel):
+    def __init__(self, data_model, *arg, **kw):
+        super(ListProxyModel, self).__init__(*arg, **kw)
+        self.data_model = data_model
+        self.reset_row_map()
+        self.data_model.rowsInserted.connect(self.model_rows_changed)
+        self.data_model.rowsMoved.connect(self.model_rows_moved)
+        self.data_model.rowsRemoved.connect(self.model_rows_changed)
+
+    @QtSlot("QModelIndex", int, int)
+    @catch_all
+    def model_rows_changed(self, parent, first, last):
+        self.reset_row_map()
+
+    @QtSlot("QModelIndex", int, int)
+    @catch_all
+    def model_rows_moved(self, parent, start, end, destination, row):
+        self.reset_row_map()
+
+    def reset_row_map(self):
+        self.beginResetModel()
+        self.row_map = []
+        for child in self.data_model.all_children():
+            self.row_map.append(child)
+        self.endResetModel()
+
+    @catch_all
+    def rowCount(self, parent=None):
+        return len(self.row_map)
+
+    @catch_all
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        item = self.row_map[index.row()]
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
+            return item.full_name()
+        return item.data(role)
+
+
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     update_value = QtSignal(str, str, str)
 
@@ -476,16 +530,16 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
         self.setWidgetResizable(True)
-        self.set_rows()
-        # initialise vocabulary model
         self.data_model = HierarchicalTagDataModel()
+        self.list_view = ListProxyModel(self.data_model)
+        self.set_rows()
 
     def set_rows(self, rows=1):
         layout = self.widget().layout()
         rows = max(rows, 1)
         idx = layout.count() - 1
         while idx < rows:
-            widget = HtmlTextEdit(str(idx), spell_check=True)
+            widget = HtmlTextEdit(str(idx), self.list_view, spell_check=True)
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
