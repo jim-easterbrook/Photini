@@ -230,6 +230,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         flags = [key for key in self.tick_boxes
                  if key != 'is_set' and self.checked(key)]
         children = [self.child(row) for row in range(self.rowCount())]
+        children.sort()
         return {'name': self.text(), 'flags': flags, 'children': children}
 
     @staticmethod
@@ -244,37 +245,42 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         return dict_value
 
 
-class HierarchicalTagDataModel(QtGui.QStandardItemModel):
+class HierarchicalTagDataModel(QtCore.QSortFilterProxyModel):
     def __init__(self, *args, **kwds):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
-        self.setItemPrototype(HierarchicalTagDataItem())
-        self.setHorizontalHeaderLabels([
+        self.setSourceModel(QtGui.QStandardItemModel())
+        self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.sourceModel().setItemPrototype(HierarchicalTagDataItem())
+        self.sourceModel().setHorizontalHeaderLabels([
             translate('KeywordsTab', 'keyword'),
             translate('KeywordsTab', 'in photo'),
             translate('KeywordsTab', 'copyable'),
             ])
         self.file_name = os.path.join(get_config_dir(), 'keywords.json')
         self.load_file()
-        self.itemChanged.connect(self.item_changed)
+        self.sourceModel().itemChanged.connect(self.item_changed)
 
     def all_children(self):
-        root = self.invisibleRootItem()
+        root = self.sourceModel().invisibleRootItem()
         return HierarchicalTagDataItem.all_children(root)
 
     def extend(self, value):
-        root = self.invisibleRootItem()
+        root = self.sourceModel().invisibleRootItem()
         for full_name in value:
             HierarchicalTagDataItem.extend(root, full_name.split('|'))
-        # sort model
         self.sort(0)
 
     def find_name(self, name, flags=None):
         flags = flags or Qt.MatchFlag.MatchFixedString
-        return self.findItems(name, flags | Qt.MatchFlag.MatchRecursive)
+        model = self.sourceModel()
+        start = self.index(0, 0)
+        result = self.match(start, Qt.ItemDataRole.DisplayRole, name, -1, flags)
+        result = [model.itemFromIndex(self.mapToSource(x)) for x in result]
+        return result
 
     def find_full_name(self, full_name):
         names = full_name.split('|')
-        for node in self.findItems(names[-1], Qt.MatchFlag.MatchRecursive):
+        for node in self.find_name(names[-1]):
             if node.full_name() == full_name:
                 return node
         return None
@@ -301,11 +307,11 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         if item.text() or not isinstance(item, HierarchicalTagDataItem):
             return
         # user has deleted text, so delete item
-        parent = item.parent() or self.invisibleRootItem()
+        parent = item.parent() or self.sourceModel().invisibleRootItem()
         parent.removeRow(item.index().row())
 
     def load_file(self):
-        root = self.invisibleRootItem()
+        root = self.sourceModel().invisibleRootItem()
         root.removeRows(0, root.rowCount())
         if os.path.exists(self.file_name):
             with open(self.file_name) as fp:
@@ -313,9 +319,10 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
                     fp, object_hook=HierarchicalTagDataItem.json_object_hook)
             for child in children:
                 root.appendRow(child.get_row())
+        self.sort(0)
 
     def save_file(self):
-        root = self.invisibleRootItem()
+        root = self.sourceModel().invisibleRootItem()
         children = [root.child(row) for row in range(root.rowCount())]
         with open(self.file_name, 'w') as fp:
             json.dump(children, fp, ensure_ascii=False,
