@@ -353,7 +353,7 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         self.data_model = self.parent().data_model
         self.setWindowTitle(
             translate('KeywordsTab', 'Edit keyword hierarchy'))
-        layout = QtWidgets.QGridLayout()
+        layout = FormLayout()
         self.setLayout(layout)
         width = width_for_text(self, 'x' * 100)
         height = width * 3 // 4
@@ -383,24 +383,25 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
                 while parent:
                     self.tree_view.expand(parent.index())
                     parent = parent.parent()
-        layout.addWidget(self.tree_view, 0, 0, 1, 3)
+        layout.addWidget(self.tree_view)
         # search box
         self.search_box = QtWidgets.QLineEdit()
         self.search_box.setToolTip('<p>{}</p>'.format(translate(
             'KeywordsTab', 'Enter two or more letters to search the keyword'
             ' tree. When there are few enough results a popup menu will'
             ' be displayed.')))
-        self.search_box.textEdited.connect(self.new_search)
-        layout.addWidget(
-            QtWidgets.QLabel(translate('KeywordsTab', 'Search')), 1, 0)
-        layout.addWidget(self.search_box, 1, 1)
-        layout.setColumnStretch(1, 1)
-        self.search_count = QtWidgets.QLineEdit()
-        self.search_count.setReadOnly(True)
-        self.search_count.setPlaceholderText(
-            translate('KeywordsTab', 'invalid search'))
-        self.search_count.setMinimumWidth(width_for_text(self, 'x' * 15))
-        layout.addWidget(self.search_count, 1, 2)
+        self.completer = QtWidgets.QCompleter()
+        self.completer.setModel(self.parent().list_view)
+        self.completer.setModelSorting(
+            self.completer.ModelSorting.CaseInsensitivelySortedModel)
+        self.completer.setFilterMode(Qt.MatchFlag.MatchContains)
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.completer.setWidget(self.search_box)
+        self.completer.popup().setTextElideMode(Qt.TextElideMode.ElideMiddle)
+        self.completer.activated.connect(self.completer_activated)
+        self.search_box.textEdited.connect(self.search_text_changed)
+        layout.addRow(QtWidgets.QLabel(translate('KeywordsTab', 'Search')),
+                      self.search_box)
         # buttons
         button_box = QtWidgets.QDialogButtonBox()
         button_box.addButton(button_box.StandardButton.Ok
@@ -409,44 +410,18 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
                              ).clicked.connect(self.clicked_apply)
         button_box.addButton(button_box.StandardButton.Cancel
                              ).clicked.connect(self.clicked_cancel)
-        layout.addWidget(button_box, 2, 0, 1, 3)
+        layout.addWidget(button_box)
 
     @QtSlot(str)
     @catch_all
-    def new_search(self, text):
-        if len(text) < 2:
-            self.search_count.clear()
-            return
-        matches = self.data_model.find_name(
-            text, flags=Qt.MatchFlag.MatchContains)
-        if qt_version_info >= (6, 0):
-            # pyside6-lupdate doesn't recognise plurals with 'translate'
-            self.search_count.setText(HierarchicalTagsDialog.tr(
-                'KeywordsTab', '%n result(s)', '', len(matches)))
-        else:
-            # Qt5 doesn't handle ClassName.tr correctly
-            self.search_count.setText(translate(
-                'KeywordsTab', '%n result(s)', '', len(matches)))
-        if len(matches) == 1:
-            self.highlight_row(matches[0].index())
-            return
-        if len(matches) < 1 or len(matches) > 10:
-            return
-        # drop down menu from self.search_box
-        menu = QtGui2.QMenu(self)
-        for match in matches:
-            action = menu.addAction(match.full_name())
-            action.setData(match.index())
-        menu.triggered.connect(self.menu_triggered)
-        menu.popup(self.search_box.mapToGlobal(QtCore.QPoint(
-            0, self.search_box.height())))
+    def search_text_changed(self, text):
+        self.completer.setCompletionPrefix(text)
+        self.completer.complete()
 
-    @QtSlot(QtGui2.QAction)
+    @QtSlot(str)
     @catch_all
-    def menu_triggered(self, action):
-        self.highlight_row(action.data())
-
-    def highlight_row(self, index):
+    def completer_activated(self, text):
+        index = self.data_model.find_full_name(text).index()
         self.tree_view.scrollTo(index)
         selection = self.tree_view.selectionModel()
         selection.select(index, selection.SelectionFlag.ClearAndSelect |
