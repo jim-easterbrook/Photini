@@ -293,14 +293,14 @@ class HierarchicalTagDataModel(QtCore.QSortFilterProxyModel):
             words = []
             while node:
                 word = node.text()
-                if node.checked('copyable'):
+                if not node.checked('copyable'):
                     word = '<i>{}</i>'.format(word)
                 words.insert(0, word)
                 node = node.parent()
         else:
             # value is not in model, last word is copyable
             words = full_name.split('|')
-            words[-1] = '<i>{}</i>'.format(words[-1])
+            words[0:-1] = ['<i>{}</i>'.format(word) for word in words[0:-1]]
         return '|'.join(words)
 
     @QtSlot("QStandardItem*")
