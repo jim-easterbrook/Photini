@@ -118,6 +118,23 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.edit.emit_value()
 
 
+class KeywordCompleter(QtWidgets.QCompleter):
+    def __init__(self, list_view, widget, *arg, **kw):
+        super(KeywordCompleter, self).__init__(*arg, **kw)
+        self.setModel(list_view)
+        self.setModelSorting(self.ModelSorting.CaseInsensitivelySortedModel)
+        self.setFilterMode(Qt.MatchFlag.MatchContains)
+        self.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.popup().setTextElideMode(Qt.TextElideMode.ElideMiddle)
+        self.setWidget(widget)
+
+    @QtSlot(str)
+    @catch_all
+    def set_text(self, text):
+        self.setCompletionPrefix(text)
+        self.complete()
+
+
 class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
     def __init__(self, key, list_view, *arg, spell_check=False,
                  length_check=None, multi_string=False, length_always=False,
@@ -129,13 +146,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
         self.setLineWrapMode(self.LineWrapMode.NoWrap)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.completer = QtWidgets.QCompleter()
-        self.completer.setModel(list_view)
-        self.completer.setModelSorting(
-            self.completer.ModelSorting.CaseInsensitivelySortedModel)
-        self.completer.setFilterMode(Qt.MatchFlag.MatchContains)
-        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.completer.setWidget(self)
+        self.completer = KeywordCompleter(list_view, self)
         self.completer.activated.connect(self.completer_activated)
         self.textChanged.connect(self.text_changed)
 
@@ -144,8 +155,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
     def text_changed(self):
         if not self.hasFocus():
             return
-        self.completer.setCompletionPrefix(self.toPlainText())
-        self.completer.complete()
+        self.completer.set_text(self.toPlainText())
 
     @QtSlot(str)
     @catch_all
@@ -390,16 +400,10 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
             'KeywordsTab', 'Enter two or more letters to search the keyword'
             ' tree. When there are few enough results a popup menu will'
             ' be displayed.')))
-        self.completer = QtWidgets.QCompleter()
-        self.completer.setModel(self.parent().list_view)
-        self.completer.setModelSorting(
-            self.completer.ModelSorting.CaseInsensitivelySortedModel)
-        self.completer.setFilterMode(Qt.MatchFlag.MatchContains)
-        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.completer.setWidget(self.search_box)
-        self.completer.popup().setTextElideMode(Qt.TextElideMode.ElideMiddle)
-        self.completer.activated.connect(self.completer_activated)
-        self.search_box.textEdited.connect(self.search_text_changed)
+        completer = KeywordCompleter(
+            self.parent().list_view, self.search_box, parent=self)
+        completer.activated.connect(self.completer_activated)
+        self.search_box.textEdited.connect(completer.set_text)
         layout.addRow(QtWidgets.QLabel(translate('KeywordsTab', 'Search')),
                       self.search_box)
         # buttons
@@ -411,12 +415,6 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         button_box.addButton(button_box.StandardButton.Cancel
                              ).clicked.connect(self.clicked_cancel)
         layout.addWidget(button_box)
-
-    @QtSlot(str)
-    @catch_all
-    def search_text_changed(self, text):
-        self.completer.setCompletionPrefix(text)
-        self.completer.complete()
 
     @QtSlot(str)
     @catch_all
