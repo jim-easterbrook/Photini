@@ -250,6 +250,7 @@ class HierarchicalTagDataModel(QtCore.QSortFilterProxyModel):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
         self.setSourceModel(QtGui.QStandardItemModel())
         self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.setRecursiveFilteringEnabled(True)
         self.sourceModel().setItemPrototype(HierarchicalTagDataItem())
         self.sourceModel().setHorizontalHeaderLabels([
             translate('KeywordsTab', 'keyword'),
@@ -274,7 +275,8 @@ class HierarchicalTagDataModel(QtCore.QSortFilterProxyModel):
         flags = flags or Qt.MatchFlag.MatchFixedString
         model = self.sourceModel()
         start = self.index(0, 0)
-        result = self.match(start, Qt.ItemDataRole.DisplayRole, name, -1, flags)
+        result = self.match(start, Qt.ItemDataRole.DisplayRole, name, -1,
+                            flags | Qt.MatchFlag.MatchRecursive)
         result = [model.itemFromIndex(self.mapToSource(x)) for x in result]
         return result
 
