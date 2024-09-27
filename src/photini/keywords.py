@@ -216,11 +216,11 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
             ' to or from the traditional "flat" keywords.'
             )), Qt.ItemDataRole.ToolTipRole)
 
+    def type(self):
+        return self.ItemType.UserType + 1
+
     def __lt__(self, other):
         return self.text().lower() < other.text().lower()
-
-    def clone(self):
-        return HierarchicalTagDataItem(self)
 
     def all_children(self):
         for row in range(self.rowCount()):
@@ -287,7 +287,6 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
 class HierarchicalTagDataModel(QtGui.QStandardItemModel):
     def __init__(self, *args, **kwds):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
-        self.setItemPrototype(HierarchicalTagDataItem())
         self.setHorizontalHeaderLabels([
             translate('KeywordsTab', 'keyword'),
             translate('KeywordsTab', 'in photo'),
