@@ -531,8 +531,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
             idx += 1
         while idx > rows:
             idx -= 1
-            widget = layout.itemAt(idx).widget()
-            layout.removeWidget(widget)
+            layout.takeAt(idx).widget().setParent(None)
 
     @QtSlot(dict)
     @catch_all
