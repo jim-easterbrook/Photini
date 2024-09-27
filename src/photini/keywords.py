@@ -131,6 +131,8 @@ class KeywordCompleter(QtWidgets.QCompleter):
     @QtSlot(str)
     @catch_all
     def set_text(self, text):
+        if len(text) < 2:
+            return
         self.setCompletionPrefix(text)
         self.complete()
 
@@ -171,6 +173,9 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
 
     @catch_all
     def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Return:
+            event.ignore()
+            return
         self.set_multiple(multiple=False)
         super(HtmlTextEdit, self).keyPressEvent(event)
 
@@ -290,6 +295,8 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             ])
         self.file_name = os.path.join(get_config_dir(), 'keywords.json')
         self.load_file()
+        # connect signals
+        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.save_file)
         self.itemChanged.connect(self.item_changed)
 
     def all_children(self):
@@ -327,6 +334,8 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             # value is not in model, last word is copyable
             words = full_name.split('|')
             words[0:-1] = ['<i>{}</i>'.format(word) for word in words[0:-1]]
+            # add to model
+            self.extend([full_name])
         return '|'.join(words)
 
     @QtSlot("QStandardItem*")
@@ -372,6 +381,8 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         # extend model
         self.initial_value = self.parent().get_value()
         self.data_model.extend(self.initial_value)
+        # save model in current state
+        self.data_model.save_file()
         # tree view of keywords
         self.tree_view = QtWidgets.QTreeView()
         self.tree_view.setUniformRowHeights(True)
@@ -441,14 +452,13 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
                 new_value.append(child.full_name())
         self.parent().set_value(new_value)
         self.parent().emit_value()
-        self.data_model.save_file()
 
     @QtSlot()
     @catch_all
     def clicked_cancel(self):
+        self.data_model.load_file()
         self.parent().set_value(self.initial_value)
         self.parent().emit_value()
-        self.data_model.load_file()
         self.reject()
 
 
