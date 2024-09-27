@@ -197,8 +197,9 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
 class HierarchicalTagDataItem(QtGui.QStandardItem):
     flag_keys = ('is_set', 'copyable')
 
-    def __init__(self, *arg, **kw):
-        super(HierarchicalTagDataItem, self).__init__(*arg, **kw)
+    # this ought to be __init__, but some versions of PySide2 crash if I
+    # override QStandardItem.__init__()
+    def initialise(self):
         self.tick_boxes = {}
         for key in self.flag_keys:
             self.tick_boxes[key] = QtGui.QStandardItem()
@@ -238,6 +239,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
                 break
         else:
             child = HierarchicalTagDataItem(name)
+            child.initialise()
             if not names:
                 # last name is copyable by default
                 child.set_checked('copyable', True)
@@ -276,6 +278,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
     def json_object_hook(dict_value):
         if 'name' in dict_value:
             self = HierarchicalTagDataItem(dict_value['name'])
+            self.initialise()
             for key in self.flag_keys:
                 self.set_checked(key, key in dict_value['flags'])
             for child in dict_value['children']:
