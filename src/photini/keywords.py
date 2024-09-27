@@ -602,7 +602,13 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('KeywordsTab', '&Keywords')
+        return translate('KeywordsTab', 'Keywords or tags',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('KeywordsTab', '&Keywords',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)

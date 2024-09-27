@@ -290,7 +290,13 @@ class PathFormatValidator(QtGui.QValidator):
 class ImporterTab(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('ImporterTab', '&Import photos')
+        return translate('ImporterTab', 'Import photos',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('ImporterTab', '&Import',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, parent=None):
         super(ImporterTab, self).__init__(parent)

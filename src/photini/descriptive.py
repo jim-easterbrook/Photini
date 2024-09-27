@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -176,7 +176,13 @@ class KeywordsEditor(QtWidgets.QWidget):
 class TabWidget(QtWidgets.QScrollArea):
     @staticmethod
     def tab_name():
-        return translate('DescriptiveTab', '&Descriptive metadata')
+        return translate('DescriptiveTab', 'Descriptive metadata',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('DescriptiveTab', '&Descriptive',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
