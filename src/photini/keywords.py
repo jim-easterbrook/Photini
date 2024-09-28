@@ -529,10 +529,11 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self.set_rows()
 
     def set_rows(self, rows=1):
+        # layout includes a spacer, which is always the last row
         layout = self.widget().layout()
         rows = max(rows, 1)
-        idx = layout.count() - 1
-        while idx < rows:
+        # insert new rows if needed
+        for idx in range(layout.count() - 1, rows):
             widget = HtmlTextEdit(str(idx), self.list_view, spell_check=True)
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
@@ -540,10 +541,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
                 ' Separate them with "|" or "/" characters.')))
             widget.new_value.connect(self._new_value)
             layout.insertWidget(idx, widget)
-            idx += 1
-        while idx > rows:
-            idx -= 1
-            layout.takeAt(idx).widget().setParent(None)
+        # hide or reveal rows
+        for idx in range(layout.count() - 1):
+            layout.itemAt(idx).widget().setVisible(idx < rows)
 
     @QtSlot(dict)
     @catch_all
@@ -569,12 +569,10 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self._old_value = list(value)
         self.set_rows(len(value) + 1)
         layout = self.widget().layout()
-        for idx in range(layout.count() - 1):
-            widget = layout.itemAt(idx).widget()
-            if idx < len(value):
-                widget.set_value(self.data_model.formatted_name(value[idx]))
-            else:
-                widget.set_value(None)
+        for idx, row_value in enumerate(value):
+            layout.itemAt(idx).widget().set_value(
+                self.data_model.formatted_name(row_value))
+        layout.itemAt(len(value)).widget().set_value(None)
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
