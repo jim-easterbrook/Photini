@@ -401,6 +401,7 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         header.setSectionResizeMode(1, header.ResizeMode.Fixed)
         header.setSectionResizeMode(2, header.ResizeMode.Fixed)
         # set check boxes and expand all items in value
+        selection = QtCore.QItemSelection()
         for child in self.data_model.all_children():
             is_set = child.full_name() in self.initial_value
             child.set_checked('is_set', is_set)
@@ -409,6 +410,11 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
                 while parent:
                     self.tree_view.expand(parent.index())
                     parent = parent.parent()
+                selection.select(child.index(), child.index())
+        selection_model = self.tree_view.selectionModel()
+        selection_model.select(selection,
+                               selection_model.SelectionFlag.ClearAndSelect |
+                               selection_model.SelectionFlag.Rows)
         layout.addWidget(self.tree_view)
         # search box
         self.search_box = QtWidgets.QLineEdit()
