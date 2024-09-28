@@ -150,14 +150,6 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.completer = KeywordCompleter(list_view, self)
         self.completer.activated.connect(self.completer_activated)
-        self.textChanged.connect(self.text_changed)
-
-    @QtSlot()
-    @catch_all
-    def text_changed(self):
-        if not self.hasFocus():
-            return
-        self.completer.set_text(self.toPlainText())
 
     @QtSlot(str)
     @catch_all
@@ -178,6 +170,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
             return
         self.set_multiple(multiple=False)
         super(HtmlTextEdit, self).keyPressEvent(event)
+        self.completer.set_text(self.toPlainText())
 
     @catch_all
     def contextMenuEvent(self, event):
