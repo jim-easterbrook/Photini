@@ -196,10 +196,12 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):
     flag_keys = ('is_set', 'copyable')
+    sort_role = Qt.ItemDataRole.UserRole + 2
 
     # this ought to be __init__, but some versions of PySide2 crash if I
     # override QStandardItem.__init__()
     def initialise(self):
+        self.setData(self.text().casefold(), self.sort_role)
         self.tick_boxes = {}
         for key in self.flag_keys:
             self.tick_boxes[key] = QtGui.QStandardItem()
@@ -221,7 +223,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         return self.ItemType.UserType + 1
 
     def __lt__(self, other):
-        return self.text().lower() < other.text().lower()
+        return self.data(self.sort_role) < other.data(self.sort_role)
 
     def all_children(self):
         for row in range(self.rowCount()):
@@ -290,6 +292,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
 class HierarchicalTagDataModel(QtGui.QStandardItemModel):
     def __init__(self, *args, **kwds):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
+        self.setSortRole(HierarchicalTagDataItem.sort_role)
         self.setHorizontalHeaderLabels([
             translate('KeywordsTab', 'keyword'),
             translate('KeywordsTab', 'in photo'),
