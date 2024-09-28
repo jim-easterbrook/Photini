@@ -162,9 +162,9 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
     @QtSlot(str)
     @catch_all
     def completer_activated(self, text):
-        self.set_value(text)
-        self.emit_value()
         self.completer.popup().hide()
+        self.set_value(text)
+        self.moveCursor(QtGui.QTextCursor.MoveOperation.EndOfBlock)
 
     @catch_all
     def focusOutEvent(self, event):
