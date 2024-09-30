@@ -103,7 +103,13 @@ class TabWidget(PhotiniMap):
 
     @staticmethod
     def tab_name():
-        return translate('MapTabMapbox', 'Map (&Mapbox)')
+        return translate('MapTabMapbox', 'Mapbox Map',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('MapTabMapbox', 'Map &M',
+                         'Shortest possible name used as tab label')
 
     def get_geocoder(self):
         return MapboxGeocoder(parent=self)

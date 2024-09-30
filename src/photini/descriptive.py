@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -17,13 +17,11 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import date, datetime
 import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.widgets import (
-    ComboBox, Label, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
+from photini.widgets import Label, LangAltWidget, MultiLineEdit, Slider
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -91,92 +89,16 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setPlaceholderText(self.multiple_values)
 
 
-class KeywordsEditor(QtWidgets.QWidget):
-    def __init__(self, key, **kw):
-        super(KeywordsEditor, self).__init__()
-        self.config_store = QtWidgets.QApplication.instance().config_store
-        self.league_table = {}
-        for keyword, score in self.config_store.get(
-                                'descriptive', 'keywords', {}).items():
-            if isinstance(score, int):
-                # old style keyword list
-                self.league_table[keyword] = date.min.isoformat(), score // 50
-            else:
-                # new style keyword list
-                self.league_table[keyword] = score
-        layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
-        # line edit box
-        self.edit = SingleLineEdit(key, **kw)
-        layout.addWidget(self.edit)
-        # favourites drop down
-        self.favourites = ComboBox()
-        self.favourites.addItem(translate('DescriptiveTab', '<favourites>'))
-        self.favourites.setFixedWidth(width_for_text(self.favourites, 'x' * 16))
-        self.update_favourites()
-        self.favourites.currentIndexChanged.connect(self.add_favourite)
-        layout.addWidget(self.favourites)
-        self.setFixedHeight(self.sizeHint().height())
-        # adopt child widget methods and signals
-        self.get_value = self.edit.get_value
-        self.set_value = self.edit.set_value
-        self.set_multiple = self.edit.set_multiple
-        self.is_multiple = self.edit.is_multiple
-        self.new_value = self.edit.new_value
-
-    def update_favourites(self):
-        self.favourites.clear()
-        self.favourites.addItem(translate('DescriptiveTab', '<favourites>'))
-        keywords = list(self.league_table.keys())
-        keywords.sort(key=lambda x: self.league_table[x], reverse=True)
-        # limit size of league_table by deleting lowest scoring
-        if len(keywords) > 100:
-            threshold = self.league_table[keywords[100]]
-            for keyword in keywords:
-                if self.league_table[keyword] <= threshold:
-                    del self.league_table[keyword]
-        # select highest scoring for drop down list
-        keywords = keywords[:20]
-        keywords.sort(key=lambda x: x.lower())
-        for keyword in keywords:
-            self.favourites.addItem(keyword)
-        self.favourites.set_dropdown_width()
-
-    def update_league_table(self, images):
-        today = date.today().isoformat()
-        for image in images:
-            keywords = image.metadata.keywords
-            value = [x for x in keywords if ':' not in x]
-            if not value:
-                continue
-            for keyword in value:
-                if keyword not in self.league_table:
-                    self.league_table[keyword] = today, 1
-                elif self.league_table[keyword][0] != today:
-                    self.league_table[keyword] = (
-                        today, self.league_table[keyword][1] + 1)
-        self.config_store.set('descriptive', 'keywords', self.league_table)
-        self.update_favourites()
-
-    @QtSlot(int)
-    @catch_all
-    def add_favourite(self, idx):
-        if idx <= 0:
-            return
-        self.favourites.setCurrentIndex(0)
-        new_value = self.favourites.itemText(idx)
-        current_value = self.get_value()
-        if current_value:
-            new_value = current_value + '; ' + new_value
-        self.set_value(new_value)
-        self.edit.emit_value()
-
-
 class TabWidget(QtWidgets.QScrollArea):
     @staticmethod
     def tab_name():
-        return translate('DescriptiveTab', '&Descriptive metadata')
+        return translate('DescriptiveTab', 'Descriptive metadata',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('DescriptiveTab', '&Descriptive',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
@@ -249,37 +171,19 @@ class TabWidget(QtWidgets.QScrollArea):
             Label(translate('DescriptiveTab',
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
-        # keywords
-        self.widgets['keywords'] = KeywordsEditor(
-            'keywords', spell_check=True, multi_string=True,
-            length_check=ImageMetadata.max_bytes('keywords'))
-        self.widgets['keywords'].setToolTip('<p>{}</p>'.format(translate(
-            'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
-            ' used to express the subject matter in the image.'
-            ' Separate them with ";" characters.')))
-        self.widgets['keywords'].new_value.connect(self.new_value)
-        layout.addRow(translate('DescriptiveTab', 'Keywords'),
-                      self.widgets['keywords'])
-        self.app.image_list.image_list_changed.connect(self.image_list_changed)
         # rating
         self.widgets['rating'] = RatingWidget('rating')
         self.widgets['rating'].new_value.connect(self.new_value)
         layout.addRow(translate('DescriptiveTab', 'Rating'),
                       self.widgets['rating'])
         # disable until an image is selected
-        self.setEnabled(False)
+        self.widget().setEnabled(False)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
-
-    @QtSlot()
-    @catch_all
-    def image_list_changed(self):
-        self.widgets['keywords'].update_league_table(
-            self.app.image_list.get_images())
 
     @QtSlot(dict)
     @catch_all
@@ -289,8 +193,6 @@ class TabWidget(QtWidgets.QScrollArea):
         for image in images:
             setattr(image.metadata, key, value)
         self._update_widget(key, images)
-        if key == 'keywords':
-            self.widgets[key].update_league_table(images)
 
     def _update_widget(self, key, images):
         if not images:
@@ -309,8 +211,8 @@ class TabWidget(QtWidgets.QScrollArea):
         if not selection:
             for key in self.widgets:
                 self.widgets[key].set_value(None)
-            self.setEnabled(False)
+            self.widget().setEnabled(False)
             return
         for key in self.widgets:
             self._update_widget(key, selection)
-        self.setEnabled(True)
+        self.widget().setEnabled(True)

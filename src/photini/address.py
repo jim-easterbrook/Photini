@@ -263,7 +263,13 @@ class QTabBar(QtWidgets.QTabBar):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('AddressTab', '&Address')
+        return translate('AddressTab', 'Location addresses',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('AddressTab', '&Address',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, parent=None):
         super(TabWidget, self).__init__(parent)
