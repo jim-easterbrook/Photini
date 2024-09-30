@@ -107,7 +107,13 @@ class RightsDropDown(DropDownSelector):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('OwnerTab', '&Ownership metadata')
+        return translate('OwnerTab', 'Ownership metadata',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('OwnerTab', '&Ownership',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
