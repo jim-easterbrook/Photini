@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="cs" sourcelanguage="en_GB">
+<TS language="cs" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -40,12 +40,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Location addresses</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Altitude</source>
         <translation type="obsolete">Výšina</translation>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Adresa</translation>
+        <translation type="vanished">&amp;Adresa</translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
@@ -90,6 +95,11 @@
     <message>
         <source>Enter the name of the world region.</source>
         <translation>Zadejte název světové oblasti.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Adresa</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -159,7 +169,7 @@
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation>&amp;Popisné údaje</translation>
+        <translation type="vanished">&amp;Popisné údaje</translation>
     </message>
     <message>
         <source>Title / Object Name</source>
@@ -182,6 +192,10 @@
         <translation>Zadejte krátký slovní a lidsky čitelný název obrázku, může to být název souboru.</translation>
     </message>
     <message>
+        <source>Descriptive metadata</source>
+        <translation type="vanished">Popisné údaje</translation>
+    </message>
+    <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
         <translation>Uveďte stručný zveřejnitelný přehled nebo shrnutí obsahu obrázku.</translation>
     </message>
@@ -199,6 +213,16 @@
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Descriptive metadata</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Popisné údaje</translation>
+    </message>
+    <message>
+        <source>&amp;Descriptive</source>
+        <comment>Shortest possible name used as tab label</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -340,6 +364,16 @@
         <translation>Fotografie</translation>
     </message>
     <message>
+        <source>Flickr upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Nahrání na Flickr</translation>
+    </message>
+    <message>
+        <source>&amp;Flickr</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Flickr</translation>
+    </message>
+    <message>
         <source>Screenshot</source>
         <translation>Snímek obrazovky</translation>
     </message>
@@ -357,7 +391,7 @@
     </message>
     <message>
         <source>&amp;Flickr upload</source>
-        <translation>Nahrání na &amp;Flickr</translation>
+        <translation type="vanished">Nahrání na &amp;Flickr</translation>
     </message>
     <message>
         <source>Flickr</source>
@@ -504,11 +538,21 @@
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
-        <translation>Nahrání na Google &amp;Photos</translation>
+        <translation type="vanished">Nahrání na Google &amp;Photos</translation>
     </message>
     <message>
         <source>Google Photos</source>
         <translation>Google Photos</translation>
+    </message>
+    <message>
+        <source>Google Photos upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Nahrání na Google Photos</translation>
+    </message>
+    <message>
+        <source>&amp;Google</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
@@ -598,8 +642,7 @@
             <numerusform>Obnovit náhled</numerusform>
             <numerusform>Obnovit náhledy</numerusform>
             <numerusform>Obnovit náhledy</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -615,8 +658,7 @@
             <numerusform>Nahrát znovu soubor</numerusform>
             <numerusform>Nahrát znovu soubory</numerusform>
             <numerusform>Nahrát znovu soubory</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
@@ -624,8 +666,7 @@
             <numerusform>Zavřít soubor</numerusform>
             <numerusform>Zavřít soubory</numerusform>
             <numerusform>Zavřít soubory</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -648,7 +689,7 @@
     <name>ImporterTab</name>
     <message>
         <source>&amp;Import photos</source>
-        <translation>&amp;Zavést fotografie</translation>
+        <translation type="vanished">&amp;Zavést fotografie</translation>
     </message>
     <message>
         <source>refresh</source>
@@ -730,14 +771,23 @@
         <source>folder: {folder_name}</source>
         <translation>Složka: {folder_name}</translation>
     </message>
+    <message>
+        <source>Import photos</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Zavést fotografie</translation>
+    </message>
+    <message>
+        <source>&amp;Import</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Zavést</translation>
+    </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
         <translation>
             <numerusform>%n soubor vybrán</numerusform>
             <numerusform>%n soubory vybrány</numerusform>
             <numerusform>%n souborů vybráno</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -791,8 +841,13 @@
         <translation>Volné použití (vzdání se kopírovacích práv, žádná licence)</translation>
     </message>
     <message>
+        <source>&amp;Ipernity</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Ipernity</translation>
+    </message>
+    <message>
         <source>&amp;Ipernity upload</source>
-        <translation>Nahrání na &amp;Ipernity</translation>
+        <translation type="vanished">Nahrání na &amp;Ipernity</translation>
     </message>
     <message>
         <source>Replace image region notes</source>
@@ -801,6 +856,11 @@
     <message>
         <source>Ipernity</source>
         <translation>Ipernity</translation>
+    </message>
+    <message>
+        <source>Ipernity upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Nahrání na Ipernity</translation>
     </message>
     <message>
         <source>Who can:</source>
@@ -900,6 +960,75 @@
     </message>
 </context>
 <context>
+    <name>KeywordsTab</name>
+    <message>
+        <source>One &quot;word&quot; in a keyword hierarchy. This word and its ancestors form a complete keyword.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tick this box to add this keyword to the selected photographs. Untick the box to remove it from the selected photographs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tick this box to allow this keyword to be copied to or from the traditional &quot;flat&quot; keywords.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>keyword</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>in photo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copyable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit keyword hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter two or more letters to search the keyword tree. When there are few enough results a popup menu will be displayed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished">Hledat</translation>
+    </message>
+    <message>
+        <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keywords or tags</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Keywords</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open tree view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy to hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy to keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
@@ -961,7 +1090,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Map (&amp;Azure)</source>
+        <source>Azure Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;A</source>
+        <comment>Shortest possible name used as tab label</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -972,8 +1107,18 @@
         <translation>Přetížení serveru, zkuste to znovu</translation>
     </message>
     <message>
+        <source>Bing Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;B</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>Mapa &amp;B</translation>
+    </message>
+    <message>
         <source>Map (&amp;Bing)</source>
-        <translation>Mapa (&amp;Bing)</translation>
+        <translation type="vanished">Mapa (&amp;Bing)</translation>
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
@@ -984,12 +1129,22 @@
     <name>MapTabGoogle</name>
     <message>
         <source>Map (&amp;Google)</source>
-        <translation>Mapa (&amp;Google)</translation>
+        <translation type="vanished">Mapa (&amp;Google)</translation>
     </message>
     <message>
         <source>Search and altitude lookup powered by Google</source>
         <comment>Do not translate &quot;powered by Google&quot;</comment>
         <translation>Hledání a výškové vyhledávání powered by Google</translation>
+    </message>
+    <message>
+        <source>Google Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;G</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>Mapa &amp;G</translation>
     </message>
 </context>
 <context>
@@ -999,8 +1154,18 @@
         <translation>Hledání provozováno službou Mapbox</translation>
     </message>
     <message>
+        <source>Mapbox Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;M</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>Mapa &amp;M</translation>
+    </message>
+    <message>
         <source>Map (&amp;Mapbox)</source>
-        <translation>Mapa (&amp;Mapbox)</translation>
+        <translation type="vanished">Mapa (&amp;Mapbox)</translation>
     </message>
 </context>
 <context>
@@ -1166,7 +1331,7 @@
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation>Popis &amp;vlastnictví</translation>
+        <translation type="vanished">Popis &amp;vlastnictví</translation>
     </message>
     <message>
         <source>Creator</source>
@@ -1309,6 +1474,16 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Ownership metadata</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ownership</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit template</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1387,7 +1562,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Pixelfed upload</source>
+        <source>Pixelfed upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Pixelfed</source>
+        <comment>Shortest possible name used as tab label</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1622,7 +1803,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Image &amp;regions</source>
+        <source>Image regions</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Regions</source>
+        <comment>Shortest possible name used as tab label</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1666,7 +1853,7 @@
     </message>
     <message>
         <source>&amp;Technical metadata</source>
-        <translation>&amp;Technické popisné údaje</translation>
+        <translation type="vanished">&amp;Technické popisné údaje</translation>
     </message>
     <message>
         <source>Date and time</source>
@@ -1759,6 +1946,16 @@
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Technical metadata</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Technické popisné údaje</translation>
+    </message>
+    <message>
+        <source>&amp;Technical</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished">&amp;Technické</translation>
     </message>
     <message>
         <source>normal</source>

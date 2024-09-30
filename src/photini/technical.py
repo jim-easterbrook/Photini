@@ -650,7 +650,13 @@ class DateLink(QtWidgets.QCheckBox):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('TechnicalTab', '&Technical metadata')
+        return translate('TechnicalTab', 'Technical metadata',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('TechnicalTab', '&Technical',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)

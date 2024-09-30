@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr" sourcelanguage="en_GB">
+<TS language="fr" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -40,12 +40,17 @@
         <translation>ID de l&apos;emplacement</translation>
     </message>
     <message>
+        <source>Location addresses</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Altitude</source>
         <translation type="obsolete">Altitude</translation>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Addresse</translation>
+        <translation type="vanished">&amp;Addresse</translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
@@ -90,6 +95,11 @@
     <message>
         <source>Enter the name of the world region.</source>
         <translation>Saisissez le nom de la région du monde.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Addresse</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -159,7 +169,7 @@
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation>Métadonnées &amp;descriptives</translation>
+        <translation type="vanished">Métadonnées &amp;descriptives</translation>
     </message>
     <message>
         <source>Title / Object Name</source>
@@ -200,6 +210,16 @@
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
         <translation>Saisissez le texte décrivant l’apparence de l’image d’un point de vue visuel, centré sur les détails utiles au but et au sens de l’image.</translation>
+    </message>
+    <message>
+        <source>Descriptive metadata</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Métadonnées descriptives</translation>
+    </message>
+    <message>
+        <source>&amp;Descriptive</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished">&amp;Descriptives</translation>
     </message>
     <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
@@ -340,6 +360,16 @@
         <translation>Photo</translation>
     </message>
     <message>
+        <source>Flickr upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished">Import Flickr</translation>
+    </message>
+    <message>
+        <source>&amp;Flickr</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Flickr</translation>
+    </message>
+    <message>
         <source>Screenshot</source>
         <translation>Capture d&apos;écran</translation>
     </message>
@@ -357,7 +387,7 @@
     </message>
     <message>
         <source>&amp;Flickr upload</source>
-        <translation>Import &amp;Flickr</translation>
+        <translation type="vanished">Import &amp;Flickr</translation>
     </message>
     <message>
         <source>Flickr</source>
@@ -504,11 +534,21 @@
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
-        <translation>Import &amp;Google Photos</translation>
+        <translation type="vanished">Import &amp;Google Photos</translation>
     </message>
     <message>
         <source>Google Photos</source>
         <translation>Google Photos</translation>
+    </message>
+    <message>
+        <source>Google Photos upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished">Import Google Photos</translation>
+    </message>
+    <message>
+        <source>&amp;Google</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
@@ -597,8 +637,7 @@
         <translation>
             <numerusform>Régénérer la vignette</numerusform>
             <numerusform>Régénérer les vignettes</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -613,16 +652,14 @@
         <translation>
             <numerusform>Recharger le fichier</numerusform>
             <numerusform>Recharger les fichiers</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Fermer le fichier</numerusform>
             <numerusform>Fermer les fichiers</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -645,7 +682,7 @@
     <name>ImporterTab</name>
     <message>
         <source>&amp;Import photos</source>
-        <translation>&amp;Importer des photos</translation>
+        <translation type="vanished">&amp;Importer des photos</translation>
     </message>
     <message>
         <source>refresh</source>
@@ -727,13 +764,22 @@
         <source>folder: {folder_name}</source>
         <translation>Dossier&#xa0;: {folder_name}</translation>
     </message>
+    <message>
+        <source>Import photos</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Importer des photos</translation>
+    </message>
+    <message>
+        <source>&amp;Import</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished">&amp;Importer</translation>
+    </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
         <translation>
             <numerusform>%n fichier sélectionné</numerusform>
             <numerusform>%n fichiers sélectionnés</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -787,8 +833,13 @@
         <translation>Utilisation libre (abandon du droit d&apos;auteur, pas de licence)</translation>
     </message>
     <message>
+        <source>&amp;Ipernity</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Ipernity</translation>
+    </message>
+    <message>
         <source>&amp;Ipernity upload</source>
-        <translation>Import &amp;Ipernity</translation>
+        <translation type="vanished">Import &amp;Ipernity</translation>
     </message>
     <message>
         <source>Replace image region notes</source>
@@ -797,6 +848,11 @@
     <message>
         <source>Ipernity</source>
         <translation>Ipernity</translation>
+    </message>
+    <message>
+        <source>Ipernity upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished">Import Ipernity</translation>
     </message>
     <message>
         <source>Who can:</source>
@@ -896,6 +952,75 @@
     </message>
 </context>
 <context>
+    <name>KeywordsTab</name>
+    <message>
+        <source>One &quot;word&quot; in a keyword hierarchy. This word and its ancestors form a complete keyword.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tick this box to add this keyword to the selected photographs. Untick the box to remove it from the selected photographs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tick this box to allow this keyword to be copied to or from the traditional &quot;flat&quot; keywords.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>keyword</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>in photo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copyable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit keyword hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter two or more letters to search the keyword tree. When there are few enough results a popup menu will be displayed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished">Recherche</translation>
+    </message>
+    <message>
+        <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keywords or tags</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Keywords</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open tree view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy to hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy to keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
@@ -957,8 +1082,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Map (&amp;Azure)</source>
+        <source>Azure Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;A</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>Carte &amp;A</translation>
     </message>
 </context>
 <context>
@@ -968,8 +1099,18 @@
         <translation>Surcharge du serveur, veuillez réessayer</translation>
     </message>
     <message>
+        <source>Bing Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;B</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>Carte &amp;B</translation>
+    </message>
+    <message>
         <source>Map (&amp;Bing)</source>
-        <translation>Carte (&amp;Bing)</translation>
+        <translation type="vanished">Carte (&amp;Bing)</translation>
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
@@ -980,12 +1121,22 @@
     <name>MapTabGoogle</name>
     <message>
         <source>Map (&amp;Google)</source>
-        <translation>Carte (&amp;Google)</translation>
+        <translation type="vanished">Carte (&amp;Google)</translation>
     </message>
     <message>
         <source>Search and altitude lookup powered by Google</source>
         <comment>Do not translate &quot;powered by Google&quot;</comment>
         <translation>Recherche et mesure d&apos;altitude powered by Google</translation>
+    </message>
+    <message>
+        <source>Google Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;G</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>Carte &amp;G</translation>
     </message>
 </context>
 <context>
@@ -995,8 +1146,18 @@
         <translation>Recherche propulsée par Mapbox</translation>
     </message>
     <message>
+        <source>Mapbox Map</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map &amp;M</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>Carte &amp;M</translation>
+    </message>
+    <message>
         <source>Map (&amp;Mapbox)</source>
-        <translation>Carte (&amp;Mapbox)</translation>
+        <translation type="vanished">Carte (&amp;Mapbox)</translation>
     </message>
 </context>
 <context>
@@ -1118,7 +1279,7 @@
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation>Métadonnées du &amp;propriétaire</translation>
+        <translation type="vanished">Métadonnées du &amp;propriétaire</translation>
     </message>
     <message>
         <source>Creator</source>
@@ -1333,6 +1494,16 @@
         <translation>URL</translation>
     </message>
     <message>
+        <source>Ownership metadata</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Métadonnées du propriétaire</translation>
+    </message>
+    <message>
+        <source>&amp;Ownership</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Open link to &quot;{}&quot;</source>
         <translation type="vanished">Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
     </message>
@@ -1419,8 +1590,14 @@
         <translation>Pixelfed</translation>
     </message>
     <message>
-        <source>&amp;Pixelfed upload</source>
+        <source>Pixelfed upload</source>
+        <comment>Full name of tab shown as a tooltip</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Pixelfed</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation>&amp;Pixelfed</translation>
     </message>
     <message>
         <source>Caption</source>
@@ -1654,7 +1831,13 @@
         <translation>Supprimer la région</translation>
     </message>
     <message>
-        <source>Image &amp;regions</source>
+        <source>Image regions</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Regions</source>
+        <comment>Shortest possible name used as tab label</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1698,7 +1881,7 @@
     </message>
     <message>
         <source>&amp;Technical metadata</source>
-        <translation>Métadonnées &amp;techniques</translation>
+        <translation type="vanished">Métadonnées &amp;techniques</translation>
     </message>
     <message>
         <source>Date and time</source>
@@ -1795,6 +1978,16 @@
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation>La modification du nom du fabricant invalidera les informations Exif sur les notes de fabrication.</translation>
+    </message>
+    <message>
+        <source>Technical metadata</source>
+        <comment>Full name of tab shown as a tooltip</comment>
+        <translation>Métadonnées techniques</translation>
+    </message>
+    <message>
+        <source>&amp;Technical</source>
+        <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>normal</source>

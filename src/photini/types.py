@@ -24,6 +24,8 @@ import math
 import pprint
 import re
 
+from photini.cv import (image_region_roles, image_region_roles_idx,
+                        image_region_types, image_region_types_idx)
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import *
 from photini.pyqt import qt_version_info, using_pyside
@@ -33,9 +35,9 @@ logger = logging.getLogger(__name__)
 # photini.metadata imports these classes
 __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_GPSinfo', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
-    'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
-    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
+    'MD_Dimensions', 'MD_GPSinfo', 'MD_HierarchicalTags', 'MD_ImageRegion',
+    'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation',
+    'MD_MultiString', 'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
     'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
     'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
@@ -1147,6 +1149,24 @@ class MD_MultiString(MD_Value, tuple):
         return self
 
 
+class MD_HierarchicalTags(MD_Value, tuple):
+    def __new__(cls, value=None):
+        value = value or []
+        value = [x.strip() for x in value]
+        value = [x.replace('/', '|') for x in value if x]
+        value.sort(key=str.casefold)
+        return super(MD_HierarchicalTags, cls).__new__(cls, value)
+
+    def to_exiv2(self, tag):
+        value = list(self)
+        if tag == 'Xmp.digiKam.TagsList':
+            value = [x.replace('|', '/') for x in value]
+        return value
+
+    def __str__(self):
+        return pprint.pformat(self, compact=True)
+
+
 class MD_Keywords(MD_MultiString):
     _machine_tag = re.compile(r'^(.+):(.+)=(.+)$')
 
@@ -1183,7 +1203,7 @@ class MD_Orientation(MD_Int):
             raise ValueError('unrecognised orientation {}'.format(file_value))
         return cls(mapping[file_value])
 
-    def get_transform(self):
+    def get_transform(self, inverted=False):
         bits = self - 1
         if not bits:
             return None
@@ -1204,6 +1224,8 @@ class MD_Orientation(MD_Int):
             transform = transform.translate(-1, 0)
         if transform.m21() + transform.m22() < 0:
             transform = transform.translate(0, -1)
+        if inverted:
+            transform = transform.inverted()[0]
         return transform
 
 
@@ -1857,11 +1879,8 @@ class ImageRegionItem(MD_Structure):
         region['Iptc4xmpExt:rbUnit'] = 'pixel'
         return cls({
             'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [{
-                'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
-                'xmp:Identifier': [
-                    'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea'],
-                }],
+            'Iptc4xmpExt:rRole': [image_region_roles[
+                image_region_roles_idx['imgregrole:mainSubjectArea']]['data']],
             })
 
     def has_uid(self, key, uid):
@@ -1872,10 +1891,13 @@ class ImageRegionItem(MD_Structure):
                 return True
         return False
 
-    def is_main_subject_area(self):
-        return self.has_uid(
-            'Iptc4xmpExt:rRole',
-            'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea')
+    def has_type(self, qcode):
+        data = image_region_types[image_region_types_idx[qcode]]['data']
+        return self.has_uid('Iptc4xmpExt:rCtype', data['xmp:Identifier'][0])
+
+    def has_role(self, qcode):
+        data = image_region_roles[image_region_roles_idx[qcode]]['data']
+        return self.has_uid('Iptc4xmpExt:rRole', data['xmp:Identifier'][0])
 
     def to_Qt(self, image):
         return self['Iptc4xmpExt:RegionBoundary'].to_Qt(image)
@@ -1913,10 +1935,10 @@ class MD_ImageRegion(MD_StructArray):
         return result
 
     def index(self, other):
-        if other.is_main_subject_area():
+        if other.has_role('imgregrole:mainSubjectArea'):
             # only one main subject area region allowed
             for n, value in enumerate(self):
-                if value.is_main_subject_area():
+                if value.has_role('imgregrole:mainSubjectArea'):
                     return True
             return len(self)
         for n, value in enumerate(self):
@@ -1930,8 +1952,8 @@ class MD_ImageRegion(MD_StructArray):
         if not ('x' in note and 'y' in note and
                 'w' in note and 'h' in note):
             return None
-        transform = (image.metadata.orientation
-                     and image.metadata.orientation.get_transform())
+        transform = (image.metadata.orientation and
+                     image.metadata.orientation.get_transform(inverted=True))
         w, h = dims
         if transform and transform.isRotating():
             w, h = h, w
@@ -1940,7 +1962,7 @@ class MD_ImageRegion(MD_StructArray):
                              float(note['w']), float(note['h']))
         rect = scale.mapRect(rect)
         if transform:
-            rect = transform.inverted()[0].mapRect(rect)
+            rect = transform.mapRect(rect)
         boundary = {'Iptc4xmpExt:rbShape': 'rectangle',
                     'Iptc4xmpExt:rbUnit': 'relative'}
         (boundary['Iptc4xmpExt:rbX'],
@@ -1967,17 +1989,15 @@ class MD_ImageRegion(MD_StructArray):
                 boundary = self.boundary_from_note(note, dims, image)
             if not boundary:
                 continue
-            region = {'Iptc4xmpExt:RegionBoundary': boundary}
-            region['Iptc4xmpExt:rRole'] = [{
-                'xmp:Identifier': [
-                    'http://cv.iptc.org/newscodes/imageregionrole/subjectArea'],
-                'Iptc4xmpExt:Name': {'en-GB': 'subject area'}}]
+            region = {
+                'Iptc4xmpExt:RegionBoundary': boundary,
+                'Iptc4xmpExt:rRole': [image_region_roles[
+                    image_region_roles_idx['imgregrole:subjectArea']]['data']],
+                }
             if note['is_person']:
                 region['Iptc4xmpExt:PersonInImage'] = [note['content']]
-                region['Iptc4xmpExt:rCtype'] = [{
-                    'Iptc4xmpExt:Name': {'en-GB': 'human'},
-                    'xmp:Identifier': [
-                        'http://cv.iptc.org/newscodes/imageregiontype/human']}]
+                region['Iptc4xmpExt:rCtype'] = [image_region_types[
+                    image_region_types_idx['imgregtype:human']]['data']]
             else:
                 region['dc:description'] = {'x-default': note['content']}
             if note['authorrealname']:
@@ -2010,17 +2030,15 @@ class MD_ImageRegion(MD_StructArray):
         for region, note in self.to_note_boundary(image, target_size):
             note['content'] = ''
             note['is_person'] = False
-            if region.has_uid(
-                    'Iptc4xmpExt:rCtype',
-                    'http://cv.iptc.org/newscodes/imageregiontype/human'):
+            if region.has_type('imgregtype:human'):
                 if 'Iptc4xmpExt:PersonInImage' in region:
                     note['content'] = ', '.join(
                         region['Iptc4xmpExt:PersonInImage'])
                 note['is_person'] = True
-            elif not any(region.has_uid('Iptc4xmpExt:rRole', x) for x in (
-                'http://cv.iptc.org/newscodes/imageregionrole/subjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',
-                'http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest')):
+            elif not any(region.has_role(x) for x in (
+                    'imgregrole:subjectArea',
+                    'imgregrole:mainSubjectArea',
+                    'imgregrole:areaOfInterest')):
                 continue
             if 'dc:description' in region and not note['content']:
                 note['content'] = MD_LangAlt(
@@ -2041,24 +2059,20 @@ class MD_ImageRegion(MD_StructArray):
         if transform and transform.isRotating():
             portrait_format = not portrait_format
         if portrait_format:
-            uris = (
-                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
-                )
+            roles = ('imgregrole:landscapeCropping',
+                     'imgregrole:squareCropping',
+                     'imgregrole:recomCropping',
+                     'imgregrole:cropping',
+                     'imgregrole:portraitCropping')
         else:
-            uris = (
-                'http://cv.iptc.org/newscodes/imageregionrole/squareCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/recomCropping',
-                'http://cv.iptc.org/newscodes/imageregionrole/cropping',
-                )
-        for uri in uris:
+            roles = ('imgregrole:squareCropping',
+                     'imgregrole:portraitCropping',
+                     'imgregrole:landscapeCropping',
+                     'imgregrole:recomCropping',
+                     'imgregrole:cropping')
+        for role in roles:
             for region in self:
-                if not region.has_uid('Iptc4xmpExt:rRole', uri):
+                if not region.has_role(role):
                     continue
                 points = region.to_Qt(image)
                 boundary = region['Iptc4xmpExt:RegionBoundary']

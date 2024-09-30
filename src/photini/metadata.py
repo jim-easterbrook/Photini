@@ -473,6 +473,8 @@ class ImageMetadata(MetadataHandler):
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
                             ('WA', 'Iptc.Legacy.Location*'),
                             ('WA', 'Iptc.Application2.Location*')),
+        'nested_tags'    : (('WA', 'Xmp.lr.hierarchicalSubject'),
+                            ('WA', 'Xmp.digiKam.TagsList')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
                             ('WX', 'Xmp.tiff.Orientation')),
         'rating'         : (('WA', 'Xmp.xmp.Rating'),
@@ -649,6 +651,7 @@ class Metadata(object):
         'lens_model'     : MD_LensModel,
         'location_shown' : MD_MultiLocation,
         'location_taken' : MD_SingleLocation,
+        'nested_tags'    : MD_HierarchicalTags,
         'orientation'    : MD_Orientation,
         'rating'         : MD_Rating,
         'rights'         : MD_Rights,
@@ -799,6 +802,11 @@ class Metadata(object):
         if not self._if:
             return
         return self._if.get_previews()
+
+    def get_image_pixmap(self):
+        if self._if:
+            return self._if.get_image_pixmap(self.orientation)
+        return None
 
     def get_crop_factor(self):
         md = self._if or self._sc

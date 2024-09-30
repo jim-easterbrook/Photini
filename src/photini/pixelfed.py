@@ -534,7 +534,13 @@ class TabWidget(PhotiniUploader):
 
     @staticmethod
     def tab_name():
-        return translate('PixelfedTab', '&Pixelfed upload')
+        return translate('PixelfedTab', 'Pixelfed upload',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('PixelfedTab', '&Pixelfed',
+                         'Shortest possible name used as tab label')
 
     def config_columns(self):
         self.replace_prefs = {'description': True}

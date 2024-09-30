@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -255,7 +255,13 @@ class TabWidget(PhotiniUploader):
 
     @staticmethod
     def tab_name():
-        return translate('GooglePhotosTab', 'Google &Photos upload')
+        return translate('GooglePhotosTab', 'Google Photos upload',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('GooglePhotosTab', '&Google',
+                         'Shortest possible name used as tab label')
 
     def config_columns(self):
         ## first column

@@ -502,31 +502,9 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.resetTransform()
         self.boundaries = []
         if image:
-            reader = QtGui.QImageReader(image.path)
-            reader.setAutoTransform(False)
-            pixmap = QtGui.QPixmap.fromImageReader(reader)
-            if pixmap.isNull():
-                w, h = 0, 0
-            else:
-                w, h = pixmap.width(), pixmap.height()
-            # try image previews
-            for data in image.metadata.get_previews():
-                buf = QtCore.QBuffer()
-                # PySide insists on bytes, can't use buffer interface
-                if using_pyside:
-                    data = bytes(data)
-                buf.setData(data)
-                reader = QtGui.QImageReader(buf)
-                reader.setAutoTransform(False)
-                preview = QtGui.QPixmap.fromImageReader(reader)
-                if preview.isNull():
-                    continue
-                if preview.width() > w:
-                    pixmap = preview
-                break
-            if pixmap.isNull():
-                logger.error('%s: %s', os.path.basename(image.path),
-                             reader.errorString())
+            with Busy():
+                pixmap = image.metadata.get_image_pixmap()
+            if not pixmap:
                 item = scene.addText(
                     translate('RegionsTab', 'Unreadable image format'))
             else:
@@ -569,16 +547,11 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
                 aspect_ratio = 0.0
-                if region.has_uid('Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
-                                  'newscodes/imageregionrole/squareCropping'):
+                if region.has_role('imgregrole:squareCropping'):
                     aspect_ratio = 1.0
-                elif region.has_uid(
-                        'Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
-                        'newscodes/imageregionrole/landscapeCropping'):
+                elif region.has_role('imgregrole:landscapeCropping'):
                     aspect_ratio = 16.0 / 9.0
-                elif region.has_uid(
-                        'Iptc4xmpExt:rRole', 'http://cv.iptc.org/'
-                        'newscodes/imageregionrole/portraitCropping'):
+                elif region.has_role('imgregrole:portraitCropping'):
                     aspect_ratio = 9.0 / 16.0
                 if aspect_ratio and self.transform().isRotating():
                     aspect_ratio = 1.0 / aspect_ratio
@@ -641,9 +614,7 @@ class EntityConceptWidget(SingleLineEdit):
             action = self.menu.addAction(label)
             action.setCheckable(True)
             action.setToolTip('<p>{}</p>'.format(tip))
-            data = {'xmp:Identifier': [item['uri']],
-                    'Iptc4xmpExt:Name': item['name']}
-            action.setData(data)
+            action.setData(item['data'])
             action.toggled.connect(self.update_display)
             action.triggered.connect(self.action_triggered)
             self.actions.append(action)
@@ -1060,7 +1031,13 @@ class RegionTabs(QtWidgets.QTabWidget):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('RegionsTab', 'Image &regions')
+        return translate('RegionsTab', 'Image regions',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('RegionsTab', '&Regions',
+                         'Shortest possible name used as tab label')
 
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
