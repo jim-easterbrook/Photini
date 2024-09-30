@@ -177,7 +177,9 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
         self.context_menu_event(event)
 
     def get_value(self):
-        return self.toPlainText()
+        value = self.toPlainText()
+        value = [x.strip() for x in value.replace('/', '|').split('|')]
+        return '|'.join([x for x in value if x])
 
     def set_value(self, value):
         self.set_multiple(multiple=False)
