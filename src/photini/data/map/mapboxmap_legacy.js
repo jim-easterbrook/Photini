@@ -41,6 +41,7 @@ function loadMap(lat, lng, zoom, options) {
             {tileSize: 512, zoomOffset: -1}),
     };
     map = L.mapbox.map(document.getElementById("mapDiv"));
+    map.doubleClickZoom.disable();
     // Map vanishes if zoomed too much
     map.setMaxZoom(18);
     map.setView([lat, lng], zoom);
