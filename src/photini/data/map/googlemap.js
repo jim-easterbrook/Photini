@@ -64,7 +64,6 @@ async function loadMap(lat, lng, zoom, options) {
         console.warn(
             'Using legacy markers as advanced markers are not supported.');
     }
-
     google.maps.event.addListener(map, 'idle', newBounds);
     python.initialize_finished(true);
 }
@@ -235,7 +234,7 @@ function addMarker(id, lat, lng, active) {
             zIndex: active ? 1 : 0,
         });
         google.maps.event.addListener(marker, 'click', markerClick);
-        google.maps.event.addListener(marker, 'dblclick', markerDblClick);
+        google.maps.event.addListener(marker, 'dblclick', markerClick);
         google.maps.event.addListener(marker, 'dragstart', markerClick);
         google.maps.event.addListener(marker, 'drag', markerDrag);
         google.maps.event.addListener(marker, 'dragend', markerDragEnd);
@@ -252,7 +251,6 @@ function addMarker(id, lat, lng, active) {
             zIndex: active ? 1 : 0,
         });
         marker.addListener('click', markerClick);
-        marker.addListener('dblclick', markerClick);
         marker.addListener('dragstart', markerClick);
         marker.addListener('drag', markerDrag);
         marker.addListener('dragend', markerDragEnd);
