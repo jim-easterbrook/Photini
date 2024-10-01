@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-23  Jim Easterbrook.
+   Copyright (C)  2012-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Tag reference
@@ -51,13 +51,17 @@ You may find this useful when deciding what to write in those fields.
       -
       - Xmp.iptc.ExtDescrAccessibility
       -
+    * - Rating_
+      -
+      - Xmp.xmp.Rating
+      -
     * - Keywords_
       -
       - Xmp.dc.subject
       - Iptc.Application2.Keywords
-    * - Rating_
+    * - Hierarchical keywords
       -
-      - Xmp.xmp.Rating
+      - Xmp.lr.hierarchicalSubject Xmp.digiKam.TagsList
       -
     * - Creator_
       - Exif.Image.Artist
