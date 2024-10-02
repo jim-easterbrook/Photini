@@ -280,6 +280,12 @@ class PhotiniMap(QtWidgets.QWidget):
         self.geocoder = self.get_geocoder()
         self.gpx_ids = []
         self.widgets = {}
+        # timer to count marker clicks
+        self.click_info = {'id': None}
+        self.click_timer = QtCore.QTimer(self)
+        self.click_timer.setSingleShot(True)
+        self.click_timer.setInterval(self.app.doubleClickInterval())
+        self.click_timer.timeout.connect(self.click_timer_expired)
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
         left_side = QtWidgets.QGridLayout()
@@ -747,7 +753,35 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @catch_all
     def marker_click(self, marker_id):
-        self.app.image_list.select_images(self.marker_info[marker_id]['images'])
+        self.click_timer.start()
+        if self.click_info['id'] != marker_id:
+            self.click_info = {
+                'id': marker_id,
+                'count': 0,
+                'marker_list': [marker_id],
+                }
+        self.click_info['count'] += 1
+        if self.click_info['count'] == 2:
+            # sort markers by proximity
+            marker_list = [(self.marker_distance(marker_id, id), id)
+                           for id in self.marker_info]
+            marker_list.sort()
+            self.click_info['marker_list'] = [x[1] for x in marker_list]
+        # select markers' images
+        images = []
+        for id in self.click_info['marker_list'][:self.click_info['count']]:
+            images += self.marker_info[id]['images']
+        self.app.image_list.select_images(images)
+
+    @QtSlot()
+    @catch_all
+    def click_timer_expired(self):
+        self.click_info = {'id': None}
+
+    def marker_distance(self, id_a, id_b):
+        lat_a, lng_a = self.marker_info[id_a]['location']
+        lat_b, lng_b = self.marker_info[id_b]['location']
+        return (lat_a - lat_b)**2 + (lng_a - lng_b)**2
 
     @catch_all
     def marker_drag(self, lat, lng):

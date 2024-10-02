@@ -31,6 +31,7 @@ async function loadMap(lat, lng, zoom, options) {
     var mapOptions = {
         center: new google.maps.LatLng(lat, lng),
         controlSize: 30,
+        disableDoubleClickZoom: true,
         fullscreenControl: false,
         scaleControl: true,
         streetViewControl: false,
@@ -60,10 +61,9 @@ async function loadMap(lat, lng, zoom, options) {
             await google.maps.importLibrary("marker");
         legacyMarkers = false;
     } else {
-        console.warning(
+        console.warn(
             'Using legacy markers as advanced markers are not supported.');
     }
-
     google.maps.event.addListener(map, 'idle', newBounds);
     python.initialize_finished(true);
 }
@@ -233,6 +233,11 @@ function addMarker(id, lat, lng, active) {
             crossOnDrag: false,
             zIndex: active ? 1 : 0,
         });
+        google.maps.event.addListener(marker, 'click', markerClick);
+        google.maps.event.addListener(marker, 'dblclick', markerClick);
+        google.maps.event.addListener(marker, 'dragstart', markerClick);
+        google.maps.event.addListener(marker, 'drag', markerDrag);
+        google.maps.event.addListener(marker, 'dragend', markerDragEnd);
     }
     else {
         var icon = document.createElement("img");
@@ -245,13 +250,13 @@ function addMarker(id, lat, lng, active) {
             gmpDraggable: true,
             zIndex: active ? 1 : 0,
         });
+        marker.addListener('click', markerClick);
+        marker.addListener('dragstart', markerClick);
+        marker.addListener('drag', markerDrag);
+        marker.addListener('dragend', markerDragEnd);
     }
     marker.id = id;
     markers[id] = marker;
-    google.maps.event.addListener(marker, 'click', markerClick);
-    google.maps.event.addListener(marker, 'dragstart', markerClick);
-    google.maps.event.addListener(marker, 'drag', markerDrag);
-    google.maps.event.addListener(marker, 'dragend', markerDragEnd);
 }
 
 function markerClick(event) {

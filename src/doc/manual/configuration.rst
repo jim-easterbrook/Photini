@@ -72,6 +72,8 @@ Put these files in the same directory as the English dictionaries installed with
 On my computer the directory is ``C:\Users\Jim\AppData\Local\Programs\Python\Python38\Lib\``
 ``site-packages\enchant\data\mingw64\share\enchant\hunspell`` but this will depend on your Python installation.
 
+.. _configuration-file-location:
+
 Configuration file location
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

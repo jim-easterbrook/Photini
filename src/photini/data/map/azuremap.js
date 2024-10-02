@@ -41,6 +41,7 @@ function loadMap(lat, lng, zoom, options) {
         console.warn(
             'Azure maps is supported, but may not perform well.');
     options.center = [lng, lat];
+    options.dblClickZoomInteraction = false;
     options.dragRotateInteraction = false;
     options.maxZoom = 19;
     options.minZoom = 1;

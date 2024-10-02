@@ -37,6 +37,7 @@ const noPadding = {top: 0, bottom: 0, left: 0, right: 0};
 function loadMap(lat, lng, zoom, options) {
     options.center = [lng, lat];
     options.container = 'mapDiv';
+    options.doubleClickZoom = false;
     options.dragRotate = false;
     options.maxZoom = 19;
     options.minZoom = 0;
@@ -310,32 +311,25 @@ function addMarker(id, lat, lng, active) {
     icon.src = markerIcon[active];
     icon.style.cursor = 'pointer';
     icon.style.zIndex = active ? '2' : '1';
+    icon.id = id;
     var marker = new mapboxgl.Marker({
         anchor: 'bottom',
         draggable: true,
         element: icon,
         offset: [0, 0],
     });
-    marker.metadata = {id: id};
+    marker.id = id;
     markers[id] = marker;
     marker.setLngLat([lng, lat]);
     icon.addEventListener('click', markerClick);
-    marker.on('dragstart', markerDragStart);
+    marker.on('dragstart', markerClick);
     marker.on('drag', markerDrag);
     marker.on('dragend', markerDragEnd);
     marker.addTo(map);
 }
 
-function markerClick() {
-    for (id in markers)
-        if (markers[id].getElement() == this) {
-            python.marker_click(id);
-            return;
-        }
-}
-
-function markerDragStart() {
-    python.marker_click(this.metadata.id);
+function markerClick(event) {
+    python.marker_click(this.id);
 }
 
 function markerDrag() {
@@ -345,7 +339,7 @@ function markerDrag() {
 
 function markerDragEnd() {
     var pos = this.getLngLat();
-    python.marker_drag_end(pos.lat, pos.lng, this.metadata.id);
+    python.marker_drag_end(pos.lat, pos.lng, this.id);
 }
 
 function markerDrop(x, y) {
