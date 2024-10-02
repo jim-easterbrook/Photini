@@ -177,7 +177,9 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
         self.context_menu_event(event)
 
     def get_value(self):
-        return self.toPlainText()
+        value = self.toPlainText()
+        value = [x.strip() for x in value.replace('/', '|').split('|')]
+        return '|'.join([x for x in value if x])
 
     def set_value(self, value):
         self.set_multiple(multiple=False)
@@ -512,7 +514,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._key = key
         self._is_multiple = False
-        self._old_value = []
+        self._value = []
         self.setWidget(QtWidgets.QWidget())
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
@@ -543,29 +545,25 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     def _new_value(self, value):
         for idx, new_value in value.items():
             idx = int(idx)
-            if idx < len(self._old_value):
-                old_value = self._old_value[idx]
+            if idx < len(self._value):
+                old_value = self._value[idx]
             else:
                 old_value = ''
             self.update_value.emit(self._key, old_value, new_value)
 
     def get_value(self):
-        layout = self.widget().layout()
-        result = [layout.itemAt(idx).widget().get_value()
-                  for idx in range(layout.count() - 1)]
-        return [x for x in result if x]
+        return self._value
 
     def set_value(self, value):
         if self._is_multiple:
             self._is_multiple = False
-        value = value or []
-        self._old_value = list(value)
-        self.set_rows(len(value) + 1)
+        self._value = list(value or [])
+        self.set_rows(len(self._value) + 1)
         layout = self.widget().layout()
-        for idx, row_value in enumerate(value):
+        for idx, row_value in enumerate(self._value):
             layout.itemAt(idx).widget().set_value(
                 self.data_model.formatted_name(row_value))
-        layout.itemAt(len(value)).widget().set_value(None)
+        layout.itemAt(len(self._value)).widget().set_value(None)
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
@@ -575,7 +573,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
                 choice_dict[tag].append(idx)
         tag_list = list(choice_dict.keys())
         tag_list.sort(key=str.casefold)
-        self._old_value = tag_list
+        self._value = tag_list
         self.set_rows(len(tag_list) + 1)
         layout = self.widget().layout()
         for idx in range(layout.count() - 1):
