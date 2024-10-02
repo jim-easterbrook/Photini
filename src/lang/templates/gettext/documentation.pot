@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.9.1.post8\n"
+"Project-Id-Version: Photini 2024.9.1.post58\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-21 15:44+0100\n"
+"POT-Creation-Date: 2024-10-01 14:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -178,7 +178,7 @@ msgstr ""
 msgid "The first thing I usually do with a new set of photographs is to set the title. Select all the images that should have the same title, then type the title in the ``Title / Object name`` text editing box. Hovering the mouse over the data field displays a popup \"tooltip\" describing the sort of information to put in that field. This help text is taken from the `IPTC standard`_."
 msgstr ""
 
-msgid "Note that the title (and headline and keywords) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail). You may prefer to leave these fields blank."
+msgid "Note that the title (and headline) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail). You may prefer to leave these fields blank."
 msgstr ""
 
 msgid "The legacy IPTC-IIM standard has a maximum number of bytes for each data item. If your text has more bytes then the excess is shown underlined in blue. You can ignore this if you don't need compatibility with old software that relies on IPTC-IIM data. This warning can be turned off in Photini's :doc:`configuration <configuration>`."
@@ -202,7 +202,7 @@ msgstr ""
 msgid "The ``Alt Text (Accessibility)`` and ``Extended Description (Accessibility)`` boxes are where you describe the photograph for visually impaired users. These are a recent addition to the `IPTC standard`_ - in future image display programs and web sites should use this metadata to create their \"ALT text\" image description."
 msgstr ""
 
-msgid "Next you can set a list of keywords for the image by typing them in the ``Keywords`` box. Keywords should be separated by semi-colon (;) characters. The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often."
+msgid "The ``Keywords`` field has been moved to the :doc:`keywords` tab."
 msgstr ""
 
 msgid "Finally the ``Rating`` slider allows you to note any particularly good or bad pictures. Good pictures can be given a one to five star rating."
@@ -266,12 +266,6 @@ msgid "`Extended Description (Accessibility) <http://www.iptc.org/std/photometad
 msgstr ""
 
 msgid "Extended description for visually impaired accessibility."
-msgstr ""
-
-msgid "`Keywords <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#keywords>`_"
-msgstr ""
-
-msgid "Separate words or phrases with ``;`` characters. Not stored in Exif."
 msgstr ""
 
 msgid "`Rating <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-rating>`_"
@@ -634,6 +628,60 @@ msgstr ""
 msgid "If you upload an image that already has a ``ipernity:id`` keyword then Photini allows you to change the photograph's metadata instead of uploading a new photograph."
 msgstr ""
 
+msgid "Keywords"
+msgstr ""
+
+msgid "The ``Keywords`` tab (keyboard shortcut ``Alt+K``) allows you to add \"keywords\" or \"tags\" to your photographs. These are words or short phrases that describe the subject of the image."
+msgstr ""
+
+msgid "Note that these fields are stored in XMP but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail). You may prefer not to use this tab."
+msgstr ""
+
+msgid "Photini handles two types of keywords, simple and hierarchical. The simple (or \"flat\") keywords are widely used, for example they are recognised by Flickr's image uploader. Hierarchical keywords are a more recent addition to photography metadata and may not be widely recognised."
+msgstr ""
+
+msgid "You can set a list of simple keywords for the image by typing them in the ``Keywords`` box. Keywords should be separated by semi-colon (``;``) characters. The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often."
+msgstr ""
+
+msgid "Hierarchical keywords are sequences of words or phrases that describe the subject in descending generality or increasing precision. For example, a geographical location could be continent > country > county > city. There are no rules about what hierarchies you use, but in some cases there are obvious choices. A bird watcher or botanist might want to use the full `Linnaean taxonomy`_."
+msgstr ""
+
+msgid "Hierarchical keywords are added by typing the complete hierarchy, separating terms with ``|`` (pipe) or ``/`` (slash) characters."
+msgstr ""
+
+msgid "After entering the keyword Photini converts ``/`` characters to ``|`` and displays a field for the next hierarchical keyword. Note that all but the last word are shown in italics, for reasons that are explained later."
+msgstr ""
+
+msgid "As more keywords are added they are sorted alphabetically. You can add as many keywords as you want."
+msgstr ""
+
+msgid "Your hierarchical keywords are added to a personal dictionary, stored in a file called ``keywords.json`` in your :ref:`configuration-file-location`."
+msgstr ""
+
+msgid "The keyword dictionary is used to provide suggestions for keywords as you type."
+msgstr ""
+
+msgid "After choosing one of the suggested keywords you can edit it further if needed."
+msgstr ""
+
+msgid "The ``open tree view`` button opens a dialog that displays all the keywords in your dictionary. When the dialog opens the selected photographs' keywords are highlighted."
+msgstr ""
+
+msgid "The ``in photo`` tick boxes allow you to add keywords to the selected photographs by ticking the box, or remove them by unticking the box."
+msgstr ""
+
+msgid "The ``copyable`` tick boxes set which keywords can be easily copied between \"flat\" and hierarchical keywords. Initially the last word of each hierarchy is copyable, but in some cases this is unsuitable. For example, \"20th century\" and \"summer 2012\" are almost meaningless outside their hierarchical context. On the other hand, a country name is usually not the last word in a hierarchy, but is meaningful in isolation."
+msgstr ""
+
+msgid "After editing the keywords' ``copyable`` setting, the ones that are no longer copyable are shown in italics."
+msgstr ""
+
+msgid "The ``copy to hierarchy`` button searches your keyword dictionary for any of the words in the \"flat\" keyword list, and copies all that are copyable. In this case it has copied both \"places|France\" and \"places|France|Château-Gontier\". Only the latter is needed so the former can be deleted."
+msgstr ""
+
+msgid "The ``copy to keywords`` button copies the copyable words in your hierarchical keywords to the \"flat\" keywords list. In this case both \"France\" and \"Château-Gontier\" are copyable so one hierarchical keyword has generated two flat keywords."
+msgstr ""
+
 msgid "Geotagging"
 msgstr ""
 
@@ -682,6 +730,12 @@ msgstr ""
 msgid "If you have several images at one location, but need to move some of them to a different location, select the images to be moved in the image selector, then drag them onto their new position on the map."
 msgstr ""
 
+msgid "Double clicking on a marker will select both it and the nearest marker. Clicking three or more times in rapid succession will select three or more markers. (Except on the Google map tab, which currently requires three clicks to select two markers, five clicks to select three markers, and so on.)"
+msgstr ""
+
+msgid "If you have two closely spaced markers that you'd like to merge, double click to select both, then right-click on the location coordinates box to select one of the locations from the multiple values context menu."
+msgstr ""
+
 msgid "Selecting another map tab will show the same location but with data and imagery from a different provider."
 msgstr ""
 
@@ -691,7 +745,7 @@ msgstr ""
 msgid "Map failures"
 msgstr ""
 
-msgid "Some map tabs might fail to load, showing the above error message instead. This could be because of problems with WebGL_, a sophisticated graphics system used in HTML 5. Some of the map providers use WebGL to draw their maps, so if WebGL, or some feature of it, is missing the map won't load."
+msgid "Some map tabs might fail to load, showing the above error message instead. This could be because of problems with WebGL_, a sophisticated graphics system used in HTML |nbsp| 5. Some of the map providers use WebGL to draw their maps, so if WebGL, or some feature of it, is missing the map won't load."
 msgstr ""
 
 msgid "Problems with WebGL could be caused by having an incompatible graphics card or driver, or by the system configuration. Clicking on the link in the error message might provide some useful diagnostic information. You could also try choosing a different Qt package in Photini's :doc:`configuration <configuration>`."
@@ -997,6 +1051,12 @@ msgstr ""
 msgid "Xmp.iptc.ExtDescrAccessibility"
 msgstr ""
 
+msgid "Rating_"
+msgstr ""
+
+msgid "Xmp.xmp.Rating"
+msgstr ""
+
 msgid "Keywords_"
 msgstr ""
 
@@ -1006,10 +1066,10 @@ msgstr ""
 msgid "Iptc.Application2.Keywords"
 msgstr ""
 
-msgid "Rating_"
+msgid "Hierarchical keywords"
 msgstr ""
 
-msgid "Xmp.xmp.Rating"
+msgid "Xmp.lr.hierarchicalSubject Xmp.digiKam.TagsList"
 msgstr ""
 
 msgid "Creator_"
@@ -1211,9 +1271,6 @@ msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr ""
 
 msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
-msgstr ""
-
-msgid "Keywords"
 msgstr ""
 
 msgid "Exif.Image.XPKeywords"

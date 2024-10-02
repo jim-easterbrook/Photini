@@ -6,6 +6,8 @@ Extending Photini
 =================
 
 It is possible to add new functionality to Photini by providing a new "tab".
+This is of limited usefulness as the new functionality can only use existing Photini metadata items, unless you want to try "monkey patching" the ``photini.metadata`` module.
+
 Because the tabs are loaded dynamically at run-time the new tab does not need to be part of the Photini Python package.
 For example, if the package ``mypackage`` provides a Photini tab in the module ``mypackage.photini``, then adding ``mypackage.photini`` to the tab modules list (see :ref:`configuration-tabs`) will make the tab available in Photini.
 

@@ -2,6 +2,9 @@
    Copyright (C)  2012-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
+.. |nbsp| unicode:: 0xA0
+    :trim:
+
 Geotagging
 ==========
 
@@ -78,6 +81,13 @@ A red marker is shown if any of the images is selected, but clicking on the mark
 .. tip::
     If you have several images at one location, but need to move some of them to a different location, select the images to be moved in the image selector, then drag them onto their new position on the map.
 
+Double clicking on a marker will select both it and the nearest marker.
+Clicking three or more times in rapid succession will select three or more markers.
+(Except on the Google map tab, which currently requires three clicks to select two markers, five clicks to select three markers, and so on.)
+
+.. tip::
+    If you have two closely spaced markers that you'd like to merge, double click to select both, then right-click on the location coordinates box to select one of the locations from the multiple values context menu.
+
 .. image:: ../images/screenshot_140.png
 
 Selecting another map tab will show the same location but with data and imagery from a different provider.
@@ -94,7 +104,7 @@ Map failures
 .. image:: ../images/screenshot_142.png
 
 Some map tabs might fail to load, showing the above error message instead.
-This could be because of problems with WebGL_, a sophisticated graphics system used in HTML 5.
+This could be because of problems with WebGL_, a sophisticated graphics system used in HTML |nbsp| 5.
 Some of the map providers use WebGL to draw their maps, so if WebGL, or some feature of it, is missing the map won't load.
 
 Problems with WebGL could be caused by having an incompatible graphics card or driver, or by the system configuration.

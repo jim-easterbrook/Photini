@@ -49,7 +49,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx_tabs.tabs',
 sphinx_tabs_disable_tab_closing = True
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+#templates_path = ['_templates']
 
 rst_epilog = """
 ----
@@ -121,7 +121,6 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -157,7 +156,11 @@ html_favicon = '../photini/data/icons/photini_win.ico'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = []
+html_static_path = ['_static']
+
+html_css_files = [
+    'custom.css',
+]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.

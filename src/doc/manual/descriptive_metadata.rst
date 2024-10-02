@@ -6,6 +6,9 @@ Descriptive metadata
 ====================
 
 The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to edit basic information about your photographs, such as the title and description.
+
+.. image:: ../images/screenshot_020a.png
+
 The data form is disabled until you select one or more images to edit.
 
 .. image:: ../images/screenshot_020.png
@@ -15,7 +18,7 @@ Select all the images that should have the same title, then type the title in th
 Hovering the mouse over the data field displays a popup "tooltip" describing the sort of information to put in that field.
 This help text is taken from the `IPTC standard`_.
 
-Note that the title (and headline and keywords) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail).
+Note that the title (and headline) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail).
 You may prefer to leave these fields blank.
 
 .. image:: ../images/screenshot_021.png
@@ -58,11 +61,8 @@ Very long texts are elided with ``...`` replacing some of the text.
 The ``Alt Text (Accessibility)`` and ``Extended Description (Accessibility)`` boxes are where you describe the photograph for visually impaired users.
 These are a recent addition to the `IPTC standard`_ - in future image display programs and web sites should use this metadata to create their "ALT text" image description.
 
-.. image:: ../images/screenshot_027.png
-
-Next you can set a list of keywords for the image by typing them in the ``Keywords`` box.
-Keywords should be separated by semi-colon (;) characters.
-The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often.
+.. versionadded:: 2024.10
+  The ``Keywords`` field has been moved to the :doc:`keywords` tab.
 
 .. image:: ../images/screenshot_028.png
 
@@ -125,8 +125,6 @@ Some of them are also stored in Exif and/or "legacy" IPTC-IIM data.
   Text description for visually impaired accessibility.
 `Extended Description (Accessibility) <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#extended-description-accessibility>`_
   Extended description for visually impaired accessibility.
-`Keywords <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#keywords>`_
-  Separate words or phrases with ``;`` characters. Not stored in Exif.
 `Rating <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-rating>`_
   How good is the photo.
 

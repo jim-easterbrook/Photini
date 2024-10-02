@@ -43,8 +43,6 @@ function loadMap(lat, lng, zoom, options) {
         map.layers.insert(layers[i]);
     }
     Microsoft.Maps.loadModule('Microsoft.Maps.SpatialMath');
-    Microsoft.Maps.Events.addHandler(layers[0], 'click', markerClick);
-    Microsoft.Maps.Events.addHandler(layers[1], 'click', markerClick);
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
     map.getCredentials(newCredentials);
 }
@@ -189,6 +187,8 @@ function addMarker(id, lat, lng, active) {
         new Microsoft.Maps.Location(lat, lng), markerOptions[active]);
     marker.metadata = {id: id};
     layers[active ? 1 : 0].add(marker);
+    Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
+    Microsoft.Maps.Events.addHandler(marker, 'dblclick', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
     Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
