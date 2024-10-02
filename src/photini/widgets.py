@@ -563,9 +563,14 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.edit.new_value.connect(self._new_value)
         layout.addWidget(self.edit, *edit_pos)
         # language drop down
+        self.long_text = translate('LangAltWidget', 'Language')
+        self.short_text = translate('LangAltWidget', 'Lang: ',
+                                    'Short abbreviation of "Language: "')
         self.lang = DropDownSelector(
             'lang', with_multiple=False, extendable=True)
-        self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
+        self.lang.setFixedWidth(max(
+            width_for_text(self.lang, self.long_text + ('x' * 5)),
+            width_for_text(self.lang, self.short_text + 'xx-XX' + ('x' * 5))))
         self.lang.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.lang.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.lang.new_value.connect(self._change_lang)
@@ -683,12 +688,11 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def labeled_lang(self, lang):
         if lang == MD_LangAlt.DEFAULT:
             if len(self.value) == 1:
-                return translate('LangAltWidget', 'Language'), lang
+                return self.long_text, lang
             label = '-'
         else:
             label = lang
-        label = translate('LangAltWidget', 'Lang: ',
-                          'Short abbreviation of "Language: "') + label
+        label = self.short_text + label
         return label, lang
 
     def set_value(self, value):

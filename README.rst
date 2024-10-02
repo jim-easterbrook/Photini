@@ -20,7 +20,7 @@ Read my `blog post`_ on how I chose a name.
 Features
 --------
 
-.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_024.png
+.. image:: https://photini.readthedocs.io/en/latest/_images/screenshot_024.png
    :alt: Text editing screenshot
 
 *   Easy to use graphical interface.
@@ -34,7 +34,7 @@ Features
 *   Can import photographs from many digital cameras.
 *   Upload to Flickr_ or `Google Photos`_ or Ipernity_ or Pixelfed_ with reuse of metadata.
 
-.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_224.png
+.. image:: https://photini.readthedocs.io/en/latest/_images/screenshot_224.png
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
@@ -126,6 +126,8 @@ Service terms and conditions
 
 Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and `Google Privacy Policy`_.
 
+Use of the Azure map tab is subject to the `Microsoft Product Terms For Online Services`_ and `Microsoft Privacy & Security Terms`_.
+
 Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_ and `Microsoft Privacy Statement`_.
 
 Use of the Mapbox map tab is subject to the `Mapbox terms of service`_ and `Mapbox privacy policy`_.
@@ -171,8 +173,12 @@ A copy of the license is included in the documentation section entitled "GNU Fre
       https://www.mapbox.com/privacy/
 .. _Microsoft Bing Maps Terms of Use:
       http://www.microsoft.com/maps/assets/docs/terms.aspx
+.. _Microsoft Privacy & Security Terms:
+      https://www.microsoft.com/licensing/terms/product/PrivacyandSecurityTerms/all
 .. _Microsoft Privacy Statement:
       http://www.microsoft.com/en-us/privacystatement/
+.. _Microsoft Product Terms For Online Services:
+      https://www.microsoft.com/licensing/terms/product/ForOnlineServices/all
 .. _OAuth:         http://oauth.net/
 .. _OpenStreetMap licence:
       http://www.openstreetmap.org/copyright

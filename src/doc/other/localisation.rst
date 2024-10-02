@@ -22,9 +22,9 @@ Translating the program text
     Translation progress so far
 
 If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically.
-For example, this is what it might look like if your computer is configured to use Spanish.
+For example, this is what it might look like if your computer is configured to use French.
 
-.. image:: ../images/screenshot_37.png
+.. image:: ../images/screenshot_070.png
 
 If you'd like to help by translating Photini into another language, or by improving an existing translation, then this page is for you.
 
@@ -63,7 +63,7 @@ I recommend using one of the authentication services (e.g. GitHub or Google) so 
 
 Back at the Transifex Photini page click on "Languages" to show all the languages currently being translated to.
 If your language is not included in the list you can ask for it to be added by clicking on "request language".
-Each language is represented by a code, e.g. nl or en_CA.
+Each language is represented by a code, e.g. ``nl`` or ``en_CA``.
 The longer codes are usually regional or national variations of a common language.
 You should choose the common language if it’s not already available in Photini, moving on to the variations once the common language is done.
 Once your language is added you can ask to join the language team and then start translating.
@@ -158,7 +158,7 @@ The translation file is compiled during the installation::
 Photini should use your new language if your computer's ``LANG`` environment variable is set appropriately.
 You can force this when running Photini from the command line::
 
-   $ LANG=nl python3 -m photini
+   $ LANG=nl_NL python3 -m photini
 
 Photini should now be using your translations.
 

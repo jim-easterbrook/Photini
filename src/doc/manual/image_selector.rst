@@ -13,12 +13,10 @@ The exact appearance will depend on your operating system and window manager pre
 
 The Photini editor GUI has two main areas.
 The upper part has a set of tabs to select different functions.
+(The tabs can be re-ordered by dragging and dropping a tab to your preferred position.)
 The lower part is an image selector that is common to all the tabs.
 In between the two is a divider that can be dragged with the mouse to change the relative sizes of the two parts.
 The overall size of the window can also be changed by dragging its edges or corners with the mouse.
-
-.. versionadded:: 2022.5.2
-    The tabs can be re-ordered by dragging and dropping a tab to your preferred position.
 
 .. image:: ../images/screenshot_002.png
 
@@ -34,18 +32,18 @@ This is recursive, so beware of accidentally opening too many images in one go.
 .. image:: ../images/screenshot_003.png
 
 If you don't have a large screen you can reduce the image selector height to a single row.
-After doing this it scrolls horizontally instead of vertically.
+In this mode it scrolls horizontally instead of vertically.
 
 .. image:: ../images/screenshot_004.png
 
 Clicking on any thumbnail selects that file.
 The selected file is highlighted.
 The colours used depend on your system configuration.
-Double clicking on a thumbnail should display the full size image, using your default image viewing application.
+Double clicking on a thumbnail should display the full size image, using your computer's default image viewing application.
 
 .. tip::
 
-    If you change to a different image in your viewing application you should be able to right-click on the image and select "open with => Photini".
+    If you change to a different image in the viewing application you may be able to right-click on the image and select "open with => Photini".
     This will select the image in Photini so you can be sure of editing the image you were just looking at.
 
 .. image:: ../images/screenshot_005.png
