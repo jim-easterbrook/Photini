@@ -55,7 +55,12 @@ After choosing one of the suggested keywords you can edit it further if needed.
 .. image:: ../images/screenshot_057.png
 
 The ``open tree view`` button opens a dialog that displays all the keywords in your dictionary.
+Each word in a hierarchy is shown as a node with parent and child nodes above and below.
+To rename a node you can double-click on it and then edit the text.
+Deleting the text will delete the node and its children.
+
 When the dialog opens the selected photographs' keywords are highlighted.
+The ``search`` box can be used to find other keywords in the hierarchy.
 
 The ``in photo`` tick boxes allow you to add keywords to the selected photographs by ticking the box, or remove them by unticking the box.
 

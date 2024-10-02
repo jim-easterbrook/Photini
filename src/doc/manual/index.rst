@@ -15,8 +15,8 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    descriptive_metadata
    keywords
    ownership_metadata
-   regions
    technical_metadata
+   regions
    map
    address
    flickr
