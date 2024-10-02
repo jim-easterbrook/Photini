@@ -330,17 +330,24 @@ class PhotiniMap(QtWidgets.QWidget):
                 translate('PhotiniMap', 'Load GPX file'))
             self.widgets['load_gpx'].setEnabled(False)
             self.widgets['load_gpx'].clicked.connect(self.load_gpx)
-            left_side.addWidget(self.widgets['load_gpx'], 8, 1)
             self.widgets['set_from_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Set coords from GPX'))
             self.widgets['set_from_gpx'].setEnabled(False)
             self.widgets['set_from_gpx'].clicked.connect(self.set_from_gpx)
-            left_side.addWidget(self.widgets['set_from_gpx'], 9, 1)
             self.widgets['clear_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Remove GPX data'))
             self.widgets['clear_gpx'].setEnabled(False)
             self.widgets['clear_gpx'].clicked.connect(self.clear_gpx)
-            left_side.addWidget(self.widgets['clear_gpx'], 10, 1)
+            width = max(self.widgets['load_gpx'].sizeHint().width(),
+                        self.widgets['set_from_gpx'].sizeHint().width(),
+                        self.widgets['clear_gpx'].sizeHint().width())
+            if width > self.widgets['latlon'].size().width():
+                args = 0, 1, 2
+            else:
+                args = 1, 1, 1
+            left_side.addWidget(self.widgets['load_gpx'], 8, *args)
+            left_side.addWidget(self.widgets['set_from_gpx'], 9, *args)
+            left_side.addWidget(self.widgets['clear_gpx'], 10, *args)
         self.layout().addLayout(left_side)
         # map
         # create handler for calls from JavaScript
