@@ -24,17 +24,15 @@ import pprint
 import random
 import stat
 
-import appdirs
+import platformdirs
 
 
 def get_config_dir():
     config_dir = os.environ.get('PHOTINI_CONFIG')
     if config_dir:
         config_dir = os.path.expanduser(config_dir)
-    elif hasattr(appdirs, 'user_config_dir'):
-        config_dir = appdirs.user_config_dir('photini')
     else:
-        config_dir = appdirs.user_data_dir('photini')
+        config_dir = platformdirs.user_config_dir('photini')
     if not os.path.isdir(config_dir):
         os.makedirs(config_dir, mode=stat.S_IRWXU)
     return config_dir
