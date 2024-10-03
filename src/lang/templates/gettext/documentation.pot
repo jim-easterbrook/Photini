@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.9.1.post70\n"
+"Project-Id-Version: Photini 2024.9.1.post85\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-02 17:32+0100\n"
+"POT-Creation-Date: 2024-10-03 15:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,7 +187,10 @@ msgstr ""
 msgid "The legacy IPTC-IIM standard has a maximum number of bytes for each data item. If your text has more bytes then the excess is shown underlined in blue. You can ignore this if you don't need compatibility with old software that relies on IPTC-IIM data. This warning can be turned off in Photini's :doc:`configuration <configuration>`."
 msgstr ""
 
-msgid "The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu. The word \"Château-Gontier\" is not in the British English dictionary, as indicated by the red wiggly underlining."
+msgid "The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu."
+msgstr ""
+
+msgid "The word \"Château-Gontier\" is not in the British English dictionary, as indicated by the red wiggly underlining."
 msgstr ""
 
 msgid "Right-clicking on a misspelled word shows any suggested alternatives, one of which can be chosen by clicking on it."
@@ -1453,7 +1456,7 @@ msgstr ""
 msgid "The date can be picked from a calendar widget that pops up when you click on the down arrow in a date/time entry."
 msgstr ""
 
-msgid "Clicking on any of the numbers allows them to be adjusted with your keyboard up & down arrow keys. You can also double click on any of the numbers to select it and type a new value in directly. Selecting the entire date and time, e.g. with ``Ctrl+A``, allows it to be deleted which removes the date & time metadata from the photograph(s)."
+msgid "Clicking on part of the date or time allows it to be adjusted with your keyboard up & down arrow keys. You can also double click on any of the numbers to select it and type a new value in directly. Selecting the entire date and time, e.g. with ``Ctrl+A``, allows it to be deleted which removes the date & time metadata from the photograph(s)."
 msgstr ""
 
 msgid "To the right of each date/time is a widget to adjust the time zone. The time a photograph was taken is assumed to be \"local time\". The time zone records how many hours & minutes offset from UTC (or GMT) the local time zone was when the photograph was taken, digitised or modified."

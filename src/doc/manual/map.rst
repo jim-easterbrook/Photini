@@ -81,6 +81,8 @@ A red marker is shown if any of the images is selected, but clicking on the mark
 .. tip::
     If you have several images at one location, but need to move some of them to a different location, select the images to be moved in the image selector, then drag them onto their new position on the map.
 
+.. image:: ../images/screenshot_140.png
+
 Double clicking on a marker will select both it and the nearest marker.
 Clicking three or more times in rapid succession will select three or more markers.
 (Except on the Google map tab, which currently requires three clicks to select two markers, five clicks to select three markers, and so on.)
@@ -88,11 +90,11 @@ Clicking three or more times in rapid succession will select three or more marke
 .. tip::
     If you have two closely spaced markers that you'd like to merge, double click to select both, then right-click on the location coordinates box to select one of the locations from the multiple values context menu.
 
-.. image:: ../images/screenshot_140.png
+.. image:: ../images/screenshot_141.png
 
 Selecting another map tab will show the same location but with data and imagery from a different provider.
 
-.. image:: ../images/screenshot_141.png
+.. image:: ../images/screenshot_142.png
 
 The ``Get altitude from map`` button sets the photograph's altitude (in metres) from its latitude and longitude, using data from the map provider.
 Not all map providers have altitude data, and the accuracy varies quite a lot.
@@ -101,7 +103,7 @@ You can edit the value to correct it.
 Map failures
 ------------
 
-.. image:: ../images/screenshot_142.png
+.. image:: ../images/screenshot_143.png
 
 Some map tabs might fail to load, showing the above error message instead.
 This could be because of problems with WebGL_, a sophisticated graphics system used in HTML |nbsp| 5.
