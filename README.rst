@@ -20,7 +20,7 @@ Read my `blog post`_ on how I chose a name.
 Features
 --------
 
-.. image:: https://photini.readthedocs.io/en/latest/_images/screenshot_024.png
+.. image:: https://raw.githubusercontent.com/jim-easterbrook/Photini/refs/heads/main/src/doc/images/screenshot_027.png
    :alt: Text editing screenshot
 
 *   Easy to use graphical interface.
@@ -34,7 +34,7 @@ Features
 *   Can import photographs from many digital cameras.
 *   Upload to Flickr_ or `Google Photos`_ or Ipernity_ or Pixelfed_ with reuse of metadata.
 
-.. image:: https://photini.readthedocs.io/en/latest/_images/screenshot_224.png
+.. image:: https://raw.githubusercontent.com/jim-easterbrook/Photini/refs/heads/main/src/doc/images/screenshot_224.png
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
