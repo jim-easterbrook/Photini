@@ -25,7 +25,7 @@ import os
 import sys
 import warnings
 
-import appdirs
+import platformdirs
 
 from photini import __version__
 from photini.configstore import BaseConfigStore
@@ -389,7 +389,7 @@ class MainWindow(QtWidgets.QMainWindow):
         profile = QtWebEngineCore.QWebEngineProfile.defaultProfile()
         logger.debug('maps user agent: %s', profile.httpUserAgent())
         profile.setCachePath(
-            os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
+            os.path.join(platformdirs.user_cache_dir('photini'), 'WebEngine'))
         settings = profile.settings()
         settings.setAttribute(
             settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)

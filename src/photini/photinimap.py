@@ -23,9 +23,9 @@ import logging
 import os
 import pickle
 
-import appdirs
 import cachetools
 import PIL.Image, PIL.ImageDraw
+import platformdirs
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
@@ -115,7 +115,7 @@ class GeocoderBase(QtCore.QObject):
         self.block_timer.setSingleShot(True)
         if self.cache_size:
             self.cache_file = os.path.join(
-                appdirs.user_cache_dir('photini'),
+                platformdirs.user_cache_dir('photini'),
                 self.__class__.__name__ + '.pkl')
             try:
                 with open(self.cache_file, 'rb') as f:
