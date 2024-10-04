@@ -9,6 +9,10 @@ The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy photo
 Whilst there are many other programs to do this, I've never found one that does things the way I want, so I added one to Photini.
 
 Note that you can only import directly from cameras if you have installed python-gphoto2 (which is not available on Windows).
+This is easily done with ``pip`` (after activating your virtual environment, if you're using one)::
+
+    pip install photini[importer]
+
 See :ref:`installation <installation-optional>` for more detail.
 
 The key part of the importer is the ``Target format`` field.

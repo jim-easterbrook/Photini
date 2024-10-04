@@ -117,7 +117,11 @@ GPX file import
 ---------------
 
 If you have a mobile phone or other device with a GPS logger you may be able to set the approximate locations of photographs from logged GPS positions.
-If you have installed gpxpy_ then the map pages have a button to import GPX files.
+This requires an optional package gpxpy_, which is easily installed with ``pip`` (after activating your virtual environment, if you're using one)::
+
+    pip install photini[gpxpy]
+
+When gpxpy is available the map tabs have a button to import GPX files.
 
 .. image:: ../images/screenshot_220.png
 

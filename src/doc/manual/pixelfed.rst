@@ -8,7 +8,10 @@ Pixelfed uploader
 The ``Pixelfed upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload your photographs to Pixelfed_, an open source decentralised photo sharing system.
 Pixelfed is built on the same federated publishing system as Mastodon_ and the uploader can also be used with Mastodon, but with some features disabled.
 
-Note that the Pixelfed upload tab is only enabled if you have installed some extra software packages.
+Note that the Pixelfed upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::
+
+    pip install photini[pixelfed]
+
 See :ref:`installation <installation-optional>` for more detail.
 
 .. image:: ../images/screenshot_250.png

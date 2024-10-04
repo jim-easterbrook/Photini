@@ -11,7 +11,7 @@ The Flickr upload tab uses the Flickr API but is not endorsed or certified by Fl
 Unlike some other Flickr uploaders, Photini uses the descriptive metadata you've created to set Flickr's title, description and tags.
 This means you don't have to retype all that information!
 
-Note that the Flickr upload tab is only enabled if you have installed some extra software packages::
+Note that the Flickr upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::
 
     pip install photini[flickr]
 

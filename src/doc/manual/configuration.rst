@@ -72,6 +72,10 @@ Put these files in the same directory as the English dictionaries installed with
 On my computer the directory is ``C:\Users\Jim\AppData\Local\Programs\Python\Python38\Lib\``
 ``site-packages\enchant\data\mingw64\share\enchant\hunspell`` but this will depend on your Python installation.
 
+.. image:: ../images/screenshot_086.png
+
+The ``Help`` menu has options to display information about Photini, check you are running the latest version, and open this documentation in your web browser.
+
 .. _configuration-file-location:
 
 Configuration file location

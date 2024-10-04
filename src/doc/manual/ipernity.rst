@@ -11,7 +11,10 @@ The Ipernity upload tab uses the Ipernity API but is not endorsed or certified b
 Unlike some other uploaders, Photini uses the descriptive metadata you've created to set Ipernity's title, description and keywords.
 This means you don't have to retype all that information!
 
-Note that the Ipernity upload tab is only enabled if you have installed some extra software packages.
+Note that the Ipernity upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::
+
+    pip install photini[ipernity]
+
 See :ref:`installation <installation-optional>` for more detail.
 
 .. image:: ../images/screenshot_230.png
