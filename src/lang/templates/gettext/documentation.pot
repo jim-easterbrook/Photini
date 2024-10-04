@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2024.9.1.post85\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-04 09:59+0100\n"
+"POT-Creation-Date: 2024-10-04 10:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,6 +110,9 @@ msgid "The ``Spelling`` menu allows you to enable or disable spell checking on P
 msgstr ""
 
 msgid "Windows programs don't share spell checking dictionaries as easily as on Linux. The Hunspell `LibreOffice dictionaries`_ can be used. Select the subdirectory with the language you need (e.g. ``fr_FR`` for French as spoken in France) and download the ``.aff`` and ``.dic`` files. (Ignore hyphen and thesaurus files.) Put these files in the same directory as the English dictionaries installed with pyenchant. On my computer the directory is ``C:\\Users\\Jim\\AppData\\Local\\Programs\\Python\\Python38\\Lib\\`` ``site-packages\\enchant\\data\\mingw64\\share\\enchant\\hunspell`` but this will depend on your Python installation."
+msgstr ""
+
+msgid "The ``Help`` menu has options to display information about Photini, check you are running the latest version, and open this documentation in your web browser."
 msgstr ""
 
 msgid "Configuration file location"
