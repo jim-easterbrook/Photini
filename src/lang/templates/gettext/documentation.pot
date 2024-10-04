@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2024.9.1.post85\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-03 15:02+0100\n"
+"POT-Creation-Date: 2024-10-04 10:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,6 +110,9 @@ msgid "The ``Spelling`` menu allows you to enable or disable spell checking on P
 msgstr ""
 
 msgid "Windows programs don't share spell checking dictionaries as easily as on Linux. The Hunspell `LibreOffice dictionaries`_ can be used. Select the subdirectory with the language you need (e.g. ``fr_FR`` for French as spoken in France) and download the ``.aff`` and ``.dic`` files. (Ignore hyphen and thesaurus files.) Put these files in the same directory as the English dictionaries installed with pyenchant. On my computer the directory is ``C:\\Users\\Jim\\AppData\\Local\\Programs\\Python\\Python38\\Lib\\`` ``site-packages\\enchant\\data\\mingw64\\share\\enchant\\hunspell`` but this will depend on your Python installation."
+msgstr ""
+
+msgid "The ``Help`` menu has options to display information about Photini, check you are running the latest version, and open this documentation in your web browser."
 msgstr ""
 
 msgid "Configuration file location"
@@ -313,7 +316,7 @@ msgstr ""
 msgid "Unlike some other Flickr uploaders, Photini uses the descriptive metadata you've created to set Flickr's title, description and tags. This means you don't have to retype all that information!"
 msgstr ""
 
-msgid "Note that the Flickr upload tab is only enabled if you have installed some extra software packages::"
+msgid "Note that the Flickr upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::"
 msgstr ""
 
 msgid "See :ref:`installation <installation-optional>` for more detail."
@@ -382,7 +385,7 @@ msgstr ""
 msgid "The ``Google Photos upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload your photographs to `Google Photos`_. The Google Photos API is quite restrictive, so 3rd party software such as Photini is rather limited in its abilities."
 msgstr ""
 
-msgid "Note that the Google Photos upload tab is only enabled if you have installed some extra software packages. See :ref:`installation <installation-optional>` for more detail."
+msgid "Note that the Google Photos upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::"
 msgstr ""
 
 msgid "Initially most of the Google Photos uploader tab is disabled. It's only usable after you've authorised Photini to access your Google Photos account by clicking the ``Log in`` button."
@@ -475,7 +478,7 @@ msgstr ""
 msgid "The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy photographs from your digital camera or anywhere else on your computer (for example, a camera memory card if your computer has a card reader). Whilst there are many other programs to do this, I've never found one that does things the way I want, so I added one to Photini."
 msgstr ""
 
-msgid "Note that you can only import directly from cameras if you have installed python-gphoto2 (which is not available on Windows). See :ref:`installation <installation-optional>` for more detail."
+msgid "Note that you can only import directly from cameras if you have installed python-gphoto2 (which is not available on Windows). This is easily done with ``pip`` (after activating your virtual environment, if you're using one)::"
 msgstr ""
 
 msgid "The key part of the importer is the ``Target format`` field. This provides a very flexible way to specify where on your computer imported images should be stored. It uses ``%`` formats to generate file and directory names based on the image capture date & time. The most useful ones are ``%Y`` (year), ``%m`` (month number) and ``%d`` (day of the month) but many more are available. See the `Python documentation <https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior>`_ for a complete list."
@@ -586,7 +589,7 @@ msgstr ""
 msgid "Unlike some other uploaders, Photini uses the descriptive metadata you've created to set Ipernity's title, description and keywords. This means you don't have to retype all that information!"
 msgstr ""
 
-msgid "Note that the Ipernity upload tab is only enabled if you have installed some extra software packages. See :ref:`installation <installation-optional>` for more detail."
+msgid "Note that the Ipernity upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::"
 msgstr ""
 
 msgid "Initially most of the Ipernity uploader tab is disabled. It's only usable after you've authorised Photini to access your Ipernity account by clicking the ``Log in`` button."
@@ -769,7 +772,10 @@ msgstr ""
 msgid "GPX file import"
 msgstr ""
 
-msgid "If you have a mobile phone or other device with a GPS logger you may be able to set the approximate locations of photographs from logged GPS positions. If you have installed gpxpy_ then the map pages have a button to import GPX files."
+msgid "If you have a mobile phone or other device with a GPS logger you may be able to set the approximate locations of photographs from logged GPS positions. This requires an optional package gpxpy_, which is easily installed with ``pip`` (after activating your virtual environment, if you're using one)::"
+msgstr ""
+
+msgid "When gpxpy is available the map tabs have a button to import GPX files."
 msgstr ""
 
 msgid "First you need to export your GPS log as a GPX_ (GPS eXchange format) file, then transfer the .gpx file to your computer. Make sure your images have the correct time zone set so that Photini can calculate their UTC_ timestamps."
@@ -892,7 +898,7 @@ msgstr ""
 msgid "The ``Pixelfed upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload your photographs to Pixelfed_, an open source decentralised photo sharing system. Pixelfed is built on the same federated publishing system as Mastodon_ and the uploader can also be used with Mastodon, but with some features disabled."
 msgstr ""
 
-msgid "Note that the Pixelfed upload tab is only enabled if you have installed some extra software packages. See :ref:`installation <installation-optional>` for more detail."
+msgid "Note that the Pixelfed upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::"
 msgstr ""
 
 msgid "Initially most of the Pixelfed uploader tab is disabled. It's only usable after you've authorised Photini to access your Pixelfed account by clicking the ``Log in`` button."

@@ -8,7 +8,10 @@ Google Photos uploader
 The ``Google Photos upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload your photographs to `Google Photos`_.
 The Google Photos API is quite restrictive, so 3rd party software such as Photini is rather limited in its abilities.
 
-Note that the Google Photos upload tab is only enabled if you have installed some extra software packages.
+Note that the Google Photos upload tab is only enabled if you have installed some extra software packages (after activating your virtual environment, if you're using one)::
+
+    pip install photini[google]
+
 See :ref:`installation <installation-optional>` for more detail.
 
 .. image:: ../images/screenshot_170.png
