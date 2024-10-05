@@ -106,7 +106,7 @@
     <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Direcciones</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -211,7 +211,7 @@
     <message>
         <source>&amp;Descriptive</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished">&amp;Descriptivos</translation>
+        <translation>&amp;Descripciones</translation>
     </message>
     <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
@@ -524,7 +524,7 @@
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished">&amp;Google</translation>
+        <translation>&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
@@ -609,7 +609,8 @@
         <translation>
             <numerusform>Regenerar miniatura</numerusform>
             <numerusform>Regenerar miniaturas</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -620,14 +621,16 @@
         <translation>
             <numerusform>Recargar archivo</numerusform>
             <numerusform>Recargar archivos</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Cerrar archivo</numerusform>
             <numerusform>Cerrar archivos</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -747,7 +750,8 @@
         <translation>
             <numerusform>%n archivo seleccionado</numerusform>
             <numerusform>%n archivos seleccionados</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -811,7 +815,7 @@
     <message>
         <source>Ipernity upload</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished">Ipernity subir</translation>
+        <translation>Cargar a Ipernity</translation>
     </message>
     <message>
         <source>&amp;Ipernity</source>
@@ -907,11 +911,11 @@
     <name>KeywordsTab</name>
     <message>
         <source>One &quot;word&quot; in a keyword hierarchy. This word and its ancestors form a complete keyword.</source>
-        <translation type="unfinished"></translation>
+        <translation>Una &quot;palabra&quot; en una jerarquía de palabras clave. Esta palabra y sus antecesoras forman una palabra clave completa.</translation>
     </message>
     <message>
         <source>Tick this box to add this keyword to the selected photographs. Untick the box to remove it from the selected photographs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Marque esta casilla para añadir esta palabra clave a las fotografías seleccionadas. Desmarque la casilla para eliminarla de las fotografías seleccionadas.</translation>
     </message>
     <message>
         <source>Tick this box to allow this keyword to be copied to or from the traditional &quot;flat&quot; keywords.</source>
