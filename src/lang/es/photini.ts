@@ -302,7 +302,7 @@
     </message>
     <message>
         <source>location pin (selected)</source>
-        <translation>Ubicación fija (seleccionada)</translation>
+        <translation>ubicación fija (seleccionada)</translation>
     </message>
     <message>
         <source>Map icon colours</source>
@@ -310,7 +310,7 @@
     </message>
     <message>
         <source>location pin (unselected)</source>
-        <translation>Ubicación fija (no seleccionada)</translation>
+        <translation>ubicación fija (no seleccionada)</translation>
     </message>
     <message>
         <source>GPS track point (selected)</source>
@@ -609,7 +609,6 @@
         <translation>
             <numerusform>Regenerar miniatura</numerusform>
             <numerusform>Regenerar miniaturas</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -621,7 +620,6 @@
         <translation>
             <numerusform>Recargar archivo</numerusform>
             <numerusform>Recargar archivos</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -629,7 +627,6 @@
         <translation>
             <numerusform>Cerrar archivo</numerusform>
             <numerusform>Cerrar archivos</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -750,7 +747,6 @@
         <translation>
             <numerusform>%n archivo seleccionado</numerusform>
             <numerusform>%n archivos seleccionados</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
 </context>
@@ -919,27 +915,27 @@
     </message>
     <message>
         <source>Tick this box to allow this keyword to be copied to or from the traditional &quot;flat&quot; keywords.</source>
-        <translation type="unfinished"></translation>
+        <translation>Marca esta casilla para permitir que esta palabra clave se copie en o desde las palabras clave &quot;planas&quot; tradicionales.</translation>
     </message>
     <message>
         <source>keyword</source>
-        <translation type="unfinished"></translation>
+        <translation>palabras clave</translation>
     </message>
     <message>
         <source>in photo</source>
-        <translation type="unfinished"></translation>
+        <translation>en foto</translation>
     </message>
     <message>
         <source>copyable</source>
-        <translation type="unfinished"></translation>
+        <translation>copiable</translation>
     </message>
     <message>
         <source>Edit keyword hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar jerarquía de palabras clave</translation>
     </message>
     <message>
         <source>Enter two or more letters to search the keyword tree. When there are few enough results a popup menu will be displayed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce dos o más letras para buscar en el árbol de palabras clave. Cuando haya suficientes resultados, se mostrará un menú emergente.</translation>
     </message>
     <message>
         <source>Search</source>
@@ -947,33 +943,33 @@
     </message>
     <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce una jerarquía de palabras clave, términos o frases usadas para expresar el asunto en la imagen. Sepáralos con los caracteres &quot;|&quot; o &quot;/&quot;.</translation>
     </message>
     <message>
         <source>Keywords or tags</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Palabras claves o etiquetas</translation>
     </message>
     <message>
         <source>&amp;Keywords</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Keywords</translation>
     </message>
     <message>
         <source>Hierarchical keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>Palabras clave jerárquicas</translation>
     </message>
     <message>
         <source>Open tree view</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir vista de árbol</translation>
     </message>
     <message>
         <source>Copy to hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar a jerarquía</translation>
     </message>
     <message>
         <source>Copy to keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar a palabras clave</translation>
     </message>
 </context>
 <context>
@@ -1040,7 +1036,7 @@
     <message>
         <source>Azure Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mapa Azure</translation>
     </message>
     <message>
         <source>Map &amp;A</source>
@@ -1061,7 +1057,7 @@
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mapa Bing</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
@@ -1091,7 +1087,7 @@
     <message>
         <source>Google Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mapa Google</translation>
     </message>
     <message>
         <source>Map &amp;G</source>
@@ -1108,7 +1104,7 @@
     <message>
         <source>Mapbox Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mapa Mapbox</translation>
     </message>
     <message>
         <source>Map &amp;M</source>
@@ -1425,7 +1421,7 @@
     <message>
         <source>&amp;Ownership</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Propiedad</translation>
     </message>
     <message>
         <source>Edit template</source>
@@ -1754,7 +1750,7 @@
     <message>
         <source>&amp;Regions</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Regiones</translation>
     </message>
     <message>
         <source>Image &amp;regions</source>
@@ -1903,7 +1899,7 @@
     <message>
         <source>&amp;Technical</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Técnico</translation>
     </message>
     <message>
         <source>normal</source>
