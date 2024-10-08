@@ -939,7 +939,7 @@
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Buscar</translation>
+        <translation>Buscar</translation>
     </message>
     <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
@@ -953,7 +953,7 @@
     <message>
         <source>&amp;Keywords</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished">&amp;Keywords</translation>
+        <translation>Palabras clave</translation>
     </message>
     <message>
         <source>Hierarchical keywords</source>
