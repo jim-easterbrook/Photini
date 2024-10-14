@@ -74,7 +74,7 @@
     <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Indirizzi di localizzazione</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -224,7 +224,7 @@
     <message>
         <source>&amp;Descriptive</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Descrittivo</translation>
     </message>
     <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
@@ -602,21 +602,24 @@
         <translation>
             <numerusform>Ricarica file</numerusform>
             <numerusform>Ricarica i file</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
         <translation>
             <numerusform>Rigenera miniatura</numerusform>
             <numerusform>Rigenera miniature</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Chiudi file</numerusform>
             <numerusform>Chiudi i file</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>new value</source>
@@ -745,14 +748,15 @@
     <message>
         <source>&amp;Import</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished">&amp;Importa</translation>
+        <translation>&amp;Importa</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
         <translation>
             <numerusform>%n file selezionato</numerusform>
             <numerusform>%n file selezionati</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -912,69 +916,69 @@
     <name>KeywordsTab</name>
     <message>
         <source>One &quot;word&quot; in a keyword hierarchy. This word and its ancestors form a complete keyword.</source>
-        <translation type="unfinished"></translation>
+        <translation>Una &quot;parola&quot; in una gerarchia di parole chiave. Questa parola e i suoi antenati formano una parola chiave completa.</translation>
     </message>
     <message>
         <source>Tick this box to add this keyword to the selected photographs. Untick the box to remove it from the selected photographs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona questa casella per aggiungere questa parola chiave alle fotografie selezionate. Deseleziona la casella per rimuoverla dalle fotografie selezionate.</translation>
     </message>
     <message>
         <source>Tick this box to allow this keyword to be copied to or from the traditional &quot;flat&quot; keywords.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona questa casella per consentire che questa parola chiave venga copiata da o verso le tradizionali parole chiave &quot;piatte&quot;.</translation>
     </message>
     <message>
         <source>keyword</source>
-        <translation type="unfinished"></translation>
+        <translation>parola chiave</translation>
     </message>
     <message>
         <source>in photo</source>
-        <translation type="unfinished"></translation>
+        <translation>in foto</translation>
     </message>
     <message>
         <source>copyable</source>
-        <translation type="unfinished"></translation>
+        <translation>copiabile</translation>
     </message>
     <message>
         <source>Edit keyword hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica gerarchia parole chiave</translation>
     </message>
     <message>
         <source>Enter two or more letters to search the keyword tree. When there are few enough results a popup menu will be displayed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci due o più lettere per cercare nell&apos;albero delle parole chiave. Quando ci sono pochi risultati sufficienti, verrà visualizzato un menu popup.</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Ricerca</translation>
+        <translation>Cerca</translation>
     </message>
     <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci una gerarchia di parole chiave, termini o frasi utilizzate per esprimere l&apos;argomento nell&apos;immagine. Separali con i caratteri &quot;|&quot; o &quot;/&quot;.</translation>
     </message>
     <message>
         <source>Keywords or tags</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Parole chiave o tag</translation>
     </message>
     <message>
         <source>&amp;Keywords</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Parole chiave</translation>
     </message>
     <message>
         <source>Hierarchical keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>Parole chiave gerarchiche</translation>
     </message>
     <message>
         <source>Open tree view</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri la vista ad albero</translation>
     </message>
     <message>
         <source>Copy to hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia nella gerarchia</translation>
     </message>
     <message>
         <source>Copy to keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia nelle parole chiave</translation>
     </message>
 </context>
 <context>
@@ -1041,7 +1045,7 @@
     <message>
         <source>Azure Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Azure Map</translation>
     </message>
     <message>
         <source>Map &amp;A</source>
@@ -1062,7 +1066,7 @@
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Bing Map</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
@@ -1092,7 +1096,7 @@
     <message>
         <source>Google Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Google Map</translation>
     </message>
     <message>
         <source>Map &amp;G</source>
@@ -1109,7 +1113,7 @@
     <message>
         <source>Mapbox Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mapbox Map</translation>
     </message>
     <message>
         <source>Map &amp;M</source>
@@ -1230,7 +1234,7 @@
     <message>
         <source>&amp;Ownership</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Proprietà</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1943,7 +1947,7 @@
     <message>
         <source>&amp;Technical</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tecnico</translation>
     </message>
     <message>
         <source>rotate +90°</source>
