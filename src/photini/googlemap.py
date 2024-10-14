@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import logging
+import re
 
 import requests
 
@@ -120,3 +121,13 @@ class TabWidget(PhotiniMap):
     </script>
     <script type="text/javascript" src="googlemap.js"></script>'''.format(
         url=url)
+
+    def get_options(self):
+        user_agent = self.widgets['map'].page().profile().httpUserAgent()
+        match = re.search(r'\sChrome/(\d+)\.', user_agent)
+        if match:
+            chrome_version = int(match.group(1))
+        else:
+            chrome_version = 0
+        options = {'chrome_version': chrome_version}
+        return options
