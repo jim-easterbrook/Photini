@@ -46,4 +46,5 @@ photini.iconset/icon_%.png : icon_master.png
 	if [[ "2x" == $$scale ]]; then let "size = $$size * 2"; fi && \
 	pngtopam -alphapam $< | \
 	pamscale -width $$size -height $$size | \
-	pamtopng >$@
+	pamtopng | \
+	pngquant --quality=60 - >$@
