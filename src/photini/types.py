@@ -699,9 +699,12 @@ class MD_Structure(MD_Value, dict):
         if isinstance(file_value, (list, tuple)):
             # "legacy" list of string values
             file_value = dict(zip(cls.legacy_keys, file_value))
+        new_value = {}
         for key, value in file_value.items():
-            file_value[key] = cls.get_type(key, value).from_exiv2(value, tag)
-        return cls(file_value)
+            # some files have incorrect use of 'iptcExt' in structures
+            key = key.replace('iptcExt', 'Iptc4xmpExt')
+            new_value[key] = cls.get_type(key, value).from_exiv2(value, tag)
+        return cls(new_value)
 
     def merge(self, info, tag, other):
         if other == self:

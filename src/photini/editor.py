@@ -423,7 +423,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if 'photini.openstreetmap' in self.modules:
             self.modules.remove('photini.openstreetmap')
             self.app.config_store.delete('tabs', 'photini.openstreetmap')
-        self.modules += [x for x in default_modules if x not in self.modules]
+        # insert any new tabs straight after first tab
+        idx = min(1, len(self.modules))
+        self.modules[idx:idx] = [x for x in default_modules
+                                 if x not in self.modules]
         self.app.config_store.set('tabs', 'modules', self.modules)
         for module in self.modules:
             tab = {}
