@@ -24,40 +24,42 @@ import tempfile
 
 
 def post_install(exec_path, icon_path, remove, generic_name, comment):
-    local_root = os.path.expanduser('~/.local/share')
     icon_name = 'photini.png'
-    icon_theme = os.path.basename(icon_path)
-    if remove:
-        if os.geteuid() != 0:
-            # not running as root
-            paths = [local_root]
-        else:
-            paths = ['/usr/share', '/usr/local/share']
-        OK = False
-        for dir_name in paths:
-            # delete icons
-            path = os.path.join(dir_name, 'icons', icon_theme)
-            for root, dirs, files in os.walk(path, topdown=False):
-                if icon_name in files:
-                    path = os.path.join(root, icon_name)
-                    print('Deleting', path)
-                    os.unlink(path)
-            # delete desktop file
-            path = os.path.join(dir_name, 'applications', 'photini.desktop')
-            if os.path.exists(path):
+    desktop_name = 'photini.desktop'
+
+    def remove_icons(root):
+        path = os.path.join(root, 'icons')
+        for root, dirs, files in os.walk(path, topdown=False):
+            if icon_name in files:
+                path = os.path.join(root, icon_name)
                 print('Deleting', path)
                 os.unlink(path)
-                OK = True
-        if OK:
+
+    def remove_desktop(root):
+        path = os.path.join(root, 'applications', desktop_name)
+        if os.path.exists(path):
+            print('Deleting', path)
+            os.unlink(path)
+            return True
+        return False
+
+    if os.geteuid() == 0:
+        # running as root
+        root_dir = '/usr/local/share'
+        # clean up anything in '/usr/share'
+        remove_icons('/usr/share')
+        remove_desktop('/usr/share')
+    else:
+        root_dir = os.path.expanduser('~/.local/share')
+    if remove:
+        remove_icons(root_dir)
+        if remove_desktop(root_dir):
             return 0
         print('No "desktop" file found.')
         return 1
     # copy icons
-    if os.geteuid() == 0:
-        dest_root = '/usr/share'
-    else:
-        dest_root = local_root
-    dest_root = os.path.join(dest_root, 'icons', icon_theme)
+    icon_theme = os.path.basename(icon_path)
+    dest_root = os.path.join(root_dir, 'icons', icon_theme)
     for root, dirs, files in os.walk(icon_path):
         for name in files:
             src = os.path.join(root, name)
@@ -82,13 +84,9 @@ MimeType=image/jpeg;image/jpeg2000;image/tiff;image/png;image/gif;image/x-dcraw;
             file.write('Icon={}\n'.format(os.path.splitext(icon_name)[0]))
             file.write('GenericName={}\n'.format(generic_name))
             file.write('Comment={}\n'.format(comment))
-        print('Installing', path)
-        cmd = ['desktop-file-install', '--rebuild-mime-info-cache']
-        if os.geteuid() != 0:
-            # not running as root
-            local_apps = os.path.join(local_root, 'applications')
-            print(' to', local_apps)
-            cmd.append('--dir={}'.format(local_apps))
-        cmd.append(path)
+        app_dir = os.path.join(root_dir, 'applications')
+        print('Installing', path, 'to', app_dir)
+        cmd = ['desktop-file-install', '--rebuild-mime-info-cache',
+               '--dir={}'.format(app_dir), path]
         return subprocess.call(cmd)
     return 0
