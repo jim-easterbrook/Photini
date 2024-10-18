@@ -152,7 +152,7 @@ def post_install(argv=None):
         return photini.windows.post_install(
             exec_path, icon_path, options.remove, generic_name)
     if sys.platform.startswith('linux'):
-        icon_path = os.path.join(pkg_data, 'icons', 'photini_48.png')
+        icon_path = os.path.join(pkg_data, 'icons', 'hicolor')
         import photini.linux
         return photini.linux.post_install(
             exec_path, icon_path, options.remove, generic_name, comment)
