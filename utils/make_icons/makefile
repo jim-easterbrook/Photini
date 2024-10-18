@@ -1,6 +1,5 @@
 all : \
 	../../src/doc/images/photini_logo.png \
-	../../src/photini/data/icons/photini_48.png \
 	../../src/photini/data/icons/hicolor/16x16/apps/photini.png \
 	../../src/photini/data/icons/hicolor/24x24/apps/photini.png \
 	../../src/photini/data/icons/hicolor/32x32/apps/photini.png \

@@ -345,7 +345,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle(translate(
             'MenuBar', "Photini photo metadata editor"))
         pixmap = QtGui.QPixmap(os.path.join(
-            os.path.dirname(__file__), 'data', 'icons', 'photini_48.png'))
+            os.path.dirname(__file__), 'data', 'icons', 'hicolor', '48x48',
+            'apps', 'photini.png'))
         icon = QtGui.QIcon(pixmap)
         self.setWindowIcon(icon)
         self.selection = list()
