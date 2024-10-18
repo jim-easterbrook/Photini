@@ -252,8 +252,8 @@ class MenuBar(QtWidgets.QMenuBar):
     @catch_all
     def about(self):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        with open(os.path.join(
-                data_dir, 'icons', 'photini_128.png'), 'rb') as f:
+        with open(os.path.join(data_dir, 'icons', 'hicolor', '128x128',
+                               'apps', 'photini.png'), 'rb') as f:
             icon = f.read()
         text = """
 <table width="100%"><tr>
