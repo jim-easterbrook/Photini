@@ -20,14 +20,16 @@
 import os
 import plistlib
 import shutil
-import subprocess
-import tempfile
 
 from photini import __version__, __version_tuple__
 
 
 def post_install(exec_path, icon_path, remove, generic_name, comment):
-    app_dir = os.path.expanduser('~/Applications/Photini.app')
+    if os.geteuid() == 0:
+        # running as root
+        app_dir = '/Applications/Photini.app'
+    else:
+        app_dir = os.path.expanduser('~/Applications/Photini.app')
     if remove:
         if os.path.exists(app_dir):
             print('Deleting', app_dir)
