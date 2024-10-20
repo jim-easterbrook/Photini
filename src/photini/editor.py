@@ -252,8 +252,8 @@ class MenuBar(QtWidgets.QMenuBar):
     @catch_all
     def about(self):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        with open(os.path.join(data_dir, 'icons', 'hicolor', '128x128',
-                               'apps', 'photini.png'), 'rb') as f:
+        with open(os.path.join(data_dir, 'icons', 'linux', '128x128',
+                               'photini.png'), 'rb') as f:
             icon = f.read()
         text = """
 <table width="100%"><tr>
@@ -346,9 +346,9 @@ class MainWindow(QtWidgets.QMainWindow):
             'MenuBar', "Photini photo metadata editor"))
         icon = QtGui.QIcon()
         root_dir = os.path.join(
-            os.path.dirname(__file__), 'data', 'icons', 'hicolor')
-        for name in os.listdir(root_dir):
-            path = os.path.join(root_dir, name, 'apps', 'photini.png')
+            os.path.dirname(__file__), 'data', 'icons', 'linux')
+        for size in os.listdir(root_dir):
+            path = os.path.join(root_dir, size, 'photini.png')
             if os.path.exists(path):
                 icon.addFile(path)
         self.setWindowIcon(icon)

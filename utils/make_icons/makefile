@@ -1,12 +1,12 @@
 all : \
 	../../src/doc/images/photini_logo.png \
-	../../src/photini/data/icons/hicolor/16x16/apps/photini.png \
-	../../src/photini/data/icons/hicolor/24x24/apps/photini.png \
-	../../src/photini/data/icons/hicolor/32x32/apps/photini.png \
-	../../src/photini/data/icons/hicolor/48x48/apps/photini.png \
-	../../src/photini/data/icons/hicolor/64x64/apps/photini.png \
-	../../src/photini/data/icons/hicolor/128x128/apps/photini.png \
-	../../src/photini/data/icons/hicolor/256x256/apps/photini.png \
+	../../src/photini/data/icons/linux/16x16/photini.png \
+	../../src/photini/data/icons/linux/24x24/photini.png \
+	../../src/photini/data/icons/linux/32x32/photini.png \
+	../../src/photini/data/icons/linux/48x48/photini.png \
+	../../src/photini/data/icons/linux/64x64/photini.png \
+	../../src/photini/data/icons/linux/128x128/photini.png \
+	../../src/photini/data/icons/linux/256x256/photini.png \
 	../../src/photini/data/icons/photini_win.ico \
 	../../src/photini/data/icons/photini.icns
 
@@ -20,9 +20,9 @@ icon_%.pam : icon_master.png
 	pamrgbatopng $< >$@
 
 # create linux icons
-../../src/photini/data/icons/hicolor/%/apps/photini.png : \
+../../src/photini/data/icons/linux/%/photini.png : \
 		photini.iconset/icon_%.png
-	mkdir -p ../../src/photini/data/icons/hicolor/$*/apps
+	mkdir -p ../../src/photini/data/icons/linux/$*
 	cp $< $@
 
 ../../src/photini/data/icons/photini_%.png : icon_%.pam

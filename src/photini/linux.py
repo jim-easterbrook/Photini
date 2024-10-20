@@ -28,10 +28,10 @@ def post_install(exec_path, icon_path, remove, generic_name, comment):
     desktop_name = 'photini.desktop'
 
     def remove_icons(root):
-        path = os.path.join(root, 'icons')
-        for root, dirs, files in os.walk(path, topdown=False):
-            if icon_name in files:
-                path = os.path.join(root, icon_name)
+        icon_dir = os.path.join(root, 'icons', 'hicolor')
+        for size in os.listdir(icon_dir):
+            path = os.path.join(icon_dir, size, 'apps', 'photini.png')
+            if os.path.exists(path):
                 print('Deleting', path)
                 os.unlink(path)
 
@@ -58,16 +58,13 @@ def post_install(exec_path, icon_path, remove, generic_name, comment):
         print('No "desktop" file found.')
         return 1
     # copy icons
-    icon_theme = os.path.basename(icon_path)
-    dest_root = os.path.join(root_dir, 'icons', icon_theme)
-    for root, dirs, files in os.walk(icon_path):
-        for name in files:
-            src = os.path.join(root, name)
-            dst = root.replace(icon_path, dest_root)
-            os.makedirs(dst, exist_ok=True)
-            dst = os.path.join(dst, name)
-            print('Writing', dst)
-            shutil.copy(src, dst)
+    for size in os.listdir(icon_path):
+        src = os.path.join(icon_path, size, 'photini.png')
+        dst = os.path.join(root_dir, 'icons', 'hicolor', size, 'apps')
+        os.makedirs(dst, exist_ok=True)
+        dst = os.path.join(dst, 'photini.png')
+        print('Writing', dst)
+        shutil.copy(src, dst)
     # create desktop file
     with tempfile.TemporaryDirectory() as temp_dir:
         path = os.path.join(temp_dir, 'photini.desktop')
