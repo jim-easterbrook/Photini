@@ -29,6 +29,8 @@ def post_install(exec_path, icon_path, remove, generic_name, comment):
 
     def remove_icons(root):
         icon_dir = os.path.join(root, 'icons', 'hicolor')
+        if not os.path.isdir(icon_dir):
+            return
         for size in os.listdir(icon_dir):
             path = os.path.join(icon_dir, size, 'apps', 'photini.png')
             if os.path.exists(path):
