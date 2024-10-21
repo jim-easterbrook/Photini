@@ -19,7 +19,8 @@ along with this program.  If not, see
 Changes in v2024.10.0:
   1/ New hierarchical tags editor.
   2/ Multiple map markers can be selected by multiple clicks.
-  3/ Other minor improvements and bug fixes.
+  3/ Added macOS photini-post-install command.
+  4/ Other minor improvements and bug fixes.
 
 Changes in v2024.9.1:
   1/ Fix problem dragging onto map with some Python/Qt combinations.

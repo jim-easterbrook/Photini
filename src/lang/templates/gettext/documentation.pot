@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.9.1.post85\n"
+"Project-Id-Version: Photini 2024.9.1.post117\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-04 10:50+0100\n"
+"POT-Creation-Date: 2024-10-18 11:17+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1777,19 +1777,16 @@ msgstr ""
 msgid "Although you can run Photini from a command shell, most users would probably prefer to use the start / application menu or a desktop icon. These can be installed with the ``photini-post-install`` command:"
 msgstr ""
 
+msgid "On Linux the ``photini-post-install`` command creates a \"desktop\" file in the user's ``.local`` directory. On macOS it creates a \".app\" bundle in the user's ``Applications`` directory. On Windows it creates start menu entries in the user's ``AppData`` directory and adds two user registry entries."
+msgstr ""
+
 msgid "The ``photini-post-install`` command also sets \"file associations\" for some common image file types. This allows things like right-clicking on an image in a viewer application and selecting \"open with Photini\" from the context menu."
-msgstr ""
-
-msgid "MacOS"
-msgstr ""
-
-msgid "Unfortunately the ``photini-post-install`` command doesn't do anything on MacOS. I don't have a MacOS computer to try things out on and have no idea how to set up shortcuts and file associations on a Mac. If you'd like to help develop and test a solution, do get in touch with me."
 msgstr ""
 
 msgid "Localisation"
 msgstr ""
 
-msgid "The ``photini-post-install`` command has an option ``--language`` (or ``-l``) that can set the language used for the description that accompaines a desktop icon (if Photini has been translated into that language)."
+msgid "The ``photini-post-install`` command has an option ``--language`` (or ``-l``) that can set the language used for the description that accompanies a desktop icon (if Photini has been translated into that language)."
 msgstr ""
 
 msgid "Additional users"
@@ -1801,7 +1798,7 @@ msgstr ""
 msgid "This is not a very convenient way to run Photini, so most users will want to add it to their start / application menu:"
 msgstr ""
 
-msgid "To install Photini menu shortcuts for all users (not recommended) you can run the post install command as root (Linux) or in a command window run as administrator (Windows). It is important to use the full path to the post install command:"
+msgid "To install Photini menu shortcuts for all users (not recommended) you can run the post install command as root (Linux/MacOS) or in a command window run as administrator (Windows). It is important to use the full path to the post install command:"
 msgstr ""
 
 msgid "Uninstalling Photini"
