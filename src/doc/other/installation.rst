@@ -484,7 +484,7 @@ Although you can run Photini from a command shell, most users would probably pre
 These can be installed with the ``photini-post-install`` command:
 
 .. tabs::
-    .. code-tab:: none Linux
+    .. code-tab:: none Linux/MacOS
 
         (photini) jim@mint22:~$ photini-post-install
         Creating /tmp/tmpj9rn81aj/photini.desktop
@@ -501,23 +501,20 @@ These can be installed with the ``photini-post-install`` command:
         Writing HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
         Writing HKEY_CURRENT_USER\Software\Classes\Applications\photini.exe
 
+On Linux the ``photini-post-install`` command creates a "desktop" file in the user's ``.local`` directory.
+On macOS it creates a ".app" bundle in the user's ``Applications`` directory.
+On Windows it creates start menu entries in the user's ``AppData`` directory and adds two user registry entries.
+
 The ``photini-post-install`` command also sets "file associations" for some common image file types.
 This allows things like right-clicking on an image in a viewer application and selecting "open with Photini" from the context menu.
-
-MacOS
-"""""
-
-Unfortunately the ``photini-post-install`` command doesn't do anything on MacOS.
-I don't have a MacOS computer to try things out on and have no idea how to set up shortcuts and file associations on a Mac.
-If you'd like to help develop and test a solution, do get in touch with me.
 
 Localisation
 """"""""""""
 
-The ``photini-post-install`` command has an option ``--language`` (or ``-l``) that can set the language used for the description that accompaines a desktop icon (if Photini has been translated into that language).
+The ``photini-post-install`` command has an option ``--language`` (or ``-l``) that can set the language used for the description that accompanies a desktop icon (if Photini has been translated into that language).
 
 .. tabs::
-    .. code-tab:: none Linux
+    .. code-tab:: none Linux/MacOS
 
         (photini) jim@mint22:~$ photini-post-install --language fr
         Creating /tmp/tmpecj_yk1e/photini.desktop
@@ -552,7 +549,7 @@ Only read permission is needed.)
 This is not a very convenient way to run Photini, so most users will want to add it to their start / application menu:
 
 .. tabs::
-    .. code-tab:: none Linux
+    .. code-tab:: none Linux/MacOS
 
         sarah@mint22:~$ /home/jim/photini/bin/photini-post-install
         Creating /tmp/tmplavuaj12/photini.desktop
@@ -569,11 +566,11 @@ This is not a very convenient way to run Photini, so most users will want to add
         Writing HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\App Paths\photini.exe
         Writing HKEY_CURRENT_USER\Software\Classes\Applications\photini.exe
 
-To install Photini menu shortcuts for all users (not recommended) you can run the post install command as root (Linux) or in a command window run as administrator (Windows).
+To install Photini menu shortcuts for all users (not recommended) you can run the post install command as root (Linux/MacOS) or in a command window run as administrator (Windows).
 It is important to use the full path to the post install command:
 
 .. tabs::
-    .. code-tab:: none Linux
+    .. code-tab:: none Linux/MacOS
 
         (photini) jim@mint22:~$ sudo /home/jim/photini/bin/photini-post-install 
         Creating /tmp/tmpkbuvvzs6/photini.desktop

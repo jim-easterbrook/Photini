@@ -42,7 +42,7 @@ dependencies = [
   "chardet >= 3.0",
   "exiv2 >= 0.16",
   "filetype >= 1.0",
-  "Pillow >= 2.0",
+  "Pillow >= 5.3",
   "platformdirs >= 2.4",
   "requests >= 2.4",
   "pywin32 >= 302; platform_system == 'Windows'",
@@ -53,7 +53,7 @@ requires-python = ">= 3.6"
 [project.optional-dependencies]
 flickr = ["photini[keyring,requests-oauthlib,requests-toolbelt]"]
 google = ["photini[keyring,requests-oauthlib]"]
-importer = ["gphoto2 >= 1.8; platform_system != 'Windows'"]
+importer = ["gphoto2 >= 2.4; platform_system != 'Windows'"]
 ipernity = ["photini[keyring,requests-toolbelt]"]
 pixelfed = ["photini[keyring,requests-oauthlib,requests-toolbelt]"]
 spelling = ["pyenchant >= 2.0"]

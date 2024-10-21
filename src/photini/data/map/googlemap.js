@@ -56,7 +56,8 @@ async function loadMap(lat, lng, zoom, options) {
     const { Map } = await google.maps.importLibrary("maps");
     map = new google.maps.Map(div, mapOptions);
     const mapCapabilities = map.getMapCapabilities();
-    if (mapCapabilities.isAdvancedMarkersAvailable) {
+    if (options.chrome_version >= 86
+            && mapCapabilities.isAdvancedMarkersAvailable) {
         const { AdvancedMarkerElement } =
             await google.maps.importLibrary("marker");
         legacyMarkers = false;

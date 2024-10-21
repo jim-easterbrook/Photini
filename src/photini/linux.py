@@ -18,27 +18,55 @@
 #  along with Photini.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import shutil
 import subprocess
 import tempfile
 
 
 def post_install(exec_path, icon_path, remove, generic_name, comment):
-    local_dir = os.path.expanduser('~/.local/share/applications')
-    if remove:
-        if os.geteuid() != 0:
-            # not running as root
-            paths = [local_dir]
-        else:
-            paths = ['/usr/share/applications/',
-                     '/usr/local/share/applications/']
-        for dir_name in paths:
-            path = os.path.join(dir_name, 'photini.desktop')
+    icon_name = 'photini.png'
+    desktop_name = 'photini.desktop'
+
+    def remove_icons(root):
+        icon_dir = os.path.join(root, 'icons', 'hicolor')
+        if not os.path.isdir(icon_dir):
+            return
+        for size in os.listdir(icon_dir):
+            path = os.path.join(icon_dir, size, 'apps', 'photini.png')
             if os.path.exists(path):
                 print('Deleting', path)
                 os.unlink(path)
-                return 0
+
+    def remove_desktop(root):
+        path = os.path.join(root, 'applications', desktop_name)
+        if os.path.exists(path):
+            print('Deleting', path)
+            os.unlink(path)
+            return True
+        return False
+
+    if os.geteuid() == 0:
+        # running as root
+        root_dir = '/usr/local/share'
+        # clean up anything in '/usr/share'
+        remove_icons('/usr/share')
+        remove_desktop('/usr/share')
+    else:
+        root_dir = os.path.expanduser('~/.local/share')
+    if remove:
+        remove_icons(root_dir)
+        if remove_desktop(root_dir):
+            return 0
         print('No "desktop" file found.')
         return 1
+    # copy icons
+    for size in os.listdir(icon_path):
+        src = os.path.join(icon_path, size, 'photini.png')
+        dst = os.path.join(root_dir, 'icons', 'hicolor', size, 'apps')
+        os.makedirs(dst, exist_ok=True)
+        dst = os.path.join(dst, 'photini.png')
+        print('Writing', dst)
+        shutil.copy(src, dst)
     # create desktop file
     with tempfile.TemporaryDirectory() as temp_dir:
         path = os.path.join(temp_dir, 'photini.desktop')
@@ -52,15 +80,12 @@ Categories=Graphics;Photography;
 MimeType=image/jpeg;image/jpeg2000;image/tiff;image/png;image/gif;image/x-dcraw;application/rdf+xml;
 ''')
             file.write('Exec={} %F\n'.format(exec_path))
-            file.write('Icon={}\n'.format(icon_path))
+            file.write('Icon={}\n'.format(os.path.splitext(icon_name)[0]))
             file.write('GenericName={}\n'.format(generic_name))
             file.write('Comment={}\n'.format(comment))
-        print('Installing', path)
-        cmd = ['desktop-file-install']
-        if os.geteuid() != 0:
-            # not running as root
-            print(' to', local_dir)
-            cmd.append('--dir={}'.format(local_dir))
-        cmd.append(path)
+        app_dir = os.path.join(root_dir, 'applications')
+        print('Installing', path, 'to', app_dir)
+        cmd = ['desktop-file-install', '--rebuild-mime-info-cache',
+               '--dir={}'.format(app_dir), path]
         return subprocess.call(cmd)
     return 0

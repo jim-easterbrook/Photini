@@ -226,7 +226,7 @@ def get_camera_list():
     if not gp:
         return []
     camera_list = []
-    for name, addr in gp.check_result(gp.gp_camera_autodetect()):
+    for name, addr in gp.Camera.autodetect().items():
         camera_list.append((name, addr))
     camera_list.sort(key=lambda x: x[0])
     return camera_list
