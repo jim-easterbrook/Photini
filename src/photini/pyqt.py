@@ -54,10 +54,15 @@ if qt_scale_factor != 1:
 # choose Qt package
 available_packages = []
 for _lib in ('PyQt6', 'PyQt5', 'PySide6', 'PySide2'):
-    if importlib.util.find_spec(_lib):
-        if importlib.util.find_spec(_lib + '.QtWebEngineWidgets'):
-            available_packages.append(_lib)
-        else:
+    _spec = importlib.util.find_spec(_lib)
+    if _spec:
+        for _path in _spec.submodule_search_locations:
+            for _name in os.listdir(_path):
+                if (_name.startswith('QtWebEngineWidgets')
+                        and _name != 'QtWebEngineWidgets.pyi'):
+                    available_packages.append(_lib)
+                    break
+        if _lib not in available_packages:
             print(_lib, 'is installed without QtWebEngine')
 if not available_packages:
     print('')

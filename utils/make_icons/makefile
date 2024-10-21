@@ -1,7 +1,12 @@
 all : \
 	../../src/doc/images/photini_logo.png \
-	../../src/photini/data/icons/photini_128.png \
-	../../src/photini/data/icons/photini_48.png \
+	../../src/photini/data/icons/linux/16x16/photini.png \
+	../../src/photini/data/icons/linux/24x24/photini.png \
+	../../src/photini/data/icons/linux/32x32/photini.png \
+	../../src/photini/data/icons/linux/48x48/photini.png \
+	../../src/photini/data/icons/linux/64x64/photini.png \
+	../../src/photini/data/icons/linux/128x128/photini.png \
+	../../src/photini/data/icons/linux/256x256/photini.png \
 	../../src/photini/data/icons/photini_win.ico \
 	../../src/photini/data/icons/photini.icns
 
@@ -15,6 +20,11 @@ icon_%.pam : icon_master.png
 	pamrgbatopng $< >$@
 
 # create linux icons
+../../src/photini/data/icons/linux/%/photini.png : \
+		photini.iconset/icon_%.png
+	mkdir -p ../../src/photini/data/icons/linux/$*
+	cp $< $@
+
 ../../src/photini/data/icons/photini_%.png : icon_%.pam
 	mkdir -p $(dir $@)
 	pamrgbatopng $< >$@
@@ -36,7 +46,6 @@ icon_%.pam : icon_master.png
 		%.iconset/icon_256x256.png %.iconset/icon_256x256@2x.png \
 		%.iconset/icon_512x512.png %.iconset/icon_512x512@2x.png
 	icnsutil -c icns -o $@ $*.iconset
-	rm -rf $*.iconset
 
 photini.iconset/icon_%.png : icon_master.png
 	mkdir -p photini.iconset

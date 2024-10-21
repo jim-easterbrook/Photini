@@ -252,8 +252,8 @@ class MenuBar(QtWidgets.QMenuBar):
     @catch_all
     def about(self):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        with open(os.path.join(
-                data_dir, 'icons', 'photini_128.png'), 'rb') as f:
+        with open(os.path.join(data_dir, 'icons', 'linux', '128x128',
+                               'photini.png'), 'rb') as f:
             icon = f.read()
         text = """
 <table width="100%"><tr>
@@ -344,9 +344,13 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self.setWindowTitle(translate(
             'MenuBar', "Photini photo metadata editor"))
-        pixmap = QtGui.QPixmap(os.path.join(
-            os.path.dirname(__file__), 'data', 'icons', 'photini_48.png'))
-        icon = QtGui.QIcon(pixmap)
+        icon = QtGui.QIcon()
+        root_dir = os.path.join(
+            os.path.dirname(__file__), 'data', 'icons', 'linux')
+        for size in os.listdir(root_dir):
+            path = os.path.join(root_dir, size, 'photini.png')
+            if os.path.exists(path):
+                icon.addFile(path)
         self.setWindowIcon(icon)
         self.selection = list()
         # create shared global objects
