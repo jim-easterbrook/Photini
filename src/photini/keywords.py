@@ -227,7 +227,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
             for grandchild in child.all_children():
                 yield grandchild
 
-    def extend(self, names):
+    def extend(self, names, copyable=True):
         name = names[0]
         names = names[1:]
         for row in range(self.rowCount()):
@@ -237,12 +237,12 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         else:
             child = HierarchicalTagDataItem(name)
             child.initialise()
-            if not names:
+            if copyable and not names:
                 # last name is copyable by default
                 child.set_checked('copyable', True)
             self.appendRow(child.get_row())
         if names:
-            child.extend(names)
+            child.extend(names, copyable=copyable)
 
     def get_row(self):
         result = [self]
@@ -303,10 +303,11 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         root = self.invisibleRootItem()
         return HierarchicalTagDataItem.all_children(root)
 
-    def extend(self, value):
+    def extend(self, value, copyable=True):
         root = self.invisibleRootItem()
         for full_name in value:
-            HierarchicalTagDataItem.extend(root, full_name.split('|'))
+            HierarchicalTagDataItem.extend(
+                root, full_name.split('|'), copyable=copyable)
         self.sort(0)
 
     def find_name(self, name, flags=None):
@@ -332,6 +333,7 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
                 node = node.parent()
         else:
             # value is not in model, last word is copyable
+            print('not in model', full_name)
             words = full_name.split('|')
             words[0:-1] = ['<i>{}</i>'.format(word) for word in words[0:-1]]
             # add to model
@@ -509,7 +511,7 @@ class ListProxyModel(QtCore.QAbstractListModel):
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     update_value = QtSignal(str, str, str)
 
-    def __init__(self, key, *args, **kwds):
+    def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._key = key
@@ -519,7 +521,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
         self.setWidgetResizable(True)
-        self.data_model = HierarchicalTagDataModel()
+        self.data_model = data_model
         self.list_view = ListProxyModel(self.data_model)
         self.set_rows()
 
@@ -614,6 +616,8 @@ class TabWidget(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         layout = FormLayout()
         self.setLayout(layout)
+        # hierarchical tags data model
+        self.data_model = HierarchicalTagDataModel()
         # construct widgets
         self.widgets = {}
         self.buttons = {}
@@ -629,7 +633,8 @@ class TabWidget(QtWidgets.QWidget):
         layout.addRow(translate('DescriptiveTab', 'Keywords'),
                       self.widgets['keywords'])
         # hierarchical keywords
-        self.widgets['nested_tags'] = HierarchicalTagsEditor('nested_tags')
+        self.widgets['nested_tags'] = HierarchicalTagsEditor(
+            'nested_tags', self.data_model)
         self.widgets['nested_tags'].new_value.connect(self.new_value)
         self.widgets['nested_tags'].update_value.connect(self.update_value)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
@@ -707,8 +712,12 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def image_list_changed(self):
-        self.widgets['keywords'].update_league_table(
-            self.app.image_list.get_images())
+        images = self.app.image_list.get_images()
+        self.widgets['keywords'].update_league_table(images)
+        # add all hierarchical keywords to data model
+        for image in images:
+            self.data_model.extend(
+                image.metadata.nested_tags or [], copyable=False)
 
     @QtSlot(str, str, str)
     @catch_all
