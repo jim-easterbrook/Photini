@@ -663,13 +663,19 @@ class TabWidget(QtWidgets.QWidget):
         data_model = self.widgets['nested_tags'].data_model
         images = self.app.image_list.get_selected_images()
         for image in images:
-            nested_tags = list(image.metadata.nested_tags or [])
+            new_tags = []
             for keyword in image.metadata.keywords or []:
                 for match in data_model.find_name(keyword):
                     if match.checked('copyable'):
-                        full_name = match.full_name()
-                        if full_name not in nested_tags:
-                            nested_tags.append(full_name)
+                        new_tags.append(match.full_name())
+            nested_tags = list(image.metadata.nested_tags or [])
+            for new_tag in new_tags:
+                if any(tag != new_tag and tag.startswith(new_tag)
+                       for tag in new_tags):
+                    continue
+                if any(tag.startswith(new_tag) for tag in nested_tags):
+                    continue
+                nested_tags.append(new_tag)
             image.metadata.nested_tags = nested_tags
         self._update_widget('nested_tags', images)
 
