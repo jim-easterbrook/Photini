@@ -660,47 +660,37 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def copy_from_flat(self):
-        keywords = self.widgets['keywords'].get_value()
-        if not keywords:
-            return
-        keywords = [x.strip() for x in keywords.split(';')]
         data_model = self.widgets['nested_tags'].data_model
-        nested_tags = self.widgets['nested_tags'].get_value()
-        for keyword in keywords:
-            for match in data_model.find_name(keyword):
-                if match.checked('copyable'):
-                    full_name = match.full_name()
-                    if full_name not in nested_tags:
-                        nested_tags.append(full_name)
-        self.widgets['nested_tags'].set_value(nested_tags)
-        self.widgets['nested_tags'].emit_value()
+        images = self.app.image_list.get_selected_images()
+        for image in images:
+            nested_tags = list(image.metadata.nested_tags or [])
+            for keyword in image.metadata.keywords or []:
+                for match in data_model.find_name(keyword):
+                    if match.checked('copyable'):
+                        full_name = match.full_name()
+                        if full_name not in nested_tags:
+                            nested_tags.append(full_name)
+            image.metadata.nested_tags = nested_tags
+        self._update_widget('nested_tags', images)
 
     @QtSlot()
     @catch_all
     def copy_to_flat(self):
-        nested_tags = self.widgets['nested_tags'].get_value()
-        if not nested_tags:
-            return
         data_model = self.widgets['nested_tags'].data_model
-        keywords = self.widgets['keywords'].get_value()
-        keywords = [x.strip() for x in keywords.split(';')]
-        for nested_tag in nested_tags:
-            match = data_model.find_full_name(nested_tag)
-            if not match:
-                # not in model, use last word
-                name = nested_tag.split('|')[-1]
-                if name not in keywords:
-                    keywords.append(name)
-                continue
-            # ascend hierarchy, copying all copyable words
-            while match:
-                if match.checked('copyable'):
-                    name = match.text()
-                    if name not in keywords:
-                        keywords.append(name)
-                match = match.parent()
-        self.widgets['keywords'].set_value('; '.join(keywords))
-        self.widgets['keywords'].emit_value()
+        images = self.app.image_list.get_selected_images()
+        for image in images:
+            keywords = list(image.metadata.keywords or [])
+            for nested_tag in image.metadata.nested_tags or []:
+                match = data_model.find_full_name(nested_tag)
+                # ascend hierarchy, copying all copyable words
+                while match:
+                    if match.checked('copyable'):
+                        name = match.text()
+                        if name not in keywords:
+                            keywords.append(name)
+                    match = match.parent()
+            image.metadata.keywords = keywords
+        self._update_widget('keywords', images)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -754,9 +744,11 @@ class TabWidget(QtWidgets.QWidget):
             self.buttons['open_tree'].setEnabled(
                 not self.widgets[key].is_multiple())
             self.buttons['copy_to_flat'].setEnabled(
+                self.widgets[key].is_multiple() or
                 bool(self.widgets[key].get_value()))
         elif key == 'keywords':
             self.buttons['copy_from_flat'].setEnabled(
+                self.widgets[key].is_multiple() or
                 bool(self.widgets[key].get_value()))
 
     def new_selection(self, selection):
