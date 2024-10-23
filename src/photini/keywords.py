@@ -333,7 +333,6 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
                 node = node.parent()
         else:
             # value is not in model, last word is copyable
-            print('not in model', full_name)
             words = full_name.split('|')
             words[0:-1] = ['<i>{}</i>'.format(word) for word in words[0:-1]]
             # add to model
@@ -509,7 +508,7 @@ class ListProxyModel(QtCore.QAbstractListModel):
 
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
-    update_value = QtSignal(str, str, str)
+    update_value = QtSignal(str, str)
 
     def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
@@ -545,13 +544,13 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     @QtSlot(dict)
     @catch_all
     def _new_value(self, value):
-        for idx, new_value in value.items():
-            idx = int(idx)
-            if idx < len(self._value):
-                old_value = self._value[idx]
-            else:
-                old_value = ''
-            self.update_value.emit(self._key, old_value, new_value)
+        idx, new_value = list(value.items())[0]
+        idx = int(idx)
+        if idx < len(self._value):
+            old_value = self._value[idx]
+        else:
+            old_value = ''
+        self.update_value.emit(old_value, new_value)
 
     def get_value(self):
         return self._value
@@ -636,7 +635,7 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
         self.widgets['nested_tags'].new_value.connect(self.new_value)
-        self.widgets['nested_tags'].update_value.connect(self.update_value)
+        self.widgets['nested_tags'].update_value.connect(self.update_nested)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
                       lines=2, layout=layout)
         layout.addRow(label, self.widgets['nested_tags'])
@@ -719,18 +718,20 @@ class TabWidget(QtWidgets.QWidget):
             self.data_model.extend(
                 image.metadata.nested_tags or [], copyable=False)
 
-    @QtSlot(str, str, str)
+    @QtSlot(str, str)
     @catch_all
-    def update_value(self, key, old_value, new_value):
+    def update_nested(self, old_value, new_value):
+        # Update single member of array to allow setting one keyword
+        # when <multiple values> is shown for other keywords.
         images = self.app.image_list.get_selected_images()
         for image in images:
-            value = list(getattr(image.metadata, key))
-            if old_value in value:
+            value = list(image.metadata.nested_tags)
+            if old_value and old_value in value:
                 value.remove(old_value)
-            if new_value not in value:
+            if new_value and new_value not in value:
                 value.append(new_value)
-            setattr(image.metadata, key, value)
-        self._update_widget(key, images)
+            image.metadata.nested_tags = value
+        self._update_widget('nested_tags', images)
 
     @QtSlot(dict)
     @catch_all
