@@ -665,14 +665,34 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def copy_from_flat(self):
-        data_model = self.widgets['nested_tags'].data_model
         images = self.app.image_list.get_selected_images()
         for image in images:
             new_tags = []
-            for keyword in image.metadata.keywords or []:
-                for match in data_model.find_name(keyword):
+            keywords = image.metadata.keywords or []
+            for keyword in keywords:
+                votes = {}
+                for match in self.data_model.find_name(keyword):
                     if match.checked('copyable'):
-                        new_tags.append(match.full_name())
+                        nested_tag = match.full_name()
+                        # count matching parent keywords
+                        votes[nested_tag] = 0
+                        while match:
+                            if match.text() in keywords:
+                                votes[nested_tag] += 1
+                            match = match.parent()
+                if len(votes) == 1:
+                    # only one match
+                    new_tags.append(list(votes.keys())[0])
+                elif len(votes) > 1:
+                    max_votes = max(votes.values())
+                    chosen = [x for x in votes if votes[x] == max_votes]
+                    if len(chosen) == 1:
+                        # one match is stronger than the others
+                        new_tags.append(chosen[0])
+                    else:
+                        # can't choose a match
+                        logger.warning(
+                            '%s: ambiguous keyword: %s', image.name, keyword)
             nested_tags = list(image.metadata.nested_tags or [])
             for new_tag in new_tags:
                 if any(tag != new_tag and tag.startswith(new_tag)
@@ -687,12 +707,11 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def copy_to_flat(self):
-        data_model = self.widgets['nested_tags'].data_model
         images = self.app.image_list.get_selected_images()
         for image in images:
             keywords = list(image.metadata.keywords or [])
             for nested_tag in image.metadata.nested_tags or []:
-                match = data_model.find_full_name(nested_tag)
+                match = self.data_model.find_full_name(nested_tag)
                 # ascend hierarchy, copying all copyable words
                 while match:
                     if match.checked('copyable'):
