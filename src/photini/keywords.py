@@ -844,6 +844,9 @@ class TabWidget(QtWidgets.QWidget):
                 self.widgets[key].set_value(None)
             self.setEnabled(False)
             return
+        # sync flat and hierarchical keywords
+        self.sync_nested_from_flat(selection, silent=True)
+        self.sync_flat_from_nested(selection, silent=True)
         for key in self.widgets:
             self._update_widget(key, selection)
         self.setEnabled(True)
