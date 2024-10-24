@@ -641,14 +641,6 @@ class TabWidget(QtWidgets.QWidget):
             translate('KeywordsTab', 'Open tree view'))
         buttons.addWidget(self.buttons['open_tree'])
         buttons.addStretch(1)
-        self.buttons['copy_from_flat'] = QtWidgets.QPushButton(
-            translate('KeywordsTab', 'Copy to hierarchy'))
-        self.buttons['copy_from_flat'].clicked.connect(self.copy_from_flat)
-        buttons.addWidget(self.buttons['copy_from_flat'])
-        self.buttons['copy_to_flat'] = QtWidgets.QPushButton(
-            translate('KeywordsTab', 'Copy to keywords'))
-        self.buttons['copy_to_flat'].clicked.connect(self.copy_to_flat)
-        buttons.addWidget(self.buttons['copy_to_flat'])
         layout.addRow('', buttons)
         # make connections
         self.buttons['open_tree'].clicked.connect(
@@ -656,13 +648,6 @@ class TabWidget(QtWidgets.QWidget):
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
         # disable until an image is selected
         self.setEnabled(False)
-
-    @QtSlot()
-    @catch_all
-    def copy_from_flat(self):
-        images = self.app.image_list.get_selected_images()
-        self.sync_nested_from_flat(images)
-        self._update_widget('nested_tags', images)
 
     def sync_nested_from_flat(self, images, remove=False, silent=False):
         for image in images:
@@ -712,13 +697,6 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.nested_tags = nested_tags
             if silent:
                 image.metadata.set_changed(changed)
-
-    @QtSlot()
-    @catch_all
-    def copy_to_flat(self):
-        images = self.app.image_list.get_selected_images()
-        self.sync_flat_from_nested(images)
-        self._update_widget('keywords', images)
 
     def sync_flat_from_nested(self, images, remove=False, silent=False):
         for image in images:
@@ -822,13 +800,6 @@ class TabWidget(QtWidgets.QWidget):
         if key == 'nested_tags':
             self.buttons['open_tree'].setEnabled(
                 not self.widgets[key].is_multiple())
-            self.buttons['copy_to_flat'].setEnabled(
-                self.widgets[key].is_multiple() or
-                bool(self.widgets[key].get_value()))
-        elif key == 'keywords':
-            self.buttons['copy_from_flat'].setEnabled(
-                self.widgets[key].is_multiple() or
-                bool(self.widgets[key].get_value()))
 
     def new_selection(self, selection):
         if not selection:
