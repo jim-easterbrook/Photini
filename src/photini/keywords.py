@@ -227,7 +227,7 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
             for grandchild in child.all_children():
                 yield grandchild
 
-    def extend(self, names, copyable=True):
+    def extend(self, names):
         name = names[0]
         names = names[1:]
         for row in range(self.rowCount()):
@@ -237,12 +237,9 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         else:
             child = HierarchicalTagDataItem(name)
             child.initialise()
-            if copyable and not names:
-                # last name is copyable by default
-                child.set_checked('copyable', True)
             self.appendRow(child.get_row())
         if names:
-            child.extend(names, copyable=copyable)
+            child.extend(names)
 
     def get_row(self):
         result = [self]
@@ -303,11 +300,10 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         root = self.invisibleRootItem()
         return HierarchicalTagDataItem.all_children(root)
 
-    def extend(self, value, copyable=True):
+    def extend(self, value):
         root = self.invisibleRootItem()
         for full_name in value:
-            HierarchicalTagDataItem.extend(
-                root, full_name.split('|'), copyable=copyable)
+            HierarchicalTagDataItem.extend(root, full_name.split('|'))
         self.sort(0)
 
     def find_name(self, name):
@@ -325,20 +321,17 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
 
     def formatted_name(self, full_name):
         node = self.find_full_name(full_name)
-        if node:
-            words = []
-            while node:
-                word = node.text()
-                if not node.checked('copyable'):
-                    word = '<i>{}</i>'.format(word)
-                words.insert(0, word)
-                node = node.parent()
-        else:
-            # value is not in model, last word is copyable
-            words = full_name.split('|')
-            words[0:-1] = ['<i>{}</i>'.format(word) for word in words[0:-1]]
-            # add to model
+        if not node:
+            # value is not in model so add it
             self.extend([full_name])
+            node = self.find_full_name(full_name)
+        words = []
+        while node:
+            word = node.text()
+            if not node.checked('copyable'):
+                word = '<i>{}</i>'.format(word)
+            words.insert(0, word)
+            node = node.parent()
         return '|'.join(words)
 
     @QtSlot("QStandardItem*")
@@ -773,8 +766,7 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['keywords'].update_league_table(images)
         # add all hierarchical keywords to data model
         for image in images:
-            self.data_model.extend(
-                image.metadata.nested_tags or [], copyable=False)
+            self.data_model.extend(image.metadata.nested_tags or [])
         # sync flat and hierarchical keywords
         self.sync_nested_from_flat(images, silent=True)
         self.sync_flat_from_nested(images, silent=True)
