@@ -671,7 +671,7 @@ class TabWidget(QtWidgets.QWidget):
         self.sync_nested_from_flat(images)
         self._update_widget('nested_tags', images)
 
-    def sync_nested_from_flat(self, images):
+    def sync_nested_from_flat(self, images, silent=False):
         for image in images:
             new_tags = []
             keywords = image.metadata.keywords or []
@@ -707,7 +707,11 @@ class TabWidget(QtWidgets.QWidget):
                 if any(tag.startswith(new_tag) for tag in nested_tags):
                     continue
                 nested_tags.append(new_tag)
+            # set new values
+            changed = image.metadata.changed()
             image.metadata.nested_tags = nested_tags
+            if silent:
+                image.metadata.set_changed(changed)
 
     @QtSlot()
     @catch_all
@@ -716,7 +720,7 @@ class TabWidget(QtWidgets.QWidget):
         self.sync_flat_from_nested(images)
         self._update_widget('keywords', images)
 
-    def sync_flat_from_nested(self, images):
+    def sync_flat_from_nested(self, images, silent=False):
         for image in images:
             new_keywords = set()
             for nested_tag in image.metadata.nested_tags or []:
@@ -736,7 +740,11 @@ class TabWidget(QtWidgets.QWidget):
                 except ValueError:
                     # append keyword that isn't in keywords
                     keywords.append(keyword)
+            # set new values
+            changed = image.metadata.changed()
             image.metadata.keywords = keywords
+            if silent:
+                image.metadata.set_changed(changed)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -753,6 +761,9 @@ class TabWidget(QtWidgets.QWidget):
         for image in images:
             self.data_model.extend(
                 image.metadata.nested_tags or [], copyable=False)
+        # sync flat and hierarchical keywords
+        self.sync_nested_from_flat(images, silent=True)
+        self.sync_flat_from_nested(images, silent=True)
 
     @QtSlot(str, str)
     @catch_all
