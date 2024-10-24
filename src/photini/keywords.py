@@ -582,7 +582,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
             if idx < len(tag_list):
                 tag = tag_list[idx]
                 if len(choice_dict[tag]) == len(choices):
-                    widget.set_value(tag)
+                    widget.set_value(
+                        self.data_model.formatted_name(tag))
                 else:
                     widget.set_multiple(choices=[tag])
             else:
