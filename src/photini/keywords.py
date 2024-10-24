@@ -666,6 +666,10 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def copy_from_flat(self):
         images = self.app.image_list.get_selected_images()
+        self.sync_nested_from_flat(images)
+        self._update_widget('nested_tags', images)
+
+    def sync_nested_from_flat(self, images):
         for image in images:
             new_tags = []
             keywords = image.metadata.keywords or []
@@ -702,12 +706,15 @@ class TabWidget(QtWidgets.QWidget):
                     continue
                 nested_tags.append(new_tag)
             image.metadata.nested_tags = nested_tags
-        self._update_widget('nested_tags', images)
 
     @QtSlot()
     @catch_all
     def copy_to_flat(self):
         images = self.app.image_list.get_selected_images()
+        self.sync_flat_from_nested(images)
+        self._update_widget('keywords', images)
+
+    def sync_flat_from_nested(self, images):
         for image in images:
             keywords = list(image.metadata.keywords or [])
             for nested_tag in image.metadata.nested_tags or []:
@@ -715,12 +722,11 @@ class TabWidget(QtWidgets.QWidget):
                 # ascend hierarchy, copying all copyable words
                 while match:
                     if match.checked('copyable'):
-                        name = match.text()
-                        if name not in keywords:
-                            keywords.append(name)
+                        keyword = match.text()
+                        if keyword not in keywords:
+                            keywords.append(keyword)
                     match = match.parent()
             image.metadata.keywords = keywords
-        self._update_widget('keywords', images)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
