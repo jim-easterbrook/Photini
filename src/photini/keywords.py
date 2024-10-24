@@ -716,16 +716,24 @@ class TabWidget(QtWidgets.QWidget):
 
     def sync_flat_from_nested(self, images):
         for image in images:
-            keywords = list(image.metadata.keywords or [])
+            new_keywords = set()
             for nested_tag in image.metadata.nested_tags or []:
                 match = self.data_model.find_full_name(nested_tag)
                 # ascend hierarchy, copying all copyable words
                 while match:
                     if match.checked('copyable'):
-                        keyword = match.text()
-                        if keyword not in keywords:
-                            keywords.append(keyword)
+                        new_keywords.add(match.text())
                     match = match.parent()
+            keywords = list(image.metadata.keywords or [])
+            cf_keywords = [x.casefold() for x in keywords]
+            for keyword in new_keywords:
+                try:
+                    idx = cf_keywords.index(keyword.casefold())
+                    # replace keyword that differs only in case
+                    keywords[idx] = keyword
+                except ValueError:
+                    # append keyword that isn't in keywords
+                    keywords.append(keyword)
             image.metadata.keywords = keywords
 
     def refresh(self):
