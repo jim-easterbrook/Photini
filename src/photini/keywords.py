@@ -671,7 +671,7 @@ class TabWidget(QtWidgets.QWidget):
         self.sync_nested_from_flat(images)
         self._update_widget('nested_tags', images)
 
-    def sync_nested_from_flat(self, images, silent=False):
+    def sync_nested_from_flat(self, images, remove=False, silent=False):
         for image in images:
             new_tags = []
             keywords = image.metadata.keywords or []
@@ -700,6 +700,13 @@ class TabWidget(QtWidgets.QWidget):
                         logger.warning(
                             '%s: ambiguous keyword: %s', image.name, keyword)
             nested_tags = list(image.metadata.nested_tags or [])
+            if remove:
+                for nested_tag in list(nested_tags):
+                    if nested_tag in new_tags:
+                        continue
+                    match = self.data_model.find_full_name(nested_tag)
+                    if match and match.checked('copyable'):
+                        nested_tags.remove(nested_tag)
             for new_tag in new_tags:
                 if any(tag != new_tag and tag.startswith(new_tag)
                        for tag in new_tags):
@@ -720,7 +727,7 @@ class TabWidget(QtWidgets.QWidget):
         self.sync_flat_from_nested(images)
         self._update_widget('keywords', images)
 
-    def sync_flat_from_nested(self, images, silent=False):
+    def sync_flat_from_nested(self, images, remove=False, silent=False):
         for image in images:
             new_keywords = set()
             for nested_tag in image.metadata.nested_tags or []:
@@ -740,6 +747,13 @@ class TabWidget(QtWidgets.QWidget):
                 except ValueError:
                     # append keyword that isn't in keywords
                     keywords.append(keyword)
+            if remove:
+                for keyword in list(keywords):
+                    if keyword in new_keywords:
+                        continue
+                    for match in self.data_model.find_name(keyword):
+                        if match.checked('copyable'):
+                            keywords.remove(keyword)
             # set new values
             changed = image.metadata.changed()
             image.metadata.keywords = keywords
@@ -779,6 +793,9 @@ class TabWidget(QtWidgets.QWidget):
                 value.append(new_value)
             image.metadata.nested_tags = value
         self._update_widget('nested_tags', images)
+        self.sync_flat_from_nested(images, remove=True)
+        self._update_widget('keywords', images)
+        self.widgets['keywords'].update_league_table(images)
 
     @QtSlot(dict)
     @catch_all
@@ -787,9 +804,16 @@ class TabWidget(QtWidgets.QWidget):
         images = self.app.image_list.get_selected_images()
         for image in images:
             setattr(image.metadata, key, value)
-        self._update_widget(key, images)
         if key == 'keywords':
-            self.widgets[key].update_league_table(images)
+            self.sync_nested_from_flat(images, remove=True)
+            self.sync_flat_from_nested(images, remove=True)
+            self._update_widget('nested_tags', images)
+            self.widgets['keywords'].update_league_table(images)
+        elif key == 'nested_tags':
+            self.sync_flat_from_nested(images, remove=True)
+            self._update_widget('keywords', images)
+            self.widgets['keywords'].update_league_table(images)
+        self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:
