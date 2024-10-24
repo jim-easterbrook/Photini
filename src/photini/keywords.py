@@ -310,9 +310,11 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
                 root, full_name.split('|'), copyable=copyable)
         self.sort(0)
 
-    def find_name(self, name, flags=None):
-        flags = flags or Qt.MatchFlag.MatchFixedString
-        return self.findItems(name, flags | Qt.MatchFlag.MatchRecursive)
+    def find_name(self, name):
+        cf_name = name.casefold()
+        for node in self.all_children():
+            if node.data(HierarchicalTagDataItem.sort_role) == cf_name:
+                yield node
 
     def find_full_name(self, full_name):
         names = full_name.split('|')
