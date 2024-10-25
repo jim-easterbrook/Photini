@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="es" sourcelanguage="en_GB" version="2.1">
+<TS version="2.1" language="es" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -609,6 +609,7 @@
         <translation>
             <numerusform>Regenerar miniatura</numerusform>
             <numerusform>Regenerar miniaturas</numerusform>
+            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -620,6 +621,7 @@
         <translation>
             <numerusform>Recargar archivo</numerusform>
             <numerusform>Recargar archivos</numerusform>
+            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -627,6 +629,7 @@
         <translation>
             <numerusform>Cerrar archivo</numerusform>
             <numerusform>Cerrar archivos</numerusform>
+            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -747,6 +750,7 @@
         <translation>
             <numerusform>%n archivo seleccionado</numerusform>
             <numerusform>%n archivos seleccionados</numerusform>
+            <numerusform>Unused</numerusform>
         </translation>
     </message>
 </context>
@@ -965,11 +969,11 @@
     </message>
     <message>
         <source>Copy to hierarchy</source>
-        <translation>Copiar a jerarquía</translation>
+        <translation type="vanished">Copiar a jerarquía</translation>
     </message>
     <message>
         <source>Copy to keywords</source>
-        <translation>Copiar a palabras clave</translation>
+        <translation type="vanished">Copiar a palabras clave</translation>
     </message>
 </context>
 <context>

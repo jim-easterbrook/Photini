@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="fr" sourcelanguage="en_GB" version="2.1">
+<TS version="2.1" language="fr" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -637,7 +637,8 @@
         <translation>
             <numerusform>Régénérer la vignette</numerusform>
             <numerusform>Régénérer les vignettes</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -652,14 +653,16 @@
         <translation>
             <numerusform>Recharger le fichier</numerusform>
             <numerusform>Recharger les fichiers</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Fermer le fichier</numerusform>
             <numerusform>Fermer les fichiers</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -779,7 +782,8 @@
         <translation>
             <numerusform>%n fichier sélectionné</numerusform>
             <numerusform>%n fichiers sélectionnés</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -1009,14 +1013,6 @@
     </message>
     <message>
         <source>Open tree view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy to hierarchy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy to keywords</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
