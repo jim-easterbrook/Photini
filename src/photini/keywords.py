@@ -755,6 +755,18 @@ class TabWidget(QtWidgets.QWidget):
         # Update single member of array to allow setting one keyword
         # when <multiple values> is shown for other keywords.
         images = self.app.image_list.get_selected_images()
+        # asterisks mark copyable keywords
+        words = new_value.split('|')
+        copyable = [x.startswith('*') for x in words]
+        if any(copyable):
+            words = [x.lstrip('*') for x in words]
+            new_value = '|'.join(words)
+            self.data_model.extend([new_value])
+            node = self.data_model.find_full_name(new_value)
+            while node:
+                if copyable.pop():
+                    node.set_checked('copyable', True)
+                node = node.parent()
         for image in images:
             value = list(image.metadata.nested_tags)
             if old_value and old_value in value:
