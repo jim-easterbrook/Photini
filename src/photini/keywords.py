@@ -788,7 +788,7 @@ class TabWidget(QtWidgets.QWidget):
             setattr(image.metadata, key, value)
         if key == 'keywords':
             self.sync_nested_from_flat(images, remove=True)
-            self.sync_flat_from_nested(images, remove=True)
+            self.sync_flat_from_nested(images)
             self._update_widget('nested_tags', images)
             self.widgets['keywords'].update_league_table(images)
         elif key == 'nested_tags':
