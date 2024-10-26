@@ -74,18 +74,19 @@ Typically the last word of each hierarchy is copyable, but in some cases this is
 For example, "20th century" and "summer 2012" are almost meaningless outside their hierarchical context.
 On the other hand, a country name is usually not the last word in a hierarchy, but is meaningful in isolation.
 
-.. image:: ../images/screenshot_061.png
+.. image:: ../images/screenshot_059.png
 
 After editing the keywords' ``copyable`` setting, the ones that are copyable are no longer shown in italics.
 Note that as "Château-Gontier" is now copyable, it has been automatically added to the "flat" keywords.
 
-.. image:: ../images/screenshot_059.png
+.. image:: ../images/screenshot_060.png
 
 The ``copyable`` status of a keyword can also be set by preceding it with an asterisk (``*``) when typing in the keyword hierarchy.
 
-.. image:: ../images/screenshot_060.png
+.. image:: ../images/screenshot_061.png
 
-The word "holiday" is immediately marked as copyable.
+The words "waterway" and "La Mayenne" are immediately marked as copyable.
+(And hence copied to the "flat" keywords.)
 
 .. image:: ../images/screenshot_062.png
 
