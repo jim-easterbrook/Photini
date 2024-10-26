@@ -602,7 +602,6 @@
         <translation>
             <numerusform>Ricarica file</numerusform>
             <numerusform>Ricarica i file</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -610,7 +609,6 @@
         <translation>
             <numerusform>Rigenera miniatura</numerusform>
             <numerusform>Rigenera miniature</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -618,7 +616,6 @@
         <translation>
             <numerusform>Chiudi file</numerusform>
             <numerusform>Chiudi i file</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -755,7 +752,6 @@
         <translation>
             <numerusform>%n file selezionato</numerusform>
             <numerusform>%n file selezionati</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
 </context>

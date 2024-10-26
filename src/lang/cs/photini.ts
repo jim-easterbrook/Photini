@@ -642,7 +642,6 @@
             <numerusform>Obnovit náhled</numerusform>
             <numerusform>Obnovit náhledy</numerusform>
             <numerusform>Obnovit náhledy</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -659,7 +658,6 @@
             <numerusform>Nahrát znovu soubor</numerusform>
             <numerusform>Nahrát znovu soubory</numerusform>
             <numerusform>Nahrát znovu soubory</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -668,7 +666,6 @@
             <numerusform>Zavřít soubor</numerusform>
             <numerusform>Zavřít soubory</numerusform>
             <numerusform>Zavřít soubory</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -790,7 +787,6 @@
             <numerusform>%n soubor vybrán</numerusform>
             <numerusform>%n soubory vybrány</numerusform>
             <numerusform>%n souborů vybráno</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
 </context>

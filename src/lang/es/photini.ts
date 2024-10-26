@@ -609,7 +609,6 @@
         <translation>
             <numerusform>Regenerar miniatura</numerusform>
             <numerusform>Regenerar miniaturas</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -621,7 +620,6 @@
         <translation>
             <numerusform>Recargar archivo</numerusform>
             <numerusform>Recargar archivos</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -629,7 +627,6 @@
         <translation>
             <numerusform>Cerrar archivo</numerusform>
             <numerusform>Cerrar archivos</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -750,7 +747,6 @@
         <translation>
             <numerusform>%n archivo seleccionado</numerusform>
             <numerusform>%n archivos seleccionados</numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
 </context>

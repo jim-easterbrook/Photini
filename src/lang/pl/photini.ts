@@ -606,7 +606,6 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -619,7 +618,6 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -628,7 +626,6 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
     <message>
@@ -750,7 +747,6 @@
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
-            <numerusform>Unused</numerusform>
         </translation>
     </message>
 </context>
