@@ -86,17 +86,14 @@ class Label(QtWidgets.QLabel):
         # match text alignment to form layout
         align_h = (layout.labelAlignment()
                    & Qt.AlignmentFlag.AlignHorizontal_Mask)
-        align_v = self.alignment() & Qt.AlignmentFlag.AlignVertical_Mask
-        self.setAlignment(align_h | align_v)
-        if lines == 1:
-            return
+        self.setAlignment(align_h | Qt.AlignmentFlag.AlignTop)
         padding = (QtWidgets.QLineEdit().sizeHint().height() -
                    self.sizeHint().height()) // 2
         margins = self.contentsMargins()
         margins.setTop(margins.top() + padding)
         self.setContentsMargins(margins)
-        self.setText(wrap_text(self, self.text(), lines))
-        self.setAlignment(align_h | Qt.AlignmentFlag.AlignTop)
+        if lines != 1:
+            self.setText(wrap_text(self, self.text(), lines))
 
 
 class PushButton(QtWidgets.QPushButton):

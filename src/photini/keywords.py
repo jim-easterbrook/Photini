@@ -609,7 +609,7 @@ class TabWidget(QtWidgets.QWidget):
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
-        layout = FormLayout()
+        layout = QtWidgets.QGridLayout()
         self.setLayout(layout)
         # hierarchical tags data model
         self.data_model = HierarchicalTagDataModel()
@@ -625,23 +625,22 @@ class TabWidget(QtWidgets.QWidget):
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.')))
         self.widgets['keywords'].new_value.connect(self.new_value)
-        layout.addRow(translate('DescriptiveTab', 'Keywords'),
-                      self.widgets['keywords'])
+        layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
+        layout.addWidget(self.widgets['keywords'], 0, 1)
         # hierarchical keywords
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
         self.widgets['nested_tags'].new_value.connect(self.new_value)
         self.widgets['nested_tags'].update_value.connect(self.update_nested)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
-                      lines=2, layout=layout)
-        layout.addRow(label, self.widgets['nested_tags'])
-        # buttons
-        buttons = QtWidgets.QHBoxLayout()
+                      lines=2)
+        layout.addWidget(label, 1, 0)
+        layout.addWidget(self.widgets['nested_tags'], 1, 1, 3, 1)
+        # tree view button
         self.buttons['open_tree'] = QtWidgets.QPushButton(
-            translate('KeywordsTab', 'Open tree view'))
-        buttons.addWidget(self.buttons['open_tree'])
-        buttons.addStretch(1)
-        layout.addRow('', buttons)
+            wrap_text(self, translate('KeywordsTab', 'Open tree view'), 2))
+        layout.addWidget(self.buttons['open_tree'], 3, 0)
+        layout.setRowStretch(2, 1)
         # make connections
         self.buttons['open_tree'].clicked.connect(
             self.widgets['nested_tags'].open_tree_view)
