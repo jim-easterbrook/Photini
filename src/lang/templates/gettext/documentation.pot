@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.10.0.post16\n"
+"Project-Id-Version: Photini 2024.10.0.post18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-25 14:30+0100\n"
+"POT-Creation-Date: 2024-10-26 10:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -655,13 +655,13 @@ msgstr ""
 msgid "Photini handles two types of keywords, simple and hierarchical. The simple (or \"flat\") keywords are widely used, for example they are recognised by Flickr's image uploader. Hierarchical keywords are a more recent addition to photography metadata and may not be widely recognised."
 msgstr ""
 
-msgid "You can set a list of simple keywords for the image by typing them in the ``Keywords`` box. Keywords should be separated by semi-colon (``;``) characters. The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often."
+msgid "You can set a list of simple keywords for the image by typing them in the ``Keywords`` box. Keywords are separated by semicolon (``;``) characters. The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often."
 msgstr ""
 
 msgid "Hierarchical keywords are sequences of words or phrases that describe the subject in descending generality or increasing precision. For example, a geographical location could be continent > country > county > city. There are no rules about what hierarchies you use, but in some cases there are obvious choices. A bird watcher or botanist might want to use the full `Linnaean taxonomy`_."
 msgstr ""
 
-msgid "Hierarchical keywords are added by typing the complete hierarchy, separating terms with ``|`` (pipe) or ``/`` (slash) characters."
+msgid "Hierarchical keywords are added by typing the complete hierarchy, separating terms with pipe (``|``) or slash (``/``) characters."
 msgstr ""
 
 msgid "After entering the keyword Photini converts ``/`` characters to ``|`` and displays a field for the next hierarchical keyword. Note that each word is shown in italics, for reasons that are explained later."
@@ -679,7 +679,7 @@ msgstr ""
 msgid "After choosing one of the suggested keywords you can edit it further if needed."
 msgstr ""
 
-msgid "The ``open tree view`` button opens a dialog that displays all the keywords in your dictionary. Each word in a hierarchy is shown as a node with parent and child nodes above and below. To rename a node you can double-click on it and then edit the text. Deleting the text will delete the node and its children."
+msgid "The ``open tree view`` button opens a dialog that displays all the keywords in your dictionary. Each word in a hierarchy is shown as a node with parent and child nodes above and below. To rename a node you can double-click on it (or press the ``F2`` key) and then edit the text. Deleting the text will delete the node and its children."
 msgstr ""
 
 msgid "When the dialog opens the selected photographs' keywords are highlighted. The ``search`` box can be used to find other keywords in the hierarchy."
@@ -706,7 +706,7 @@ msgstr ""
 msgid "When a copyable keyword is added to the \"flat\" keywords..."
 msgstr ""
 
-msgid "...the corresponding hierarchical keywords are automatically added. Note that as \"France\" is also copyable, it is added to the flat keywords."
+msgid "...the corresponding hierarchical keyword is automatically added. Note that as \"France\" is also copyable, it is added to the flat keywords."
 msgstr ""
 
 msgid "When a hierarchical keyword is added..."
@@ -718,7 +718,7 @@ msgstr ""
 msgid "Ambiguous keywords"
 msgstr ""
 
-msgid "The automatic synchronisation of \"flat\" and hierarchical keywords discussed above can fail if a flat keyword occurs more than once in your personal Hierarchical keyword dictionary. For example, if your dictionary contains both \" *places* |pipe| *France* |pipe| Paris\" and \"*places* |pipe| *USA* |pipe| *Texas* |pipe| Paris\" then the single word \"Paris\" has two matching hierarchical keywords."
+msgid "The automatic synchronisation of \"flat\" and hierarchical keywords discussed above can fail if a flat keyword occurs more than once in your personal hierarchical keyword dictionary. For example, if your dictionary contains both \"*places* |pipe| *France* |pipe| Paris\" and \"*places* |pipe| *USA* |pipe| *Texas* |pipe| Paris\" then the single word \"Paris\" has two matching hierarchical keywords."
 msgstr ""
 
 msgid "When this happens Photini searches the flat keywords for other words in the hierarchies. For example, if the flat keywords contain \"USA\" or \"Texas\" but not \"France\" then the choice is obvious. If the ambiguity cannot be resolved then the flat keyword is not copied to the hierarchical keywords."
