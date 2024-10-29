@@ -237,9 +237,6 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
         else:
             child = HierarchicalTagDataItem(name)
             child.initialise()
-            if not names:
-                # last name is copyable by default
-                child.set_checked('copyable', True)
             self.appendRow(child.get_row())
         if names:
             child.extend(names)
@@ -309,9 +306,11 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             HierarchicalTagDataItem.extend(root, full_name.split('|'))
         self.sort(0)
 
-    def find_name(self, name, flags=None):
-        flags = flags or Qt.MatchFlag.MatchFixedString
-        return self.findItems(name, flags | Qt.MatchFlag.MatchRecursive)
+    def find_name(self, name):
+        cf_name = name.casefold()
+        for node in self.all_children():
+            if node.data(HierarchicalTagDataItem.sort_role) == cf_name:
+                yield node
 
     def find_full_name(self, full_name):
         names = full_name.split('|')
@@ -322,20 +321,17 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
 
     def formatted_name(self, full_name):
         node = self.find_full_name(full_name)
-        if node:
-            words = []
-            while node:
-                word = node.text()
-                if not node.checked('copyable'):
-                    word = '<i>{}</i>'.format(word)
-                words.insert(0, word)
-                node = node.parent()
-        else:
-            # value is not in model, last word is copyable
-            words = full_name.split('|')
-            words[0:-1] = ['<i>{}</i>'.format(word) for word in words[0:-1]]
-            # add to model
+        if not node:
+            # value is not in model so add it
             self.extend([full_name])
+            node = self.find_full_name(full_name)
+        words = []
+        while node:
+            word = node.text()
+            if not node.checked('copyable'):
+                word = '<i>{}</i>'.format(word)
+            words.insert(0, word)
+            node = node.parent()
         return '|'.join(words)
 
     @QtSlot("QStandardItem*")
@@ -507,9 +503,9 @@ class ListProxyModel(QtCore.QAbstractListModel):
 
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
-    update_value = QtSignal(str, str, str)
+    update_value = QtSignal(str, str)
 
-    def __init__(self, key, *args, **kwds):
+    def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._key = key
@@ -519,7 +515,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
         self.setWidgetResizable(True)
-        self.data_model = HierarchicalTagDataModel()
+        self.data_model = data_model
         self.list_view = ListProxyModel(self.data_model)
         self.set_rows()
 
@@ -543,13 +539,13 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     @QtSlot(dict)
     @catch_all
     def _new_value(self, value):
-        for idx, new_value in value.items():
-            idx = int(idx)
-            if idx < len(self._value):
-                old_value = self._value[idx]
-            else:
-                old_value = ''
-            self.update_value.emit(self._key, old_value, new_value)
+        idx, new_value = list(value.items())[0]
+        idx = int(idx)
+        if idx < len(self._value):
+            old_value = self._value[idx]
+        else:
+            old_value = ''
+        self.update_value.emit(old_value, new_value)
 
     def get_value(self):
         return self._value
@@ -581,7 +577,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
             if idx < len(tag_list):
                 tag = tag_list[idx]
                 if len(choice_dict[tag]) == len(choices):
-                    widget.set_value(tag)
+                    widget.set_value(
+                        self.data_model.formatted_name(tag))
                 else:
                     widget.set_multiple(choices=[tag])
             else:
@@ -612,8 +609,10 @@ class TabWidget(QtWidgets.QWidget):
     def __init__(self, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
-        layout = FormLayout()
+        layout = QtWidgets.QGridLayout()
         self.setLayout(layout)
+        # hierarchical tags data model
+        self.data_model = HierarchicalTagDataModel()
         # construct widgets
         self.widgets = {}
         self.buttons = {}
@@ -626,30 +625,22 @@ class TabWidget(QtWidgets.QWidget):
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.')))
         self.widgets['keywords'].new_value.connect(self.new_value)
-        layout.addRow(translate('DescriptiveTab', 'Keywords'),
-                      self.widgets['keywords'])
+        layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
+        layout.addWidget(self.widgets['keywords'], 0, 1)
         # hierarchical keywords
-        self.widgets['nested_tags'] = HierarchicalTagsEditor('nested_tags')
+        self.widgets['nested_tags'] = HierarchicalTagsEditor(
+            'nested_tags', self.data_model)
         self.widgets['nested_tags'].new_value.connect(self.new_value)
-        self.widgets['nested_tags'].update_value.connect(self.update_value)
+        self.widgets['nested_tags'].update_value.connect(self.update_nested)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
-                      lines=2, layout=layout)
-        layout.addRow(label, self.widgets['nested_tags'])
-        # buttons
-        buttons = QtWidgets.QHBoxLayout()
+                      lines=2)
+        layout.addWidget(label, 1, 0)
+        layout.addWidget(self.widgets['nested_tags'], 1, 1, 3, 1)
+        # tree view button
         self.buttons['open_tree'] = QtWidgets.QPushButton(
-            translate('KeywordsTab', 'Open tree view'))
-        buttons.addWidget(self.buttons['open_tree'])
-        buttons.addStretch(1)
-        self.buttons['copy_from_flat'] = QtWidgets.QPushButton(
-            translate('KeywordsTab', 'Copy to hierarchy'))
-        self.buttons['copy_from_flat'].clicked.connect(self.copy_from_flat)
-        buttons.addWidget(self.buttons['copy_from_flat'])
-        self.buttons['copy_to_flat'] = QtWidgets.QPushButton(
-            translate('KeywordsTab', 'Copy to keywords'))
-        self.buttons['copy_to_flat'].clicked.connect(self.copy_to_flat)
-        buttons.addWidget(self.buttons['copy_to_flat'])
-        layout.addRow('', buttons)
+            wrap_text(self, translate('KeywordsTab', 'Open tree view'), 2))
+        layout.addWidget(self.buttons['open_tree'], 3, 0)
+        layout.setRowStretch(2, 1)
         # make connections
         self.buttons['open_tree'].clicked.connect(
             self.widgets['nested_tags'].open_tree_view)
@@ -657,50 +648,87 @@ class TabWidget(QtWidgets.QWidget):
         # disable until an image is selected
         self.setEnabled(False)
 
-    @QtSlot()
-    @catch_all
-    def copy_from_flat(self):
-        keywords = self.widgets['keywords'].get_value()
-        if not keywords:
-            return
-        keywords = [x.strip() for x in keywords.split(';')]
-        data_model = self.widgets['nested_tags'].data_model
-        nested_tags = self.widgets['nested_tags'].get_value()
-        for keyword in keywords:
-            for match in data_model.find_name(keyword):
-                if match.checked('copyable'):
-                    full_name = match.full_name()
-                    if full_name not in nested_tags:
-                        nested_tags.append(full_name)
-        self.widgets['nested_tags'].set_value(nested_tags)
-        self.widgets['nested_tags'].emit_value()
+    def sync_nested_from_flat(self, images, remove=False, silent=False):
+        for image in images:
+            new_tags = []
+            keywords = image.metadata.keywords or []
+            for keyword in keywords:
+                votes = {}
+                for match in self.data_model.find_name(keyword):
+                    if match.checked('copyable'):
+                        nested_tag = match.full_name()
+                        # count matching parent keywords
+                        votes[nested_tag] = 0
+                        while match:
+                            if match.text() in keywords:
+                                votes[nested_tag] += 1
+                            match = match.parent()
+                if len(votes) == 1:
+                    # only one match
+                    new_tags.append(list(votes.keys())[0])
+                elif len(votes) > 1:
+                    max_votes = max(votes.values())
+                    chosen = [x for x in votes if votes[x] == max_votes]
+                    if len(chosen) == 1:
+                        # one match is stronger than the others
+                        new_tags.append(chosen[0])
+                    else:
+                        # can't choose a match
+                        logger.warning(
+                            '%s: ambiguous keyword: %s', image.name, keyword)
+            nested_tags = list(image.metadata.nested_tags or [])
+            if remove:
+                for nested_tag in list(nested_tags):
+                    if nested_tag in new_tags:
+                        continue
+                    match = self.data_model.find_full_name(nested_tag)
+                    if match and match.checked('copyable'):
+                        nested_tags.remove(nested_tag)
+            for new_tag in new_tags:
+                if any(tag != new_tag and tag.startswith(new_tag)
+                       for tag in new_tags):
+                    continue
+                if any(tag.startswith(new_tag) for tag in nested_tags):
+                    continue
+                nested_tags.append(new_tag)
+            # set new values
+            changed = image.metadata.changed()
+            image.metadata.nested_tags = nested_tags
+            if silent:
+                image.metadata.set_changed(changed)
 
-    @QtSlot()
-    @catch_all
-    def copy_to_flat(self):
-        nested_tags = self.widgets['nested_tags'].get_value()
-        if not nested_tags:
-            return
-        data_model = self.widgets['nested_tags'].data_model
-        keywords = self.widgets['keywords'].get_value()
-        keywords = [x.strip() for x in keywords.split(';')]
-        for nested_tag in nested_tags:
-            match = data_model.find_full_name(nested_tag)
-            if not match:
-                # not in model, use last word
-                name = nested_tag.split('|')[-1]
-                if name not in keywords:
-                    keywords.append(name)
-                continue
-            # ascend hierarchy, copying all copyable words
-            while match:
-                if match.checked('copyable'):
-                    name = match.text()
-                    if name not in keywords:
-                        keywords.append(name)
-                match = match.parent()
-        self.widgets['keywords'].set_value('; '.join(keywords))
-        self.widgets['keywords'].emit_value()
+    def sync_flat_from_nested(self, images, remove=False, silent=False):
+        for image in images:
+            new_keywords = set()
+            for nested_tag in image.metadata.nested_tags or []:
+                match = self.data_model.find_full_name(nested_tag)
+                # ascend hierarchy, copying all copyable words
+                while match:
+                    if match.checked('copyable'):
+                        new_keywords.add(match.text())
+                    match = match.parent()
+            keywords = list(image.metadata.keywords or [])
+            cf_keywords = [x.casefold() for x in keywords]
+            for keyword in new_keywords:
+                try:
+                    idx = cf_keywords.index(keyword.casefold())
+                    # replace keyword that differs only in case
+                    keywords[idx] = keyword
+                except ValueError:
+                    # append keyword that isn't in keywords
+                    keywords.append(keyword)
+            if remove:
+                for keyword in list(keywords):
+                    if keyword in new_keywords:
+                        continue
+                    for match in self.data_model.find_name(keyword):
+                        if match.checked('copyable'):
+                            keywords.remove(keyword)
+            # set new values
+            changed = image.metadata.changed()
+            image.metadata.keywords = keywords
+            if silent:
+                image.metadata.set_changed(changed)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -711,21 +739,44 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def image_list_changed(self):
-        self.widgets['keywords'].update_league_table(
-            self.app.image_list.get_images())
-
-    @QtSlot(str, str, str)
-    @catch_all
-    def update_value(self, key, old_value, new_value):
-        images = self.app.image_list.get_selected_images()
+        images = self.app.image_list.get_images()
+        self.widgets['keywords'].update_league_table(images)
+        # add all hierarchical keywords to data model
         for image in images:
-            value = list(getattr(image.metadata, key))
-            if old_value in value:
+            self.data_model.extend(image.metadata.nested_tags or [])
+        # sync flat and hierarchical keywords
+        self.sync_nested_from_flat(images, silent=True)
+        self.sync_flat_from_nested(images, silent=True)
+
+    @QtSlot(str, str)
+    @catch_all
+    def update_nested(self, old_value, new_value):
+        # Update single member of array to allow setting one keyword
+        # when <multiple values> is shown for other keywords.
+        images = self.app.image_list.get_selected_images()
+        # asterisks mark copyable keywords
+        words = new_value.split('|')
+        copyable = [x.startswith('*') for x in words]
+        if any(copyable):
+            words = [x.lstrip('*') for x in words]
+            new_value = '|'.join(words)
+            self.data_model.extend([new_value])
+            node = self.data_model.find_full_name(new_value)
+            while node:
+                if copyable.pop():
+                    node.set_checked('copyable', True)
+                node = node.parent()
+        for image in images:
+            value = list(image.metadata.nested_tags)
+            if old_value and old_value in value:
                 value.remove(old_value)
-            if new_value not in value:
+            if new_value and new_value not in value:
                 value.append(new_value)
-            setattr(image.metadata, key, value)
-        self._update_widget(key, images)
+            image.metadata.nested_tags = value
+        self._update_widget('nested_tags', images)
+        self.sync_flat_from_nested(images, remove=True)
+        self._update_widget('keywords', images)
+        self.widgets['keywords'].update_league_table(images)
 
     @QtSlot(dict)
     @catch_all
@@ -734,9 +785,16 @@ class TabWidget(QtWidgets.QWidget):
         images = self.app.image_list.get_selected_images()
         for image in images:
             setattr(image.metadata, key, value)
-        self._update_widget(key, images)
         if key == 'keywords':
-            self.widgets[key].update_league_table(images)
+            self.sync_nested_from_flat(images, remove=True)
+            self.sync_flat_from_nested(images)
+            self._update_widget('nested_tags', images)
+            self.widgets['keywords'].update_league_table(images)
+        elif key == 'nested_tags':
+            self.sync_flat_from_nested(images, remove=True)
+            self._update_widget('keywords', images)
+            self.widgets['keywords'].update_league_table(images)
+        self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:
@@ -753,11 +811,6 @@ class TabWidget(QtWidgets.QWidget):
         if key == 'nested_tags':
             self.buttons['open_tree'].setEnabled(
                 not self.widgets[key].is_multiple())
-            self.buttons['copy_to_flat'].setEnabled(
-                bool(self.widgets[key].get_value()))
-        elif key == 'keywords':
-            self.buttons['copy_from_flat'].setEnabled(
-                bool(self.widgets[key].get_value()))
 
     def new_selection(self, selection):
         if not selection:
@@ -765,6 +818,9 @@ class TabWidget(QtWidgets.QWidget):
                 self.widgets[key].set_value(None)
             self.setEnabled(False)
             return
+        # sync flat and hierarchical keywords
+        self.sync_nested_from_flat(selection, silent=True)
+        self.sync_flat_from_nested(selection, silent=True)
         for key in self.widgets:
             self._update_widget(key, selection)
         self.setEnabled(True)

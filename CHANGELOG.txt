@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2024.11.0:
+  1/ Sync of hierarchical and "flat" keywords is now automatic.
+
 Changes in v2024.10.0:
   1/ New hierarchical tags editor.
   2/ Multiple map markers can be selected by multiple clicks.
