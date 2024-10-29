@@ -957,11 +957,11 @@
     </message>
     <message>
         <source>Copy to hierarchy</source>
-        <translation>Copy to hierarchy</translation>
+        <translation type="vanished">Copy to hierarchy</translation>
     </message>
     <message>
         <source>Copy to keywords</source>
-        <translation>Copy to keywords</translation>
+        <translation type="vanished">Copy to keywords</translation>
     </message>
 </context>
 <context>

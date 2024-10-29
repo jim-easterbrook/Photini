@@ -900,8 +900,11 @@ class Metadata(object):
                 self._if.clear_gps()
             if self._sc:
                 self._sc.clear_gps()
-        if not self.dirty:
-            self.dirty = True
+        self.set_changed(True)
+
+    def set_changed(self, changed):
+        if changed != self.dirty:
+            self.dirty = changed
             if self._notify:
                 self._notify(self.dirty)
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="es" sourcelanguage="en_GB" version="2.1">
+<TS version="2.1" language="es" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -965,11 +965,11 @@
     </message>
     <message>
         <source>Copy to hierarchy</source>
-        <translation>Copiar a jerarquía</translation>
+        <translation type="vanished">Copiar a jerarquía</translation>
     </message>
     <message>
         <source>Copy to keywords</source>
-        <translation>Copiar a palabras clave</translation>
+        <translation type="vanished">Copiar a palabras clave</translation>
     </message>
 </context>
 <context>

@@ -20,7 +20,7 @@ Hierarchical keywords are a more recent addition to photography metadata and may
 .. image:: ../images/screenshot_051.png
 
 You can set a list of simple keywords for the image by typing them in the ``Keywords`` box.
-Keywords should be separated by semi-colon (``;``) characters.
+Keywords are separated by semicolon (``;``) characters.
 The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often.
 
 Hierarchical keywords are sequences of words or phrases that describe the subject in descending generality or increasing precision.
@@ -30,12 +30,12 @@ A bird watcher or botanist might want to use the full `Linnaean taxonomy`_.
 
 .. image:: ../images/screenshot_052.png
 
-Hierarchical keywords are added by typing the complete hierarchy, separating terms with ``|`` (pipe) or ``/`` (slash) characters.
+Hierarchical keywords are added by typing the complete hierarchy, separating terms with pipe (``|``) or slash (``/``) characters.
 
 .. image:: ../images/screenshot_053.png
 
 After entering the keyword Photini converts ``/`` characters to ``|`` and displays a field for the next hierarchical keyword.
-Note that all but the last word are shown in italics, for reasons that are explained later.
+Note that each word is shown in italics, for reasons that are explained later.
 
 .. image:: ../images/screenshot_054.png
 
@@ -56,7 +56,7 @@ After choosing one of the suggested keywords you can edit it further if needed.
 
 The ``open tree view`` button opens a dialog that displays all the keywords in your dictionary.
 Each word in a hierarchy is shown as a node with parent and child nodes above and below.
-To rename a node you can double-click on it and then edit the text.
+To rename a node you can double-click on it (or press the ``F2`` key) and then edit the text.
 Deleting the text will delete the node and its children.
 
 When the dialog opens the selected photographs' keywords are highlighted.
@@ -64,27 +64,59 @@ The ``search`` box can be used to find other keywords in the hierarchy.
 
 The ``in photo`` tick boxes allow you to add keywords to the selected photographs by ticking the box, or remove them by unticking the box.
 
+Keyword synchronisation
+-----------------------
+
 .. image:: ../images/screenshot_058.png
 
-The ``copyable`` tick boxes set which keywords can be easily copied between "flat" and hierarchical keywords.
-Initially the last word of each hierarchy is copyable, but in some cases this is unsuitable.
+The ``copyable`` tick boxes set which keywords are automatically copied between "flat" and hierarchical keywords.
+Typically the last word of each hierarchy is copyable, but in some cases this is unsuitable.
 For example, "20th century" and "summer 2012" are almost meaningless outside their hierarchical context.
 On the other hand, a country name is usually not the last word in a hierarchy, but is meaningful in isolation.
 
 .. image:: ../images/screenshot_059.png
 
-After editing the keywords' ``copyable`` setting, the ones that are no longer copyable are shown in italics.
+After editing the keywords' ``copyable`` setting, the ones that are copyable are no longer shown in italics.
+Note that as "Château-Gontier" is now copyable, it has been automatically added to the "flat" keywords.
 
 .. image:: ../images/screenshot_060.png
 
-The ``copy to hierarchy`` button searches your keyword dictionary for any of the words in the "flat" keyword list, and copies all that are copyable.
-In this case it has copied both "places|France" and "places|France|Château-Gontier".
-Only the latter is needed so the former can be deleted.
+The ``copyable`` status of a keyword can also be set by preceding it with an asterisk (``*``) when typing in the keyword hierarchy.
 
 .. image:: ../images/screenshot_061.png
 
-The ``copy to keywords`` button copies the copyable words in your hierarchical keywords to the "flat" keywords list.
-In this case both "France" and "Château-Gontier" are copyable so one hierarchical keyword has generated two flat keywords.
+The words "waterway" and "La Mayenne" are immediately marked as copyable.
+(And hence copied to the "flat" keywords.)
+
+.. image:: ../images/screenshot_062.png
+
+When a copyable keyword is added to the "flat" keywords...
+
+.. image:: ../images/screenshot_063.png
+
+...the corresponding hierarchical keyword is automatically added.
+Note that as "France" is also copyable, it is added to the flat keywords.
+
+.. image:: ../images/screenshot_064.png
+
+When a hierarchical keyword is added...
+
+.. image:: ../images/screenshot_065.png
+
+...its copyable keywords are automatically added to the "flat" keywords.
+
+Ambiguous keywords
+^^^^^^^^^^^^^^^^^^
+
+.. |pipe| unicode:: 0x7C
+    :trim:
+
+The automatic synchronisation of "flat" and hierarchical keywords discussed above can fail if a flat keyword occurs more than once in your personal hierarchical keyword dictionary.
+For example, if your dictionary contains both "*places* |pipe| *France* |pipe| Paris" and "*places* |pipe| *USA* |pipe| *Texas* |pipe| Paris" then the single word "Paris" has two matching hierarchical keywords.
+
+When this happens Photini searches the flat keywords for other words in the hierarchies.
+For example, if the flat keywords contain "USA" or "Texas" but not "France" then the choice is obvious.
+If the ambiguity cannot be resolved then the flat keyword is not copied to the hierarchical keywords.
 
 
 .. _Linnaean taxonomy: https://en.wikipedia.org/wiki/Linnaean_taxonomy

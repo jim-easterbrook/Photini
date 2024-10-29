@@ -51,7 +51,7 @@ def extract_program_strings(root):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
-    # remove extra plurals not used by Qt
+    # remove extra plurals required by Transifex
     numerus_count = {'cs': 3, 'es': 2, 'fr': 2, 'it': 2, 'pl': 3}
     for path in outputs:
         if 'templates' in path or not os.path.exists(path):
@@ -87,9 +87,9 @@ def extract_program_strings(root):
         result = subprocess.call(cmd)
         if result:
             return result
-    if args.qt:
+    if not args.transifex:
         return 0
-    # restore extra plurals not used by Qt
+    # add extra plurals required by Transifex
     numerus_count = {'cs': 4, 'es': 3, 'fr': 3, 'it': 3, 'pl': 4}
     unused = ET.Element('numerusform')
     unused.text = 'Unused'
@@ -189,10 +189,10 @@ def main(argv=None):
                         help='language code, e.g. nl or cs_CZ')
     parser.add_argument('-p', '--purge', action='store_true',
                         help='remove obsolete strings')
-    parser.add_argument('-q', '--qt', action='store_true',
-                        help='prepare files for Qt linguist')
     parser.add_argument('-s', '--strip', action='store_true',
                         help='remove line numbers')
+    parser.add_argument('-t', '--transifex', action='store_true',
+                        help='prepare files for Transifex')
     args = parser.parse_args()
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     if args.docs:

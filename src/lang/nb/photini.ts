@@ -987,14 +987,6 @@
         <source>Open tree view</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Copy to hierarchy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy to keywords</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>LangAltWidget</name>

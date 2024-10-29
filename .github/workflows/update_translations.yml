@@ -6,11 +6,10 @@ on:
       - main
     paths:
       - 'src/lang/**'
-      - 'transifex.yml'
 
 jobs:
   update-weblate:
-    name: Merge main into weblate & transifex
+    name: Merge main into weblate
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -22,10 +21,3 @@ jobs:
           github_token: ${{ github.token }}
           source: 'main'
           target: 'weblate'
-
-      - name: transifex
-        uses: mtanzi/action-automerge@v1
-        with:
-          github_token: ${{ github.token }}
-          source: 'main'
-          target: 'transifex'
