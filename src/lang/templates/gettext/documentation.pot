@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2024.10.0.post20\n"
+"Project-Id-Version: Photini 2024.10.0.post27\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-26 16:35+0100\n"
+"POT-Creation-Date: 2024-11-04 17:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -547,13 +547,16 @@ msgstr ""
 msgid "Note that Photini stores a different target format for each camera or source folder that you use. This can be useful if you have two cameras that use the same file names. For example, I use ``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/100D_{name}`` for my DSLR to rename files from ``IMG_9999.JPG`` to ``100D_IMG_9999.JPG`` so they don't clash with files from my compact camera, which also uses names like ``IMG_9999.JPG``."
 msgstr ""
 
-msgid "After connecting one or more cameras and pressing the ``refresh`` button, a camera can be chosen from the ``<select source>`` drop down list. Photini then fetches a list of all the files stored on the camera, which can take some time."
+msgid "After connecting one or more cameras, one of them can be chosen from the ``<select source>`` drop down list. Photini then fetches a list of all the files stored on the camera, which can take some time."
 msgstr ""
 
 msgid "The drop down list also includes the most recent source folders you have used. Click on ``<add a folder>`` to add a new source folder to the list. Photini lists all the image files in the source folder and all its sub-folders, so take care to navigate down to the folder containing the photos you want, to avoid including too many other files."
 msgstr ""
 
 msgid "The list is displayed in the central area, with the location where the file would be stored. It is sorted by name or date, as selected by the buttons below the image thumbnail area."
+msgstr ""
+
+msgid "The ``refresh`` button regenerates the file list, which may be useful if you use another program to add files to the current folder."
 msgstr ""
 
 msgid "When the ``Target format`` has been set to match where previous images were put, images that have already been copied to the computer are non selectable (shown in light grey)."

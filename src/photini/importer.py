@@ -287,6 +287,17 @@ class PathFormatValidator(QtGui.QValidator):
         return os.path.abspath(inp)
 
 
+class SourceSelector(ComboBox):
+    def __init__(self, importer_tab, *arg, **kw):
+        super(SourceSelector, self).__init__(*arg, **kw)
+        self.importer_tab = importer_tab
+
+    def showPopup(self):
+        # refresh list of cameras
+        self.importer_tab.refresh()
+        super(SourceSelector, self).showPopup()
+
+
 class ImporterTab(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
@@ -316,7 +327,7 @@ class ImporterTab(QtWidgets.QWidget):
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
-        self.source_selector = ComboBox()
+        self.source_selector = SourceSelector(self)
         self.source_selector.currentIndexChanged.connect(self.new_source)
         self.source_selector.setContextMenuPolicy(
             Qt.ContextMenuPolicy.CustomContextMenu)
@@ -325,7 +336,7 @@ class ImporterTab(QtWidgets.QWidget):
         box.addWidget(self.source_selector)
         refresh_button = QtWidgets.QPushButton(
             translate('ImporterTab', 'refresh'))
-        refresh_button.clicked.connect(self.refresh)
+        refresh_button.clicked.connect(self.list_files)
         box.addWidget(refresh_button)
         box.setStretch(0, 1)
         form.addRow(translate('ImporterTab', 'Source'), box)

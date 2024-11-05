@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-19  Jim Easterbrook.
+   Copyright (C)  2012-24  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Image importer
@@ -41,7 +41,7 @@ For example, I use ``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/100D_{name}`` fo
 
 .. image:: ../images/screenshot_180.png
 
-After connecting one or more cameras and pressing the ``refresh`` button, a camera can be chosen from the ``<select source>`` drop down list.
+After connecting one or more cameras, one of them can be chosen from the ``<select source>`` drop down list.
 Photini then fetches a list of all the files stored on the camera, which can take some time.
 
 The drop down list also includes the most recent source folders you have used.
@@ -52,6 +52,8 @@ The list is displayed in the central area, with the location where the file woul
 It is sorted by name or date, as selected by the buttons below the image thumbnail area. 
 
 .. image:: ../images/screenshot_181.png
+
+The ``refresh`` button regenerates the file list, which may be useful if you use another program to add files to the current folder.
 
 When the ``Target format`` has been set to match where previous images were put, images that have already been copied to the computer are non selectable (shown in light grey).
 
