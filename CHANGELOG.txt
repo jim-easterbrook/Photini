@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2024.11.1:
+  1/ Fix bug with case insensitivity of hierarchical keywords.
+
 Changes in v2024.11.0:
   1/ Sync of hierarchical and "flat" keywords is now automatic.
   2/ Importer "refresh" button now reloads file list.
