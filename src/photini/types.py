@@ -1861,6 +1861,10 @@ class ImageRegionItem(MD_Structure):
             return cls(file_value)
         # Convert Exif.Photo.SubjectArea to an image region. See
         # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
+        # Later the above was deprecated. See
+        # https://www.iptc.org/std/photometadata/documentation/userguide/#_note_about_the_exif_subjectarea_and_the_iptc_image_region
+        # I'm leaving this in for now as it's a one way mapping so should be
+        # mostly harmless.
         if len(file_value) == 2:
             region = {'Iptc4xmpExt:rbShape': 'polygon',
                       'Iptc4xmpExt:rbVertices': [{
