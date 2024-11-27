@@ -529,6 +529,17 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 scene.addItem(item)
             scene.setSceneRect(item.boundingRect())
 
+    @staticmethod
+    def nearest_aspect(width, height):
+        aspect = width / height
+        candidates = (4.0 / 3.0, 3.0 / 2.0, 16.0 / 9.0)
+        lo = candidates[0]
+        for hi in candidates[1:]:
+            if aspect <= math.sqrt(lo * hi):
+                return lo
+            lo = hi
+        return candidates[-1]
+
     @QtSlot(int, list)
     @catch_all
     def draw_boundaries(self, idx, regions):
@@ -547,12 +558,16 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
                 aspect_ratio = 0.0
+                width = boundary['Iptc4xmpExt:rbW']
+                height = boundary['Iptc4xmpExt:rbH']
+                if self.transform().isRotating():
+                    width, height = height, width
                 if region.has_role('imgregrole:squareCropping'):
                     aspect_ratio = 1.0
                 elif region.has_role('imgregrole:landscapeCropping'):
-                    aspect_ratio = 16.0 / 9.0
+                    aspect_ratio = self.nearest_aspect(width, height)
                 elif region.has_role('imgregrole:portraitCropping'):
-                    aspect_ratio = 9.0 / 16.0
+                    aspect_ratio = 1.0 / self.nearest_aspect(height, width)
                 if aspect_ratio and self.transform().isRotating():
                     aspect_ratio = 1.0 / aspect_ratio
                 boundary = RectangleRegion(
