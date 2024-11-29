@@ -175,16 +175,13 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         super(RectangleRegion, self).mouseReleaseEvent(event)
         self.new_boundary()
 
-    @staticmethod
-    def nearest_aspect(width, height):
+    @classmethod
+    def nearest_aspect(cls, width, height):
         aspect = abs(width / height)
-        candidates = (4.0 / 3.0, 3.0 / 2.0, 16.0 / 9.0)
-        lo = candidates[0]
-        for hi in candidates[1:]:
-            if aspect <= math.sqrt(lo * hi):
-                return lo
-            lo = hi
-        return candidates[-1]
+        for idx, boundary in enumerate(cls.ar_thresholds):
+            if aspect <= boundary:
+                return cls.aspect_ratios[idx]
+        return cls.aspect_ratios[-1]
 
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
@@ -249,6 +246,13 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
             self.handles[1].setPos(rect.topRight())
             self.handles[2].setPos(rect.bottomLeft())
             self.handles[3].setPos(rect.bottomRight())
+
+    aspect_ratios = (4.0 / 3.0, 3.0 / 2.0, 16.0 / 9.0)
+
+RectangleRegion.ar_thresholds = [
+    math.sqrt(RectangleRegion.aspect_ratios[x-1] *
+              RectangleRegion.aspect_ratios[x])
+    for x in range(1, len(RectangleRegion.aspect_ratios))]
 
 
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
