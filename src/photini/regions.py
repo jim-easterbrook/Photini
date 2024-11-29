@@ -127,11 +127,11 @@ class RegionMixin(object):
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
     def __init__(self, region, display_widget, draw_unit, active,
-                 aspect_ratio=0.0, *arg, **kw):
+                 constraint=None, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        self.aspect_ratio = aspect_ratio
+        self.constraint = constraint
         self.handles = []
         if active:
             for idx in range(4):
@@ -149,7 +149,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
     def itemChange(self, change, value):
         scene = self.scene()
         if scene and change == self.GraphicsItemChange.ItemSceneHasChanged:
-            if self.aspect_ratio:
+            if self.constraint:
                 self.handle_drag(self.handles[3], self.handles[3].pos())
             return
         if scene and change == self.GraphicsItemChange.ItemPositionChange:
@@ -175,16 +175,33 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         super(RectangleRegion, self).mouseReleaseEvent(event)
         self.new_boundary()
 
+    @staticmethod
+    def nearest_aspect(width, height):
+        aspect = abs(width / height)
+        candidates = (4.0 / 3.0, 3.0 / 2.0, 16.0 / 9.0)
+        lo = candidates[0]
+        for hi in candidates[1:]:
+            if aspect <= math.sqrt(lo * hi):
+                return lo
+            lo = hi
+        return candidates[-1]
+
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
         anchor = self.handles[3-idx].pos()
         rect = QtCore.QRectF(anchor, pos)
-        if self.aspect_ratio:
+        if self.constraint:
             # enlarge rectangle to correct aspect ratio
             w = rect.width()
             h = rect.height()
-            w_new = abs(h * self.aspect_ratio)
-            h_new = abs(w / self.aspect_ratio)
+            if self.constraint == 'square':
+                aspect_ratio = 1.0
+            elif self.constraint == 'landscape':
+                aspect_ratio = self.nearest_aspect(w, h)
+            elif self.constraint == 'portrait':
+                aspect_ratio = 1.0 / self.nearest_aspect(h, w)
+            w_new = abs(h * aspect_ratio)
+            h_new = abs(w / aspect_ratio)
             if h_new < abs(h):
                 rect.setWidth(w_new * abs(w) / w)
             else:
@@ -200,12 +217,12 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
                     min(max(pos.x(), bounds.x()), bounds.right()),
                     min(max(pos.y(), bounds.y()), bounds.bottom()))
                 rect = QtCore.QRectF(anchor, pos)
-                if self.aspect_ratio:
+                if self.constraint:
                     # shrink rectangle to correct aspect ratio
                     w = rect.width()
                     h = rect.height()
-                    w_new = abs(h * self.aspect_ratio)
-                    h_new = abs(w / self.aspect_ratio)
+                    w_new = abs(h * aspect_ratio)
+                    h_new = abs(w / aspect_ratio)
                     if h_new > abs(h):
                         rect.setWidth(w_new * abs(w) / w)
                     else:
@@ -529,17 +546,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 scene.addItem(item)
             scene.setSceneRect(item.boundingRect())
 
-    @staticmethod
-    def nearest_aspect(width, height):
-        aspect = width / height
-        candidates = (4.0 / 3.0, 3.0 / 2.0, 16.0 / 9.0)
-        lo = candidates[0]
-        for hi in candidates[1:]:
-            if aspect <= math.sqrt(lo * hi):
-                return lo
-            lo = hi
-        return candidates[-1]
-
     @QtSlot(int, list)
     @catch_all
     def draw_boundaries(self, idx, regions):
@@ -557,21 +563,22 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             active = n == idx
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                aspect_ratio = 0.0
-                width = boundary['Iptc4xmpExt:rbW']
-                height = boundary['Iptc4xmpExt:rbH']
-                if self.transform().isRotating():
-                    width, height = height, width
                 if region.has_role('imgregrole:squareCropping'):
-                    aspect_ratio = 1.0
+                    constraint = 'square'
                 elif region.has_role('imgregrole:landscapeCropping'):
-                    aspect_ratio = self.nearest_aspect(width, height)
+                    if self.transform().isRotating():
+                        constraint = 'portrait'
+                    else:
+                        constraint = 'landscape'
                 elif region.has_role('imgregrole:portraitCropping'):
-                    aspect_ratio = 1.0 / self.nearest_aspect(height, width)
-                if aspect_ratio and self.transform().isRotating():
-                    aspect_ratio = 1.0 / aspect_ratio
+                    if self.transform().isRotating():
+                        constraint = 'landscape'
+                    else:
+                        constraint = 'portrait'
+                else:
+                    constraint = None
                 boundary = RectangleRegion(
-                    region, self, draw_unit, active, aspect_ratio=aspect_ratio)
+                    region, self, draw_unit, active, constraint=constraint)
             elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
                 boundary = CircleRegion(region, self, draw_unit, active)
             elif len(boundary['Iptc4xmpExt:rbVertices']) == 1:
