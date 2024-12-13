@@ -1850,7 +1850,9 @@ class ImageRegionItem(MD_Structure):
         'Iptc4xmpExt:PersonInImage': MD_MultiString,
         'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
         'photoshop:CaptionWriter': MD_String,
+        'dc:creator': MD_MultiString,
         'dc:description': MD_LangAlt,
+        'dc:subject': MD_MultiString,
         'xmpRights:UsageTerms': MD_LangAlt,
         }
 
@@ -1860,8 +1862,7 @@ class ImageRegionItem(MD_Structure):
             return None
         if tag == 'Xmp.iptcExt.ImageRegion':
             return cls(file_value)
-        if tag == 'Xmp.mwg-rs.Regions':
-            pprint.pprint(file_value)
+        if tag == 'Xmp.mwg-rs.Regions*':
             # convert MWG region data to IPTC format
             area = file_value['mwg-rs:Area']
             x = float(area['stArea:x'])
@@ -1906,8 +1907,12 @@ class ImageRegionItem(MD_Structure):
             if 'mwg-rs:Extensions' in file_value:
                 region.update(file_value['mwg-rs:Extensions'])
             if 'rdfs:seeAlso' in file_value:
-                logger.warning('MWG image region refers to other data: %s',
-                               file_value['rdfs:seeAlso'])
+                key = file_value['rdfs:seeAlso']
+                if key in file_value:
+                    region[key] = file_value[key]
+                else:
+                    logger.warning(
+                        'MWG image region refers to other data: %s', key)
             return cls(region)
         if tag == 'Exif.Photo.SubjectArea':
             # Convert Exif.Photo.SubjectArea to an image region. See
@@ -1983,8 +1988,14 @@ class MD_ImageRegion(MD_StructArray):
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return cls()
-        if 'mwg' in tag:
-            file_value = file_value['mwg-rs:RegionList']
+        if tag == 'Xmp.mwg-rs.Regions*':
+            if not file_value[0]:
+                return None
+            new_value = file_value[0]['mwg-rs:RegionList']
+            for value in new_value:
+                value['Iptc4xmpExt:PersonInImage'] = file_value[1]
+                value['dc:subject'] = file_value[2]
+            file_value = new_value
         # Exif and IPTC only store one item, XMP stores any number
         if tag.startswith('Xmp'):
             file_value = [cls.item_type.from_exiv2(x, tag) for x in file_value]

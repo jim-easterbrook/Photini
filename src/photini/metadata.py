@@ -352,6 +352,9 @@ class ImageMetadata(MetadataHandler):
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
+        'Xmp.mwg-rs.Regions*': (
+            'Xmp.mwg-rs.Regions', 'Xmp.iptcExt.PersonInImage',
+            'Xmp.dc.subject'),
         'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmpRights.*': (
@@ -445,7 +448,7 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.Headline')),
         'image_region'   : (('WN', 'Exif.Photo.SubjectArea'),
                             ('WA', 'Xmp.iptcExt.ImageRegion'),
-                            ('WN', 'Xmp.mwg-rs.Regions')),
+                            ('WN', 'Xmp.mwg-rs.Regions*')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
                             ('WA', 'Iptc.Application2.SpecialInstructions')),
         'keywords'       : (('WA', 'Xmp.dc.subject'),
