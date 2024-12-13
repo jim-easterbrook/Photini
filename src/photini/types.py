@@ -1851,44 +1851,96 @@ class ImageRegionItem(MD_Structure):
         'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
         'photoshop:CaptionWriter': MD_String,
         'dc:description': MD_LangAlt,
+        'xmpRights:UsageTerms': MD_LangAlt,
         }
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
-        if tag.startswith('Xmp'):
+        if tag == 'Xmp.iptcExt.ImageRegion':
             return cls(file_value)
-        # Convert Exif.Photo.SubjectArea to an image region. See
-        # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
-        # Later the above was deprecated. See
-        # https://www.iptc.org/std/photometadata/documentation/userguide/#_note_about_the_exif_subjectarea_and_the_iptc_image_region
-        # I'm leaving this in for now as it's a one way mapping so should be
-        # mostly harmless.
-        if len(file_value) == 2:
-            region = {'Iptc4xmpExt:rbShape': 'polygon',
-                      'Iptc4xmpExt:rbVertices': [{
+        if tag == 'Xmp.mwg-rs.Regions':
+            pprint.pprint(file_value)
+            # convert MWG region data to IPTC format
+            area = file_value['mwg-rs:Area']
+            x = float(area['stArea:x'])
+            y = float(area['stArea:y'])
+            if 'stArea:h' in area:
+                # rectangle
+                w = float(area['stArea:w'])
+                h = float(area['stArea:h'])
+                region = {'Iptc4xmpExt:rbShape': 'rectangle',
+                          'Iptc4xmpExt:rbX': x - (w / 2),
+                          'Iptc4xmpExt:rbY': y - (h / 2),
+                          'Iptc4xmpExt:rbW': w,
+                          'Iptc4xmpExt:rbH': h}
+            elif 'stArea:d' in area:
+                # circle
+                # TODO: d is relative to smaller of image w & h,
+                # IPTC radius is along X axis
+                d = float(area['stArea:d'])
+                region = {'Iptc4xmpExt:rbShape': 'circle',
+                          'Iptc4xmpExt:rbX': x,
+                          'Iptc4xmpExt:rbY': y,
+                          'Iptc4xmpExt:rbRx': d / 2}
+            else:
+                # point
+                region = {'Iptc4xmpExt:rbShape': 'polygon',
+                          'Iptc4xmpExt:rbVertices': [{
+                              'Iptc4xmpExt:rbX': x,
+                              'Iptc4xmpExt:rbY': y}]}
+            if area['stArea:unit'] == 'normalized':
+                region['Iptc4xmpExt:rbUnit'] = 'relative'
+            else:
+                raise ValueError('Unrecognised stArea:unit value "{}"'.format(
+                    area['stArea:unit']))
+            region = {'Iptc4xmpExt:RegionBoundary': region}
+            if 'mwg-rs:Type' in file_value:
+                region['Iptc4xmpExt:rCtype'] = [{
+                    'Iptc4xmpExt:Name': {'en-GB': file_value['mwg-rs:Type']}}]
+            if 'mwg-rs:Name' in file_value:
+                region['Iptc4xmpExt:Name'] = file_value['mwg-rs:Name']
+            if 'mwg-rs:Description' in file_value:
+                region['dc:description'] = file_value['mwg-rs:Description']
+            if 'mwg-rs:Extensions' in file_value:
+                region.update(file_value['mwg-rs:Extensions'])
+            if 'rdfs:seeAlso' in file_value:
+                logger.warning('MWG image region refers to other data: %s',
+                               file_value['rdfs:seeAlso'])
+            return cls(region)
+        if tag == 'Exif.Photo.SubjectArea':
+            # Convert Exif.Photo.SubjectArea to an image region. See
+            # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
+            # Later the above was deprecated. See
+            # https://www.iptc.org/std/photometadata/documentation/userguide/#_note_about_the_exif_subjectarea_and_the_iptc_image_region
+            # I'm leaving this in for now as it's a one way mapping so should be
+            # mostly harmless.
+            if len(file_value) == 2:
+                region = {'Iptc4xmpExt:rbShape': 'polygon',
+                          'Iptc4xmpExt:rbVertices': [{
+                              'Iptc4xmpExt:rbX': file_value[0],
+                              'Iptc4xmpExt:rbY': file_value[1]}]}
+            elif len(file_value) == 3:
+                region = {'Iptc4xmpExt:rbShape': 'circle',
                           'Iptc4xmpExt:rbX': file_value[0],
-                          'Iptc4xmpExt:rbY': file_value[1]}]}
-        elif len(file_value) == 3:
-            region = {'Iptc4xmpExt:rbShape': 'circle',
-                      'Iptc4xmpExt:rbX': file_value[0],
-                      'Iptc4xmpExt:rbY': file_value[1],
-                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
-        elif len(file_value) == 4:
-            region = {'Iptc4xmpExt:rbShape': 'rectangle',
-                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
-                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
-                      'Iptc4xmpExt:rbW': file_value[2],
-                      'Iptc4xmpExt:rbH': file_value[3]}
-        else:
-            return None
-        region['Iptc4xmpExt:rbUnit'] = 'pixel'
-        return cls({
-            'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [image_region_roles[
-                image_region_roles_idx['imgregrole:mainSubjectArea']]['data']],
-            })
+                          'Iptc4xmpExt:rbY': file_value[1],
+                          'Iptc4xmpExt:rbRx': file_value[2] // 2}
+            elif len(file_value) == 4:
+                region = {'Iptc4xmpExt:rbShape': 'rectangle',
+                          'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
+                          'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
+                          'Iptc4xmpExt:rbW': file_value[2],
+                          'Iptc4xmpExt:rbH': file_value[3]}
+            else:
+                return None
+            region['Iptc4xmpExt:rbUnit'] = 'pixel'
+            return cls({
+                'Iptc4xmpExt:RegionBoundary': region,
+                'Iptc4xmpExt:rRole': [image_region_roles[
+                    image_region_roles_idx['imgregrole:mainSubjectArea']]['data']],
+                })
+        return None
 
     def has_uid(self, key, uid):
         if key not in self:
@@ -1926,6 +1978,19 @@ class ImageRegionItem(MD_Structure):
 
 class MD_ImageRegion(MD_StructArray):
     item_type = ImageRegionItem
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        if 'mwg' in tag:
+            file_value = file_value['mwg-rs:RegionList']
+        # Exif and IPTC only store one item, XMP stores any number
+        if tag.startswith('Xmp'):
+            file_value = [cls.item_type.from_exiv2(x, tag) for x in file_value]
+        else:
+            file_value = [cls.item_type.from_exiv2(file_value, tag)]
+        return cls(file_value)
 
     def new_region(self, region, idx=None):
         if idx is None:
