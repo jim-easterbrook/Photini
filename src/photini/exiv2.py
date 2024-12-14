@@ -486,7 +486,7 @@ class MetadataHandler(object):
         else:
             result[root] = value
 
-    def get_xmp_value(self, tag):
+    def get_xmp_value(self, tag, see_also_count=2):
         # XMP has a nested structure of arbitrary depth. Exiv2 converts
         # this to "flat" tag names. This method converts back to nested
         # dicts and lists.
@@ -512,9 +512,13 @@ class MetadataHandler(object):
                 if array_type == exiv2.XmpValue.XmpArrayType.xaNone:
                     value = str(value)
                     if key.endswith('/rdfs:seeAlso'):
-                        sub_key = 'Xmp.' + value.replace(':', '.')
-                        sub_key = sub_key.replace('Iptc4xmpExt', 'iptcExt')
-                        value = {value: self.get_xmp_value(sub_key)}
+                        if see_also_count > 0:
+                            sub_key = 'Xmp.' + value.replace(':', '.')
+                            sub_key = sub_key.replace('Iptc4xmpExt', 'iptcExt')
+                            value = {value: self.get_xmp_value(
+                                sub_key, see_also_count=see_also_count-1)}
+                        else:
+                            value = {}
                 else:
                     value = []
                     type_id = {
