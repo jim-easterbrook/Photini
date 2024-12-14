@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -511,6 +511,10 @@ class MetadataHandler(object):
                 array_type = value.xmpArrayType()
                 if array_type == exiv2.XmpValue.XmpArrayType.xaNone:
                     value = str(value)
+                    if key.endswith('/rdfs:seeAlso'):
+                        sub_key = 'Xmp.' + value.replace(':', '.')
+                        sub_key = sub_key.replace('Iptc4xmpExt', 'iptcExt')
+                        value = {value: self.get_xmp_value(sub_key)}
                 else:
                     value = []
                     type_id = {
