@@ -1861,7 +1861,7 @@ class ImageRegionItem(MD_Structure):
         return cls(file_value)
 
     @classmethod
-    def from_MWG(cls, file_value):
+    def from_MWG(cls, file_value, scale_diameter):
         if not file_value:
             return None
         # convert MWG region data to IPTC format
@@ -1884,9 +1884,7 @@ class ImageRegionItem(MD_Structure):
             boundary['Iptc4xmpExt:rbH'] = h
         elif 'stArea:d' in area:
             # circle
-            # TODO: d is relative to smaller of image w & h,
-            # IPTC radius is along X axis
-            d = float(area['stArea:d'])
+            d = float(area['stArea:d']) * scale_diameter
             boundary['Iptc4xmpExt:rbShape'] = 'circle'
             boundary['Iptc4xmpExt:rbX'] = x
             boundary['Iptc4xmpExt:rbY'] = y
@@ -2009,9 +2007,11 @@ class MD_ImageRegion(MD_Structure):
             value = {'RegionList': [ImageRegionItem.from_IPTC(x)
                                     for x in file_value]}
         elif tag == 'Xmp.mwg-rs.Regions':
+            dims = AppliedToDimensions(file_value['mwg-rs:AppliedToDimensions'])
+            scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
             value = {
-                'AppliedToDimensions': file_value['mwg-rs:AppliedToDimensions'],
-                'RegionList': [ImageRegionItem.from_MWG(x)
+                'AppliedToDimensions': dims,
+                'RegionList': [ImageRegionItem.from_MWG(x, scale_diameter)
                                for x in file_value['mwg-rs:RegionList']]}
         elif tag == 'Exif.Photo.SubjectArea':
             value = {'RegionList': [ImageRegionItem.from_Exif(file_value)]}
