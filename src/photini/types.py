@@ -2026,6 +2026,12 @@ class MD_ImageRegion(MD_Structure):
     def __len__(self):
         return len(self['RegionList'])
 
+    def get_dimensions(self):
+        dims = self['AppliedToDimensions']
+        if dims:
+            return {'w': dims['stDim:w'], 'h': dims['stDim:h']}
+        return {}
+
     def new_region(self, region, idx=None):
         if idx is None:
             idx = len(self)

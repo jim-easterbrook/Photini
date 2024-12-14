@@ -537,6 +537,23 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 else:
                     transform = QtGui.QTransform()
                 w_im, h_im = pixmap.width(), pixmap.height()
+                if image.metadata.image_region:
+                    dims = image.metadata.image_region.get_dimensions()
+                    if dims and (dims['w'] != w_im or dims['h'] != h_im):
+                        dialog = QtWidgets.QMessageBox(parent=self)
+                        dialog.setWindowTitle(
+                            translate('RegionsTab', 'Photini: image size'))
+                        dialog.setText('<h3>{}</h3>'.format(
+                            translate('RegionsTab', 'Image has been resized.')))
+                        dialog.setInformativeText(translate(
+                            'RegionsTab', 'Image dimensions {w_im}x{h_im} do'
+                            ' not match region definition {w_reg}x{h_reg}. The'
+                            ' image regions may be incorrect.').format(
+                                w_im=w_im, h_im=h_im,
+                                w_reg=dims['w'], h_reg=dims['h']))
+                        dialog.setStandardButtons(dialog.StandardButton.Ok)
+                        dialog.setIcon(dialog.Icon.Warning)
+                        execute(dialog)
                 w_sc, h_sc = rect.width(), rect.height()
                 if w_im * h_sc < h_im * w_sc:
                     w_sc -= self.verticalScrollBar().sizeHint().width()
