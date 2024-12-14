@@ -1981,34 +1981,45 @@ class RegionList(MD_StructArray):
     item_type = ImageRegionItem
 
 
-class MD_ImageRegion(MD_Structure):
+class AppliedToDimensions(MD_Structure):
     item_type = {
-        'RegionList': RegionList,
+        'stDim:w': MD_Int,
+        'stDim:h': MD_Int,
+        'stDim:unit': MD_String,
         }
 
     def __new__(cls, value=None):
-        if value is None:
-            value = {'RegionList': RegionList()}
-        return super(MD_ImageRegion, cls).__new__(cls, value)
+        if value and value['stDim:unit'] != 'pixel':
+            raise ValueError('Unrecognised stDim:unit value "{}"'.format(
+                value['stDim:unit']))
+        return super(AppliedToDimensions, cls).__new__(cls, value)
+
+
+class MD_ImageRegion(MD_Structure):
+    item_type = {
+        'AppliedToDimensions': AppliedToDimensions,
+        'RegionList': RegionList,
+        }
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return cls()
         if tag == 'Xmp.iptcExt.ImageRegion':
-            regions = [ImageRegionItem.from_IPTC(x) for x in file_value]
+            value = {'RegionList': [ImageRegionItem.from_IPTC(x)
+                                    for x in file_value]}
         elif tag == 'Xmp.mwg-rs.Regions':
-            pprint.pprint(file_value)
-            regions = [ImageRegionItem.from_MWG(x)
-                       for x in file_value['mwg-rs:RegionList']]
+            value = {
+                'AppliedToDimensions': file_value['mwg-rs:AppliedToDimensions'],
+                'RegionList': [ImageRegionItem.from_MWG(x)
+                               for x in file_value['mwg-rs:RegionList']]}
         elif tag == 'Exif.Photo.SubjectArea':
-            regions = [ImageRegionItem.from_Exif(file_value)]
-        return cls({'RegionList': regions})
+            value = {'RegionList': [ImageRegionItem.from_Exif(file_value)]}
+        else:
+            return cls()
+        return cls(value)
 
     # provide list-like methods for ease of use
-    def __bool__(self):
-        return bool(self['RegionList'])
-
     def __iter__(self):
         return iter(self['RegionList'])
 
@@ -2018,6 +2029,7 @@ class MD_ImageRegion(MD_Structure):
     def new_region(self, region, idx=None):
         if idx is None:
             idx = len(self)
+        dimensions = dict(self['AppliedToDimensions'])
         regions = list(self)
         if region:
             if idx < len(regions):
@@ -2026,7 +2038,8 @@ class MD_ImageRegion(MD_Structure):
                 regions.append(region)
         elif idx < len(regions):
             regions.pop(idx)
-        return MD_ImageRegion({'RegionList': regions})
+        return MD_ImageRegion({
+            'AppliedToDimensions': dimensions, 'RegionList': regions})
 
     def index(self, other):
         if other.has_role('imgregrole:mainSubjectArea'):
