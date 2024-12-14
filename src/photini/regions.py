@@ -530,15 +530,16 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                     translate('RegionsTab', 'Unreadable image format'))
             else:
                 rect = self.contentsRect()
-                orientation = image.metadata.orientation
+                md = image.metadata
+                orientation = md.orientation
                 transform = orientation and orientation.get_transform()
                 if transform:
                     rect = transform.mapRect(rect)
                 else:
                     transform = QtGui.QTransform()
                 w_im, h_im = pixmap.width(), pixmap.height()
-                if image.metadata.image_region:
-                    dims = image.metadata.image_region.get_dimensions()
+                if md.image_region:
+                    dims = md.image_region.get_dimensions()
                     if dims and (dims['w'] != w_im or dims['h'] != h_im):
                         dialog = QtWidgets.QMessageBox(parent=self)
                         dialog.setWindowTitle(
@@ -1066,6 +1067,9 @@ class RegionTabs(QtWidgets.QTabWidget):
             elif key in region:
                 del region[key]
         md.image_region = md.image_region.new_region(region, idx)
+        dims = md.dimensions
+        md.image_region = md.image_region.set_dimensions({
+            'w': dims['width'], 'h': dims['height']})
         if key == 'Iptc4xmpExt:rRole':
             # aspect ratio constraint may have changed
             self.new_regions.emit(idx, list(md.image_region))

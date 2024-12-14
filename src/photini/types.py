@@ -710,7 +710,7 @@ class MD_Structure(MD_Value, dict):
         if other == self:
             return self
         result = dict(self)
-        for key in other:
+        for key in other.keys():
             if not other[key]:
                 continue
             if key in result and result[key]:
@@ -1860,6 +1860,49 @@ class ImageRegionItem(MD_Structure):
     def from_IPTC(cls, file_value):
         return cls(file_value)
 
+    def to_MWG(self, scale_diameter):
+        # convert some IPTC region data to MWG format
+        region = {'mwg-rs:Extensions': {}}
+        for key, value in self.items():
+            if key == 'Iptc4xmpExt:RegionBoundary':
+                if value['Iptc4xmpExt:rbUnit'] != 'relative':
+                    return None
+                area = {'stArea:unit': 'normalized'}
+                if value['Iptc4xmpExt:rbShape'] == 'rectangle':
+                    w = value['Iptc4xmpExt:rbW']
+                    h = value['Iptc4xmpExt:rbH']
+                    area['stArea:x'] = value['Iptc4xmpExt:rbX'] + (w / 2)
+                    area['stArea:y'] = value['Iptc4xmpExt:rbY'] + (h / 2)
+                    area['stArea:w'] = w
+                    area['stArea:h'] = h
+                elif value['Iptc4xmpExt:rbShape'] == 'circle':
+                    area['stArea:x'] = value['Iptc4xmpExt:rbX']
+                    area['stArea:y'] = value['Iptc4xmpExt:rbY']
+                    area['stArea:d'] = value['Iptc4xmpExt:rbRx'] * 2 / scale_diameter
+                elif (value['Iptc4xmpExt:rbShape'] == 'polygon' and
+                      len(value['Iptc4xmpExt:rbVertices']) == 1):
+                    point = value['Iptc4xmpExt:rbVertices'][0]
+                    area['stArea:x'] = point['Iptc4xmpExt:rbX']
+                    area['stArea:y'] = point['Iptc4xmpExt:rbY']
+                else:
+                    return None
+                region['mwg-rs:Area'] = area
+            elif key == 'Iptc4xmpExt:rCtype':
+                for item in value:
+                    type_text, sep, focus_usage = item[
+                        'Iptc4xmpExt:Name']['en-GB'].partition('-')
+                    if type_text in ('Face', 'Pet', 'Focus', 'BarCode'):
+                        region['mwg-rs:Type'] = type_text
+                        region['mwg-rs:FocusUsage'] = focus_usage
+                        break
+            elif key == 'Iptc4xmpExt:Name':
+                region['mwg-rs:Name'] = value.best_match()
+            elif key == 'dc:description':
+                region['mwg-rs:Description'] = value.best_match()
+            else:
+                region['mwg-rs:Extensions'][key] = value
+        return region
+
     @classmethod
     def from_MWG(cls, file_value, scale_diameter):
         if not file_value:
@@ -1896,8 +1939,15 @@ class ImageRegionItem(MD_Structure):
                 'Iptc4xmpExt:rbX': x, 'Iptc4xmpExt:rbY': y}]
         region = {'Iptc4xmpExt:RegionBoundary': boundary}
         if 'mwg-rs:Type' in file_value:
-            region['Iptc4xmpExt:rCtype'] = [{
-                'Iptc4xmpExt:Name': {'en-GB': file_value['mwg-rs:Type']}}]
+            ctype = file_value['mwg-rs:Type']
+            if ctype == 'Focus':
+                if 'mwg-rs:FocusUsage' in file_value:
+                    ctype += '-' + file_value['mwg-rs:FocusUsage']
+                else:
+                    ctype = None
+            if ctype:
+                region['Iptc4xmpExt:rCtype'] = [{
+                    'Iptc4xmpExt:Name': {'en-GB': ctype}}]
         if 'mwg-rs:Name' in file_value:
             region['Iptc4xmpExt:Name'] = file_value['mwg-rs:Name']
         if 'mwg-rs:Description' in file_value:
@@ -1978,6 +2028,21 @@ class ImageRegionItem(MD_Structure):
 class RegionList(MD_StructArray):
     item_type = ImageRegionItem
 
+    def index(self, other):
+        if other.has_role('imgregrole:mainSubjectArea'):
+            # only one main subject area region allowed
+            for n, value in enumerate(self):
+                if value.has_role('imgregrole:mainSubjectArea'):
+                    return n
+            return len(self)
+        for n, value in enumerate(self):
+            match = True
+            for key in ('Iptc4xmpExt:RegionBoundary', 'Iptc4xmpExt:rId'):
+                match = match and value[key] and (value[key] == other[key])
+            if match:
+                return n
+        return len(self)
+
 
 class AppliedToDimensions(MD_Structure):
     item_type = {
@@ -1987,7 +2052,7 @@ class AppliedToDimensions(MD_Structure):
         }
 
     def __new__(cls, value=None):
-        if value and value['stDim:unit'] != 'pixel':
+        if value and value['stDim:unit'] not in ('pixel', ''):
             raise ValueError('Unrecognised stDim:unit value "{}"'.format(
                 value['stDim:unit']))
         return super(AppliedToDimensions, cls).__new__(cls, value)
@@ -2019,7 +2084,26 @@ class MD_ImageRegion(MD_Structure):
             return cls()
         return cls(value)
 
+    def to_exiv2(self, tag):
+        print('to_exiv2', tag)
+        if tag == 'Xmp.iptcExt.ImageRegion':
+            return self['RegionList'].to_exiv2(tag)
+        if tag == 'Xmp.mwg-rs.Regions':
+            dims = self['AppliedToDimensions']
+            scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
+            regions = [x.to_MWG(scale_diameter) for x in self]
+            if not any(regions):
+                return None
+            return {'mwg-rs:AppliedToDimensions': dims.to_exiv2(tag),
+                    'mwg-rs:RegionList': regions}
+        return None
+
     # provide list-like methods for ease of use
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self['RegionList'][key]
+        return super(MD_ImageRegion, self).__getitem__(key)
+
     def __iter__(self):
         return iter(self['RegionList'])
 
@@ -2031,6 +2115,13 @@ class MD_ImageRegion(MD_Structure):
         if dims:
             return {'w': dims['stDim:w'], 'h': dims['stDim:h']}
         return {}
+
+    def set_dimensions(self, dims):
+        dimensions = AppliedToDimensions({
+            'stDim:w': dims['w'], 'stDim:h': dims['h'], 'stDim:unit': 'pixel'})
+        regions = list(self)
+        return MD_ImageRegion({
+            'AppliedToDimensions': dimensions, 'RegionList': regions})
 
     def new_region(self, region, idx=None):
         if idx is None:
@@ -2046,19 +2137,6 @@ class MD_ImageRegion(MD_Structure):
             regions.pop(idx)
         return MD_ImageRegion({
             'AppliedToDimensions': dimensions, 'RegionList': regions})
-
-    def index(self, other):
-        if other.has_role('imgregrole:mainSubjectArea'):
-            # only one main subject area region allowed
-            for n, value in enumerate(self):
-                if value.has_role('imgregrole:mainSubjectArea'):
-                    return True
-            return len(self)
-        for n, value in enumerate(self):
-            for key in ('Iptc4xmpExt:RegionBoundary', 'Iptc4xmpExt:rId'):
-                if value[key] and value[key] == other[key]:
-                    return n
-        return len(self)
 
     @staticmethod
     def boundary_from_note(note, dims, image):

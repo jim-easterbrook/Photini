@@ -445,7 +445,7 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.Headline')),
         'image_region'   : (('WN', 'Exif.Photo.SubjectArea'),
                             ('WA', 'Xmp.iptcExt.ImageRegion'),
-                            ('WN', 'Xmp.mwg-rs.Regions')),
+                            ('WA', 'Xmp.mwg-rs.Regions')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
                             ('WA', 'Iptc.Application2.SpecialInstructions')),
         'keywords'       : (('WA', 'Xmp.dc.subject'),
