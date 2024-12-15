@@ -650,21 +650,29 @@ class EntityConceptWidget(SingleLineEdit):
         self.menu = QtWidgets.QMenu(parent=self)
         self.menu.setToolTipsVisible(True)
         self.actions = []
-        for item in vocab:
+        self.add_separator = False
+        self.add_menu_items(vocab)
+
+    def mousePressEvent(self, event):
+        self.menu.popup(self.mapToGlobal(event.pos()))
+
+    def add_menu_items(self, items, add_separator=True):
+        if self.add_separator:
+            self.menu.addSeparator()
+        self.add_separator = add_separator
+        for item in items:
             label = MD_LangAlt(item['name']).best_match()
             tip = MD_LangAlt(item['definition']).best_match()
             if item['note']:
                 tip += ' ({})'.format(MD_LangAlt(item['note']).best_match())
             action = self.menu.addAction(label)
             action.setCheckable(True)
-            action.setToolTip('<p>{}</p>'.format(tip))
+            if tip:
+                action.setToolTip('<p>{}</p>'.format(tip))
             action.setData(item['data'])
             action.toggled.connect(self.update_display)
             action.triggered.connect(self.action_triggered)
             self.actions.append(action)
-
-    def mousePressEvent(self, event):
-        self.menu.popup(self.mapToGlobal(event.pos()))
 
     @QtSlot(bool)
     @catch_all
@@ -690,41 +698,29 @@ class EntityConceptWidget(SingleLineEdit):
                 action.setChecked(False)
         for item in value:
             found = False
-            if 'xmp:Identifier' in item:
-                for uri in item['xmp:Identifier']:
-                    for action in self.actions:
-                        if uri in action.data()['xmp:Identifier']:
-                            action.setChecked(True)
-                            found = True
-                            break
+            for uri in item['xmp:Identifier']:
+                for action in self.actions:
+                    if uri in action.data()['xmp:Identifier']:
+                        action.setChecked(True)
+                        found = True
+                        break
             if found:
                 continue
-            if 'Iptc4xmpExt:Name' in item:
-                for name in item['Iptc4xmpExt:Name'].values():
-                    for action in self.actions:
-                         if name in action.data()['Iptc4xmpExt:Name'].values():
-                            action.setChecked(True)
-                            found = True
-                            break
+            for name in item['Iptc4xmpExt:Name'].values():
+                for action in self.actions:
+                     if name in action.data()['Iptc4xmpExt:Name'].values():
+                        action.setChecked(True)
+                        found = True
+                        break
             if found:
                 continue
             # add new action
-            data = {'Iptc4xmpExt:Name': {}, 'xmp:Identifier': []}
-            data.update(item)
-            label = data['Iptc4xmpExt:Name'] or {
-                'x-default': '; '.join(data['xmp:Identifier'])}
-            label = MD_LangAlt(label).best_match()
-            if not label:
-                continue
-            action = self.menu.addAction(label)
-            action.setCheckable(True)
-            action.setToolTip('<p>{}</p>'.format(
-                '; '.join(data['xmp:Identifier'])))
-            action.setChecked(True)
-            action.setData(data)
-            action.toggled.connect(self.update_display)
-            action.triggered.connect(self.action_triggered)
-            self.actions.append(action)
+            self.add_menu_items([{
+                'data': item,
+                'definition': None,
+                'name': item[
+                    'Iptc4xmpExt:Name'] or '; '.join(item['xmp:Identifier']),
+                'note': None}], add_separator=False)
         self._updating = False
         self.update_display()
 
