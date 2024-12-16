@@ -778,35 +778,46 @@ class RegionForm(QtWidgets.QScrollArea):
     MWG_region_types = (
         {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Face'},
                   'xmp:Identifier': ('mwg-rs:Type Face',)},
-         'definition': None,
+         'definition': {'en-GB': "Region area for people's faces."},
          'name': {'en-GB': 'Face'},
          'note': None},
         {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Pet'},
                   'xmp:Identifier': ('mwg-rs:Type Pet',)},
-         'definition': None,
+         'definition': {'en-GB': "Region area for pets."},
          'name': {'en-GB': 'Pet'},
          'note': None},
         {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedUsed'},
                   'xmp:Identifier': ('mwg-rs:Type Focus',
                                      'mwg-rs:FocusUsage EvaluatedUsed')},
-         'definition': None,
+         'definition': {'en-GB': "Region area for camera auto-focus regions."
+                        "<br/>EvaluatedUsed specifies that the focus point was"
+                        " considered during focusing and was used in the final"
+                        " image."},
          'name': {'en-GB': 'Focus (EvaluatedUsed)'},
          'note': None},
         {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedNotUsed'},
                   'xmp:Identifier': ('mwg-rs:Type Focus',
                                      'mwg-rs:FocusUsage EvaluatedNotUsed')},
-         'definition': None,
+         'definition': {'en-GB': "Region area for camera auto-focus regions."
+                        "<br/>EvaluatedNotUsed specifies that the focus point"
+                        " was considered during focusing but not utilised in"
+                        " the final image."},
          'name': {'en-GB': 'Focus (EvaluatedNotUsed)'},
          'note': None},
         {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/NotEvaluatedNotUsed'},
                   'xmp:Identifier': ('mwg-rs:Type Focus'
                                      'mwg-rs:FocusUsage NotEvaluatedNotUsed')},
-         'definition': None,
+         'definition': {'en-GB': "Region area for camera auto-focus regions."
+                        "<br/>NotEvaluatedNotUsed specifies that a focus point"
+                        " was not evaluated and not used, e.g. a fixed focus"
+                        " point on the camera which was not used in any"
+                        " fashion."},
          'name': {'en-GB': 'Focus (NotEvaluatedNotUsed)'},
          'note': None},
         {'data': {'Iptc4xmpExt:Name': {'en-GB': 'BarCode'},
                   'xmp:Identifier': ('mwg-rs:Type BarCode',)},
-         'definition': None,
+         'definition': {'en-GB': "One dimensional linear or two dimensional"
+                        " matrix optical code."},
          'name': {'en-GB': 'BarCode'},
          'note': None},
         )
