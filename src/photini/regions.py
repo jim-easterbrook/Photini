@@ -555,6 +555,10 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                         dialog.setStandardButtons(dialog.StandardButton.Ok)
                         dialog.setIcon(dialog.Icon.Warning)
                         execute(dialog)
+                    changed = md.changed()
+                    md.image_region = md.image_region.set_dimensions({
+                        'w': w_im, 'h': h_im})
+                    md.set_changed(changed)
                 w_sc, h_sc = rect.width(), rect.height()
                 if w_im * h_sc < h_im * w_sc:
                     w_sc -= self.verticalScrollBar().sizeHint().width()
@@ -656,10 +660,13 @@ class EntityConceptWidget(SingleLineEdit):
     def mousePressEvent(self, event):
         self.menu.popup(self.mapToGlobal(event.pos()))
 
-    def add_menu_items(self, items, add_separator=True):
+    def add_menu_items(self, items, add_separator=True, exclusive=False):
         if self.add_separator:
             self.menu.addSeparator()
         self.add_separator = add_separator
+        if exclusive:
+            group = QtWidgets.QActionGroup(self)
+            group.setExclusionPolicy(group.ExclusionPolicy.ExclusiveOptional)
         for item in items:
             label = MD_LangAlt(item['name']).best_match()
             tip = MD_LangAlt(item['definition']).best_match()
@@ -667,6 +674,9 @@ class EntityConceptWidget(SingleLineEdit):
                 tip += ' ({})'.format(MD_LangAlt(item['note']).best_match())
             action = self.menu.addAction(label)
             action.setCheckable(True)
+            action.setChecked(True)
+            if exclusive:
+                group.addAction(action)
             if tip:
                 action.setToolTip('<p>{}</p>'.format(tip))
             action.setData(item['data'])
@@ -697,30 +707,17 @@ class EntityConceptWidget(SingleLineEdit):
             if action.isChecked():
                 action.setChecked(False)
         for item in value:
-            found = False
-            for uri in item['xmp:Identifier']:
-                for action in self.actions:
-                    if uri in action.data()['xmp:Identifier']:
-                        action.setChecked(True)
-                        found = True
-                        break
-            if found:
-                continue
-            for name in item['Iptc4xmpExt:Name'].values():
-                for action in self.actions:
-                     if name in action.data()['Iptc4xmpExt:Name'].values():
-                        action.setChecked(True)
-                        found = True
-                        break
-            if found:
-                continue
-            # add new action
-            self.add_menu_items([{
-                'data': item,
-                'definition': None,
-                'name': item[
-                    'Iptc4xmpExt:Name'] or '; '.join(item['xmp:Identifier']),
-                'note': None}], add_separator=False)
+            for action in self.actions:
+                if item == action.data():
+                    action.setChecked(True)
+                    break
+            else:
+                # add new action
+                self.add_menu_items([{
+                    'data': item,
+                    'definition': None,
+                    'name': item['Iptc4xmpExt:Name'],
+                    'note': None}], add_separator=False)
         self._updating = False
         self.update_display()
 
@@ -778,6 +775,41 @@ class UnitSelector(QtWidgets.QWidget):
 
 class RegionForm(QtWidgets.QScrollArea):
     new_value = QtSignal(int, dict)
+    MWG_region_types = (
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Face'},
+                  'xmp:Identifier': ('mwg-rs:Type Face',)},
+         'definition': None,
+         'name': {'en-GB': 'Face'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Pet'},
+                  'xmp:Identifier': ('mwg-rs:Type Pet',)},
+         'definition': None,
+         'name': {'en-GB': 'Pet'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedUsed'},
+                  'xmp:Identifier': ('mwg-rs:Type Focus',
+                                     'mwg-rs:FocusUsage EvaluatedUsed')},
+         'definition': None,
+         'name': {'en-GB': 'Focus (EvaluatedUsed)'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedNotUsed'},
+                  'xmp:Identifier': ('mwg-rs:Type Focus',
+                                     'mwg-rs:FocusUsage EvaluatedNotUsed')},
+         'definition': None,
+         'name': {'en-GB': 'Focus (EvaluatedNotUsed)'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/NotEvaluatedNotUsed'},
+                  'xmp:Identifier': ('mwg-rs:Type Focus'
+                                     'mwg-rs:FocusUsage NotEvaluatedNotUsed')},
+         'definition': None,
+         'name': {'en-GB': 'Focus (NotEvaluatedNotUsed)'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'BarCode'},
+                  'xmp:Identifier': ('mwg-rs:Type BarCode',)},
+         'definition': None,
+         'name': {'en-GB': 'BarCode'},
+         'note': None},
+        )
 
     def __init__(self, idx, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
@@ -830,6 +862,8 @@ class RegionForm(QtWidgets.QScrollArea):
         # content types
         key = 'Iptc4xmpExt:rCtype'
         self.widgets[key] = EntityConceptWidget(key, image_region_types)
+        self.widgets[key].add_menu_items(
+            self.MWG_region_types, exclusive=True)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
@@ -1013,6 +1047,9 @@ class RegionTabs(QtWidgets.QTabWidget):
         region = {'Iptc4xmpExt:RegionBoundary': boundary}
         md = self.image.metadata
         md.image_region = md.image_region.new_region(region)
+        dims = md.dimensions
+        md.image_region = md.image_region.set_dimensions({
+            'w': dims['width'], 'h': dims['height']})
         self.set_image(self.image)
         self.setCurrentIndex(len(md.image_region) - 1)
 
