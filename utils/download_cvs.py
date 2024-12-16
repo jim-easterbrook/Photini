@@ -63,7 +63,7 @@ def main(argv=None):
                         data[uri]['note'].update(concept['note'])
                     data[uri]['qcode'] = concept['qcode']
                     data[uri]['data'] = {
-                        'xmp:Identifier': [concept['uri']],
+                        'xmp:Identifier': (concept['uri'],),
                         'Iptc4xmpExt:Name': concept['prefLabel']}
                 py.write(data_name)
                 py.write(' = \\\n')
