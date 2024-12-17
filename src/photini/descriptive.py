@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -21,7 +20,8 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.widgets import Label, LangAltWidget, MultiLineEdit, Slider
+from photini.widgets import (
+    Label, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -171,6 +171,16 @@ class TabWidget(QtWidgets.QScrollArea):
             Label(translate('DescriptiveTab',
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
+        # people
+        self.widgets['people'] = SingleLineEdit(
+            'people', spell_check=True, multi_string=True)
+
+        self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
+            'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
+            ' image. Separate them with ";" characters.')))
+        self.widgets['people'].new_value.connect(self.new_value)
+        layout.addRow(translate('DescriptiveTab', 'Person(s) shown'),
+                      self.widgets['people'])
         # rating
         self.widgets['rating'] = RatingWidget('rating')
         self.widgets['rating'].new_value.connect(self.new_value)
