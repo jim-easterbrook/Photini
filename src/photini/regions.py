@@ -1111,6 +1111,12 @@ class RegionTabs(QtWidgets.QTabWidget):
             elif key in region:
                 del region[key]
         md.image_region = md.image_region.new_region(region, idx)
+        if 'PersonInImage' in key:
+            people = list(md.people)
+            for name in value:
+                if name not in people:
+                    people.append(name)
+            md.people = people
         dims = md.dimensions
         md.image_region = md.image_region.set_dimensions({
             'w': dims['width'], 'h': dims['height']})

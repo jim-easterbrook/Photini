@@ -800,14 +800,14 @@ class ImageList(QtWidgets.QWidget):
             new_md = image.metadata
             old_md = Metadata(image.path)
             for key in ('title', 'headline', 'description', 'alt_text',
-                        'alt_text_ext', 'rating', 'keywords', 'nested_tags',
-                        'creator', 'creator_title', 'credit_line', 'copyright',
-                        'rights', 'instructions', 'contact_info',
-                        'date_taken', 'date_digitised', 'date_modified',
-                        'orientation', 'camera_model', 'lens_model',
-                        'focal_length', 'focal_length_35', 'aperture',
-                        'gps_info', 'location_taken', 'location_shown',
-                        'image_region', 'thumbnail'):
+                        'alt_text_ext', 'people', 'rating', 'keywords',
+                        'nested_tags', 'creator', 'creator_title',
+                        'credit_line', 'copyright', 'rights', 'instructions',
+                        'contact_info', 'date_taken', 'date_digitised',
+                        'date_modified', 'orientation', 'camera_model',
+                        'lens_model', 'focal_length', 'focal_length_35',
+                        'aperture', 'gps_info', 'location_taken',
+                        'location_shown', 'image_region', 'thumbnail'):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
                     continue
