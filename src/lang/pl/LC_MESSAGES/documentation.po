@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-17 17:10+0000\n"
+"POT-Creation-Date: 2024-12-18 09:03+0000\n"
 "PO-Revision-Date: 2023-04-19 08:54+0000\n"
 "Last-Translator: Dawid Głaz, 2023\n"
 "Language: pl@qtfiletype\n"
@@ -2187,17 +2187,25 @@ msgid ""
 "discusses possible uses of image regions in more detail."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:14
-msgid "The user interface is disabled until one image file is selected."
+#: ../../../doc/manual/regions.rst:12
+msgid ""
+"Photini stores image regions in both IPTC_ and MWG_ (Metadata Working Group)"
+" formats. (Both are stored in the XMP metadata.) The MWG format is older and"
+" less capable than the IPTC format, for example it cannot store polygonal "
+"regions, but it may be compatible with more software."
 msgstr ""
 
 #: ../../../doc/manual/regions.rst:18
+msgid "The user interface is disabled until one image file is selected."
+msgstr ""
+
+#: ../../../doc/manual/regions.rst:22
 msgid ""
 "The image is shown on the right hand side in a scrollable area. On the left "
 "are one or more tabs showing metadata for each image region."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:22
+#: ../../../doc/manual/regions.rst:26
 msgid ""
 "You should avoid using \"raw\" image format photographs as these are often "
 "slightly larger than the intended display size. This could lead to errors in"
@@ -2206,33 +2214,33 @@ msgid ""
 "cases."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:30
+#: ../../../doc/manual/regions.rst:34
 msgid ""
 "To create a new region, click on the |plus| button and select a region "
 "shape. (To delete a region, right-click on its tab and select ``Delete "
 "region``.)"
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:35
+#: ../../../doc/manual/regions.rst:39
 msgid ""
 "The new region (a rectangle in this example) is initially placed at the "
 "centre of the image."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:39
+#: ../../../doc/manual/regions.rst:43
 msgid ""
 "The small squares at each corner of the rectangle can be dragged to change "
 "the size and shape. The entire region can be dragged by clicking within it."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:44
+#: ../../../doc/manual/regions.rst:48
 msgid ""
 "This is made easier if you zoom in by holding down the ``Ctrl`` key while "
 "scrolling with the mouse scroll wheel. (The zoom can also be adjusted with "
 "``Ctrl-Plus`` and ``Ctrl-Minus`` key combinations.)"
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:49
+#: ../../../doc/manual/regions.rst:53
 msgid ""
 "The most important metadata for a region is probably its \"role_\". This is "
 "chosen from a \"controlled vocabulary\" defined by the IPTC. Photini shows "
@@ -2241,48 +2249,60 @@ msgid ""
 "list."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:54
+#: ../../../doc/manual/regions.rst:58
+msgid "Other, less useful, metadata includes a name and identifier for the region."
+msgstr ""
+
+#: ../../../doc/manual/regions.rst:62
 msgid ""
-"Other, less useful, metadata includes a name and identifier for the region. "
 "The `content type`_ is another controlled vocabulary that allows you to say "
-"what's special about the selected area. The most useful of these is probably"
-" ``human``."
+"what's special about the selected area. The upper part shows the IPTC "
+"controlled vocabulary. The most useful of these is probably ``human``. The "
+"lower part shows MWG \"types\". These are primarily intended for use by "
+"automatic systems such as face detectors and camera autofocus."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:60
+#: ../../../doc/manual/regions.rst:70
 msgid ""
-"The IPTC specification allows any other metadata to be attached to a region."
-" Photini includes ``Person shown`` and ``Description``, which I think are "
-"most likely to be useful. Rectangular subject area regions with a "
-"description or person's name attached are used by the :doc:`flickr` and "
-":doc:`ipernity` to create \"notes\". Please let me know if there is anything"
-" you would like to be added."
+"The IPTC and MWG specifications allow any other metadata to be attached to a"
+" region. Photini includes ``Person shown`` and ``Description``, which I "
+"think are most likely to be useful. Names in the ``Person shown`` box are "
+"also added to the :doc:`descriptive_metadata` tab's ``Person(s) shown`` box."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:67
+#: ../../../doc/manual/regions.rst:74
+msgid ""
+"Rectangular subject area regions with a description or person's name "
+"attached are used by the :doc:`flickr` and :doc:`ipernity` to create "
+"\"notes\". Please let me know if there is any other metadata you would like "
+"to be added."
+msgstr ""
+
+#: ../../../doc/manual/regions.rst:79
 msgid ""
 "It can be useful to set cropping regions for an image. Many social media web"
 " sites crop images, typically to square or 16:9 aspect ratio landscape. This"
 " often causes problems such as decapitated bodies."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:71
+#: ../../../doc/manual/regions.rst:83
 msgid ""
 "Note that the unselected region is shown with a blue & yellow dashed "
 "outline. You can select an unselected region by clicking on it."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:76
+#: ../../../doc/manual/regions.rst:88
 msgid ""
 "The polygon region is initially a triangle shape. Right-clicking on one of "
-"its vertices allows a vertex to be added or deleted."
+"its vertices allows a vertex to be added or deleted. Note that polygon "
+"refions are not saved in MWG metadata."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:81
+#: ../../../doc/manual/regions.rst:94
 msgid "A vertex can also be added by right-clicking anywhere within the polygon."
 msgstr ""
 
-#: ../../../doc/manual/regions.rst:85
+#: ../../../doc/manual/regions.rst:98
 msgid ""
 "Vertices can be added to make shapes of arbitrary complexity. Is this useful"
 " for anything?"
@@ -6595,5 +6615,36 @@ msgstr ""
 #~ " then fetches a list of all the"
 #~ " files stored on the camera, which "
 #~ "can take some time."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Other, less useful, metadata includes a "
+#~ "name and identifier for the region. "
+#~ "The `content type`_ is another controlled"
+#~ " vocabulary that allows you to say "
+#~ "what's special about the selected area. "
+#~ "The most useful of these is probably"
+#~ " ``human``."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The IPTC specification allows any other "
+#~ "metadata to be attached to a region."
+#~ " Photini includes ``Person shown`` and "
+#~ "``Description``, which I think are most "
+#~ "likely to be useful. Rectangular subject"
+#~ " area regions with a description or "
+#~ "person's name attached are used by "
+#~ "the :doc:`flickr` and :doc:`ipernity` to "
+#~ "create \"notes\". Please let me know "
+#~ "if there is anything you would like"
+#~ " to be added."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The polygon region is initially a "
+#~ "triangle shape. Right-clicking on one "
+#~ "of its vertices allows a vertex to"
+#~ " be added or deleted."
 #~ msgstr ""
 
