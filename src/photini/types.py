@@ -2145,6 +2145,9 @@ class MD_ImageRegion(MD_Structure):
         return None
 
     # provide list-like methods for ease of use
+    def __bool__(self):
+        return bool(self['RegionList'])
+
     def __getitem__(self, key):
         if isinstance(key, int):
             return self['RegionList'][key]

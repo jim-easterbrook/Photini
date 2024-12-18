@@ -69,6 +69,9 @@ These are a recent addition to the `IPTC standard`_ - in future image display pr
 .. versionadded:: 2024.10
   The ``Keywords`` field has been moved to the :doc:`keywords` tab.
 
+The ``Person(s) shown`` box can be used to record the names of any people in the photograph.
+This also shows any people named in the :doc:`regions` tab.
+
 .. image:: ../images/screenshot_030.png
 
 Finally the ``Rating`` slider allows you to note any particularly good or bad pictures.
@@ -130,6 +133,8 @@ Some of them are also stored in Exif and/or "legacy" IPTC-IIM data.
   Text description for visually impaired accessibility.
 `Extended Description (Accessibility) <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#extended-description-accessibility>`_
   Extended description for visually impaired accessibility.
+`Person(s) shown <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#person-shown-in-the-image>`_
+  Name(s) of a person(s) shown in the image.
 `Rating <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-rating>`_
   How good is the photo.
 

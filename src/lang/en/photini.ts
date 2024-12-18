@@ -196,6 +196,14 @@
         <translation>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</translation>
     </message>
     <message>
+        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
+        <translation>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</translation>
+    </message>
+    <message>
+        <source>Person(s) shown</source>
+        <translation>Person(s) shown</translation>
+    </message>
+    <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</translation>
     </message>
@@ -1629,6 +1637,18 @@
     <message>
         <source>Unreadable image format</source>
         <translation>Unreadable image format</translation>
+    </message>
+    <message>
+        <source>Photini: image size</source>
+        <translation>Photini: image size</translation>
+    </message>
+    <message>
+        <source>Image has been resized.</source>
+        <translation>Image has been resized.</translation>
+    </message>
+    <message>
+        <source>Image dimensions {w_im}x{h_im} do not match region definition {w_reg}x{h_reg}. The image regions may be incorrect.</source>
+        <translation>Image dimensions {w_im}x{h_im} do not match region definition {w_reg}x{h_reg}. The image regions may be incorrect.</translation>
     </message>
     <message>
         <source>pixel</source>

@@ -196,6 +196,14 @@
         <translation>Introduce una &quot;leyenda&quot; describiendo quién, qué, y por qué sobre lo que sucede en esta imagen, puede incluir nombres de personas, y/o su papel en la acción que tiene lugar en la imagen.</translation>
     </message>
     <message>
+        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person(s) shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation>Introduce cualquier número de palabras clave, términos o frases usadas para expresar el tema de la imagen. Sepáralas con carácteres &quot;;&quot;.</translation>
     </message>
@@ -1645,6 +1653,18 @@
     <message>
         <source>Unreadable image format</source>
         <translation>Formato de imagen ilegible</translation>
+    </message>
+    <message>
+        <source>Photini: image size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image has been resized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image dimensions {w_im}x{h_im} do not match region definition {w_reg}x{h_reg}. The image regions may be incorrect.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pixel</source>
