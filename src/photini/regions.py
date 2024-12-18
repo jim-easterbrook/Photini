@@ -127,11 +127,11 @@ class RegionMixin(object):
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
     def __init__(self, region, display_widget, draw_unit, active,
-                 aspect_ratio=0.0, *arg, **kw):
+                 constraint=None, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        self.aspect_ratio = aspect_ratio
+        self.constraint = constraint
         self.handles = []
         if active:
             for idx in range(4):
@@ -149,7 +149,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
     def itemChange(self, change, value):
         scene = self.scene()
         if scene and change == self.GraphicsItemChange.ItemSceneHasChanged:
-            if self.aspect_ratio:
+            if self.constraint:
                 self.handle_drag(self.handles[3], self.handles[3].pos())
             return
         if scene and change == self.GraphicsItemChange.ItemPositionChange:
@@ -175,16 +175,30 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         super(RectangleRegion, self).mouseReleaseEvent(event)
         self.new_boundary()
 
+    @classmethod
+    def nearest_aspect(cls, width, height):
+        aspect = abs(width / height)
+        for idx, boundary in enumerate(cls.ar_thresholds):
+            if aspect <= boundary:
+                return cls.aspect_ratios[idx]
+        return cls.aspect_ratios[-1]
+
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
         anchor = self.handles[3-idx].pos()
         rect = QtCore.QRectF(anchor, pos)
-        if self.aspect_ratio:
+        if self.constraint:
             # enlarge rectangle to correct aspect ratio
             w = rect.width()
             h = rect.height()
-            w_new = abs(h * self.aspect_ratio)
-            h_new = abs(w / self.aspect_ratio)
+            if self.constraint == 'square':
+                aspect_ratio = 1.0
+            elif self.constraint == 'landscape':
+                aspect_ratio = self.nearest_aspect(w, h)
+            elif self.constraint == 'portrait':
+                aspect_ratio = 1.0 / self.nearest_aspect(h, w)
+            w_new = abs(h * aspect_ratio)
+            h_new = abs(w / aspect_ratio)
             if h_new < abs(h):
                 rect.setWidth(w_new * abs(w) / w)
             else:
@@ -200,12 +214,12 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
                     min(max(pos.x(), bounds.x()), bounds.right()),
                     min(max(pos.y(), bounds.y()), bounds.bottom()))
                 rect = QtCore.QRectF(anchor, pos)
-                if self.aspect_ratio:
+                if self.constraint:
                     # shrink rectangle to correct aspect ratio
                     w = rect.width()
                     h = rect.height()
-                    w_new = abs(h * self.aspect_ratio)
-                    h_new = abs(w / self.aspect_ratio)
+                    w_new = abs(h * aspect_ratio)
+                    h_new = abs(w / aspect_ratio)
                     if h_new > abs(h):
                         rect.setWidth(w_new * abs(w) / w)
                     else:
@@ -232,6 +246,13 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
             self.handles[1].setPos(rect.topRight())
             self.handles[2].setPos(rect.bottomLeft())
             self.handles[3].setPos(rect.bottomRight())
+
+    aspect_ratios = (4.0 / 3.0, 3.0 / 2.0, 16.0 / 9.0)
+
+RectangleRegion.ar_thresholds = [
+    math.sqrt(RectangleRegion.aspect_ratios[x-1] *
+              RectangleRegion.aspect_ratios[x])
+    for x in range(1, len(RectangleRegion.aspect_ratios))]
 
 
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
@@ -509,13 +530,35 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                     translate('RegionsTab', 'Unreadable image format'))
             else:
                 rect = self.contentsRect()
-                orientation = image.metadata.orientation
+                md = image.metadata
+                orientation = md.orientation
                 transform = orientation and orientation.get_transform()
                 if transform:
                     rect = transform.mapRect(rect)
                 else:
                     transform = QtGui.QTransform()
                 w_im, h_im = pixmap.width(), pixmap.height()
+                if md.image_region:
+                    dims = md.image_region.get_dimensions()
+                    if dims and (dims['w'] != w_im or dims['h'] != h_im):
+                        dialog = QtWidgets.QMessageBox(parent=self)
+                        dialog.setWindowTitle(
+                            translate('RegionsTab', 'Photini: image size'))
+                        dialog.setText('<h3>{}</h3>'.format(
+                            translate('RegionsTab', 'Image has been resized.')))
+                        dialog.setInformativeText(translate(
+                            'RegionsTab', 'Image dimensions {w_im}x{h_im} do'
+                            ' not match region definition {w_reg}x{h_reg}. The'
+                            ' image regions may be incorrect.').format(
+                                w_im=w_im, h_im=h_im,
+                                w_reg=dims['w'], h_reg=dims['h']))
+                        dialog.setStandardButtons(dialog.StandardButton.Ok)
+                        dialog.setIcon(dialog.Icon.Warning)
+                        execute(dialog)
+                    changed = md.changed()
+                    md.image_region = md.image_region.set_dimensions({
+                        'w': w_im, 'h': h_im})
+                    md.set_changed(changed)
                 w_sc, h_sc = rect.width(), rect.height()
                 if w_im * h_sc < h_im * w_sc:
                     w_sc -= self.verticalScrollBar().sizeHint().width()
@@ -546,17 +589,22 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             active = n == idx
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                aspect_ratio = 0.0
                 if region.has_role('imgregrole:squareCropping'):
-                    aspect_ratio = 1.0
+                    constraint = 'square'
                 elif region.has_role('imgregrole:landscapeCropping'):
-                    aspect_ratio = 16.0 / 9.0
+                    if self.transform().isRotating():
+                        constraint = 'portrait'
+                    else:
+                        constraint = 'landscape'
                 elif region.has_role('imgregrole:portraitCropping'):
-                    aspect_ratio = 9.0 / 16.0
-                if aspect_ratio and self.transform().isRotating():
-                    aspect_ratio = 1.0 / aspect_ratio
+                    if self.transform().isRotating():
+                        constraint = 'landscape'
+                    else:
+                        constraint = 'portrait'
+                else:
+                    constraint = None
                 boundary = RectangleRegion(
-                    region, self, draw_unit, active, aspect_ratio=aspect_ratio)
+                    region, self, draw_unit, active, constraint=constraint)
             elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
                 boundary = CircleRegion(region, self, draw_unit, active)
             elif len(boundary['Iptc4xmpExt:rbVertices']) == 1:
@@ -606,21 +654,35 @@ class EntityConceptWidget(SingleLineEdit):
         self.menu = QtWidgets.QMenu(parent=self)
         self.menu.setToolTipsVisible(True)
         self.actions = []
-        for item in vocab:
+        self.add_separator = False
+        self.add_menu_items(vocab)
+
+    def mousePressEvent(self, event):
+        self.menu.popup(self.mapToGlobal(event.pos()))
+
+    def add_menu_items(self, items, add_separator=True, exclusive=False):
+        if self.add_separator:
+            self.menu.addSeparator()
+        self.add_separator = add_separator
+        if exclusive:
+            group = QtWidgets.QActionGroup(self)
+            group.setExclusionPolicy(group.ExclusionPolicy.ExclusiveOptional)
+        for item in items:
             label = MD_LangAlt(item['name']).best_match()
             tip = MD_LangAlt(item['definition']).best_match()
             if item['note']:
                 tip += ' ({})'.format(MD_LangAlt(item['note']).best_match())
             action = self.menu.addAction(label)
             action.setCheckable(True)
-            action.setToolTip('<p>{}</p>'.format(tip))
+            action.setChecked(True)
+            if exclusive:
+                group.addAction(action)
+            if tip:
+                action.setToolTip('<p>{}</p>'.format(tip))
             action.setData(item['data'])
             action.toggled.connect(self.update_display)
             action.triggered.connect(self.action_triggered)
             self.actions.append(action)
-
-    def mousePressEvent(self, event):
-        self.menu.popup(self.mapToGlobal(event.pos()))
 
     @QtSlot(bool)
     @catch_all
@@ -645,42 +707,17 @@ class EntityConceptWidget(SingleLineEdit):
             if action.isChecked():
                 action.setChecked(False)
         for item in value:
-            found = False
-            if 'xmp:Identifier' in item:
-                for uri in item['xmp:Identifier']:
-                    for action in self.actions:
-                        if uri in action.data()['xmp:Identifier']:
-                            action.setChecked(True)
-                            found = True
-                            break
-            if found:
-                continue
-            if 'Iptc4xmpExt:Name' in item:
-                for name in item['Iptc4xmpExt:Name'].values():
-                    for action in self.actions:
-                         if name in action.data()['Iptc4xmpExt:Name'].values():
-                            action.setChecked(True)
-                            found = True
-                            break
-            if found:
-                continue
-            # add new action
-            data = {'Iptc4xmpExt:Name': {}, 'xmp:Identifier': []}
-            data.update(item)
-            label = data['Iptc4xmpExt:Name'] or {
-                'x-default': '; '.join(data['xmp:Identifier'])}
-            label = MD_LangAlt(label).best_match()
-            if not label:
-                continue
-            action = self.menu.addAction(label)
-            action.setCheckable(True)
-            action.setToolTip('<p>{}</p>'.format(
-                '; '.join(data['xmp:Identifier'])))
-            action.setChecked(True)
-            action.setData(data)
-            action.toggled.connect(self.update_display)
-            action.triggered.connect(self.action_triggered)
-            self.actions.append(action)
+            for action in self.actions:
+                if item == action.data():
+                    action.setChecked(True)
+                    break
+            else:
+                # add new action
+                self.add_menu_items([{
+                    'data': item,
+                    'definition': None,
+                    'name': item['Iptc4xmpExt:Name'],
+                    'note': None}], add_separator=False)
         self._updating = False
         self.update_display()
 
@@ -738,6 +775,52 @@ class UnitSelector(QtWidgets.QWidget):
 
 class RegionForm(QtWidgets.QScrollArea):
     new_value = QtSignal(int, dict)
+    MWG_region_types = (
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Face'},
+                  'xmp:Identifier': ('mwg-rs:Type Face',)},
+         'definition': {'en-GB': "Region area for people's faces."},
+         'name': {'en-GB': 'Face'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Pet'},
+                  'xmp:Identifier': ('mwg-rs:Type Pet',)},
+         'definition': {'en-GB': "Region area for pets."},
+         'name': {'en-GB': 'Pet'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedUsed'},
+                  'xmp:Identifier': ('mwg-rs:Type Focus',
+                                     'mwg-rs:FocusUsage EvaluatedUsed')},
+         'definition': {'en-GB': "Region area for camera auto-focus regions."
+                        "<br/>EvaluatedUsed specifies that the focus point was"
+                        " considered during focusing and was used in the final"
+                        " image."},
+         'name': {'en-GB': 'Focus (EvaluatedUsed)'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedNotUsed'},
+                  'xmp:Identifier': ('mwg-rs:Type Focus',
+                                     'mwg-rs:FocusUsage EvaluatedNotUsed')},
+         'definition': {'en-GB': "Region area for camera auto-focus regions."
+                        "<br/>EvaluatedNotUsed specifies that the focus point"
+                        " was considered during focusing but not utilised in"
+                        " the final image."},
+         'name': {'en-GB': 'Focus (EvaluatedNotUsed)'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/NotEvaluatedNotUsed'},
+                  'xmp:Identifier': ('mwg-rs:Type Focus'
+                                     'mwg-rs:FocusUsage NotEvaluatedNotUsed')},
+         'definition': {'en-GB': "Region area for camera auto-focus regions."
+                        "<br/>NotEvaluatedNotUsed specifies that a focus point"
+                        " was not evaluated and not used, e.g. a fixed focus"
+                        " point on the camera which was not used in any"
+                        " fashion."},
+         'name': {'en-GB': 'Focus (NotEvaluatedNotUsed)'},
+         'note': None},
+        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'BarCode'},
+                  'xmp:Identifier': ('mwg-rs:Type BarCode',)},
+         'definition': {'en-GB': "One dimensional linear or two dimensional"
+                        " matrix optical code."},
+         'name': {'en-GB': 'BarCode'},
+         'note': None},
+        )
 
     def __init__(self, idx, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
@@ -790,6 +873,8 @@ class RegionForm(QtWidgets.QScrollArea):
         # content types
         key = 'Iptc4xmpExt:rCtype'
         self.widgets[key] = EntityConceptWidget(key, image_region_types)
+        self.widgets[key].add_menu_items(
+            self.MWG_region_types, exclusive=True)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
@@ -973,6 +1058,9 @@ class RegionTabs(QtWidgets.QTabWidget):
         region = {'Iptc4xmpExt:RegionBoundary': boundary}
         md = self.image.metadata
         md.image_region = md.image_region.new_region(region)
+        dims = md.dimensions
+        md.image_region = md.image_region.set_dimensions({
+            'w': dims['width'], 'h': dims['height']})
         self.set_image(self.image)
         self.setCurrentIndex(len(md.image_region) - 1)
 
@@ -1023,6 +1111,15 @@ class RegionTabs(QtWidgets.QTabWidget):
             elif key in region:
                 del region[key]
         md.image_region = md.image_region.new_region(region, idx)
+        if 'PersonInImage' in key:
+            people = list(md.people)
+            for name in value:
+                if name not in people:
+                    people.append(name)
+            md.people = people
+        dims = md.dimensions
+        md.image_region = md.image_region.set_dimensions({
+            'w': dims['width'], 'h': dims['height']})
         if key == 'Iptc4xmpExt:rRole':
             # aspect ratio constraint may have changed
             self.new_regions.emit(idx, list(md.image_region))
@@ -1061,8 +1158,6 @@ class TabWidget(QtWidgets.QWidget):
         return False
 
     def new_selection(self, selection):
-        if selection == [self.image_display.image]:
-            return
         if len(selection) != 1:
             self.image_display.set_image(None)
             self.region_tabs.set_image(None)

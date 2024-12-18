@@ -9,6 +9,10 @@ The ``Image regions`` tab (keyboard shortcut ``Alt+R``) allows you to select par
 This can be useful to identify people in a photograph, or to mark which part of the photograph should remain visible if the image is cropped.
 The `IPTC User Guide`_ discusses possible uses of image regions in more detail.
 
+Photini stores image regions in both IPTC_ and MWG_ (Metadata Working Group) formats.
+(Both are stored in the XMP metadata.)
+The MWG format is older and less capable than the IPTC format, for example it cannot store polygonal regions, but it may be compatible with more software.
+
 .. image:: ../images/screenshot_270.png
 
 The user interface is disabled until one image file is selected.
@@ -52,15 +56,23 @@ Photini shows the IPTC names and definitions (as "tooltips") in a drop down menu
 You can select one or more roles from the list.
 
 Other, less useful, metadata includes a name and identifier for the region.
+
+.. image:: ../images/screenshot_276a.png
+
 The `content type`_ is another controlled vocabulary that allows you to say what's special about the selected area.
+The upper part shows the IPTC controlled vocabulary.
 The most useful of these is probably ``human``.
+The lower part shows MWG "types".
+These are primarily intended for use by automatic systems such as face detectors and camera autofocus.
 
 .. image:: ../images/screenshot_277.png
 
-The IPTC specification allows any other metadata to be attached to a region.
+The IPTC and MWG specifications allow any other metadata to be attached to a region.
 Photini includes ``Person shown`` and ``Description``, which I think are most likely to be useful.
+Names in the ``Person shown`` box are also added to the :doc:`descriptive_metadata` tab's ``Person(s) shown`` box.
+
 Rectangular subject area regions with a description or person's name attached are used by the :doc:`flickr` and :doc:`ipernity` to create "notes".
-Please let me know if there is anything you would like to be added.
+Please let me know if there is any other metadata you would like to be added.
 
 .. image:: ../images/screenshot_278.png
 
@@ -75,6 +87,7 @@ You can select an unselected region by clicking on it.
 
 The polygon region is initially a triangle shape.
 Right-clicking on one of its vertices allows a vertex to be added or deleted.
+Note that polygon refions are not saved in MWG metadata.
 
 .. image:: ../images/screenshot_280.png
 
@@ -88,7 +101,11 @@ Is this useful for anything?
 
 .. _content type:
     https://cv.iptc.org/newscodes/imageregiontype/
+.. _IPTC:
+    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-region
 .. _IPTC User Guide:
     https://www.iptc.org/std/photometadata/documentation/userguide/#_image_regions
+.. _MWG:
+    https://en.wikipedia.org/wiki/Metadata_Working_Group
 .. _role:
     https://cv.iptc.org/newscodes/imageregionrole/

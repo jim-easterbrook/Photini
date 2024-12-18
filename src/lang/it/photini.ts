@@ -197,6 +197,14 @@
         <translation>Descrizione / Didascalia</translation>
     </message>
     <message>
+        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person(s) shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Keywords</source>
         <translation>Parole chiave</translation>
     </message>
@@ -1655,6 +1663,18 @@
     <message>
         <source>Unreadable image format</source>
         <translation>Formato immagine illeggibile</translation>
+    </message>
+    <message>
+        <source>Photini: image size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image has been resized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image dimensions {w_im}x{h_im} do not match region definition {w_reg}x{h_reg}. The image regions may be incorrect.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pixel</source>

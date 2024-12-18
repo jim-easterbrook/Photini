@@ -710,7 +710,7 @@ class MD_Structure(MD_Value, dict):
         if other == self:
             return self
         result = dict(self)
-        for key in other:
+        for key in other.keys():
             if not other[key]:
                 continue
             if key in result and result[key]:
@@ -844,12 +844,17 @@ class MD_StructArray(MD_Value, tuple):
     def to_xmp(self):
         return [x.to_xmp() for x in self]
 
+    def find(self, other):
+        if other in self:
+            return self.index(other)
+        return len(self)
+
     def merge(self, info, tag, other):
         result = self
         for item in other:
             if not isinstance(item, self.item_type):
                 item = self.item_type(item)
-            idx = result.index(item)
+            idx = result.find(item)
             result = list(result)
             if idx < len(result):
                 result[idx] = result[idx].merge(info, tag, item)
@@ -1682,7 +1687,7 @@ class MD_Location(MD_Structure):
 class MD_MultiLocation(MD_StructArray):
     item_type = MD_Location
 
-    def index(self, other):
+    def find(self, other):
         for n, value in enumerate(self):
             if value == other:
                 return n
@@ -1690,7 +1695,7 @@ class MD_MultiLocation(MD_StructArray):
 
 
 class MD_SingleLocation(MD_MultiLocation):
-    def index(self, other):
+    def find(self, other):
         return 0
 
 
@@ -1707,6 +1712,9 @@ class EntityConcept(MD_Structure):
         'Iptc4xmpExt:Name': MD_LangAlt,
         'xmp:Identifier': ConceptIndentifier,
         }
+
+    def __eq__(self, other):
+        return self['xmp:Identifier'] == other['xmp:Identifier']
 
 
 class EntityConceptArray(MD_StructArray):
@@ -1849,18 +1857,161 @@ class ImageRegionItem(MD_Structure):
         'Iptc4xmpExt:rRole': EntityConceptArray,
         'Iptc4xmpExt:PersonInImage': MD_MultiString,
         'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
+        'mwg-rs:BarCodeValue': MD_String,
         'photoshop:CaptionWriter': MD_String,
+        'dc:creator': MD_MultiString,
         'dc:description': MD_LangAlt,
+        'dc:subject': MD_MultiString,
+        'xmpRights:UsageTerms': MD_LangAlt,
         }
 
+    @staticmethod
+    def ctype_IPTC_to_MWG(file_value):
+        if 'Iptc4xmpExt:rCtype' not in file_value:
+            return file_value, {}
+        # move MWG type info from Iptc4xmpExt:rCtype to extra info
+        ctype_list = []
+        extras = {}
+        for item in file_value['Iptc4xmpExt:rCtype']:
+            if any(x.startswith('mwg') for x in item['xmp:Identifier']):
+                extras.update(x.split() for x in item['xmp:Identifier'])
+            else:
+                ctype_list.append(item)
+        file_value['Iptc4xmpExt:rCtype'] = ctype_list
+        return file_value, extras
+
+    def to_IPTC(self):
+        # move MWG type info from Iptc4xmpExt:rCtype to extra info
+        file_value, extras = self.ctype_IPTC_to_MWG(dict(self))
+        file_value.update(extras)
+        return file_value
+
+    @staticmethod
+    def ctype_MWG_to_IPTC(file_value):
+        if 'mwg-rs:Type' not in file_value:
+            return file_value, {}
+        # move MWG type info from extra info to Iptc4xmpExt:rCtype
+        name = file_value['mwg-rs:Type']
+        del file_value['mwg-rs:Type']
+        identifier = ['mwg-rs:Type ' + name]
+        if 'mwg-rs:FocusUsage' in file_value:
+            focus_usage = file_value['mwg-rs:FocusUsage']
+            del file_value['mwg-rs:FocusUsage']
+            name += '/' + focus_usage
+            identifier.append('mwg-rs:FocusUsage ' + focus_usage)
+        return file_value, {
+            'Iptc4xmpExt:Name': name, 'xmp:Identifier': identifier}
+
     @classmethod
-    def from_exiv2(cls, file_value, tag):
+    def from_IPTC(cls, file_value):
+        file_value, ctype = cls.ctype_MWG_to_IPTC(file_value)
+        if ctype:
+            if 'Iptc4xmpExt:rCtype' not in file_value:
+                file_value['Iptc4xmpExt:rCtype'] = []
+            file_value['Iptc4xmpExt:rCtype'].append(ctype)
+        return cls(file_value)
+
+    def to_MWG(self, scale_diameter):
+        file_value, region = self.ctype_IPTC_to_MWG(dict(self))
+        # convert some IPTC region data to MWG format
+        region['mwg-rs:Extensions'] = {}
+        for key, value in file_value.items():
+            if not value:
+                continue
+            if key == 'Iptc4xmpExt:RegionBoundary':
+                if value['Iptc4xmpExt:rbUnit'] != 'relative':
+                    return None
+                area = {'stArea:unit': 'normalized'}
+                if value['Iptc4xmpExt:rbShape'] == 'rectangle':
+                    w = value['Iptc4xmpExt:rbW']
+                    h = value['Iptc4xmpExt:rbH']
+                    area['stArea:x'] = value['Iptc4xmpExt:rbX'] + (w / 2)
+                    area['stArea:y'] = value['Iptc4xmpExt:rbY'] + (h / 2)
+                    area['stArea:w'] = w
+                    area['stArea:h'] = h
+                elif value['Iptc4xmpExt:rbShape'] == 'circle':
+                    area['stArea:x'] = value['Iptc4xmpExt:rbX']
+                    area['stArea:y'] = value['Iptc4xmpExt:rbY']
+                    area['stArea:d'] = value['Iptc4xmpExt:rbRx'] * 2 / scale_diameter
+                elif (value['Iptc4xmpExt:rbShape'] == 'polygon' and
+                      len(value['Iptc4xmpExt:rbVertices']) == 1):
+                    point = value['Iptc4xmpExt:rbVertices'][0]
+                    area['stArea:x'] = point['Iptc4xmpExt:rbX']
+                    area['stArea:y'] = point['Iptc4xmpExt:rbY']
+                else:
+                    return None
+                region['mwg-rs:Area'] = area
+            elif key == 'Iptc4xmpExt:Name':
+                region['mwg-rs:Name'] = value.best_match()
+            elif key == 'dc:description':
+                region['mwg-rs:Description'] = value.best_match()
+            elif key == 'mwg-rs:BarCodeValue':
+                region[key] = value
+            else:
+                region['mwg-rs:Extensions'][key] = value
+        return region
+
+    @classmethod
+    def from_MWG(cls, file_value, scale_diameter):
         if not file_value:
             return None
-        if tag.startswith('Xmp'):
-            return cls(file_value)
+        # convert MWG region data to IPTC format
+        area = file_value['mwg-rs:Area']
+        if area['stArea:unit'] == 'normalized':
+            boundary = {'Iptc4xmpExt:rbUnit': 'relative'}
+        else:
+            raise ValueError('Unrecognised stArea:unit value "{}"'.format(
+                area['stArea:unit']))
+        x = float(area['stArea:x'])
+        y = float(area['stArea:y'])
+        if 'stArea:h' in area:
+            # rectangle
+            w = float(area['stArea:w'])
+            h = float(area['stArea:h'])
+            boundary['Iptc4xmpExt:rbShape'] = 'rectangle'
+            boundary['Iptc4xmpExt:rbX'] = x - (w / 2)
+            boundary['Iptc4xmpExt:rbY'] = y - (h / 2)
+            boundary['Iptc4xmpExt:rbW'] = w
+            boundary['Iptc4xmpExt:rbH'] = h
+        elif 'stArea:d' in area:
+            # circle
+            d = float(area['stArea:d']) * scale_diameter
+            boundary['Iptc4xmpExt:rbShape'] = 'circle'
+            boundary['Iptc4xmpExt:rbX'] = x
+            boundary['Iptc4xmpExt:rbY'] = y
+            boundary['Iptc4xmpExt:rbRx'] = d / 2
+        else:
+            # point
+            boundary['Iptc4xmpExt:rbShape'] = 'polygon'
+            boundary['Iptc4xmpExt:rbVertices'] = [{
+                'Iptc4xmpExt:rbX': x, 'Iptc4xmpExt:rbY': y}]
+        region = {'Iptc4xmpExt:RegionBoundary': boundary}
+        file_value, ctype = cls.ctype_MWG_to_IPTC(file_value)
+        region['Iptc4xmpExt:rCtype'] = [ctype]
+        if 'mwg-rs:Name' in file_value:
+            region['Iptc4xmpExt:Name'] = file_value['mwg-rs:Name']
+        if 'mwg-rs:Description' in file_value:
+            region['dc:description'] = file_value['mwg-rs:Description']
+        if 'mwg-rs:BarCodeValue' in file_value:
+            region['mwg-rs:BarCodeValue'] = file_value['mwg-rs:BarCodeValue']
+        region = cls(region)
+        for key in ('mwg-rs:Extensions', 'rdfs:seeAlso'):
+            if key in file_value:
+                for k, v in file_value[key].items():
+                    if k in region:
+                        region[k] = region[k].merge('info', 'tag', v)
+                    else:
+                        region[k] = v
+        return cls(region)
+
+    @classmethod
+    def from_Exif(cls, file_value):
         # Convert Exif.Photo.SubjectArea to an image region. See
         # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
+        # Later the above was deprecated. See
+        # https://www.iptc.org/std/photometadata/documentation/userguide/#_note_about_the_exif_subjectarea_and_the_iptc_image_region
+        # I'm leaving this in for now as it's a one way mapping so should be
+        # mostly harmless.
         if len(file_value) == 2:
             region = {'Iptc4xmpExt:rbShape': 'polygon',
                       'Iptc4xmpExt:rbVertices': [{
@@ -1920,35 +2071,121 @@ class ImageRegionItem(MD_Structure):
         return result
 
 
-class MD_ImageRegion(MD_StructArray):
+class RegionList(MD_StructArray):
     item_type = ImageRegionItem
 
-    def new_region(self, region, idx=None):
-        if idx is None:
-            idx = len(self)
-        result = list(self)
-        if region:
-            if idx < len(self):
-                result[idx] = region
-            else:
-                result.append(region)
-        elif idx < len(self):
-            result.pop(idx)
-        result = MD_ImageRegion(result)
-        return result
-
-    def index(self, other):
+    def find(self, other):
         if other.has_role('imgregrole:mainSubjectArea'):
             # only one main subject area region allowed
             for n, value in enumerate(self):
                 if value.has_role('imgregrole:mainSubjectArea'):
-                    return True
+                    return n
             return len(self)
         for n, value in enumerate(self):
+            match = True
             for key in ('Iptc4xmpExt:RegionBoundary', 'Iptc4xmpExt:rId'):
-                if value[key] and value[key] == other[key]:
-                    return n
+                if value[key]:
+                    match = match and (value[key] == other[key])
+            if match:
+                return n
         return len(self)
+
+
+class AppliedToDimensions(MD_Structure):
+    item_type = {
+        'stDim:w': MD_Int,
+        'stDim:h': MD_Int,
+        'stDim:unit': MD_String,
+        }
+
+    def __new__(cls, value=None):
+        if value and value['stDim:unit'] not in ('pixel', ''):
+            raise ValueError('Unrecognised stDim:unit value "{}"'.format(
+                value['stDim:unit']))
+        return super(AppliedToDimensions, cls).__new__(cls, value)
+
+
+class MD_ImageRegion(MD_Structure):
+    item_type = {
+        'AppliedToDimensions': AppliedToDimensions,
+        'RegionList': RegionList,
+        }
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        if tag == 'Xmp.iptcExt.ImageRegion':
+            value = {'RegionList': [ImageRegionItem.from_IPTC(x)
+                                    for x in file_value]}
+        elif tag == 'Xmp.mwg-rs.Regions':
+            dims = AppliedToDimensions(file_value['mwg-rs:AppliedToDimensions'])
+            scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
+            value = {
+                'AppliedToDimensions': dims,
+                'RegionList': [ImageRegionItem.from_MWG(x, scale_diameter)
+                               for x in file_value['mwg-rs:RegionList']]}
+        elif tag == 'Exif.Photo.SubjectArea':
+            value = {'RegionList': [ImageRegionItem.from_Exif(file_value)]}
+        else:
+            return cls()
+        return cls(value)
+
+    def to_exiv2(self, tag):
+        if tag == 'Xmp.iptcExt.ImageRegion':
+            return [x.to_IPTC() for x in self]
+        if tag == 'Xmp.mwg-rs.Regions':
+            dims = self['AppliedToDimensions']
+            scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
+            regions = [x.to_MWG(scale_diameter) for x in self]
+            if not any(regions):
+                return None
+            return {'mwg-rs:AppliedToDimensions': dims.to_exiv2(tag),
+                    'mwg-rs:RegionList': regions}
+        return None
+
+    # provide list-like methods for ease of use
+    def __bool__(self):
+        return bool(self['RegionList'])
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self['RegionList'][key]
+        return super(MD_ImageRegion, self).__getitem__(key)
+
+    def __iter__(self):
+        return iter(self['RegionList'])
+
+    def __len__(self):
+        return len(self['RegionList'])
+
+    def get_dimensions(self):
+        dims = self['AppliedToDimensions']
+        if dims:
+            return {'w': dims['stDim:w'], 'h': dims['stDim:h']}
+        return {}
+
+    def set_dimensions(self, dims):
+        dimensions = AppliedToDimensions({
+            'stDim:w': dims['w'], 'stDim:h': dims['h'], 'stDim:unit': 'pixel'})
+        regions = list(self)
+        return MD_ImageRegion({
+            'AppliedToDimensions': dimensions, 'RegionList': regions})
+
+    def new_region(self, region, idx=None):
+        if idx is None:
+            idx = len(self)
+        dimensions = dict(self['AppliedToDimensions'])
+        regions = list(self)
+        if region:
+            if idx < len(regions):
+                regions[idx] = region
+            else:
+                regions.append(region)
+        elif idx < len(regions):
+            regions.pop(idx)
+        return MD_ImageRegion({
+            'AppliedToDimensions': dimensions, 'RegionList': regions})
 
     @staticmethod
     def boundary_from_note(note, dims, image):

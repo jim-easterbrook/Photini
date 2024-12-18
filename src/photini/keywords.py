@@ -652,6 +652,7 @@ class TabWidget(QtWidgets.QWidget):
         for image in images:
             new_tags = []
             keywords = image.metadata.keywords or []
+            cf_keywords = [x.casefold() for x in keywords]
             for keyword in keywords:
                 votes = {}
                 for match in self.data_model.find_name(keyword):
@@ -661,6 +662,11 @@ class TabWidget(QtWidgets.QWidget):
                         votes[nested_tag] = 0
                         while match:
                             if match.text() in keywords:
+                                # exact match worth a lot
+                                votes[nested_tag] += 10
+                            elif (match.data(HierarchicalTagDataItem.sort_role)
+                                      in cf_keywords):
+                                # case-folded match worth less
                                 votes[nested_tag] += 1
                             match = match.parent()
                 if len(votes) == 1:
@@ -722,7 +728,8 @@ class TabWidget(QtWidgets.QWidget):
                     if keyword in new_keywords:
                         continue
                     for match in self.data_model.find_name(keyword):
-                        if match.checked('copyable'):
+                        if (match.text() in keywords
+                                and match.checked('copyable')):
                             keywords.remove(keyword)
             # set new values
             changed = image.metadata.changed()
