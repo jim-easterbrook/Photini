@@ -213,6 +213,14 @@
         <translation>Geben Sie eine „Bildunterschrift“ ein, die das Wer, Was und Warum des Geschehens auf diesem Bild beschreibt, Dies kann Namen von Personen und/oder ihre Rolle in der Handlung, die auf dem Bild stattfindet, beinhalten.</translation>
     </message>
     <message>
+        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person(s) shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation>Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen. Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
@@ -1735,6 +1743,18 @@
     <message>
         <source>Unreadable image format</source>
         <translation>Unlesbares Bildformat</translation>
+    </message>
+    <message>
+        <source>Photini: image size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image has been resized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image dimensions {w_im}x{h_im} do not match region definition {w_reg}x{h_reg}. The image regions may be incorrect.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>pixel</source>
