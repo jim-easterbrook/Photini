@@ -1954,6 +1954,26 @@ class ImageRegionItem(MD_Structure):
                 region['mwg-rs:Extensions'][key] = value
         return region
 
+    def to_MP(self):
+        if not self['Iptc4xmpExt:PersonInImage']:
+            return None
+        boundary = self['Iptc4xmpExt:RegionBoundary']
+        if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
+            return None
+        if boundary['Iptc4xmpExt:rbUnit'] != 'relative':
+            return None
+        region = {
+            'MPReg:Rectangle': ', '.join((str(boundary['Iptc4xmpExt:rbX']),
+                                          str(boundary['Iptc4xmpExt:rbY']),
+                                          str(boundary['Iptc4xmpExt:rbW']),
+                                          str(boundary['Iptc4xmpExt:rbH']))),
+            'MPReg:PersonDisplayName': str(self['Iptc4xmpExt:PersonInImage']),
+            }
+        for key in ('MPReg:PersonEmailDigest', 'MPReg:PersonLiveIdCID'):
+            if key in self:
+                region[key] = self[key]
+        return region
+
     @classmethod
     def from_MWG(cls, file_value, scale_diameter):
         if not file_value:
@@ -1994,7 +2014,8 @@ class ImageRegionItem(MD_Structure):
         for key, value in file_value.items():
             if key in ('mwg-rs:Area', 'mwg-rs:Extensions', 'rdfs:seeAlso'):
                 continue
-            elif key == 'mwg-rs:Name' and ctype['Iptc4xmpExt:Name'] == 'Face':
+            elif (key == 'mwg-rs:Name' and 'Iptc4xmpExt:Name' in ctype
+                      and ctype['Iptc4xmpExt:Name'] == 'Face'):
                 region['Iptc4xmpExt:PersonInImage'] = [value]
             elif key == 'mwg-rs:Description':
                 region['dc:description'] = value
@@ -2008,6 +2029,31 @@ class ImageRegionItem(MD_Structure):
                         region[k] = region[k].merge('info', 'tag', v)
                     else:
                         region[k] = v
+        return cls(region)
+
+    @classmethod
+    def from_MP(cls, file_value):
+        if not file_value:
+            return None
+        # convert MPRI region data to IPTC format
+        region = {}
+        for key, value in file_value.items():
+            if key == 'MPReg:Rectangle':
+                x, y, w, h = value.split(',')
+                region['Iptc4xmpExt:RegionBoundary'] = {
+                    'Iptc4xmpExt:rbUnit': 'relative',
+                    'Iptc4xmpExt:rbShape': 'rectangle',
+                    'Iptc4xmpExt:rbX': x,
+                    'Iptc4xmpExt:rbY': y,
+                    'Iptc4xmpExt:rbW': w,
+                    'Iptc4xmpExt:rbH': h,
+                    }
+            elif key == 'MPReg:PersonDisplayName':
+                region['Iptc4xmpExt:PersonInImage'] = [value]
+            else:
+                region[key] = value
+        if not region['Iptc4xmpExt:RegionBoundary']:
+            return None
         return cls(region)
 
     @classmethod
@@ -2131,6 +2177,9 @@ class MD_ImageRegion(MD_Structure):
                 'AppliedToDimensions': dims,
                 'RegionList': [ImageRegionItem.from_MWG(x, scale_diameter)
                                for x in file_value['mwg-rs:RegionList']]}
+        elif tag == 'Xmp.MP.RegionInfo':
+            value = {'RegionList': [ImageRegionItem.from_MP(x)
+                                    for x in file_value['MPRI:Regions']]}
         elif tag == 'Exif.Photo.SubjectArea':
             value = {'RegionList': [ImageRegionItem.from_Exif(file_value)]}
         else:
@@ -2148,6 +2197,11 @@ class MD_ImageRegion(MD_Structure):
                 return None
             return {'mwg-rs:AppliedToDimensions': dims.to_exiv2(tag),
                     'mwg-rs:RegionList': regions}
+        if tag == 'Xmp.MP.RegionInfo':
+            regions = [x.to_MP() for x in self]
+            if not any(regions):
+                return None
+            return {'MPRI:Regions': regions}
         return None
 
     # provide list-like methods for ease of use
