@@ -1668,7 +1668,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation type="vanished">Name</translation>
     </message>
     <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
@@ -1759,6 +1759,10 @@
     <message>
         <source>Image &amp;regions</source>
         <translation type="vanished">Image &amp;regions</translation>
+    </message>
+    <message>
+        <source>Region Name</source>
+        <translation>Region Name</translation>
     </message>
 </context>
 <context>

@@ -1694,7 +1694,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation type="vanished">Nome</translation>
     </message>
     <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
@@ -1789,6 +1789,10 @@
     <message>
         <source>Image &amp;regions</source>
         <translation type="vanished">Immagine &amp;regioni</translation>
+    </message>
+    <message>
+        <source>Region Name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

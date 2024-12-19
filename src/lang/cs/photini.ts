@@ -1735,10 +1735,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Free-text name of the region. Should be unique among all Region Names of an image.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1822,6 +1818,10 @@
     <message>
         <source>&amp;Regions</source>
         <comment>Shortest possible name used as tab label</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Region Name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

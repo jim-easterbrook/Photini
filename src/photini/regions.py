@@ -837,7 +837,7 @@ class RegionForm(QtWidgets.QScrollArea):
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(
             key, multi_line=False, min_width=15,
-            label=translate('RegionsTab', 'Name'))
+            label=translate('RegionsTab', 'Region Name'))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
@@ -926,9 +926,11 @@ class RegionForm(QtWidgets.QScrollArea):
                 self.widgets[key] = MultiStringEdit(key, min_width=15)
             else:
                 self.widgets[key] = SingleLineEdit(key, min_width=15)
-            self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
-                'RegionsTab', 'The Image Region Structure includes optionally'
-                ' any metadata property which is related to the region.')))
+            self.widgets[key].setToolTip('<p>{}<br/>{}</p>'.format(
+                key, translate(
+                    'RegionsTab', 'The Image Region Structure includes'
+                    ' optionally any metadata property which is related to the'
+                    ' region.')))
             self.widgets[key].new_value.connect(self.emit_value)
             if label:
                 layout.addRow(label, self.widgets[key])
