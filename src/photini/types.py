@@ -1988,6 +1988,8 @@ class ImageRegionItem(MD_Structure):
         if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
             return None
         boundary = boundary.to_relative(dims)
+        if not boundary:
+            return None
         region = {
             'MPReg:Rectangle': ', '.join((str(boundary['Iptc4xmpExt:rbX']),
                                           str(boundary['Iptc4xmpExt:rbY']),
