@@ -1858,6 +1858,8 @@ class ImageRegionItem(MD_Structure):
         'Iptc4xmpExt:PersonInImage': MD_MultiString,
         'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
         'mwg-rs:BarCodeValue': MD_String,
+        'mwg-rs:Name': MD_String,
+        'mwg-rs:Title': MD_String,
         'photoshop:CaptionWriter': MD_String,
         'dc:creator': MD_MultiString,
         'dc:description': MD_LangAlt,
@@ -1941,11 +1943,12 @@ class ImageRegionItem(MD_Structure):
                 else:
                     return None
                 region['mwg-rs:Area'] = area
-            elif key == 'Iptc4xmpExt:PersonInImage':
+            elif (key == 'Iptc4xmpExt:PersonInImage'
+                  and not file_value['mwg-rs:Name']):
                 region['mwg-rs:Name'] = str(value)
             elif key == 'dc:description':
                 region['mwg-rs:Description'] = value.best_match()
-            elif key == 'mwg-rs:BarCodeValue':
+            elif key.startswith('mwg-rs:'):
                 region[key] = value
             else:
                 region['mwg-rs:Extensions'][key] = value
@@ -1985,20 +1988,18 @@ class ImageRegionItem(MD_Structure):
             boundary['Iptc4xmpExt:rbShape'] = 'polygon'
             boundary['Iptc4xmpExt:rbVertices'] = [{
                 'Iptc4xmpExt:rbX': x, 'Iptc4xmpExt:rbY': y}]
-        region = {'Iptc4xmpExt:RegionBoundary': boundary,
-                  'dc:description': []}
+        region = {'Iptc4xmpExt:RegionBoundary': boundary}
         file_value, ctype = cls.ctype_MWG_to_IPTC(file_value)
         region['Iptc4xmpExt:rCtype'] = [ctype]
-        if 'mwg-rs:Name' in file_value:
-            if ctype['Iptc4xmpExt:Name'] == 'Face':
-                region['Iptc4xmpExt:PersonInImage'] = [file_value['mwg-rs:Name']]
+        for key, value in file_value.items():
+            if key in ('mwg-rs:Area', 'mwg-rs:Extensions', 'rdfs:seeAlso'):
+                continue
+            elif key == 'mwg-rs:Name' and ctype['Iptc4xmpExt:Name'] == 'Face':
+                region['Iptc4xmpExt:PersonInImage'] = [value]
+            elif key == 'mwg-rs:Description':
+                region['dc:description'] = value
             else:
-                region['dc:description'].append(file_value['mwg-rs:Name'])
-        if 'mwg-rs:Description' in file_value:
-            region['dc:description'].append(file_value['mwg-rs:Description'])
-        if 'mwg-rs:BarCodeValue' in file_value:
-            region['mwg-rs:BarCodeValue'] = file_value['mwg-rs:BarCodeValue']
-        region['dc:description'] = '\n\n'.join(region['dc:description'])
+                region[key] = value
         region = cls(region)
         for key in ('mwg-rs:Extensions', 'rdfs:seeAlso'):
             if key in file_value:
