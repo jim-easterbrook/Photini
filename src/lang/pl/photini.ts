@@ -1737,7 +1737,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Region Name</source>
+        <source>Region name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

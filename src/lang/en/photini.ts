@@ -1762,7 +1762,11 @@
     </message>
     <message>
         <source>Region Name</source>
-        <translation>Region Name</translation>
+        <translation type="vanished">Region Name</translation>
+    </message>
+    <message>
+        <source>Region name</source>
+        <translation>Region name</translation>
     </message>
 </context>
 <context>
