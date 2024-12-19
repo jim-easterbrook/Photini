@@ -1981,14 +1981,13 @@ class ImageRegionItem(MD_Structure):
                 region['mwg-rs:Extensions'][key] = value
         return region
 
-    def to_MP(self):
+    def to_MP(self, dims):
         if not self['Iptc4xmpExt:PersonInImage']:
             return None
         boundary = self['Iptc4xmpExt:RegionBoundary']
         if boundary['Iptc4xmpExt:rbShape'] != 'rectangle':
             return None
-        if boundary['Iptc4xmpExt:rbUnit'] != 'relative':
-            return None
+        boundary = boundary.to_relative(dims)
         region = {
             'MPReg:Rectangle': ', '.join((str(boundary['Iptc4xmpExt:rbX']),
                                           str(boundary['Iptc4xmpExt:rbY']),
@@ -2224,7 +2223,7 @@ class MD_ImageRegion(MD_Structure):
             return {'mwg-rs:AppliedToDimensions': dims.to_exiv2(tag),
                     'mwg-rs:RegionList': regions}
         if tag == 'Xmp.MP.RegionInfo':
-            regions = [x.to_MP() for x in self]
+            regions = [x.to_MP(self['AppliedToDimensions']) for x in self]
             if not any(regions):
                 return None
             return {'MPRI:Regions': regions}
