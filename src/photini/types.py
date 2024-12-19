@@ -1858,6 +1858,8 @@ class ImageRegionItem(MD_Structure):
         'Iptc4xmpExt:PersonInImage': MD_MultiString,
         'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
         'mwg-rs:BarCodeValue': MD_String,
+        'mwg-rs:Name': MD_String,
+        'mwg-rs:Title': MD_String,
         'photoshop:CaptionWriter': MD_String,
         'dc:creator': MD_MultiString,
         'dc:description': MD_LangAlt,
@@ -1941,11 +1943,12 @@ class ImageRegionItem(MD_Structure):
                 else:
                     return None
                 region['mwg-rs:Area'] = area
-            elif key == 'Iptc4xmpExt:Name':
-                region['mwg-rs:Name'] = value.best_match()
+            elif (key == 'Iptc4xmpExt:PersonInImage'
+                  and not file_value['mwg-rs:Name']):
+                region['mwg-rs:Name'] = str(value)
             elif key == 'dc:description':
                 region['mwg-rs:Description'] = value.best_match()
-            elif key == 'mwg-rs:BarCodeValue':
+            elif key.startswith('mwg-rs:'):
                 region[key] = value
             else:
                 region['mwg-rs:Extensions'][key] = value
@@ -1988,12 +1991,15 @@ class ImageRegionItem(MD_Structure):
         region = {'Iptc4xmpExt:RegionBoundary': boundary}
         file_value, ctype = cls.ctype_MWG_to_IPTC(file_value)
         region['Iptc4xmpExt:rCtype'] = [ctype]
-        if 'mwg-rs:Name' in file_value:
-            region['Iptc4xmpExt:Name'] = file_value['mwg-rs:Name']
-        if 'mwg-rs:Description' in file_value:
-            region['dc:description'] = file_value['mwg-rs:Description']
-        if 'mwg-rs:BarCodeValue' in file_value:
-            region['mwg-rs:BarCodeValue'] = file_value['mwg-rs:BarCodeValue']
+        for key, value in file_value.items():
+            if key in ('mwg-rs:Area', 'mwg-rs:Extensions', 'rdfs:seeAlso'):
+                continue
+            elif key == 'mwg-rs:Name' and ctype['Iptc4xmpExt:Name'] == 'Face':
+                region['Iptc4xmpExt:PersonInImage'] = [value]
+            elif key == 'mwg-rs:Description':
+                region['dc:description'] = value
+            else:
+                region[key] = value
         region = cls(region)
         for key in ('mwg-rs:Extensions', 'rdfs:seeAlso'):
             if key in file_value:

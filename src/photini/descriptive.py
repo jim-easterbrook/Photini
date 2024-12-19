@@ -174,7 +174,6 @@ class TabWidget(QtWidgets.QScrollArea):
         # people
         self.widgets['people'] = SingleLineEdit(
             'people', spell_check=True, multi_string=True)
-
         self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
             ' image. Separate them with ";" characters.')))
