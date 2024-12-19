@@ -815,11 +815,10 @@ class MD_StructArray(MD_Value, tuple):
     # class for arrays of XMP structures such as locations or image regions
     def __new__(cls, value=None):
         value = value or []
+        # deep copy initial values
         temp = []
         for item in value:
-            if not isinstance(item, cls.item_type):
-                item = cls.item_type(item)
-            temp.append(item)
+            temp.append(cls.item_type(item))
         while temp and not temp[-1]:
             temp = temp[:-1]
         return super(MD_StructArray, cls).__new__(cls, temp)
@@ -1789,6 +1788,27 @@ class RegionBoundary(MD_Structure):
                     'rbUnit': result['rbUnit']}
         return result
 
+    def to_relative(self, dims):
+        if self['Iptc4xmpExt:rbUnit'] == 'relative':
+            return self
+        if not dims:
+            return None
+        result = RegionBoundary(self)
+        result['Iptc4xmpExt:rbUnit'] = 'relative'
+        if result['Iptc4xmpExt:rbShape'] == 'polygon':
+            for v in result['Iptc4xmpExt:rbVertices']:
+                v['Iptc4xmpExt:rbX'] /= dims['stDim:w']
+                v['Iptc4xmpExt:rbY'] /= dims['stDim:h']
+        else:
+            for key, value in result.items():
+                if value:
+                    if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbW',
+                               'Iptc4xmpExt:rbRx'):
+                        result[key] /= dims['stDim:w']
+                    elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
+                        result[key] /= dims['stDim:h']
+        return result
+
     def to_Qt(self, image):
         # convert the boundary to a Qt polygon defining the shape in
         # relative units
@@ -1913,7 +1933,7 @@ class ImageRegionItem(MD_Structure):
             file_value['Iptc4xmpExt:rCtype'].append(ctype)
         return cls(file_value)
 
-    def to_MWG(self, scale_diameter):
+    def to_MWG(self, dims):
         file_value, region = self.ctype_IPTC_to_MWG(dict(self))
         # convert some IPTC region data to MWG format
         region['mwg-rs:Extensions'] = {}
@@ -1921,23 +1941,26 @@ class ImageRegionItem(MD_Structure):
             if not value:
                 continue
             if key == 'Iptc4xmpExt:RegionBoundary':
-                if value['Iptc4xmpExt:rbUnit'] != 'relative':
+                boundary = value.to_relative(dims)
+                if not boundary:
                     return None
                 area = {'stArea:unit': 'normalized'}
-                if value['Iptc4xmpExt:rbShape'] == 'rectangle':
-                    w = value['Iptc4xmpExt:rbW']
-                    h = value['Iptc4xmpExt:rbH']
-                    area['stArea:x'] = value['Iptc4xmpExt:rbX'] + (w / 2)
-                    area['stArea:y'] = value['Iptc4xmpExt:rbY'] + (h / 2)
+                if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+                    w = boundary['Iptc4xmpExt:rbW']
+                    h = boundary['Iptc4xmpExt:rbH']
+                    area['stArea:x'] = boundary['Iptc4xmpExt:rbX'] + (w / 2)
+                    area['stArea:y'] = boundary['Iptc4xmpExt:rbY'] + (h / 2)
                     area['stArea:w'] = w
                     area['stArea:h'] = h
-                elif value['Iptc4xmpExt:rbShape'] == 'circle':
-                    area['stArea:x'] = value['Iptc4xmpExt:rbX']
-                    area['stArea:y'] = value['Iptc4xmpExt:rbY']
-                    area['stArea:d'] = value['Iptc4xmpExt:rbRx'] * 2 / scale_diameter
-                elif (value['Iptc4xmpExt:rbShape'] == 'polygon' and
-                      len(value['Iptc4xmpExt:rbVertices']) == 1):
-                    point = value['Iptc4xmpExt:rbVertices'][0]
+                elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+                    scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
+                    area['stArea:x'] = boundary['Iptc4xmpExt:rbX']
+                    area['stArea:y'] = boundary['Iptc4xmpExt:rbY']
+                    area['stArea:d'] = boundary[
+                        'Iptc4xmpExt:rbRx'] * 2 / scale_diameter
+                elif (boundary['Iptc4xmpExt:rbShape'] == 'polygon' and
+                      len(boundary['Iptc4xmpExt:rbVertices']) == 1):
+                    point = boundary['Iptc4xmpExt:rbVertices'][0]
                     area['stArea:x'] = point['Iptc4xmpExt:rbX']
                     area['stArea:y'] = point['Iptc4xmpExt:rbY']
                 else:
@@ -2191,8 +2214,7 @@ class MD_ImageRegion(MD_Structure):
             return [x.to_IPTC() for x in self]
         if tag == 'Xmp.mwg-rs.Regions':
             dims = self['AppliedToDimensions']
-            scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
-            regions = [x.to_MWG(scale_diameter) for x in self]
+            regions = [x.to_MWG(dims) for x in self]
             if not any(regions):
                 return None
             return {'mwg-rs:AppliedToDimensions': dims.to_exiv2(tag),
