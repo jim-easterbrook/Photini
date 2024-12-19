@@ -1793,20 +1793,24 @@ class RegionBoundary(MD_Structure):
             return self
         if not dims:
             return None
-        result = RegionBoundary(self)
+        result = dict(self)
         result['Iptc4xmpExt:rbUnit'] = 'relative'
         if result['Iptc4xmpExt:rbShape'] == 'polygon':
-            for v in result['Iptc4xmpExt:rbVertices']:
-                v['Iptc4xmpExt:rbX'] /= dims['stDim:w']
-                v['Iptc4xmpExt:rbY'] /= dims['stDim:h']
+            result['Iptc4xmpExt:rbVertices'] = []
+            for v in self['Iptc4xmpExt:rbVertices']:
+                result['Iptc4xmpExt:rbVertices'].append({
+                    'Iptc4xmpExt:rbX': round(
+                        v['Iptc4xmpExt:rbX'] / dims['stDim:w'], 4),
+                    'Iptc4xmpExt:rbY': round(
+                        v['Iptc4xmpExt:rbY'] / dims['stDim:h'], 4)})
         else:
             for key, value in result.items():
                 if value:
                     if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbW',
                                'Iptc4xmpExt:rbRx'):
-                        result[key] /= dims['stDim:w']
+                        result[key] = round(result[key] / dims['stDim:w'], 4)
                     elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
-                        result[key] /= dims['stDim:h']
+                        result[key] = round(result[key] / dims['stDim:h'], 4)
         return result
 
     def to_Qt(self, image):
