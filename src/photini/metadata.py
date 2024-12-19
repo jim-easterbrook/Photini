@@ -614,6 +614,10 @@ class SidecarMetadata(ImageMetadata):
             logger.exception(ex)
             return None
 
+    def get_image_size(self):
+        # sidecar files do not have an image
+        return None
+
     def delete(self):
         os.unlink(self._path)
         return None
