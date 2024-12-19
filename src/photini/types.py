@@ -1941,8 +1941,8 @@ class ImageRegionItem(MD_Structure):
                 else:
                     return None
                 region['mwg-rs:Area'] = area
-            elif key == 'Iptc4xmpExt:Name':
-                region['mwg-rs:Name'] = value.best_match()
+            elif key == 'Iptc4xmpExt:PersonInImage':
+                region['mwg-rs:Name'] = str(value)
             elif key == 'dc:description':
                 region['mwg-rs:Description'] = value.best_match()
             elif key == 'mwg-rs:BarCodeValue':
@@ -1985,15 +1985,20 @@ class ImageRegionItem(MD_Structure):
             boundary['Iptc4xmpExt:rbShape'] = 'polygon'
             boundary['Iptc4xmpExt:rbVertices'] = [{
                 'Iptc4xmpExt:rbX': x, 'Iptc4xmpExt:rbY': y}]
-        region = {'Iptc4xmpExt:RegionBoundary': boundary}
+        region = {'Iptc4xmpExt:RegionBoundary': boundary,
+                  'dc:description': []}
         file_value, ctype = cls.ctype_MWG_to_IPTC(file_value)
         region['Iptc4xmpExt:rCtype'] = [ctype]
         if 'mwg-rs:Name' in file_value:
-            region['Iptc4xmpExt:Name'] = file_value['mwg-rs:Name']
+            if ctype['Iptc4xmpExt:Name'] == 'Face':
+                region['Iptc4xmpExt:PersonInImage'] = [file_value['mwg-rs:Name']]
+            else:
+                region['dc:description'].append(file_value['mwg-rs:Name'])
         if 'mwg-rs:Description' in file_value:
-            region['dc:description'] = file_value['mwg-rs:Description']
+            region['dc:description'].append(file_value['mwg-rs:Description'])
         if 'mwg-rs:BarCodeValue' in file_value:
             region['mwg-rs:BarCodeValue'] = file_value['mwg-rs:BarCodeValue']
+        region['dc:description'] = '\n\n'.join(region['dc:description'])
         region = cls(region)
         for key in ('mwg-rs:Extensions', 'rdfs:seeAlso'):
             if key in file_value:
