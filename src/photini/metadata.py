@@ -702,16 +702,19 @@ class Metadata(object):
                     break
             # merge people in regions into people in image
             if name == 'people':
-                for n, (tag, value) in enumerate(values):
-                    extras = []
-                    for region in self.image_region:
-                        for person in region['Iptc4xmpExt:PersonInImage']:
-                            if person not in value and person not in extras:
-                                extras.append(person)
-                    if extras:
-                        value = list(value) + extras
-                        values[n] = (tag, self._data_type[name](value))
-                        logger.info('%s: merged people in regions', tag)
+                if not values:
+                    values = [('Xmp.iptcExt.PersonInImage',
+                               self._data_type[name]())]
+                tag, value = values[0]
+                extras = []
+                for region in self.image_region:
+                    for person in region['Iptc4xmpExt:PersonInImage']:
+                        if person not in value and person not in extras:
+                            extras.append(person)
+                if extras:
+                    value = list(value) + extras
+                    values[0] = (tag, self._data_type[name](value))
+                    logger.info('%s: merged people in regions', tag)
             # merge in camera timezone
             if (name in ('date_digitised', 'date_modified', 'date_taken')
                     and self.timezone):
