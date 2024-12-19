@@ -445,7 +445,8 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.Headline')),
         'image_region'   : (('WN', 'Exif.Photo.SubjectArea'),
                             ('WA', 'Xmp.iptcExt.ImageRegion'),
-                            ('WA', 'Xmp.mwg-rs.Regions')),
+                            ('WA', 'Xmp.mwg-rs.Regions'),
+                            ('WA', 'Xmp.MP.RegionInfo')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
                             ('WA', 'Iptc.Application2.SpecialInstructions')),
         'keywords'       : (('WA', 'Xmp.dc.subject'),
@@ -612,6 +613,10 @@ class SidecarMetadata(ImageMetadata):
             logger.error('Exception opening %s', path)
             logger.exception(ex)
             return None
+
+    def get_image_size(self):
+        # sidecar files do not have an image
+        return None
 
     def delete(self):
         os.unlink(self._path)

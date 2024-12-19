@@ -837,7 +837,7 @@ class RegionForm(QtWidgets.QScrollArea):
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(
             key, multi_line=False, min_width=15,
-            label=translate('RegionsTab', 'Region Name'))
+            label=translate('RegionsTab', 'Region name'))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
