@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-20 10:57+0000\n"
+"POT-Creation-Date: 2024-12-20 14:43+0000\n"
 "PO-Revision-Date: 2023-04-19 08:54+0000\n"
 "Last-Translator: Dawid Głaz, 2023\n"
 "Language: pl@qtfiletype\n"
@@ -2067,6 +2067,12 @@ msgstr ""
 msgid "Xmp.iptc.ExtDescrAccessibility"
 msgstr ""
 
+msgid "`Person(s) shown`_"
+msgstr ""
+
+msgid "Xmp.iptcExt.PersonInImage"
+msgstr ""
+
 msgid "Rating_"
 msgstr ""
 
@@ -2234,7 +2240,7 @@ msgstr ""
 msgid "`Image Regions`_"
 msgstr ""
 
-msgid "Xmp.iptcExt.ImageRegion"
+msgid "Xmp.iptcExt.ImageRegion Xmp.mwg-rs.Regions Xmp.MP.RegionInfo"
 msgstr ""
 
 msgid "Latitude_, longitude_"
@@ -5829,5 +5835,8 @@ msgstr ""
 #~ msgid ""
 #~ "Other, less useful, metadata includes a "
 #~ "name and identifier for the region."
+#~ msgstr ""
+
+#~ msgid "Xmp.iptcExt.ImageRegion"
 #~ msgstr ""
 
