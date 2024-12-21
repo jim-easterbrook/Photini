@@ -1962,6 +1962,7 @@ class ImageRegionItem(MD_Structure):
         file_value, region = self.ctype_IPTC_to_MWG(dict(self))
         # convert some IPTC region data to MWG format
         region['mwg-rs:Extensions'] = {}
+        region['mwg-rs:Name'] = file_value['mwg-rs:Name']
         for key, value in file_value.items():
             if not value:
                 continue
@@ -1992,13 +1993,17 @@ class ImageRegionItem(MD_Structure):
                     return None
                 region['mwg-rs:Area'] = area
             elif (key == 'Iptc4xmpExt:PersonInImage'
-                  and file_value['mwg-rs:Name'] not in (value, None)):
-                region['mwg-rs:Name'] = str(value)
+                      and not file_value['mwg-rs:Name']
+                      and 'mwg-rs:Type' in region
+                      and region['mwg-rs:Type'] == 'Face'):
+                    region['mwg-rs:Name'] = str(value)
             elif key == 'dc:description':
                 region['mwg-rs:Description'] = value.best_match()
             elif key.startswith('mwg-rs:'):
                 region[key] = value
-            else:
+            elif key not in ('Iptc4xmpExt:rCtype', 'Iptc4xmpExt:rRole'):
+                # MWG docs say extension can be "any additional top
+                # level XMP property". ctype and role are not top level
                 region['mwg-rs:Extensions'][key] = value
         return region
 
