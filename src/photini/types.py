@@ -24,6 +24,8 @@ import math
 import pprint
 import re
 
+import exiv2
+
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import *
 from photini.pyqt import qt_version_info, using_pyside
@@ -683,13 +685,22 @@ class MD_Structure(MD_Value, dict):
     @classmethod
     def get_type(cls, key, value):
         if cls.extendable and key not in cls.item_type:
-            logger.warning('Inferring type for %s', key)
-            if isinstance(value, (list, tuple)):
-                cls.item_type[key] = MD_MultiString
-            elif isinstance(value, dict):
-                cls.item_type[key] = MD_LangAlt
+            result = exiv2.XmpProperties.propertyType(
+                exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+            if result in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                          exiv2.TypeId.xmpSeq):
+                result = MD_MultiString
+            elif result == exiv2.TypeId.langAlt:
+                result = MD_LangAlt
+            elif isinstance(value, (list, tuple, dict)):
+                logger.warning('Inferring type for %s', key)
+                if isinstance(value, dict):
+                    result = MD_LangAlt
+                else:
+                    result = MD_MultiString
             else:
-                cls.item_type[key] = MD_String
+                result = MD_String
+            cls.item_type[key] = result
         return cls.item_type[key]
 
     @classmethod
@@ -1879,16 +1890,9 @@ class ImageRegionItem(MD_Structure):
         'Iptc4xmpExt:rCtype': EntityConceptArray,
         'Iptc4xmpExt:rRole': EntityConceptArray,
         'Iptc4xmpExt:PersonInImage': MD_MultiString,
-        'Iptc4xmpExt:OrganisationInImageName': MD_MultiString,
-        'mwg-rs:BarCodeValue': MD_String,
         'mwg-rs:Description': MD_String,
         'mwg-rs:Name': MD_String,
-        'mwg-rs:Title': MD_String,
-        'photoshop:CaptionWriter': MD_String,
-        'dc:creator': MD_MultiString,
         'dc:description': MD_LangAlt,
-        'dc:subject': MD_MultiString,
-        'xmpRights:UsageTerms': MD_LangAlt,
         }
 
     def merge(self, info, tag, other):
