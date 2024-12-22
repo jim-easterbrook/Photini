@@ -21,10 +21,10 @@ import math
 import os
 import re
 
-from photini.cv import image_region_types, image_region_roles
 from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import ImageRegionItem, MD_LangAlt
+from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import LangAltWidget, MultiStringEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
@@ -589,14 +589,14 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             active = n == idx
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                if region.has_role('imgregrole:squareCropping'):
+                if region.has_role('squareCropping'):
                     constraint = 'square'
-                elif region.has_role('imgregrole:landscapeCropping'):
+                elif region.has_role('landscapeCropping'):
                     if self.transform().isRotating():
                         constraint = 'portrait'
                     else:
                         constraint = 'landscape'
-                elif region.has_role('imgregrole:portraitCropping'):
+                elif region.has_role('portraitCropping'):
                     if self.transform().isRotating():
                         constraint = 'landscape'
                     else:
@@ -775,52 +775,6 @@ class UnitSelector(QtWidgets.QWidget):
 
 class RegionForm(QtWidgets.QScrollArea):
     new_value = QtSignal(int, dict)
-    MWG_region_types = (
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Face'},
-                  'xmp:Identifier': ('mwg-rs:Type Face',)},
-         'definition': {'en-GB': "Region area for people's faces."},
-         'name': {'en-GB': 'Face'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Pet'},
-                  'xmp:Identifier': ('mwg-rs:Type Pet',)},
-         'definition': {'en-GB': "Region area for pets."},
-         'name': {'en-GB': 'Pet'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedUsed'},
-                  'xmp:Identifier': ('mwg-rs:Type Focus',
-                                     'mwg-rs:FocusUsage EvaluatedUsed')},
-         'definition': {'en-GB': "Region area for camera auto-focus regions."
-                        "<br/>EvaluatedUsed specifies that the focus point was"
-                        " considered during focusing and was used in the final"
-                        " image."},
-         'name': {'en-GB': 'Focus (EvaluatedUsed)'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedNotUsed'},
-                  'xmp:Identifier': ('mwg-rs:Type Focus',
-                                     'mwg-rs:FocusUsage EvaluatedNotUsed')},
-         'definition': {'en-GB': "Region area for camera auto-focus regions."
-                        "<br/>EvaluatedNotUsed specifies that the focus point"
-                        " was considered during focusing but not utilised in"
-                        " the final image."},
-         'name': {'en-GB': 'Focus (EvaluatedNotUsed)'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/NotEvaluatedNotUsed'},
-                  'xmp:Identifier': ('mwg-rs:Type Focus'
-                                     'mwg-rs:FocusUsage NotEvaluatedNotUsed')},
-         'definition': {'en-GB': "Region area for camera auto-focus regions."
-                        "<br/>NotEvaluatedNotUsed specifies that a focus point"
-                        " was not evaluated and not used, e.g. a fixed focus"
-                        " point on the camera which was not used in any"
-                        " fashion."},
-         'name': {'en-GB': 'Focus (NotEvaluatedNotUsed)'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'BarCode'},
-                  'xmp:Identifier': ('mwg-rs:Type BarCode',)},
-         'definition': {'en-GB': "One dimensional linear or two dimensional"
-                        " matrix optical code."},
-         'name': {'en-GB': 'BarCode'},
-         'note': None},
-        )
 
     def __init__(self, idx, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
@@ -863,7 +817,7 @@ class RegionForm(QtWidgets.QScrollArea):
             translate('RegionsTab', 'Boundary unit'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
-        self.widgets[key] = EntityConceptWidget(key, image_region_roles)
+        self.widgets[key] = EntityConceptWidget(key, IPTCRoleCV.vocab)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Role of this region among all regions of this image'
             ' or of other images. The value SHOULD be taken from a Controlled'
@@ -872,9 +826,8 @@ class RegionForm(QtWidgets.QScrollArea):
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
-        self.widgets[key] = EntityConceptWidget(key, image_region_types)
-        self.widgets[key].add_menu_items(
-            self.MWG_region_types, exclusive=True)
+        self.widgets[key] = EntityConceptWidget(key, IPTCTypeCV.vocab)
+        self.widgets[key].add_menu_items(MWGTypeCV.vocab, exclusive=True)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
