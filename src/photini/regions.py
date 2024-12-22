@@ -589,14 +589,14 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             active = n == idx
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                if region.has_role('squareCropping'):
+                if region.has_role('square format cropping'):
                     constraint = 'square'
-                elif region.has_role('landscapeCropping'):
+                elif region.has_role('landscape format cropping'):
                     if self.transform().isRotating():
                         constraint = 'portrait'
                     else:
                         constraint = 'landscape'
-                elif region.has_role('portraitCropping'):
+                elif region.has_role('portrait format cropping'):
                     if self.transform().isRotating():
                         constraint = 'landscape'
                     else:

@@ -1729,6 +1729,9 @@ class EntityConcept(MD_Structure):
 class EntityConceptArray(MD_StructArray):
     item_type = EntityConcept
 
+    def has_name(self, name):
+        return any(item['Iptc4xmpExt:Name']['en-GB'] == name for item in self)
+
 
 class RegionBoundaryNumber(MD_Float):
     def set_decimals(self, decimals):
@@ -1903,8 +1906,7 @@ class ImageRegionItem(MD_Structure):
                 value = result[old_key]
                 del result[old_key]
                 if old_key == 'mwg-rs:Name' and (
-                        result.has_type('human')
-                        or result.has_type('', uid='mwg-rs:Type Face')):
+                        result.has_type('human') or result.has_type('Face')):
                     new_key = 'Iptc4xmpExt:PersonInImage'
                     value = [value]
                 if result[new_key]:
@@ -2098,26 +2100,15 @@ class ImageRegionItem(MD_Structure):
         region['Iptc4xmpExt:rbUnit'] = 'pixel'
         return cls({
             'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_qcode('mainSubjectArea')],
+            'Iptc4xmpExt:rRole': [
+                IPTCRoleCV.data_for_name('main subject area')],
             })
 
-    def has_uid(self, key, uid):
-        if key not in self:
-            return False
-        for item in self[key]:
-            if 'xmp:Identifier' in item and uid in item['xmp:Identifier']:
-                return True
-        return False
+    def has_type(self, name):
+        return self['Iptc4xmpExt:rCtype'].has_name(name)
 
-    def has_type(self, qcode, uid=None):
-        if not uid:
-            data = IPTCTypeCV.data_for_qcode(qcode)
-            uid = data['xmp:Identifier'][0]
-        return self.has_uid('Iptc4xmpExt:rCtype', uid)
-
-    def has_role(self, qcode):
-        data = IPTCRoleCV.data_for_qcode(qcode)
-        return self.has_uid('Iptc4xmpExt:rRole', data['xmp:Identifier'][0])
+    def has_role(self, name):
+        return self['Iptc4xmpExt:rRole'].has_name(name)
 
     def to_Qt(self, image):
         return self['Iptc4xmpExt:RegionBoundary'].to_Qt(image)
@@ -2141,10 +2132,10 @@ class RegionList(MD_StructArray):
     item_type = ImageRegionItem
 
     def find(self, other):
-        if other.has_role('mainSubjectArea'):
+        if other.has_role('main subject area'):
             # only one main subject area region allowed
             for n, value in enumerate(self):
-                if value.has_role('mainSubjectArea'):
+                if value.has_role('main subject area'):
                     return n
             return len(self)
         for n, value in enumerate(self):
@@ -2302,12 +2293,12 @@ class MD_ImageRegion(MD_Structure):
                 continue
             region = {
                 'Iptc4xmpExt:RegionBoundary': boundary,
-                'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_qcode('subjectArea')],
+                'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_name('subject area')],
                 }
             if note['is_person']:
                 region['Iptc4xmpExt:PersonInImage'] = [note['content']]
                 region['Iptc4xmpExt:rCtype'] = [
-                    IPTCTypeCV.data_for_qcode('human')]
+                    IPTCTypeCV.data_for_name('human')]
             else:
                 region['dc:description'] = {'x-default': note['content']}
             if note['authorrealname']:
@@ -2346,7 +2337,7 @@ class MD_ImageRegion(MD_Structure):
                         region['Iptc4xmpExt:PersonInImage'])
                 note['is_person'] = True
             elif not any(region.has_role(x) for x in (
-                    'subjectArea', 'mainSubjectArea', 'areaOfInterest')):
+                    'subject area', 'main subject area', 'area of interest')):
                 continue
             if 'dc:description' in region and not note['content']:
                 note['content'] = MD_LangAlt(
@@ -2367,11 +2358,13 @@ class MD_ImageRegion(MD_Structure):
         if transform and transform.isRotating():
             portrait_format = not portrait_format
         if portrait_format:
-            roles = ('landscapeCropping', 'squareCropping', 'recomCropping',
-                     'cropping', 'portraitCropping')
+            roles = ('landscape format cropping', 'square format cropping',
+                     'recommended cropping', 'cropping',
+                     'portrait format cropping')
         else:
-            roles = ('squareCropping', 'portraitCropping', 'landscapeCropping',
-                     'recomCropping', 'cropping')
+            roles = ('square format cropping', 'portrait format cropping',
+                     'landscape format cropping', 'recommended cropping',
+                     'cropping')
         for role in roles:
             for region in self:
                 if not region.has_role(role):

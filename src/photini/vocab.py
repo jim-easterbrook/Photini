@@ -24,17 +24,10 @@ from photini.cv import image_region_types, image_region_roles
 
 class IPTCBaseCV(object):
     @classmethod
-    def init_qcode_map(cls, prefix):
-        prefix += ':'
-        cls.qcode_map = {}
+    def data_for_name(cls, name):
         for item in cls.vocab:
-            qcode = item['qcode'].replace(prefix, '')
-            cls.qcode_map[qcode] = item['data']
-
-    @classmethod
-    def data_for_qcode(cls, qcode):
-        if qcode in cls.qcode_map:
-            return cls.qcode_map[qcode]
+            if item['data']['Iptc4xmpExt:Name']['en-GB'] == name:
+                return item['data']
         return {}
 
 
@@ -46,11 +39,7 @@ class IPTCTypeCV(IPTCBaseCV):
     vocab = image_region_types
 
 
-IPTCRoleCV.init_qcode_map('imgregrole')
-IPTCTypeCV.init_qcode_map('imgregtype')
-
-
-class MWGTypeCV(object):
+class MWGTypeCV(IPTCBaseCV):
     vocab = (
         {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Face'},
                   'xmp:Identifier': ('mwg-rs:Type Face',)},
@@ -115,14 +104,11 @@ class MWGTypeCV(object):
                 return dict(x.split() for x in item['data']['xmp:Identifier'])
         return {}
 
-    @staticmethod
-    def from_file_data(data):
+    @classmethod
+    def from_file_data(cls, data):
         if 'mwg-rs:Type' not in data:
             return {}
         name = data['mwg-rs:Type']
-        identifier = ['mwg-rs:Type ' + name]
         if 'mwg-rs:FocusUsage' in data:
-            focus_usage = data['mwg-rs:FocusUsage']
-            name += '/' + focus_usage
-            identifier.append('mwg-rs:FocusUsage ' + focus_usage)
-        return {'Iptc4xmpExt:Name': name, 'xmp:Identifier': tuple(identifier)}
+            name += '/' + data['mwg-rs:FocusUsage']
+        return cls.data_for_name(name)
