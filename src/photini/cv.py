@@ -108,24 +108,6 @@ image_region_types = \
                     'water'},
   'qcode': 'imgregtype:bodyOfWater'})
 
-image_region_types_idx = \
-{'imgregtype:animal': 0,
- 'imgregtype:artwork': 1,
- 'imgregtype:bodyOfWater': 15,
- 'imgregtype:building': 10,
- 'imgregtype:clothing': 13,
- 'imgregtype:dividingLine': 2,
- 'imgregtype:food': 12,
- 'imgregtype:geoArea': 4,
- 'imgregtype:graphic': 5,
- 'imgregtype:human': 7,
- 'imgregtype:machineCode': 6,
- 'imgregtype:plant': 3,
- 'imgregtype:product': 8,
- 'imgregtype:rockFormation': 14,
- 'imgregtype:text': 9,
- 'imgregtype:vehicle': 11}
-
 # ©IPTC, International Press Telecommunications Council - https://iptc.org
 # Date: 2019-12-06T12:00:00+00:00
 # Licence: http://creativecommons.org/licenses/by/4.0/
@@ -207,17 +189,4 @@ image_region_roles = \
   'note': {'en-GB': 'In addition a more granular role could be expressed by a '
                     'term of a role CV of this business.'},
   'qcode': 'imgregrole:businessUse'})
-
-image_region_roles_idx = \
-{'imgregrole:areaOfInterest': 9,
- 'imgregrole:businessUse': 10,
- 'imgregrole:compositeImageItem': 5,
- 'imgregrole:copyrightRegion': 6,
- 'imgregrole:cropping': 0,
- 'imgregrole:landscapeCropping': 2,
- 'imgregrole:mainSubjectArea': 8,
- 'imgregrole:portraitCropping': 3,
- 'imgregrole:recomCropping': 1,
- 'imgregrole:squareCropping': 4,
- 'imgregrole:subjectArea': 7}
 

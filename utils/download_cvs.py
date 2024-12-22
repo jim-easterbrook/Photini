@@ -69,11 +69,6 @@ def main(argv=None):
                 py.write(' = \\\n')
                 pprint(tuple(data[x] for x in uris), stream=py)
                 py.write('\n')
-                py.write(data_name)
-                py.write('_idx = \\\n')
-                pprint(dict((data[x]['qcode'], n)
-                            for n, x in enumerate(uris)), stream=py)
-                py.write('\n')
     return 0
 
 
