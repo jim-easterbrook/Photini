@@ -2353,33 +2353,3 @@ class MD_ImageRegion(MD_Structure):
                 continue
             result.append(note)
         return result
-
-    def get_focus(self, image):
-        image_dims = image.metadata.dimensions
-        portrait_format = image_dims['height'] > image_dims['width']
-        transform = (image.metadata.orientation
-                     and image.metadata.orientation.get_transform())
-        if transform and transform.isRotating():
-            portrait_format = not portrait_format
-        if portrait_format:
-            roles = ('landscapeCropping', 'squareCropping', 'recomCropping',
-                     'cropping', 'portraitCropping')
-        else:
-            roles = ('squareCropping', 'portraitCropping', 'landscapeCropping',
-                     'recomCropping', 'cropping')
-        for role in roles:
-            for region in self:
-                if not region.has_role(role):
-                    continue
-                points = region.to_Qt(image)
-                boundary = region['Iptc4xmpExt:RegionBoundary']
-                if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                    centre = (points.at(0) + points.at(1)) / 2.0
-                elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
-                    centre = points.at(0)
-                else:
-                    centre = points.boundingRect().center()
-                if transform:
-                    centre = transform.map(centre)
-                return (centre.x() * 2.0) - 1.0, 1.0 - (centre.y() * 2.0)
-        return None
