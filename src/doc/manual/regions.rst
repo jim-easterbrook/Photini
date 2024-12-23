@@ -49,14 +49,18 @@ The entire region can be dragged by clicking within it.
 Positioning the region is made easier if you zoom in by holding down the ``Ctrl`` key while scrolling with the mouse scroll wheel.
 (The zoom can also be adjusted with ``Ctrl-Plus`` and ``Ctrl-Minus`` key combinations.)
 
+After creating a region you can add metadata about the it.
+The ``Region name`` and ``Identifier`` fields are unique labels for the region, but I haven't found a use for them.
+
+The ``Boundary unit`` specifies whether the vertex positions are stored as absolute pixel values or relative proportions of the image width and height.
+Don't use pixel values unless you have some other software that requires them.
+
 .. image:: ../images/screenshot_276.png
 
 The most important metadata for a region is probably its "role_".
 This is chosen from a "controlled vocabulary" defined by the IPTC.
 Photini shows the IPTC names and definitions (as "tooltips") in a drop down menu when you click on the ``Role`` entry.
 You can select one or more roles from the list.
-
-Other, less useful, metadata includes a name and identifier for the region.
 
 .. image:: ../images/screenshot_277.png
 

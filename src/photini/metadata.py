@@ -719,7 +719,8 @@ class Metadata(object):
                 if extras:
                     value = list(value) + extras
                     values[0] = (tag, self._data_type[name](value))
-                    logger.info('%s: merged people in regions', tag)
+                    logger.info('%s(%s): merged image_region people',
+                                os.path.basename(self._path), name)
             # merge in camera timezone
             if (name in ('date_digitised', 'date_modified', 'date_taken')
                     and self.timezone):

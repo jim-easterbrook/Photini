@@ -248,16 +248,19 @@ class FlickrSession(UploaderSession):
                     return 'Failed to delete note'
         # add new notes
         for note in params['notes']:
-            if not note['is_person']:
-                rsp = self.api_call(
-                    'flickr.photos.notes.add', post=True, photo_id=photo_id,
-                    note_x=note['x'], note_y=note['y'], note_w=note['w'],
-                    note_h=note['h'], note_text=note['content'])
-            elif note['content'] == self.user_data['fullname']:
+            if (note['is_person'] and
+                    note['content'] == self.user_data['fullname']):
                 rsp = self.api_call(
                     'flickr.photos.people.add', post=True, photo_id=photo_id,
                     person_x=note['x'], person_y=note['y'], person_w=note['w'],
                     person_h=note['h'], user_id=self.user_data['user_nsid'])
+                if rsp is None:
+                    return 'Failed to add person'
+            # flickr.photos.people.add doesn't show a box, so do it separately
+            rsp = self.api_call(
+                'flickr.photos.notes.add', post=True, photo_id=photo_id,
+                note_x=note['x'], note_y=note['y'], note_w=note['w'],
+                note_h=note['h'], note_text=note['content'])
             if rsp is None:
                 return 'Failed to add note'
         return ''
@@ -650,11 +653,6 @@ class TabWidget(PhotiniUploader):
             params['notes'] = []
             for note in image.metadata.image_region.to_notes(image, 500):
                 params['notes'].append(note)
-                if note['is_person']:
-                    # Flickr doesn't show box around person, so add one
-                    note = dict(note)
-                    note['is_person'] = False
-                    params['notes'].append(note)
         return params
 
     def replace_dialog(self, image):
