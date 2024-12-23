@@ -2335,20 +2335,18 @@ class MD_ImageRegion(MD_Structure):
         for region, note in self.to_note_boundary(image, target_size):
             note['content'] = ''
             note['is_person'] = False
-            if region.has_type('human'):
-                if 'Iptc4xmpExt:PersonInImage' in region:
-                    note['content'] = ', '.join(
-                        region['Iptc4xmpExt:PersonInImage'])
+            if region.has_type('human') or region.has_type('Face'):
+                note['content'] = ', '.join(region['Iptc4xmpExt:PersonInImage'])
                 note['is_person'] = True
             elif not any(region.has_role(x) for x in (
                     'subjectArea', 'mainSubjectArea', 'areaOfInterest')):
                 continue
-            if 'dc:description' in region and not note['content']:
-                note['content'] = MD_LangAlt(
-                    region['dc:description']).best_match()
-            if 'Iptc4xmpExt:Name' in region and not note['content']:
-                note['content'] = MD_LangAlt(
-                    region['Iptc4xmpExt:Name']).best_match()
+            if not note['content']:
+                note['content'] = region['dc:description'].best_match()
+            if not note['content']:
+                note['content'] = ', '.join(region['Iptc4xmpExt:PersonInImage'])
+            if not note['content']:
+                note['content'] = region['Iptc4xmpExt:Name'].best_match()
             if not note['content']:
                 continue
             result.append(note)
