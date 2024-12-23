@@ -1729,8 +1729,8 @@ class EntityConcept(MD_Structure):
 class EntityConceptArray(MD_StructArray):
     item_type = EntityConcept
 
-    def has_name(self, name):
-        return any(item['Iptc4xmpExt:Name']['en-GB'] == name for item in self)
+    def has_data(self, data):
+        return data in self
 
 
 class RegionBoundaryNumber(MD_Float):
@@ -2100,15 +2100,19 @@ class ImageRegionItem(MD_Structure):
         region['Iptc4xmpExt:rbUnit'] = 'pixel'
         return cls({
             'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [
-                IPTCRoleCV.data_for_name('main subject area')],
+            'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_name('mainSubjectArea')],
             })
 
-    def has_type(self, name):
-        return self['Iptc4xmpExt:rCtype'].has_name(name)
+    def has_type(self, label):
+        if label in MWGTypeCV.vocab:
+            data = MWGTypeCV.vocab[label]['data']
+        else:
+            data = IPTCTypeCV.vocab[label]['data']
+        return self['Iptc4xmpExt:rCtype'].has_data(data)
 
-    def has_role(self, name):
-        return self['Iptc4xmpExt:rRole'].has_name(name)
+    def has_role(self, label):
+        return self['Iptc4xmpExt:rRole'].has_data(
+            IPTCRoleCV.vocab[label]['data'])
 
     def to_Qt(self, image):
         return self['Iptc4xmpExt:RegionBoundary'].to_Qt(image)
@@ -2132,10 +2136,10 @@ class RegionList(MD_StructArray):
     item_type = ImageRegionItem
 
     def find(self, other):
-        if other.has_role('main subject area'):
+        if other.has_role('mainSubjectArea'):
             # only one main subject area region allowed
             for n, value in enumerate(self):
-                if value.has_role('main subject area'):
+                if value.has_role('mainSubjectArea'):
                     return n
             return len(self)
         for n, value in enumerate(self):
@@ -2293,7 +2297,7 @@ class MD_ImageRegion(MD_Structure):
                 continue
             region = {
                 'Iptc4xmpExt:RegionBoundary': boundary,
-                'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_name('subject area')],
+                'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_name('subjectArea')],
                 }
             if note['is_person']:
                 region['Iptc4xmpExt:PersonInImage'] = [note['content']]
@@ -2337,7 +2341,7 @@ class MD_ImageRegion(MD_Structure):
                         region['Iptc4xmpExt:PersonInImage'])
                 note['is_person'] = True
             elif not any(region.has_role(x) for x in (
-                    'subject area', 'main subject area', 'area of interest')):
+                    'subjectArea', 'mainSubjectArea', 'areaOfInterest')):
                 continue
             if 'dc:description' in region and not note['content']:
                 note['content'] = MD_LangAlt(
@@ -2358,13 +2362,11 @@ class MD_ImageRegion(MD_Structure):
         if transform and transform.isRotating():
             portrait_format = not portrait_format
         if portrait_format:
-            roles = ('landscape format cropping', 'square format cropping',
-                     'recommended cropping', 'cropping',
-                     'portrait format cropping')
+            roles = ('landscapeCropping', 'squareCropping', 'recomCropping',
+                     'cropping', 'portraitCropping')
         else:
-            roles = ('square format cropping', 'portrait format cropping',
-                     'landscape format cropping', 'recommended cropping',
-                     'cropping')
+            roles = ('squareCropping', 'portraitCropping', 'landscapeCropping',
+                     'recomCropping', 'cropping')
         for role in roles:
             for region in self:
                 if not region.has_role(role):

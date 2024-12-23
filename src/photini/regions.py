@@ -589,14 +589,14 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             active = n == idx
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                if region.has_role('square format cropping'):
+                if region.has_role('squareCropping'):
                     constraint = 'square'
-                elif region.has_role('landscape format cropping'):
+                elif region.has_role('landscapeCropping'):
                     if self.transform().isRotating():
                         constraint = 'portrait'
                     else:
                         constraint = 'landscape'
-                elif region.has_role('portrait format cropping'):
+                elif region.has_role('portraitCropping'):
                     if self.transform().isRotating():
                         constraint = 'landscape'
                     else:
@@ -668,7 +668,7 @@ class EntityConceptWidget(SingleLineEdit):
             group = QtWidgets.QActionGroup(self)
             group.setExclusionPolicy(group.ExclusionPolicy.ExclusiveOptional)
         for item in items:
-            label = MD_LangAlt(item['name']).best_match()
+            label = MD_LangAlt(item['data']['Iptc4xmpExt:Name']).best_match()
             tip = MD_LangAlt(item['definition']).best_match()
             if item['note']:
                 tip += ' ({})'.format(MD_LangAlt(item['note']).best_match())
@@ -716,7 +716,6 @@ class EntityConceptWidget(SingleLineEdit):
                 self.add_menu_items([{
                     'data': item,
                     'definition': None,
-                    'name': item['Iptc4xmpExt:Name'],
                     'note': None}], add_separator=False)
         self._updating = False
         self.update_display()
@@ -817,7 +816,7 @@ class RegionForm(QtWidgets.QScrollArea):
             translate('RegionsTab', 'Boundary unit'), self.widgets[key])
         # roles
         key = 'Iptc4xmpExt:rRole'
-        self.widgets[key] = EntityConceptWidget(key, IPTCRoleCV.vocab)
+        self.widgets[key] = EntityConceptWidget(key, IPTCRoleCV.vocab.values())
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Role of this region among all regions of this image'
             ' or of other images. The value SHOULD be taken from a Controlled'
@@ -826,8 +825,9 @@ class RegionForm(QtWidgets.QScrollArea):
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
         # content types
         key = 'Iptc4xmpExt:rCtype'
-        self.widgets[key] = EntityConceptWidget(key, IPTCTypeCV.vocab)
-        self.widgets[key].add_menu_items(MWGTypeCV.vocab, exclusive=True)
+        self.widgets[key] = EntityConceptWidget(key, IPTCTypeCV.vocab.values())
+        self.widgets[key].add_menu_items(
+            MWGTypeCV.vocab.values(), exclusive=True)
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'

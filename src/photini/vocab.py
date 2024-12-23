@@ -25,10 +25,7 @@ from photini.cv import image_region_types, image_region_roles
 class IPTCBaseCV(object):
     @classmethod
     def data_for_name(cls, name):
-        for item in cls.vocab:
-            if item['data']['Iptc4xmpExt:Name']['en-GB'] == name:
-                return item['data']
-        return {}
+        return cls.vocab[name]['data']
 
 
 class IPTCRoleCV(IPTCBaseCV):
@@ -40,58 +37,65 @@ class IPTCTypeCV(IPTCBaseCV):
 
 
 class MWGTypeCV(IPTCBaseCV):
-    vocab = (
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Face'},
-                  'xmp:Identifier': ('mwg-rs:Type Face',)},
-         'definition': {'en-GB': "Region area for people's faces."},
-         'name': {'en-GB': 'Face'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Pet'},
-                  'xmp:Identifier': ('mwg-rs:Type Pet',)},
-         'definition': {'en-GB': "Region area for pets."},
-         'name': {'en-GB': 'Pet'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedUsed'},
-                  'xmp:Identifier': ('mwg-rs:Type Focus',
-                                     'mwg-rs:FocusUsage EvaluatedUsed')},
-         'definition': {'en-GB': "Region area for camera auto-focus regions."
-                        "<br/>EvaluatedUsed specifies that the focus point was"
-                        " considered during focusing and was used in the final"
-                        " image."},
-         'name': {'en-GB': 'Focus (EvaluatedUsed)'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/EvaluatedNotUsed'},
-                  'xmp:Identifier': ('mwg-rs:Type Focus',
-                                     'mwg-rs:FocusUsage EvaluatedNotUsed')},
-         'definition': {'en-GB': "Region area for camera auto-focus regions."
-                        "<br/>EvaluatedNotUsed specifies that the focus point"
-                        " was considered during focusing but not utilised in"
-                        " the final image."},
-         'name': {'en-GB': 'Focus (EvaluatedNotUsed)'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus/NotEvaluatedNotUsed'},
-                  'xmp:Identifier': ('mwg-rs:Type Focus'
-                                     'mwg-rs:FocusUsage NotEvaluatedNotUsed')},
-         'definition': {'en-GB': "Region area for camera auto-focus regions."
-                        "<br/>NotEvaluatedNotUsed specifies that a focus point"
-                        " was not evaluated and not used, e.g. a fixed focus"
-                        " point on the camera which was not used in any"
-                        " fashion."},
-         'name': {'en-GB': 'Focus (NotEvaluatedNotUsed)'},
-         'note': None},
-        {'data': {'Iptc4xmpExt:Name': {'en-GB': 'BarCode'},
-                  'xmp:Identifier': ('mwg-rs:Type BarCode',)},
-         'definition': {'en-GB': "One dimensional linear or two dimensional"
-                        " matrix optical code."},
-         'name': {'en-GB': 'BarCode'},
-         'note': None},
-        )
+    vocab = {
+        'Face': {
+            'data': {'Iptc4xmpExt:Name': {'en-GB': 'Face'},
+                     'xmp:Identifier': ('Face',)},
+            'file_data': {'mwg-rs:Type': 'Face'},
+            'definition': {'en-GB': "Region area for people's faces."},
+            'note': None},
+        'Pet': {
+            'data': {'Iptc4xmpExt:Name': {'en-GB': 'Pet'},
+                     'xmp:Identifier': ('Pet',)},
+            'file_data': {'mwg-rs:Type': 'Pet'},
+            'definition': {'en-GB': "Region area for pets."},
+            'note': None},
+        'FocusEvaluatedUsed': {
+            'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus (EvaluatedUsed)'},
+                     'xmp:Identifier': ('FocusEvaluatedUsed',)},
+            'file_data': {'mwg-rs:Type': 'Focus',
+                          'mwg-rs:FocusUsage': 'EvaluatedUsed'},
+            'definition': {'en-GB': "Region area for camera auto-focus regions."
+                           "<br/>EvaluatedUsed specifies that the focus point"
+                           " was considered during focusing and was used in the"
+                           " final image."},
+            'note': None},
+        'FocusEvaluatedNotUsed': {
+            'data': {'Iptc4xmpExt:Name': {'en-GB': 'Focus (EvaluatedNotUsed)'},
+                     'xmp:Identifier': ('FocusEvaluatedNotUsed',)},
+            'file_data': {'mwg-rs:Type': 'Focus',
+                          'mwg-rs:FocusUsage': 'EvaluatedNotUsed'},
+            'definition': {'en-GB': "Region area for camera auto-focus regions."
+                           "<br/>EvaluatedNotUsed specifies that the focus"
+                           " point was considered during focusing but not"
+                           " utilised in the final image."},
+            'note': None},
+        'FocusNotEvaluatedNotUsed': {
+            'data': {
+                'Iptc4xmpExt:Name': {'en-GB': 'Focus (NotEvaluatedNotUsed)'},
+                'xmp:Identifier': ('FocusNotEvaluatedNotUsed',)},
+            'file_data': {'mwg-rs:Type': 'Focus',
+                          'mwg-rs:FocusUsage': 'NotEvaluatedNotUsed'},
+            'definition': {'en-GB': "Region area for camera auto-focus regions."
+                           "<br/>NotEvaluatedNotUsed specifies that a focus"
+                           " point was not evaluated and not used, e.g. a fixed"
+                           " focus point on the camera which was not used in"
+                           " any fashion."},
+            'note': None},
+        'BarCode': {
+            'data': {'Iptc4xmpExt:Name': {'en-GB': 'BarCode'},
+                     'xmp:Identifier': ('BarCode',)},
+            'file_data': {'mwg-rs:Type': 'BarCode'},
+            'definition': {'en-GB': "One dimensional linear or two dimensional"
+                           " matrix optical code."},
+            'note': None},
+        }
 
     @classmethod
     def clean_file_data(cls, ctype_data):
         # remove any MWG ctype from a list of ctypes
         result = list(ctype_data)
-        for item in cls.vocab:
+        for item in cls.vocab.values():
             if item['data'] in result:
                 result.remove(item['data'])
                 break
@@ -99,16 +103,22 @@ class MWGTypeCV(IPTCBaseCV):
 
     @classmethod
     def to_file_data(cls, ctype_data):
-        for item in cls.vocab:
+        for item in cls.vocab.values():
             if item['data'] in ctype_data:
-                return dict(x.split() for x in item['data']['xmp:Identifier'])
+                return item['file_data']
         return {}
 
     @classmethod
     def from_file_data(cls, data):
         if 'mwg-rs:Type' not in data:
             return {}
+        label = data['mwg-rs:Type']
+        if 'mwg-rs:FocusUsage' in data:
+            label += data['mwg-rs:FocusUsage']
+        if label in cls.vocab:
+            return cls.vocab[label]['data']
         name = data['mwg-rs:Type']
         if 'mwg-rs:FocusUsage' in data:
-            name += '/' + data['mwg-rs:FocusUsage']
-        return cls.data_for_name(name)
+            name = '{} ({})'.format(name, data['mwg-rs:FocusUsage'])
+        return {'Iptc4xmpExt:Name': {'en-GB': name},
+                'xmp:Identifier': (label,)}

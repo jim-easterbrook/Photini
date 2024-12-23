@@ -17,7 +17,7 @@
 #  <http://www.gnu.org/licenses/>.
 
 import os
-from pprint import pprint
+import pprint
 import sys
 
 import requests
@@ -44,31 +44,28 @@ def main(argv=None):
                 rsp = session.get(url, params=params)
                 rsp.raise_for_status()
                 rsp = rsp.json()
-                pprint(rsp)
+                pprint.pprint(rsp)
                 py.write('''# ©{copyrightHolder}
 # Date: {dateReleased}
 # Licence: {licenceLink}
 # {uri}
 '''.format(**rsp))
-                uris = []
-                data = {}
-                for concept in rsp['conceptSet']:
-                    uri = concept['uri']
-                    if uri not in uris:
-                        uris.append(uri)
-                        data[uri] = {'name': {}, 'definition': {}, 'note': {}}
-                    data[uri]['name'].update(concept['prefLabel'])
-                    data[uri]['definition'].update(concept['definition'])
-                    if 'note' in concept:
-                        data[uri]['note'].update(concept['note'])
-                    data[uri]['qcode'] = concept['qcode']
-                    data[uri]['data'] = {
-                        'xmp:Identifier': (concept['uri'],),
-                        'Iptc4xmpExt:Name': concept['prefLabel']}
                 py.write(data_name)
-                py.write(' = \\\n')
-                pprint(tuple(data[x] for x in uris), stream=py)
-                py.write('\n')
+                py.write(' = {\n')
+                for concept in rsp['conceptSet']:
+                    key = concept['qcode'].split(':')[1]
+                    value = {
+                        'data': {
+                            'Iptc4xmpExt:Name': concept['prefLabel'],
+                            'xmp:Identifier': (concept['uri'],),
+                            },
+                        'definition': concept['definition'],
+                        'note': {},
+                        }
+                    if 'note' in concept:
+                        value['note'].update(concept['note'])
+                    py.write("'{}':\n{},\n".format(key, pprint.pformat(value)))
+                py.write('}\n')
     return 0
 
 

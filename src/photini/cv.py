@@ -5,188 +5,160 @@
 # Date: 2019-12-06T12:00:00+00:00
 # Licence: http://creativecommons.org/licenses/by/4.0/
 # http://cv.iptc.org/newscodes/imageregiontype/
-image_region_types = \
-({'data': {'Iptc4xmpExt:Name': {'en-GB': 'animal'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/animal',)},
-  'definition': {'en-GB': 'A living organism different from humans or flora'},
-  'name': {'en-GB': 'animal'},
-  'note': {},
-  'qcode': 'imgregtype:animal'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'artwork'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/artwork',)},
-  'definition': {'en-GB': 'Artistic work'},
-  'name': {'en-GB': 'artwork'},
-  'note': {},
-  'qcode': 'imgregtype:artwork'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'dividing line'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/dividingLine',)},
-  'definition': {'en-GB': 'A line expressing a visual division of the image, '
-                          'such as a horizon'},
-  'name': {'en-GB': 'dividing line'},
-  'note': {},
-  'qcode': 'imgregtype:dividingLine'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'plant'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/plant',)},
-  'definition': {'en-GB': 'A living organism different from humans and '
-                          'animals'},
-  'name': {'en-GB': 'plant'},
-  'note': {},
-  'qcode': 'imgregtype:plant'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'geographic area'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/geoArea',)},
-  'definition': {'en-GB': 'A named area on the surface of the planet earth'},
-  'name': {'en-GB': 'geographic area'},
-  'note': {'en-GB': 'Specific details of the area can be expressed by other '
-                    'metadata'},
-  'qcode': 'imgregtype:geoArea'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'graphic'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/graphic',)},
-  'definition': {'en-GB': 'A graphic representation of information'},
-  'name': {'en-GB': 'graphic'},
-  'note': {},
-  'qcode': 'imgregtype:graphic'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'machine-readable code'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/machineCode',)},
-  'definition': {'en-GB': 'Optical label such as barcode or QR code'},
-  'name': {'en-GB': 'machine-readable code'},
-  'note': {},
-  'qcode': 'imgregtype:machineCode'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'human'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/human',)},
-  'definition': {'en-GB': 'A human being'},
-  'name': {'en-GB': 'human'},
-  'note': {},
-  'qcode': 'imgregtype:human'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'product'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/product',)},
-  'definition': {'en-GB': 'A thing that was produced and can be handed over'},
-  'name': {'en-GB': 'product'},
-  'note': {},
-  'qcode': 'imgregtype:product'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'text'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/text',)},
-  'definition': {'en-GB': 'Human readable script of any language'},
-  'name': {'en-GB': 'text'},
-  'note': {},
-  'qcode': 'imgregtype:text'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'building'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/building',)},
-  'definition': {'en-GB': 'A structure with walls and roof in most cases'},
-  'name': {'en-GB': 'building'},
-  'note': {},
-  'qcode': 'imgregtype:building'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'vehicle'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/vehicle',)},
-  'definition': {'en-GB': 'An object used for transporting something, like '
-                          'car, train, ship, plane or bike'},
-  'name': {'en-GB': 'vehicle'},
-  'note': {},
-  'qcode': 'imgregtype:vehicle'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'food'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/food',)},
-  'definition': {'en-GB': 'Substances providing nutrition for a living body'},
-  'name': {'en-GB': 'food'},
-  'note': {},
-  'qcode': 'imgregtype:food'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'clothing'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/clothing',)},
-  'definition': {'en-GB': 'Something worn to cover the body'},
-  'name': {'en-GB': 'clothing'},
-  'note': {},
-  'qcode': 'imgregtype:clothing'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'rock formation'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/rockFormation',)},
-  'definition': {'en-GB': 'A special formation of stone mass'},
-  'name': {'en-GB': 'rock formation'},
-  'note': {},
-  'qcode': 'imgregtype:rockFormation'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'body of water'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/bodyOfWater',)},
-  'definition': {'en-GB': 'A significant accumulation of water'},
-  'name': {'en-GB': 'body of water'},
-  'note': {'en-GB': 'Including a waterfall, a geyser and other phenomena of '
-                    'water'},
-  'qcode': 'imgregtype:bodyOfWater'})
-
+image_region_types = {
+'animal':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'animal'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/animal',)},
+ 'definition': {'en-GB': 'A living organism different from humans or flora'},
+ 'note': {}},
+'artwork':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'artwork'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/artwork',)},
+ 'definition': {'en-GB': 'Artistic work'},
+ 'note': {}},
+'dividingLine':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'dividing line'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/dividingLine',)},
+ 'definition': {'en-GB': 'A line expressing a visual division of the image, '
+                         'such as a horizon'},
+ 'note': {}},
+'plant':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'plant'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/plant',)},
+ 'definition': {'en-GB': 'A living organism different from humans and animals'},
+ 'note': {}},
+'geoArea':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'geographic area'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/geoArea',)},
+ 'definition': {'en-GB': 'A named area on the surface of the planet earth'},
+ 'note': {'en-GB': 'Specific details of the area can be expressed by other '
+                   'metadata'}},
+'graphic':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'graphic'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/graphic',)},
+ 'definition': {'en-GB': 'A graphic representation of information'},
+ 'note': {}},
+'machineCode':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'machine-readable code'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/machineCode',)},
+ 'definition': {'en-GB': 'Optical label such as barcode or QR code'},
+ 'note': {}},
+'human':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'human'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/human',)},
+ 'definition': {'en-GB': 'A human being'},
+ 'note': {}},
+'product':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'product'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/product',)},
+ 'definition': {'en-GB': 'A thing that was produced and can be handed over'},
+ 'note': {}},
+'text':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'text'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/text',)},
+ 'definition': {'en-GB': 'Human readable script of any language'},
+ 'note': {}},
+'building':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'building'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/building',)},
+ 'definition': {'en-GB': 'A structure with walls and roof in most cases'},
+ 'note': {}},
+'vehicle':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'vehicle'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/vehicle',)},
+ 'definition': {'en-GB': 'An object used for transporting something, like car, '
+                         'train, ship, plane or bike'},
+ 'note': {}},
+'food':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'food'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/food',)},
+ 'definition': {'en-GB': 'Substances providing nutrition for a living body'},
+ 'note': {}},
+'clothing':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'clothing'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/clothing',)},
+ 'definition': {'en-GB': 'Something worn to cover the body'},
+ 'note': {}},
+'rockFormation':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'rock formation'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/rockFormation',)},
+ 'definition': {'en-GB': 'A special formation of stone mass'},
+ 'note': {}},
+'bodyOfWater':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'body of water'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregiontype/bodyOfWater',)},
+ 'definition': {'en-GB': 'A significant accumulation of water'},
+ 'note': {'en-GB': 'Including a waterfall, a geyser and other phenomena of '
+                   'water'}},
+}
 # ©IPTC, International Press Telecommunications Council - https://iptc.org
 # Date: 2019-12-06T12:00:00+00:00
 # Licence: http://creativecommons.org/licenses/by/4.0/
 # http://cv.iptc.org/newscodes/imageregionrole/
-image_region_roles = \
-({'data': {'Iptc4xmpExt:Name': {'en-GB': 'cropping'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/cropping',)},
-  'definition': {'en-GB': 'Image region can be used for any cropping'},
-  'name': {'en-GB': 'cropping'},
-  'note': {},
-  'qcode': 'imgregrole:cropping'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'recommended cropping'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/recomCropping',)},
-  'definition': {'en-GB': 'Image region is recommended for cropping'},
-  'name': {'en-GB': 'recommended cropping'},
-  'note': {},
-  'qcode': 'imgregrole:recomCropping'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'landscape format cropping'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',)},
-  'definition': {'en-GB': 'Image region suggested for cropping in landscape '
-                          'format'},
-  'name': {'en-GB': 'landscape format cropping'},
-  'note': {'en-GB': 'Use for images of non-landscape format'},
-  'qcode': 'imgregrole:landscapeCropping'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'portrait format cropping'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',)},
-  'definition': {'en-GB': 'Image region suggested for cropping in portrait '
-                          'format'},
-  'name': {'en-GB': 'portrait format cropping'},
-  'note': {'en-GB': 'Use for images of non-portrait format'},
-  'qcode': 'imgregrole:portraitCropping'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'square format cropping'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/squareCropping',)},
-  'definition': {'en-GB': 'Image region suggested for cropping in square '
-                          'format'},
-  'name': {'en-GB': 'square format cropping'},
-  'note': {},
-  'qcode': 'imgregrole:squareCropping'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'composite image item'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/compositeImageItem',)},
-  'definition': {'en-GB': 'Image region of an item in a composite image'},
-  'name': {'en-GB': 'composite image item'},
-  'note': {},
-  'qcode': 'imgregrole:compositeImageItem'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'copyright region'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/copyrightRegion',)},
-  'definition': {'en-GB': 'Image region with a copyright different from the '
-                          'copyright of the whole picture'},
-  'name': {'en-GB': 'copyright region'},
-  'note': {},
-  'qcode': 'imgregrole:copyrightRegion'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/subjectArea',)},
-  'definition': {'en-GB': 'Image region contains a subject in the overall '
-                          'scene.'},
-  'name': {'en-GB': 'subject area'},
-  'note': {'en-GB': 'Multiple regions of an image may be set as subject area.'},
-  'qcode': 'imgregrole:subjectArea'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',)},
-  'definition': {'en-GB': 'Image region contains the main subject in the '
-                          'overall scene. Same as the Exif SubjectArea.'},
-  'name': {'en-GB': 'main subject area'},
-  'note': {'en-GB': 'Only a single region of an image may be set as main '
-                    'subject area.'},
-  'qcode': 'imgregrole:mainSubjectArea'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'area of interest'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest',)},
-  'definition': {'en-GB': 'Image region contains a thing of special interest '
-                          'to the viewer'},
-  'name': {'en-GB': 'area of interest'},
-  'note': {},
-  'qcode': 'imgregrole:areaOfInterest'},
- {'data': {'Iptc4xmpExt:Name': {'en-GB': 'business use'},
-           'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/businessUse',)},
-  'definition': {'en-GB': 'Image region is dedicated to a specific business '
-                          'use'},
-  'name': {'en-GB': 'business use'},
-  'note': {'en-GB': 'In addition a more granular role could be expressed by a '
-                    'term of a role CV of this business.'},
-  'qcode': 'imgregrole:businessUse'})
-
+image_region_roles = {
+'cropping':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'cropping'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/cropping',)},
+ 'definition': {'en-GB': 'Image region can be used for any cropping'},
+ 'note': {}},
+'recomCropping':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'recommended cropping'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/recomCropping',)},
+ 'definition': {'en-GB': 'Image region is recommended for cropping'},
+ 'note': {}},
+'landscapeCropping':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'landscape format cropping'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/landscapeCropping',)},
+ 'definition': {'en-GB': 'Image region suggested for cropping in landscape '
+                         'format'},
+ 'note': {'en-GB': 'Use for images of non-landscape format'}},
+'portraitCropping':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'portrait format cropping'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/portraitCropping',)},
+ 'definition': {'en-GB': 'Image region suggested for cropping in portrait '
+                         'format'},
+ 'note': {'en-GB': 'Use for images of non-portrait format'}},
+'squareCropping':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'square format cropping'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/squareCropping',)},
+ 'definition': {'en-GB': 'Image region suggested for cropping in square '
+                         'format'},
+ 'note': {}},
+'compositeImageItem':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'composite image item'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/compositeImageItem',)},
+ 'definition': {'en-GB': 'Image region of an item in a composite image'},
+ 'note': {}},
+'copyrightRegion':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'copyright region'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/copyrightRegion',)},
+ 'definition': {'en-GB': 'Image region with a copyright different from the '
+                         'copyright of the whole picture'},
+ 'note': {}},
+'subjectArea':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'subject area'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/subjectArea',)},
+ 'definition': {'en-GB': 'Image region contains a subject in the overall '
+                         'scene.'},
+ 'note': {'en-GB': 'Multiple regions of an image may be set as subject area.'}},
+'mainSubjectArea':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'main subject area'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/mainSubjectArea',)},
+ 'definition': {'en-GB': 'Image region contains the main subject in the '
+                         'overall scene. Same as the Exif SubjectArea.'},
+ 'note': {'en-GB': 'Only a single region of an image may be set as main '
+                   'subject area.'}},
+'areaOfInterest':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'area of interest'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/areaOfInterest',)},
+ 'definition': {'en-GB': 'Image region contains a thing of special interest to '
+                         'the viewer'},
+ 'note': {}},
+'businessUse':
+{'data': {'Iptc4xmpExt:Name': {'en-GB': 'business use'},
+          'xmp:Identifier': ('http://cv.iptc.org/newscodes/imageregionrole/businessUse',)},
+ 'definition': {'en-GB': 'Image region is dedicated to a specific business '
+                         'use'},
+ 'note': {'en-GB': 'In addition a more granular role could be expressed by a '
+                   'term of a role CV of this business.'}},
+}
