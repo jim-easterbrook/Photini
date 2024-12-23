@@ -720,6 +720,38 @@ class TabWidget(PhotiniUploader):
             return '\n\n'.join(description)
         return ''
 
+    def focus(self, image):
+        md = image.metadata
+        if not md.image_region:
+            return None
+        dims = md.dimensions
+        portrait_format = dims['height'] > dims['width']
+        transform = md.orientation and md.orientation.get_transform()
+        if transform and transform.isRotating():
+            portrait_format = not portrait_format
+        if portrait_format:
+            roles = ('landscapeCropping', 'squareCropping', 'recomCropping',
+                     'cropping', 'portraitCropping')
+        else:
+            roles = ('squareCropping', 'portraitCropping', 'landscapeCropping',
+                     'recomCropping', 'cropping')
+        for role in roles:
+            for region in md.image_region:
+                if not region.has_role(role):
+                    continue
+                points = region.to_Qt(image)
+                boundary = region['Iptc4xmpExt:RegionBoundary']
+                if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
+                    centre = (points.at(0) + points.at(1)) / 2.0
+                elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
+                    centre = points.at(0)
+                else:
+                    centre = points.boundingRect().center()
+                if transform:
+                    centre = transform.map(centre)
+                return (centre.x() * 2.0) - 1.0, 1.0 - (centre.y() * 2.0)
+        return None
+
     def get_upload_params(self, image, state):
         if 'ask_alt_text' not in state:
             state['ask_alt_text'] = self.user_widget.compose_settings[
@@ -748,7 +780,7 @@ class TabWidget(PhotiniUploader):
                 state['ask_alt_text'] = False
             elif result == dialog.StandardButton.Abort:
                 return 'abort'
-        focus = image.metadata.image_region.get_focus(image)
+        focus = self.focus(image)
         if focus:
             params['media']['focus'] = '{:f},{:f}'.format(*focus)
         params['license'] = self.widget['license'].get_value()

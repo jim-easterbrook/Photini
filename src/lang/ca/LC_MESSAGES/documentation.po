@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-19 16:57+0000\n"
+"POT-Creation-Date: 2024-12-20 14:43+0000\n"
 "PO-Revision-Date: 2023-04-19 08:54+0000\n"
 "Last-Translator: Joan <sacoo2@hotmail.com>, 2023\n"
 "Language: ca\n"
@@ -1921,14 +1921,24 @@ msgid ""
 msgstr ""
 
 msgid ""
+"After creating a region you can add metadata about the it. The ``Region "
+"name`` and ``Identifier`` fields are unique labels for the region, but I "
+"haven't found a use for them."
+msgstr ""
+
+msgid ""
+"The ``Boundary unit`` specifies whether the vertex positions are stored as "
+"absolute pixel values or relative proportions of the image width and height."
+" Don't use pixel values unless you have some other software that requires "
+"them."
+msgstr ""
+
+msgid ""
 "The most important metadata for a region is probably its \"role_\". This is "
 "chosen from a \"controlled vocabulary\" defined by the IPTC. Photini shows "
 "the IPTC names and definitions (as \"tooltips\") in a drop down menu when "
 "you click on the ``Role`` entry. You can select one or more roles from the "
 "list."
-msgstr ""
-
-msgid "Other, less useful, metadata includes a name and identifier for the region."
 msgstr ""
 
 msgid ""
@@ -2069,6 +2079,12 @@ msgid "`Extended Description`_"
 msgstr ""
 
 msgid "Xmp.iptc.ExtDescrAccessibility"
+msgstr ""
+
+msgid "`Person(s) shown`_"
+msgstr ""
+
+msgid "Xmp.iptcExt.PersonInImage"
 msgstr ""
 
 msgid "Rating_"
@@ -2238,7 +2254,7 @@ msgstr ""
 msgid "`Image Regions`_"
 msgstr ""
 
-msgid "Xmp.iptcExt.ImageRegion"
+msgid "Xmp.iptcExt.ImageRegion Xmp.mwg-rs.Regions Xmp.MP.RegionInfo"
 msgstr ""
 
 msgid "Latitude_, longitude_"
@@ -5828,5 +5844,13 @@ msgstr ""
 #~ " be added or deleted. Note that "
 #~ "polygon refions are not saved in MWG"
 #~ " metadata."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Other, less useful, metadata includes a "
+#~ "name and identifier for the region."
+#~ msgstr ""
+
+#~ msgid "Xmp.iptcExt.ImageRegion"
 #~ msgstr ""
 

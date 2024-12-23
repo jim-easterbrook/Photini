@@ -51,6 +51,10 @@ You may find this useful when deciding what to write in those fields.
       -
       - Xmp.iptc.ExtDescrAccessibility
       -
+    * - `Person(s) shown`_
+      -
+      - Xmp.iptcExt.PersonInImage
+      -
     * - Rating_
       -
       - Xmp.xmp.Rating
@@ -133,7 +137,7 @@ You may find this useful when deciding what to write in those fields.
       -
     * - `Image Regions`_
       -
-      - Xmp.iptcExt.ImageRegion
+      - Xmp.iptcExt.ImageRegion Xmp.mwg-rs.Regions Xmp.MP.RegionInfo
       -
     * - Latitude_, longitude_
       - Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLatitudeRef Exif.GPSInfo.GPSLongitude Exif.GPSInfo.GPSLongitudeRef
@@ -324,6 +328,8 @@ It is applied to the Date / time Taken, Date / time Digitised and Date / time Mo
     http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#gps-latitude
 .. _longitude:
     http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#gps-longitude
+.. _Person(s) shown:
+    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#person-shown-in-the-image
 .. _Rating:
     http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-rating
 .. _Rights\: Usage Terms:
