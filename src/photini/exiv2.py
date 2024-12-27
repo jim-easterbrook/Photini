@@ -365,6 +365,9 @@ class MetadataHandler(object):
             if charset != exiv2.CommentValue.CharsetId.undefined:
                 logger.warning('%s: %s: unknown charset', self._name, tag)
                 raw_value = data
+        if not raw_value:
+            # no data to decode
+            return None
         result = None
         for encoding in encodings:
             result = self.decode_string(tag, raw_value, encoding)
