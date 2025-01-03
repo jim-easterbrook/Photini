@@ -1,6 +1,6 @@
 Photini - a simple photo metadata editor.
 http://github.com/jim-easterbrook/Photini
-Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -15,6 +15,11 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
+
+Changes in v2025.1.0:
+  1/ Read and write MWG and MS image region metadata.
+  2/ Added "people in image" to descriptive tab.
+  3/ Other minor improvements and bug fixes.
 
 Changes in v2024.11.1:
   1/ Fix bug with case insensitivity of hierarchical keywords.
