@@ -665,7 +665,7 @@ class EntityConceptWidget(SingleLineEdit):
             self.menu.addSeparator()
         self.add_separator = add_separator
         if exclusive:
-            group = QtWidgets.QActionGroup(self)
+            group = QtGui2.QActionGroup(self)
             group.setExclusionPolicy(group.ExclusionPolicy.ExclusiveOptional)
         for item in items:
             label = MD_LangAlt(item['data']['Iptc4xmpExt:Name']).best_match()
