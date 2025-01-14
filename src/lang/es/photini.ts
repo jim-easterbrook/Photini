@@ -197,11 +197,11 @@
     </message>
     <message>
         <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingresa el nombre de la(s) persona(s) que aparece(n) en esta imagen. Sepáralos con &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Person(s) shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Persona(s) mostrada(s)</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
@@ -1656,15 +1656,15 @@
     </message>
     <message>
         <source>Photini: image size</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: tamaño de la imagen</translation>
     </message>
     <message>
         <source>Image has been resized.</source>
-        <translation type="unfinished"></translation>
+        <translation>La imagen ha sido redimensionada.</translation>
     </message>
     <message>
         <source>Image dimensions {w_im}x{h_im} do not match region definition {w_reg}x{h_reg}. The image regions may be incorrect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Las dimensiones de la imagen {w_im}x{h_im} no coinciden con la definición de la región {w_reg}x{h_reg}. Las regiones de la imagen pueden ser incorrectas.</translation>
     </message>
     <message>
         <source>pixel</source>
@@ -1778,7 +1778,7 @@
     </message>
     <message>
         <source>Region name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de la región</translation>
     </message>
 </context>
 <context>
