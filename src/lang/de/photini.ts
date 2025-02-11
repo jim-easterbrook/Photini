@@ -236,7 +236,7 @@
     <message>
         <source>&amp;Descriptive</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished">&amp;Beschreibende</translation>
+        <translation>&amp;Beschreibend</translation>
     </message>
     <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
@@ -331,7 +331,7 @@
     </message>
     <message>
         <source>Map icon colours</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartensymbolfarben</translation>
     </message>
     <message>
         <source>location pin (unselected)</source>
@@ -347,15 +347,15 @@
     </message>
     <message>
         <source>Qt package</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Paket</translation>
     </message>
     <message>
         <source>Photini: restart required</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: Neustart erforderlich</translation>
     </message>
     <message>
         <source>Restart required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neustart erforderlich.</translation>
     </message>
     <message>
         <source>The change of Qt package will take effect when Photini is restarted.</source>
