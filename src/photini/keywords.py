@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2024  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2024-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This file is part of Photini.
 #
@@ -358,7 +358,7 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         root = self.invisibleRootItem()
         children = [root.child(row) for row in range(root.rowCount())]
         with open(self.file_name, 'w') as fp:
-            json.dump(children, fp, ensure_ascii=False,
+            json.dump(children, fp, ensure_ascii=True,
                       default=HierarchicalTagDataItem.json_default, indent=2)
 
 
