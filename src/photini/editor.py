@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ import warnings
 import platformdirs
 
 from photini import __version__
-from photini.configstore import BaseConfigStore
+from photini.configstore import BaseConfigStore, get_config_dir
 from photini.editsettings import EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
@@ -104,7 +104,6 @@ class InstanceServer(QtNetwork.QLocalServer):
 
     def __init__(self, *arg, **kw):
         super(InstanceServer, self).__init__(*arg, **kw)
-        config = BaseConfigStore('instance')
         self.newConnection.connect(self.new_connection)
         self.setSocketOptions(self.SocketOption.UserAccessOption)
         name = 'photini_' + str(
@@ -112,8 +111,9 @@ class InstanceServer(QtNetwork.QLocalServer):
         if not self.listen(name):
             logger.error('Failed to start instance server:', self.errorString())
             return
-        config.set('server', 'name', name)
-        config.save()
+        path = os.path.join(get_config_dir(), 'instance.txt')
+        with open(path, 'w') as fp:
+            fp.write(name)
 
     @QtSlot()
     @catch_all
@@ -130,10 +130,11 @@ class InstanceServer(QtNetwork.QLocalServer):
 
 
 def SendToInstance(files):
-    config = BaseConfigStore('instance')
-    name = config.get('server', 'name')
-    if not name:
+    path = os.path.join(get_config_dir(), 'instance.txt')
+    if not os.path.isfile(path):
         return False
+    with open(path, 'r') as fp:
+        name = fp.read()
     sock = QtNetwork.QLocalSocket()
     sock.connectToServer(name)
     while not sock.waitForConnected(500):
@@ -619,7 +620,8 @@ def main(argv=None):
     main = MainWindow(options, args)
     main.show()
     result = execute(app)
-    os.unlink(BaseConfigStore('instance').file_name)
+    path = os.path.join(get_config_dir(), 'instance.txt')
+    os.unlink(path)
     return result
 
 if __name__ == "__main__":
