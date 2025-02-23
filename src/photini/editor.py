@@ -99,6 +99,27 @@ class ServerSocket(QtCore.QObject):
         self.socket.deleteLater()
 
 
+class InstanceConfig(object):
+    path = os.path.join(get_config_dir(), 'instance.txt')
+
+    @classmethod
+    def read(cls):
+        if not os.path.isfile(cls.path):
+            return None
+        with open(cls.path, 'r') as fp:
+            return fp.read()
+
+    @classmethod
+    def write(cls, data):
+        with open(cls.path, 'w') as fp:
+            fp.write(data)
+
+    @classmethod
+    def delete(cls):
+        if os.path.isfile(cls.path):
+            os.unlink(cls.path)
+
+
 class InstanceServer(QtNetwork.QLocalServer):
     new_files = QtSignal(list)
 
@@ -111,9 +132,7 @@ class InstanceServer(QtNetwork.QLocalServer):
         if not self.listen(name):
             logger.error('Failed to start instance server:', self.errorString())
             return
-        path = os.path.join(get_config_dir(), 'instance.txt')
-        with open(path, 'w') as fp:
-            fp.write(name)
+        InstanceConfig.write(name)
 
     @QtSlot()
     @catch_all
@@ -130,11 +149,9 @@ class InstanceServer(QtNetwork.QLocalServer):
 
 
 def SendToInstance(files):
-    path = os.path.join(get_config_dir(), 'instance.txt')
-    if not os.path.isfile(path):
+    name = InstanceConfig.read()
+    if not name:
         return False
-    with open(path, 'r') as fp:
-        name = fp.read()
     sock = QtNetwork.QLocalSocket()
     sock.connectToServer(name)
     while not sock.waitForConnected(500):
@@ -620,8 +637,7 @@ def main(argv=None):
     main = MainWindow(options, args)
     main.show()
     result = execute(app)
-    path = os.path.join(get_config_dir(), 'instance.txt')
-    os.unlink(path)
+    InstanceConfig.delete()
     return result
 
 if __name__ == "__main__":
