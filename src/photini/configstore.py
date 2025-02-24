@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -17,11 +17,13 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import ast
-import codecs
 from configparser import ConfigParser, RawConfigParser
+from datetime import datetime, timedelta
 import os
 import pprint
 import random
+import re
+import shutil
 import stat
 
 import platformdirs
@@ -38,17 +40,63 @@ def get_config_dir():
     return config_dir
 
 
+class ConfigFileHandler(object):
+    def __init__(self, name):
+        self.root = get_config_dir()
+        self.path = os.path.join(self.root, name)
+
+    def backups(self):
+        result = []
+        for name in os.listdir(self.root):
+            if re.match(r'\d{4}-\d{2}-\d{2}$', name):
+                result.append(name)
+        result.sort()
+        return result
+
+    def read(self, callback, **kwds):
+        if os.path.exists(self.path):
+            with open(self.path, 'r', **kwds) as fp:
+                callback(fp)
+
+    def write(self, callback, **kwds):
+        with open(self.path, 'w', **kwds) as fp:
+            callback(fp)
+        # make file private to user
+        os.chmod(self.path, stat.S_IRUSR | stat.S_IWUSR)
+        # copy file to backup directory
+        today = datetime.today()
+        backup_dir = os.path.join(self.root, today.strftime('%Y-%m-%d'))
+        if not os.path.isdir(backup_dir):
+            os.makedirs(backup_dir, mode=stat.S_IRWXU)
+        shutil.copy(self.path, backup_dir)
+        # remove unneeded backups
+        keep_list = []
+        for i in range(7):
+            keep_list.append((today - timedelta(days=i)).strftime('%Y-%m-%d'))
+        today = today.replace(day=15)
+        for i in range(6):
+            keep_list.append((today - timedelta(days=i*30)).strftime('%Y-%m'))
+        today = today.replace(month=6)
+        for i in range(5):
+            keep_list.append((today - timedelta(days=i*365)).strftime('%Y'))
+        keep_list = list(reversed(keep_list))
+        for backup in self.backups():
+            for keep in keep_list:
+                if backup.startswith(keep):
+                    keep_list.remove(keep)
+                    break
+            else:
+                shutil.rmtree(os.path.join(self.root, backup))
+
+
 class BaseConfigStore(object):
     # the actual config store functionality
     def __init__(self, name, *arg, **kw):
         super(BaseConfigStore, self).__init__(*arg, **kw)
         self.dirty = False
         self.config = RawConfigParser()
-        self.file_name = os.path.join(get_config_dir(), name + '.ini')
-        if os.path.isfile(self.file_name):
-            kwds = {'encoding': 'utf-8'}
-            with open(self.file_name, 'r', **kwds) as fp:
-                self.config.read_file(fp)
+        self.file_handler = ConfigFileHandler(name + '.ini')
+        self.file_handler.read(self.config.read_file, encoding='utf-8')
         self.has_section = self.config.has_section
 
     def get(self, section, option, default=None):
@@ -95,10 +143,7 @@ class BaseConfigStore(object):
     def save(self):
         if not self.dirty:
             return
-        kwds = {'encoding': 'utf-8'}
-        with open(self.file_name, 'w', **kwds) as fp:
-            self.config.write(fp)
-        os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
+        self.file_handler.write(self.config.write, encoding='utf-8')
         self.dirty = False
 
 

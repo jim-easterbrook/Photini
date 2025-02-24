@@ -23,7 +23,7 @@ import json
 import logging
 import os
 
-from photini.configstore import get_config_dir
+from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
@@ -290,7 +290,7 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
             translate('KeywordsTab', 'in photo'),
             translate('KeywordsTab', 'copyable'),
             ])
-        self.file_name = os.path.join(get_config_dir(), 'keywords.json')
+        self.file_handler = ConfigFileHandler('keywords.json')
         self.load_file()
         # connect signals
         QtCore.QCoreApplication.instance().aboutToQuit.connect(self.save_file)
@@ -346,20 +346,24 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
     def load_file(self):
         root = self.invisibleRootItem()
         root.removeRows(0, root.rowCount())
-        if os.path.exists(self.file_name):
-            with open(self.file_name) as fp:
-                children = json.load(
-                    fp, object_hook=HierarchicalTagDataItem.json_object_hook)
-            for child in children:
-                root.appendRow(child.get_row())
+        self.file_handler.read(self.data_from_file)
+
+    def data_from_file(self, fp):
+        children = json.load(
+            fp, object_hook=HierarchicalTagDataItem.json_object_hook)
+        root = self.invisibleRootItem()
+        for child in children:
+            root.appendRow(child.get_row())
         self.sort(0)
 
     def save_file(self):
+        self.file_handler.write(self.file_from_data)
+
+    def file_from_data(self, fp):
         root = self.invisibleRootItem()
         children = [root.child(row) for row in range(root.rowCount())]
-        with open(self.file_name, 'w') as fp:
-            json.dump(children, fp, ensure_ascii=True,
-                      default=HierarchicalTagDataItem.json_default, indent=2)
+        json.dump(children, fp, ensure_ascii=True,
+                  default=HierarchicalTagDataItem.json_default, indent=2)
 
 
 class HierarchicalTagsDialog(QtWidgets.QDialog):
