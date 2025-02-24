@@ -19,6 +19,7 @@
 import ast
 from configparser import ConfigParser, RawConfigParser
 from datetime import datetime, timedelta
+import logging
 import os
 import pprint
 import random
@@ -27,6 +28,8 @@ import shutil
 import stat
 
 import platformdirs
+
+logger = logging.getLogger(__name__)
 
 
 def get_config_dir():
@@ -43,7 +46,8 @@ def get_config_dir():
 class ConfigFileHandler(object):
     def __init__(self, name):
         self.root = get_config_dir()
-        self.path = os.path.join(self.root, name)
+        self.name = name
+        self.path = os.path.join(self.root, self.name)
 
     def backups(self):
         result = []
@@ -53,10 +57,27 @@ class ConfigFileHandler(object):
         result.sort()
         return result
 
-    def read(self, callback, **kwds):
-        if os.path.exists(self.path):
-            with open(self.path, 'r', **kwds) as fp:
+    def read_path(self, path, callback, **kwds):
+        if not os.path.exists(path):
+            return False
+        try:
+            with open(path, 'r', **kwds) as fp:
                 callback(fp)
+            return True
+        except Exception as ex:
+            logger.error('File "%s": %s', path, str(ex))
+        return False
+
+    def read(self, callback, **kwds):
+        if self.read_path(self.path, callback, **kwds):
+            return
+        # attempt to read a backup
+        for backup in reversed(self.backups()):
+            if self.read_path(os.path.join(self.root, backup, self.name),
+                              callback, **kwds):
+                logger.error(
+                    'File "%s": read from backup %s', self.name, backup)
+                return
 
     def write(self, callback, **kwds):
         with open(self.path, 'w', **kwds) as fp:
