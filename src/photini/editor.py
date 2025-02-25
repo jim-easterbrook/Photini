@@ -28,7 +28,8 @@ import warnings
 import platformdirs
 
 from photini import __version__
-from photini.configstore import BaseConfigStore, get_config_dir
+from photini.configstore import (
+    BaseConfigStore, ConfigFileHandler, get_config_dir)
 from photini.editsettings import EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
@@ -615,6 +616,9 @@ def main(argv=None):
         version=version,
         description=translate('CLIHelp', 'Photini photo metadata editor'))
     parser.add_option(
+        '-r', '--restore', action='store_true',
+        help=translate('CLIHelp', 'restore config from a backup'))
+    parser.add_option(
         '-t', '--test', action='store_true',
         help=translate('CLIHelp', 'test new features or API versions'))
     parser.add_option(
@@ -626,6 +630,10 @@ def main(argv=None):
         lang, encoding = locale.getdefaultlocale()
         if encoding.lower() not in ('utf-8', 'utf_8', 'utf8'):
             args = [x.encode(encoding).decode('utf-8') for x in args]
+    # restore config?
+    if options.restore:
+        ConfigFileHandler('editor.ini').restore()
+        ConfigFileHandler('keywords.json').restore()
     # if an instance of Photini is already running, send it the list of
     # files to open
     if SendToInstance(args):

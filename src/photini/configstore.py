@@ -54,8 +54,33 @@ class ConfigFileHandler(object):
         for name in os.listdir(self.root):
             if re.match(r'\d{4}-\d{2}-\d{2}$', name):
                 result.append(name)
-        result.sort()
+        result.sort(reverse=True)
         return result
+
+    def restore(self):
+        backups = []
+        for backup in self.backups():
+            path = os.path.join(self.root, backup, self.name)
+            if os.path.isfile(path):
+                backups.append(backup)
+        if not backups:
+            print('No backup of "{}" available.'.format(self.name))
+            return
+        choice = input('Restore "{}"? [y/n]: '.format(self.name))
+        if choice not in ('y', 'Y'):
+            return
+        print('Available backups:')
+        for idx, backup in enumerate(backups):
+            print('{:3d}: {}'.format(idx + 1, backup))
+        choice = input('Backup number: ')
+        try:
+            choice = int(choice) - 1
+        except ValueError:
+            return
+        if choice < 0 or choice >= len(backups):
+            return
+        path = os.path.join(self.root, backups[choice], self.name)
+        shutil.copy(path, self.root)
 
     def read_path(self, path, callback, **kwds):
         if not os.path.exists(path):
@@ -72,7 +97,7 @@ class ConfigFileHandler(object):
         if self.read_path(self.path, callback, **kwds):
             return
         # attempt to read a backup
-        for backup in reversed(self.backups()):
+        for backup in self.backups():
             if self.read_path(os.path.join(self.root, backup, self.name),
                               callback, **kwds):
                 logger.error(
@@ -101,7 +126,7 @@ class ConfigFileHandler(object):
         for i in range(5):
             keep_list.append((today - timedelta(days=i*365)).strftime('%Y'))
         keep_list = list(reversed(keep_list))
-        for backup in self.backups():
+        for backup in reversed(self.backups()):
             for keep in keep_list:
                 if backup.startswith(keep):
                     keep_list.remove(keep)
