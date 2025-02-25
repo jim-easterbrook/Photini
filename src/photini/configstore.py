@@ -145,10 +145,9 @@ class BaseConfigStore(object):
         self.dirty = True
 
     def delete(self, section, option):
-        if not self.config.has_section(section):
+        if not self.config.has_option(section, option):
             return
-        if self.config.has_option(section, option):
-            self.config.remove_option(section, option)
+        self.config.remove_option(section, option)
         if not self.config.options(section):
             self.config.remove_section(section)
         self.dirty = True
