@@ -72,14 +72,16 @@ class ConfigFileHandler(object):
         print('Available backups:')
         for idx, backup in enumerate(backups):
             print('{:3d}: {}'.format(idx + 1, backup))
-        choice = input('Backup number: ')
+        choice = input('Backup number [{}-{}]: '.format(1, len(backups)))
         try:
             choice = int(choice) - 1
         except ValueError:
             return
         if choice < 0 or choice >= len(backups):
             return
-        path = os.path.join(self.root, backups[choice], self.name)
+        backup = backups[choice]
+        print('Using {}/{}'.format(backup, self.name))
+        path = os.path.join(self.root, backup, self.name)
         shutil.copy(path, self.root)
 
     def read_path(self, path, callback, **kwds):
