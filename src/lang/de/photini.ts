@@ -46,7 +46,7 @@
     <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Adressen des Standortes</translation>
     </message>
     <message>
         <source>Altitude</source>
@@ -218,7 +218,7 @@
     </message>
     <message>
         <source>Person(s) shown</source>
-        <translation type="unfinished"></translation>
+        <translation>Gezeigte Person(en)</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
@@ -359,7 +359,7 @@
     </message>
     <message>
         <source>The change of Qt package will take effect when Photini is restarted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderung des Qt-Pakets wird wirksam, wenn Photini neu gestartet wird.</translation>
     </message>
 </context>
 <context>
@@ -980,19 +980,19 @@
     </message>
     <message>
         <source>keyword</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüsselwort</translation>
     </message>
     <message>
         <source>in photo</source>
-        <translation type="unfinished"></translation>
+        <translation>in Foto</translation>
     </message>
     <message>
         <source>copyable</source>
-        <translation type="unfinished"></translation>
+        <translation>kopierbar</translation>
     </message>
     <message>
         <source>Edit keyword hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüsselworthierarchie bearbeiten</translation>
     </message>
     <message>
         <source>Enter two or more letters to search the keyword tree. When there are few enough results a popup menu will be displayed.</source>
@@ -1000,7 +1000,7 @@
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Suche</translation>
+        <translation>Suchen</translation>
     </message>
     <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
@@ -1009,20 +1009,20 @@
     <message>
         <source>Keywords or tags</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Schlüsselwörter oder Schlagwörter</translation>
     </message>
     <message>
         <source>&amp;Keywords</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Schlüsselwörter</translation>
     </message>
     <message>
         <source>Hierarchical keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>Hierarchische Schlüsselwörter</translation>
     </message>
     <message>
         <source>Open tree view</source>
-        <translation type="unfinished"></translation>
+        <translation>Baumansicht öffnen</translation>
     </message>
 </context>
 <context>
@@ -1065,7 +1065,7 @@
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation type="unfinished"></translation>
+        <translation>Breitengrad und Längengrad als zwei durch ein Leerzeichen getrennte Dezimalzahlen.</translation>
     </message>
     <message>
         <source>Lat, long</source>
@@ -1088,7 +1088,7 @@
     <name>MapTabAzure</name>
     <message>
         <source>Search provided by Microsoft Azure</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Suche wird von Microsoft Azure bereitgestellt</translation>
     </message>
     <message>
         <source>Azure Map</source>
@@ -1098,7 +1098,7 @@
     <message>
         <source>Map &amp;A</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>Karte &amp;A</translation>
     </message>
 </context>
 <context>
@@ -1110,7 +1110,7 @@
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Bing-Karte</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
@@ -1140,7 +1140,7 @@
     <message>
         <source>Google Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Google-Karte</translation>
     </message>
     <message>
         <source>Map &amp;G</source>
@@ -1157,7 +1157,7 @@
     <message>
         <source>Mapbox Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Mapbox-Karte</translation>
     </message>
     <message>
         <source>Map &amp;M</source>
@@ -1810,7 +1810,7 @@
     </message>
     <message>
         <source>Content type</source>
-        <translation type="unfinished">Inhaltstyp</translation>
+        <translation>Art des Inhalts</translation>
     </message>
     <message>
         <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
@@ -2075,22 +2075,22 @@
     <message>
         <source> mm</source>
         <comment>millimetres focal length</comment>
-        <translation type="unfinished"></translation>
+        <translation> mm</translation>
     </message>
     <message>
         <source>h</source>
         <comment>single letter abbreviation of &quot;hours&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>h</translation>
     </message>
     <message>
         <source>m</source>
         <comment>single letter abbreviation of &quot;minutes&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>m</translation>
     </message>
     <message>
         <source>s</source>
         <comment>single letter abbreviation of &quot;seconds&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>s</translation>
     </message>
 </context>
 <context>
