@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" sourcelanguage="en_GB" language="ta">
+<TS version="2.1" language="ta" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -143,6 +143,10 @@
     <message>
         <source>increase number of logging messages</source>
         <translation>பதிவு செய்திகளின் எண்ணிக்கையை அதிகரிக்கவும்</translation>
+    </message>
+    <message>
+        <source>restore config from a backup</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
