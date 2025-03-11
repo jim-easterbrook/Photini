@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-20 14:43+0000\n"
+"POT-Creation-Date: 2025-03-11 08:27+0000\n"
 "PO-Revision-Date: 2023-04-19 08:54+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023\n"
 "Language: ko\n"
@@ -310,6 +310,22 @@ msgstr ""
 "(MacOS) 또는 ``%USERPROFILE%\\AppData\\Local\\photini\\`` (Windows) 입니다. 다른 곳에"
 " 저장하려면(예: 여러 컴퓨터 간에 설정을 공유할 수 있도록 네트워크 드라이브에 저장) 환경 변수 ``PHOTINI_CONFIG`` 를 "
 "사용하려는 디렉토리로 설정할 수 있습니다."
+
+msgid "Config file backups"
+msgstr ""
+
+msgid ""
+"Photini makes backup copies of the configuration file ``editor.ini`` and the"
+" hierarchical tags store ``keywords.json``. It keeps up to 7 daily backups, "
+"6 monthly backups, and 5 yearly backups. During startup Photini will use one"
+" of the backup copies if normal loading (and parsing) of one of the config "
+"files fails."
+msgstr ""
+
+msgid ""
+"Manual use of a backup is available by starting Photini from the command "
+"line with the ``--restore`` or ``-r`` option::"
+msgstr ""
 
 msgid "PyQt options"
 msgstr "PyQt 옵션"
@@ -4181,7 +4197,7 @@ msgstr "Photini - 간단한 사진 메타데이터 편집기."
 msgid "http://github.com/jim-easterbrook/Photini"
 msgstr "http://github.com/jim-easterbrook/Photini"
 
-msgid "Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+msgid "Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 msgstr ""
 
 msgid "Catalan translation by Joan Juvanteny"
@@ -4213,6 +4229,10 @@ msgid ""
 "Spanish translation by Esteban Martinena, Cristos Ruiz, Kamborio, "
 "gallegonovato"
 msgstr ""
+
+#, fuzzy
+msgid "Tamil translation by \"TamilNeram\""
+msgstr "카탈로니아어 번역 by Joan Juvanteny"
 
 msgid ""
 "This program is free software: you can redistribute it and/or modify it "
@@ -5840,5 +5860,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Xmp.iptcExt.ImageRegion"
+#~ msgstr ""
+
+#~ msgid "Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk"
 #~ msgstr ""
 

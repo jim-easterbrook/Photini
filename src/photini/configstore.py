@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -17,14 +17,19 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import ast
-import codecs
 from configparser import ConfigParser, RawConfigParser
+from datetime import datetime, timedelta
+import logging
 import os
 import pprint
 import random
+import re
+import shutil
 import stat
 
 import platformdirs
+
+logger = logging.getLogger(__name__)
 
 
 def get_config_dir():
@@ -38,17 +43,108 @@ def get_config_dir():
     return config_dir
 
 
+class ConfigFileHandler(object):
+    def __init__(self, name):
+        self.root = get_config_dir()
+        self.name = name
+        self.path = os.path.join(self.root, self.name)
+
+    def backups(self):
+        result = []
+        for name in os.listdir(self.root):
+            if re.match(r'\d{4}-\d{2}-\d{2}$', name):
+                result.append(name)
+        result.sort(reverse=True)
+        return result
+
+    def restore(self):
+        backups = []
+        for backup in self.backups():
+            path = os.path.join(self.root, backup, self.name)
+            if os.path.isfile(path):
+                backups.append(backup)
+        if not backups:
+            print('No backup of "{}" available.'.format(self.name))
+            return
+        choice = input('Restore "{}"? [y/n]: '.format(self.name))
+        if choice not in ('y', 'Y'):
+            return
+        print('Available backups:')
+        for idx, backup in enumerate(backups):
+            print('{:3d}: {}'.format(idx + 1, backup))
+        choice = input('Backup number [{}-{}]: '.format(1, len(backups)))
+        try:
+            choice = int(choice) - 1
+        except ValueError:
+            return
+        if choice < 0 or choice >= len(backups):
+            return
+        backup = backups[choice]
+        print('Using {}/{}'.format(backup, self.name))
+        path = os.path.join(self.root, backup, self.name)
+        shutil.copy(path, self.root)
+
+    def read_path(self, path, callback, **kwds):
+        if not os.path.exists(path):
+            return False
+        try:
+            with open(path, 'r', **kwds) as fp:
+                callback(fp)
+            return True
+        except Exception as ex:
+            logger.error('File "%s": %s', path, str(ex))
+        return False
+
+    def read(self, callback, **kwds):
+        if self.read_path(self.path, callback, **kwds):
+            return
+        # attempt to read a backup
+        for backup in self.backups():
+            if self.read_path(os.path.join(self.root, backup, self.name),
+                              callback, **kwds):
+                logger.error(
+                    'File "%s": read from backup %s', self.name, backup)
+                return
+
+    def write(self, callback, **kwds):
+        with open(self.path, 'w', **kwds) as fp:
+            callback(fp)
+        # make file private to user
+        os.chmod(self.path, stat.S_IRUSR | stat.S_IWUSR)
+        # copy file to backup directory
+        today = datetime.today()
+        backup_dir = os.path.join(self.root, today.strftime('%Y-%m-%d'))
+        if not os.path.isdir(backup_dir):
+            os.makedirs(backup_dir, mode=stat.S_IRWXU)
+        shutil.copy(self.path, backup_dir)
+        # remove unneeded backups
+        keep_list = []
+        for i in range(7):
+            keep_list.append((today - timedelta(days=i)).strftime('%Y-%m-%d'))
+        today = today.replace(day=15)
+        for i in range(6):
+            keep_list.append((today - timedelta(days=i*30)).strftime('%Y-%m'))
+        today = today.replace(month=6)
+        for i in range(5):
+            keep_list.append((today - timedelta(days=i*365)).strftime('%Y'))
+        keep_list = list(reversed(keep_list))
+        for backup in reversed(self.backups()):
+            for keep in keep_list:
+                if backup.startswith(keep):
+                    keep_list.remove(keep)
+                    break
+            else:
+                shutil.rmtree(os.path.join(self.root, backup))
+
+
 class BaseConfigStore(object):
     # the actual config store functionality
     def __init__(self, name, *arg, **kw):
         super(BaseConfigStore, self).__init__(*arg, **kw)
         self.dirty = False
         self.config = RawConfigParser()
-        self.file_name = os.path.join(get_config_dir(), name + '.ini')
-        if os.path.isfile(self.file_name):
-            kwds = {'encoding': 'utf-8'}
-            with open(self.file_name, 'r', **kwds) as fp:
-                self.config.read_file(fp)
+        self.file_handler = ConfigFileHandler(name + '.ini')
+        self.file_handler.read(self.config.read_file, encoding='utf-8')
         self.has_section = self.config.has_section
 
     def get(self, section, option, default=None):
@@ -76,10 +172,9 @@ class BaseConfigStore(object):
         self.dirty = True
 
     def delete(self, section, option):
-        if not self.config.has_section(section):
+        if not self.config.has_option(section, option):
             return
-        if self.config.has_option(section, option):
-            self.config.remove_option(section, option)
+        self.config.remove_option(section, option)
         if not self.config.options(section):
             self.config.remove_section(section)
         self.dirty = True
@@ -95,10 +190,7 @@ class BaseConfigStore(object):
     def save(self):
         if not self.dirty:
             return
-        kwds = {'encoding': 'utf-8'}
-        with open(self.file_name, 'w', **kwds) as fp:
-            self.config.write(fp)
-        os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
+        self.file_handler.write(self.config.write, encoding='utf-8')
         self.dirty = False
 
 

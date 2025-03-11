@@ -96,7 +96,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 | Catalan translation by Joan Juvanteny
 | Czech translation by Pavel Fric
@@ -107,6 +107,7 @@ Licence
 | Norwegian Bokmål translation by Allan Nordhøy
 | Polish translation by Dawid Głaz, Eryk Michalak
 | Spanish translation by Esteban Martinena, Cristos Ruiz, Kamborio, gallegonovato
+| Tamil translation by "TamilNeram"
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
