@@ -148,6 +148,10 @@
         <source>increase number of logging messages</source>
         <translation>increase number of logging messages</translation>
     </message>
+    <message>
+        <source>restore config from a backup</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DescriptiveTab</name>

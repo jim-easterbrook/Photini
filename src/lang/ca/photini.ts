@@ -156,6 +156,10 @@
         <source>increase number of logging messages</source>
         <translation>Augmentar la quantitat de missatges de registre</translation>
     </message>
+    <message>
+        <source>restore config from a backup</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DescriptiveTab</name>
