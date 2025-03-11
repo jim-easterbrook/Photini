@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2025.3.0:
+  1/ Configuration files are backed up each time Photini runs.
+  2/ Backup config is used if current config gets corrupted.
+  3/ Hierarchical keywords store allows any Unicode characters.
+
 Changes in v2025.1.0:
   1/ Read and write MWG and MS image region metadata.
   2/ Added "people in image" to descriptive tab.
