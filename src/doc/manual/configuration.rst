@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-24  Jim Easterbrook.
+   Copyright (C)  2012-25  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Configuration
@@ -84,6 +84,39 @@ Configuration file location
 Photini stores its configuration in a file called ``editor.ini``.
 The default location of this file is ``$HOME/.config/photini/`` (Linux), ``$HOME/Library/Preferences/photini`` (MacOS), or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
 If you'd like to store it elsewhere (e.g. on a networked drive so you can share configuration between several computers) you can set an environment variable ``PHOTINI_CONFIG`` to the directory you'd like to use.
+
+Config file backups
+-------------------
+
+.. versionadded:: 2025.3.0
+
+Photini makes backup copies of the configuration file ``editor.ini`` and the hierarchical tags store ``keywords.json``.
+It keeps up to 7 daily backups, 6 monthly backups, and 5 yearly backups.
+During startup Photini will use one of the backup copies if normal loading (and parsing) of one of the config files fails.
+
+Manual use of a backup is available by starting Photini from the command line with the ``--restore`` or ``-r`` option::
+
+    $ photini -r
+    Restore "editor.ini"? [y/n]: n
+    Restore "keywords.json"? [y/n]: y
+    Available backups:
+      1: 2025-03-11
+      2: 2025-03-10
+      3: 2025-03-08
+      4: 2025-03-05
+      5: 2025-03-01
+      6: 2025-02-04
+      7: 2025-01-24
+      8: 2025-01-23
+      9: 2024-12-13
+     10: 2024-11-02
+     11: 2024-10-17
+     12: 2024-01-16
+     13: 2023-01-15
+     14: 2022-01-10
+     15: 2021-01-21
+    Backup number [1-15]: 3
+    Using 2025-03-08/keywords.json
 
 .. _configuration-pyqt:
 

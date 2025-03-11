@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -28,7 +28,8 @@ import warnings
 import platformdirs
 
 from photini import __version__
-from photini.configstore import BaseConfigStore
+from photini.configstore import (
+    BaseConfigStore, ConfigFileHandler, get_config_dir)
 from photini.editsettings import EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
@@ -99,12 +100,32 @@ class ServerSocket(QtCore.QObject):
         self.socket.deleteLater()
 
 
+class InstanceConfig(object):
+    path = os.path.join(get_config_dir(), 'instance.txt')
+
+    @classmethod
+    def read(cls):
+        if not os.path.isfile(cls.path):
+            return None
+        with open(cls.path, 'r') as fp:
+            return fp.read()
+
+    @classmethod
+    def write(cls, data):
+        with open(cls.path, 'w') as fp:
+            fp.write(data)
+
+    @classmethod
+    def delete(cls):
+        if os.path.isfile(cls.path):
+            os.unlink(cls.path)
+
+
 class InstanceServer(QtNetwork.QLocalServer):
     new_files = QtSignal(list)
 
     def __init__(self, *arg, **kw):
         super(InstanceServer, self).__init__(*arg, **kw)
-        config = BaseConfigStore('instance')
         self.newConnection.connect(self.new_connection)
         self.setSocketOptions(self.SocketOption.UserAccessOption)
         name = 'photini_' + str(
@@ -112,8 +133,7 @@ class InstanceServer(QtNetwork.QLocalServer):
         if not self.listen(name):
             logger.error('Failed to start instance server:', self.errorString())
             return
-        config.set('server', 'name', name)
-        config.save()
+        InstanceConfig.write(name)
 
     @QtSlot()
     @catch_all
@@ -130,8 +150,7 @@ class InstanceServer(QtNetwork.QLocalServer):
 
 
 def SendToInstance(files):
-    config = BaseConfigStore('instance')
-    name = config.get('server', 'name')
+    name = InstanceConfig.read()
     if not name:
         return False
     sock = QtNetwork.QLocalSocket()
@@ -597,6 +616,9 @@ def main(argv=None):
         version=version,
         description=translate('CLIHelp', 'Photini photo metadata editor'))
     parser.add_option(
+        '-r', '--restore', action='store_true',
+        help=translate('CLIHelp', 'restore config from a backup'))
+    parser.add_option(
         '-t', '--test', action='store_true',
         help=translate('CLIHelp', 'test new features or API versions'))
     parser.add_option(
@@ -608,6 +630,10 @@ def main(argv=None):
         lang, encoding = locale.getdefaultlocale()
         if encoding.lower() not in ('utf-8', 'utf_8', 'utf8'):
             args = [x.encode(encoding).decode('utf-8') for x in args]
+    # restore config?
+    if options.restore:
+        ConfigFileHandler('editor.ini').restore()
+        ConfigFileHandler('keywords.json').restore()
     # if an instance of Photini is already running, send it the list of
     # files to open
     if SendToInstance(args):
@@ -619,7 +645,7 @@ def main(argv=None):
     main = MainWindow(options, args)
     main.show()
     result = execute(app)
-    os.unlink(BaseConfigStore('instance').file_name)
+    InstanceConfig.delete()
     return result
 
 if __name__ == "__main__":
