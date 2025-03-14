@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2025.3.1:
+  1/ Fix bug in Flickr/Ipernity image region sync.
+
 Changes in v2025.3.0:
   1/ Configuration files are backed up each time Photini runs.
   2/ Backup config is used if current config gets corrupted.
