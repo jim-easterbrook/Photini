@@ -2308,7 +2308,7 @@ class MD_ImageRegion(MD_Structure):
             if note['authorrealname']:
                 region['photoshop:CaptionWriter'] = note['authorrealname']
             result.append(region)
-        return result
+        return {'RegionList': result}
 
     def to_note_boundary(self, image, target_size):
         w, h = image.metadata.dimensions.scaled_to(target_size)
