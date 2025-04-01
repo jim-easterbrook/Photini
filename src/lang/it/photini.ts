@@ -163,7 +163,7 @@
     </message>
     <message>
         <source>restore config from a backup</source>
-        <translation type="unfinished"></translation>
+        <translation>ripristinare la configurazione da un backup</translation>
     </message>
 </context>
 <context>
