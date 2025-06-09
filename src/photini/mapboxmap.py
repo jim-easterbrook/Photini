@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -163,12 +163,16 @@ function loadMap(lat, lng, zoom, options) {{
 
     def get_options(self):
         if self.map_choice:
+            lang = self.app.language
             options = {
                 'accessToken': self.api_key,
-                'language': self.app.language['bcp47'],
+                'language': lang['bcp47'],
                 }
-            if self.app.language['region']:
-                options['worldview'] = self.app.language['region']
+            # MapBox doesn't recognise numeric region/country codes
+            if lang['region'] and lang['region'].isalpha():
+                options['worldview'] = lang['region']
+            else:
+                options['language'] = lang['primary']
             return options
         return {}
 
