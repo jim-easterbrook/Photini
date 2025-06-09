@@ -39,7 +39,7 @@ class MapboxGeocoder(GeocoderBase):
         del params['query']
         params['access_token'] = self.api_key
         params['autocomplete '] = 'false'
-        params['language'] = self.app.language['bcp47']
+        params['language'] = self.app.locale.bcp47Name()
         query += '.json'
         url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + query
         with Busy():
@@ -163,16 +163,14 @@ function loadMap(lat, lng, zoom, options) {{
 
     def get_options(self):
         if self.map_choice:
-            lang = self.app.language
             options = {
                 'accessToken': self.api_key,
-                'language': lang['bcp47'],
+                'language': self.app.locale.bcp47Name(),
                 }
             # MapBox doesn't recognise numeric region/country codes
-            if lang['region'] and lang['region'].isalpha():
-                options['worldview'] = lang['region']
-            else:
-                options['language'] = lang['primary']
+            territory = self.app.locale.territory_code()
+            if territory and territory.isalpha():
+                options['worldview'] = territory
             return options
         return {}
 

@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2024  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2024-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This file is part of Photini.
 #
@@ -66,8 +66,10 @@ class AzureGeocoder(GeocoderBase):
             north, east, south, west = bounds
             params['bbox'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
                 west, south, east, north)
-        if self.app.language['region']:
-            params['view'] = self.app.language['region']
+        # 'view' must be a two letter country code
+        territory = self.app.locale.territory_code()
+        if len(territory) == 2:
+            params['view'] = territory.upper()
         for feature in self.cached_query(
                 params, 'https://atlas.microsoft.com/geocode'):
             properties = feature['properties']
@@ -140,9 +142,10 @@ class TabWidget(PhotiniMap):
                 'authType': 'subscriptionKey',
                 'subscriptionKey': self.api_key,
                 },
-            'language': self.app.language['bcp47'],
+            'language': self.app.locale.bcp47Name(),
             }
-        # the 'view' parameter doesn't work for the countries I've tried
-##        if self.app.language['region']:
-##            options['view'] = self.app.language['region']
+        # 'view' must be a two letter country code
+        territory = self.app.locale.territory_code()
+        if len(territory) == 2:
+            options['view'] = territory
         return options
