@@ -358,6 +358,22 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         self.save_action.setEnabled(unsaved_data)
 
 
+class Locale(QtCore.QLocale):
+    def language_code(self):
+        if qt_version_info >= (6, 3):
+            return self.languageToCode(self.language())
+        # parse locale's short name
+        language, sep, territory = self.name().partition('_')
+        return language or ''
+
+    def territory_code(self):
+        if qt_version_info >= (6, 2):
+            return self.territoryToCode(self.territory())
+        # parse locale's short name
+        language, sep, territory = self.name().partition('_')
+        return territory or ''
+
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, options, initial_files):
         super(MainWindow, self).__init__()
@@ -386,26 +402,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.image_list = ImageList()
         self.app.image_list.selection_changed.connect(self.new_selection)
         self.app.map_icon_factory = MapIconFactory(parent=self)
-        # parse locale IETF / BCP 47 name
-        # see https://en.wikipedia.org/wiki/IETF_language_tag
-        self.app.language = {
-            'bcp47': QtCore.QLocale.system().bcp47Name(),
-            'primary': None,
-            'region': None,
-            }
-        subtags = self.app.language['bcp47'].split('-')
-        if len(subtags[0]) > 1:
-            self.app.language['primary'] = subtags[0]
-        for idx in range(1, len(subtags)):
-            if len(subtags[idx]) == 1:
-                # ignore extension and private-use subtags
-                subtags = subtags[:idx]
-                break
-        while len(subtags[-1]) >= 4:
-            # ignore variant subtags
-            subtags = subtags[:-1]
-        if len(subtags) > 1:
-            self.app.language['region'] = subtags[-1]
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # initialise web engine
@@ -582,10 +578,12 @@ def main(argv=None):
     app = QtWidgets.QApplication(sys.argv)
     # get remaining argument list after Qt has swallowed its options
     sys.argv = app.arguments()
+    # create locale object
+    locale.setlocale(locale.LC_ALL, '')
+    app.locale = Locale(QtCore.QLocale.system())
     # install translations
     lang_dir = os.path.join(os.path.dirname(__file__), 'data', 'lang')
-    locale.setlocale(locale.LC_ALL, '')
-    langs = [x.replace('-', '_') for x in QtCore.QLocale.system().uiLanguages()]
+    langs = [x.replace('-', '_') for x in app.locale.uiLanguages()]
     # always have English translation as a fallback (to get correct plurals)
     if 'en' not in langs:
         langs += ['en']

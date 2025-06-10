@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -68,7 +68,7 @@ class GoogleGeocoder(GeocoderBase):
     def search(self, search_string, bounds=None):
         params = {
             'address': search_string,
-            'language': self.app.language['bcp47'],
+            'language': self.app.locale.bcp47Name(),
             }
         if bounds:
             north, east, south, west = bounds
@@ -113,9 +113,10 @@ class TabWidget(PhotiniMap):
         if self.app.options.test:
             url += '&v=beta'
         url += '&key=' + self.api_key
-        url += '&language=' + self.app.language['primary']
-        if self.app.language['region']:
-            url += '&region=' + self.app.language['region']
+        url += '&language=' + self.app.locale.language_code()
+        territory = self.app.locale.territory_code()
+        if territory:
+            url += '&region=' + territory
         return '''    <script type="text/javascript"
       src="{url}" async>
     </script>

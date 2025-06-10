@@ -38,8 +38,7 @@ def get_config_dir():
         config_dir = os.path.expanduser(config_dir)
     else:
         config_dir = platformdirs.user_config_dir('photini')
-    if not os.path.isdir(config_dir):
-        os.makedirs(config_dir, mode=stat.S_IRWXU)
+    os.makedirs(config_dir, mode=stat.S_IRWXU, exist_ok=True)
     return config_dir
 
 
@@ -114,8 +113,7 @@ class ConfigFileHandler(object):
         # copy file to backup directory
         today = datetime.today()
         backup_dir = os.path.join(self.root, today.strftime('%Y-%m-%d'))
-        if not os.path.isdir(backup_dir):
-            os.makedirs(backup_dir, mode=stat.S_IRWXU)
+        os.makedirs(backup_dir, mode=stat.S_IRWXU, exist_ok=True)
         shutil.copy(self.path, backup_dir)
         # remove unneeded backups
         keep_list = []
