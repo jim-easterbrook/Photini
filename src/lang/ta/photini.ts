@@ -146,7 +146,7 @@
     </message>
     <message>
         <source>restore config from a backup</source>
-        <translation type="unfinished"></translation>
+        <translation>காப்புப்பிரதியிலிருந்து கட்டமைப்பை மீட்டெடுங்கள்</translation>
     </message>
 </context>
 <context>
@@ -183,7 +183,7 @@
     </message>
     <message>
         <source>Headline</source>
-        <translation>தலைப்பு</translation>
+        <translation>தலைப்புவரி</translation>
     </message>
     <message>
         <source>Description / Caption</source>
@@ -471,7 +471,7 @@
     </message>
     <message>
         <source>Change licence</source>
-        <translation>உரிமத்தை மாற்றவும்</translation>
+        <translation>உரிமத்தை மாற்று</translation>
     </message>
     <message>
         <source>Change content type</source>
@@ -551,7 +551,7 @@
     </message>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
-        <translation>Gpx கோப்புகள் ( *.gpx *.gpx *.gpx) ;; அனைத்து கோப்புகளும் ( *)</translation>
+        <translation>Gpx கோப்புகள் (*.gpx *.GPX *.Gpx) ;; அனைத்து கோப்புகளும் (*)</translation>
     </message>
 </context>
 <context>
@@ -1140,7 +1140,7 @@
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
-        <translation>இந்த திட்டம் குனு பொது பொது உரிமத்துடன் வெளியிடப்படுகிறது. விவரங்களுக்கு &quot;{details}&quot; பொத்தானைக் சொடுக்கு செய்க.</translation>
+        <translation>இந்தத் திட்டம் குனு பொது பொதுமக்கள் உரிமத்துடன் வெளியிடப்படுகிறது. விவரங்களுக்கு &quot;{details}&quot; பொத்தானைக் சொடுக்கு செய்க.</translation>
     </message>
     <message>
         <source>You are currently running Photini version {version}. The latest release is {release}.</source>
