@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ class MapboxGeocoder(GeocoderBase):
         del params['query']
         params['access_token'] = self.api_key
         params['autocomplete '] = 'false'
-        params['language'] = self.app.language['bcp47']
+        params['language'] = self.app.locale.bcp47Name()
         query += '.json'
         url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + query
         with Busy():
@@ -165,10 +165,12 @@ function loadMap(lat, lng, zoom, options) {{
         if self.map_choice:
             options = {
                 'accessToken': self.api_key,
-                'language': self.app.language['bcp47'],
+                'language': self.app.locale.bcp47Name(),
                 }
-            if self.app.language['region']:
-                options['worldview'] = self.app.language['region']
+            # MapBox doesn't recognise numeric region/country codes
+            territory = self.app.locale.territory_code()
+            if territory and territory.isalpha():
+                options['worldview'] = territory
             return options
         return {}
 
