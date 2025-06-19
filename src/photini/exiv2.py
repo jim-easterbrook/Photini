@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -199,7 +199,7 @@ class MetadataHandler(object):
         if sub_key in self._xmp_type_id:
             if value == self._xmp_type_id[sub_key]:
                 return
-            logger.warning('altered type_id %s', sub_key)
+            logger.warning('%s: altered type_id %s', self._name, sub_key)
         self._xmp_type_id[sub_key] = value
 
     def get_xmp_type(self, key):
@@ -273,8 +273,8 @@ class MetadataHandler(object):
                     return 'utf-32-be'
                 if final == 0x4c:
                     return 'utf-16-be'
-        logger.error('Unrecognised IPTC character set %s',
-                     repr(bytes(iptc_charset_code)))
+        logger.error('%s: Unrecognised IPTC character set %s',
+                     self._name, repr(bytes(iptc_charset_code)))
         return None
 
     def set_iptc_encoding(self):
@@ -307,10 +307,11 @@ class MetadataHandler(object):
             return cls(path, *arg, **kw)
         except exiv2.Exiv2Error as ex:
             # expected if unrecognised file format
+            name = os.path.basename(path)
             if quiet:
-                logger.info(str(ex))
+                logger.info('%s: %s', name, str(ex))
             else:
-                logger.warning(str(ex))
+                logger.warning('%s: %s', name, str(ex))
             return None
         except Exception as ex:
             logger.error('Exception opening %s', path)
@@ -875,7 +876,7 @@ class MetadataHandler(object):
         try:
             self._image.writeMetadata()
         except exiv2.Exiv2Error as ex:
-            logger.error(str(ex))
+            logger.error('%s: %s', self._name, str(ex))
             return False
         except Exception as ex:
             logger.exception(ex)
