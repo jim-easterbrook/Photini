@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -248,7 +248,7 @@ class MD_DateTime(MD_Dict):
             tz_offset = (int(hours) * 60) + int(minutes)
             if sign == '-':
                 tz_offset = -tz_offset
-        elif unparsed[-1] == 'Z':
+        elif unparsed and unparsed[-1] == 'Z':
             tz_offset = 0
             unparsed = unparsed[:-1]
         else:
