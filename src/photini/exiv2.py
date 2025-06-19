@@ -25,7 +25,7 @@ import re
 import chardet
 import exiv2
 
-from photini.pyqt import QtCore, QtGui, using_pyside
+from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 
@@ -646,6 +646,9 @@ class MetadataHandler(object):
                 if pixmap.isNull():
                     logger.error('%s: %s', self._name, reader.errorString())
                     continue
+                if qt_version_info < (6, 0):
+                    # Qt5 doesn't keep a reference to the buffer
+                    pixmap._buf = buf
                 preview_dims = [pixmap.width(), pixmap.height()]
                 return pixmap
         reader = QtGui.QImageReader(self._path)
