@@ -148,7 +148,7 @@ class MetadataHandler(object):
                     continue
                 for encoding in encodings:
                     value = self.decode_string(key, raw_value, encoding)
-                    if value:
+                    if value is not None:
                         break
                 else:
                     encoding = chardet.detect(bytearray(raw_value))['encoding']
@@ -163,7 +163,7 @@ class MetadataHandler(object):
                         value = self.decode_string(key, raw_value, encoding)
                     else:
                         value = None
-                    if value:
+                    if value is not None:
                         encodings.append(encoding)
                     else:
                         logger.warning('%s: failed to transcode %s',
@@ -214,8 +214,19 @@ class MetadataHandler(object):
         return exiv2.TypeId.xmpText
 
     def decode_string(self, tag, raw_value, encoding):
+        encoding = codecs.lookup(encoding).name
+        if encoding == 'utf-32-be':
+            null = b'\x00\x00\x00\x00'
+        elif encoding in ('utf-16-be', 'utf-16-le'):
+            null = b'\x00\x00'
+        else:
+            null = b'\x00'
+        raw_value = bytes(raw_value)
+        idx = raw_value.find(null)
+        if idx >= 0:
+            raw_value = raw_value[:idx]
         try:
-            result = codecs.decode(raw_value, encoding=encoding)
+            result = raw_value.decode(encoding=encoding)
         except UnicodeDecodeError:
             return None
         if encoding != 'utf-8':
@@ -351,16 +362,16 @@ class MetadataHandler(object):
             # Check for BOM.
             if raw_value[:3] == b'\xef\xbb\xbf':
                 raw_value = raw_value[3:]
-                encodings = ('utf_8',)
+                encodings = ('utf-8',)
             elif raw_value[:2] == b'\xff\xfe':
                 raw_value = raw_value[2:]
-                encodings = ('utf_16_le',)
+                encodings = ('utf-16-le',)
             elif raw_value[:2] == b'\xfe\xff':
                 raw_value = raw_value[2:]
-                encodings = ('utf_16_be',)
+                encodings = ('utf-16-be',)
             else:
                 # If no BOM, utf-16 should be bigendian so try that first.
-                encodings = ('utf_16_be', 'utf_16_le', 'utf_8')
+                encodings = ('utf-16-be', 'utf-16-le', 'utf-8')
         else:
             encodings = ()
             if charset != exiv2.CommentValue.CharsetId.undefined:
@@ -372,7 +383,7 @@ class MetadataHandler(object):
         result = None
         for encoding in encodings:
             result = self.decode_string(tag, raw_value, encoding)
-            if result:
+            if result is not None:
                 break
         else:
             detector = chardet.universaldetector.UniversalDetector()
@@ -390,7 +401,7 @@ class MetadataHandler(object):
             if '\0' in result:
                 # NULLs within the string are not allowed
                 result = None
-        if not result:
+        if result is None:
             logger.error(
                 '%s: %s: %d bytes binary data will be deleted when metadata'
                 ' is saved', self._name, tag, value.size())
