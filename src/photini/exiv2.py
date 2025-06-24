@@ -629,7 +629,7 @@ class MetadataHandler(object):
             idx = len(props)
             while idx:
                 idx -= 1
-                preview_dims = [props[idx]['width'], props[idx]['height']]
+                preview_dims = [props[idx].width_, props[idx].height_]
                 preview_dims.sort()
                 if min(preview_dims[0] / image_dims[0],
                        preview_dims[1] / image_dims[1]) < 0.98:
