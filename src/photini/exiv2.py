@@ -142,7 +142,8 @@ class MetadataHandler(object):
                 if '.0x' in key:
                     # unknown key type
                     continue
-                raw_value = datum.value().data()
+                value = datum.value()
+                raw_value = value.data()
                 if self.decode_string(key, raw_value, 'utf-8') is not None:
                     # no need to do anything
                     continue
