@@ -540,14 +540,12 @@ class MD_Thumbnail(MD_Dict):
     @staticmethod
     def image_from_data(data):
         if exiv2.__version_tuple__ >= (0, 18):
-            view = data.data()
-        else:
-            view = memoryview(data)
-        # PySide insists on bytes, can't use memoryview
+            data = data.data()
+        # PySide insists on bytes, can't use memoryview or buffer interface
         if using_pyside and not isinstance(data, bytes):
-            view = bytes(view)
+            data = bytes(data)
         buf = QtCore.QBuffer()
-        buf.setData(view)
+        buf.setData(data)
         reader = QtGui.QImageReader(buf)
         fmt = reader.format().data().decode().upper()
         reader.setAutoTransform(False)
