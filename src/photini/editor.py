@@ -432,16 +432,16 @@ class MainWindow(QtWidgets.QMainWindow):
         default_modules = ['photini.descriptive',  'photini.keywords',
                            'photini.ownership',    'photini.technical',
                            'photini.regions',      'photini.googlemap',
-                           'photini.bingmap',      'photini.azuremap',
-                           'photini.mapboxmap',    'photini.address',
-                           'photini.flickr',       'photini.ipernity',
-                           'photini.googlephotos', 'photini.pixelfed',
-                           'photini.importer']
+                           'photini.azuremap',     'photini.mapboxmap',
+                           'photini.address',      'photini.flickr',
+                           'photini.ipernity',     'photini.googlephotos',
+                           'photini.pixelfed',     'photini.importer']
         self.modules = self.app.config_store.get(
             'tabs', 'modules', default_modules)
-        if 'photini.openstreetmap' in self.modules:
-            self.modules.remove('photini.openstreetmap')
-            self.app.config_store.delete('tabs', 'photini.openstreetmap')
+        for key in ('photini.openstreetmap', 'photini.bingmap'):
+            if key in self.modules:
+                self.modules.remove(key)
+                self.app.config_store.delete('tabs', key)
         # insert any new tabs straight after first tab
         idx = min(1, len(self.modules))
         self.modules[idx:idx] = [x for x in default_modules
