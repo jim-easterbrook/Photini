@@ -539,8 +539,6 @@ class MD_Thumbnail(MD_Dict):
 
     @staticmethod
     def image_from_data(data):
-        if exiv2.__version_tuple__ >= (0, 18):
-            data = data.data()
         # PySide insists on bytes, can't use memoryview or buffer interface
         if using_pyside and not isinstance(data, bytes):
             data = bytes(data)

@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -107,9 +106,8 @@ class UploaderSession(QtCore.QObject):
     @contextmanager
     def open_file(self, image, convert):
         if convert:
-            exiv_image, image_type = convert(image)
-            exiv_io = exiv_image.io()
-            fileobj = AbortableFileReader(io.BytesIO(exiv_io), exiv_io.size())
+            data, image_type = convert(image)
+            fileobj = AbortableFileReader(io.BytesIO(data), len(data))
             try:
                 yield image_type, fileobj
             finally:
@@ -570,15 +568,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         dst = dict(src)
         if dst['image']:
             return dst
-        exiv_io = dst['data'].io()
-        dst['image'] = PIL.open(io.BytesIO(exiv_io))
+        dst['image'] = PIL.open(io.BytesIO(dst['data']))
         dst['width'], dst['height'] = dst['image'].size
         return dst
 
     def image_to_data(self, src, mime_type=None, max_size=None):
         dst_mime_type = mime_type or src['mime_type']
         if src['data'] and src['mime_type'] == dst_mime_type and not (
-                            max_size and src['data'].io().size() > max_size):
+                            max_size and len(src['data']) > max_size):
             return src
         src = self.data_to_image(src)
         w_src, h_src = src['width'], src['height']
@@ -601,7 +598,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 data = dest_buf.getbuffer()
                 dst['data'] = src['metadata'].clone(data)
                 dst['mime_type'] = dst_mime_type
-                if not (max_size and dst['data'].io().size() > max_size):
+                if not (max_size and len(dst['data']) > max_size):
                     logger.info('Converted %s from %dx%d to %dx%d JPEG',
                                 src['name'], w_src, h_src, w_dst, h_dst)
                     return dst

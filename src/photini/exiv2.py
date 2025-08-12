@@ -554,6 +554,10 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
         if data:
+            if exiv2.__version_tuple__ >= (0, 18):
+                data = data.data()
+            else:
+                data = memoryview(data)
             logger.info('%s: trying thumbnail', self._name)
             yield data, 'thumbnail'
         # try preview images
@@ -569,7 +573,11 @@ class MetadataHandler(object):
                 logger.info('%s: trying preview %dx%d', self._name,
                             props[idx].width_, props[idx].height_)
                 image = preview_manager.getPreviewImage(props[idx])
-                yield image, 'preview ' + str(idx)
+                if exiv2.__version_tuple__ >= (0, 18):
+                    data = image.data()
+                else:
+                    data = memoryview(image)
+                yield data, 'preview ' + str(idx)
 
     def select_xmp_thumbnail(self, file_value):
         if not file_value:
@@ -596,14 +604,6 @@ class MetadataHandler(object):
             logger.info('%s: trying xmp thumb %dx%d', self._name,
                         candidate['width'], candidate['height'])
             yield candidate['image'], 'xmp thumb ' + str(n)
-
-    def get_previews(self):
-        preview_manager = exiv2.PreviewManager(self._image)
-        props = preview_manager.getPreviewProperties()
-        idx = len(props)
-        while idx:
-            idx -= 1
-            yield preview_manager.getPreviewImage(props[idx])
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
@@ -635,8 +635,12 @@ class MetadataHandler(object):
                        preview_dims[1] / image_dims[1]) < 0.98:
                     break
                 data = preview_manager.getPreviewImage(props[idx])
+                if exiv2.__version_tuple__ >= (0, 18):
+                    data = data.data()
+                else:
+                    data = memoryview(data)
                 buf = QtCore.QBuffer()
-                # PySide insists on bytes, can't use buffer interface
+                # PySide insists on bytes, can't use memoryview
                 if using_pyside:
                     data = bytes(data)
                 buf.setData(data)

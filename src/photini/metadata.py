@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -770,7 +770,12 @@ class Metadata(object):
         if self._sc:
             image.merge_sc(self._sc)
         image.save_file()
-        return image._image
+        io = image._image.io()
+        if exiv2.__version_tuple__ >= (0, 18):
+            data = io.data()
+        else:
+            data = memoryview(io)
+        return data
 
     def _handler_save(self, handler, *arg, **kw):
         # store Photini metadata items
@@ -821,11 +826,6 @@ class Metadata(object):
             self.dirty = False
             if self._notify:
                 self._notify(self.dirty)
-
-    def get_previews(self):
-        if not self._if:
-            return
-        return self._if.get_previews()
 
     def get_image_pixmap(self):
         if self._if:
