@@ -858,9 +858,12 @@ class MetadataHandler(object):
             # can be a struct or array
             if value.xmpStruct() == exiv2.XmpValue.XmpStruct.xsStruct:
                 self.clear_xmp_struct(tag)
+                datum = self._xmpData.findKey(key)
             elif value.xmpArrayType() != exiv2.XmpValue.XmpArrayType.xaNone:
                 self.clear_xmp_array(tag)
+                datum = self._xmpData.findKey(key)
         if children_only:
+            next(datum)
             return datum
         return self._xmpData.erase(datum)
 
