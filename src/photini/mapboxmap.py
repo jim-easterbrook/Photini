@@ -146,7 +146,7 @@ function loadMap(lat, lng, zoom, options) {{
     def get_head(self):
         if self.map_choice == 'mapbox-gl':
             return self.head_gl.format(
-                url_mb='https://api.mapbox.com/mapbox-gl-js/v3.6.0',
+                url_mb='https://api.mapbox.com/mapbox-gl-js/v3.14.0',
                 url_ss='https://cdnjs.cloudflare.com/ajax/libs'
                        '/mapbox-gl-style-switcher/1.0.11')
         if self.map_choice == 'mapbox.js':
