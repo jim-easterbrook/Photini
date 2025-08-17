@@ -2199,13 +2199,15 @@ class MD_ImageRegion(MD_Structure):
         if tag == 'Xmp.mwg-rs.Regions':
             dims = self['AppliedToDimensions']
             regions = [x.to_MWG(dims) for x in self]
-            if not any(regions):
+            regions = [x for x in regions if x]
+            if not regions:
                 return None
             return {'mwg-rs:AppliedToDimensions': dims.to_exiv2(tag),
                     'mwg-rs:RegionList': regions}
         if tag == 'Xmp.MP.RegionInfo':
             regions = [x.to_MP(self['AppliedToDimensions']) for x in self]
-            if not any(regions):
+            regions = [x for x in regions if x]
+            if not regions:
                 return None
             return {'MPRI:Regions': regions}
         return None
