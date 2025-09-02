@@ -277,8 +277,9 @@ class ImageMetadata(MetadataHandler):
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime*': (
-            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
-        'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', ''),
+            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime',
+            'Exif.Photo.OffsetTime'),
+        'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
         'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
         'Exif.Image.Lens*': ('', '', '', 'Exif.Image.LensInfo'),
@@ -311,9 +312,11 @@ class ImageMetadata(MetadataHandler):
         'Exif.PentaxDng.LensType*': ('', 'Exif.PentaxDng.LensType'),
         'Exif.PentaxDng.ModelID*': ('', 'Exif.PentaxDng.ModelID'),
         'Exif.Photo.DateTimeDigitized*': (
-            'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
+            'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized',
+            'Exif.Photo.OffsetTimeDigitized'),
         'Exif.Photo.DateTimeOriginal*': (
-            'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
+            'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal',
+            'Exif.Photo.OffsetTimeOriginal'),
         'Exif.Photo.FNumber*': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
         'Exif.Photo.Lens*': (
@@ -727,6 +730,8 @@ class Metadata(object):
                 for n, (tag, value) in enumerate(values):
                     if not (tag.startswith('Exif') or
                             tag.startswith('Xmp.video')):
+                        continue
+                    if value['tz_offset'] is not None:
                         continue
                     value = dict(value)
                     value['tz_offset'] = self.timezone

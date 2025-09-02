@@ -355,22 +355,24 @@ class MD_DateTime(MD_Dict):
     # resolution datetime and get the precision from the Xmp value.
     @classmethod
     def from_exif(cls, file_value):
-        datetime_string, sub_sec_string = file_value
+        datetime_string, sub_sec_string, offset_string = file_value
         if not datetime_string:
             return cls([])
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
         # do conversion
+        if offset_string and len(datetime_string) > 11:
+            datetime_string += offset_string
         return cls.from_ISO_8601(datetime_string, sub_sec_string=sub_sec_string)
 
     def to_exif(self):
-        datetime_string = self.to_ISO_8601(
-            precision=max(self['precision'], 6), time_zone=False)
+        datetime_string = self.to_ISO_8601(precision=max(self['precision'], 6))
         date_string = datetime_string[:10].replace('-', ':')
         time_string = datetime_string[11:19]
-        sub_sec_string = datetime_string[20:]
-        return date_string + ' ' + time_string, sub_sec_string
+        sub_sec_string = datetime_string[20:-6]
+        offset_string = datetime_string[-6:]
+        return date_string + ' ' + time_string, sub_sec_string, offset_string
 
     # The exiv2 library parses correctly formatted IPTC date & time and
     # gives us integer values for each element. If the date or time is
