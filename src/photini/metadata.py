@@ -360,6 +360,11 @@ class ImageMetadata(MetadataHandler):
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
         }
+    if not exiv2.testVersion(0, 27, 4):
+        for key in ('Exif.Image.DateTime*', 'Exif.Photo.DateTimeDigitized*',
+                    'Exif.Photo.DateTimeOriginal*'):
+            _multi_tags[key] = list(_multi_tags[key])
+            _multi_tags[key][2] = ''
 
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs. The mode is a string containing the write mode
