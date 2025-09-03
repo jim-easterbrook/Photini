@@ -394,16 +394,20 @@ class MD_DateTime(MD_Dict):
         if date_value['year'] == 0:
             return cls([])
         precision = 3
-        if isinstance(time_value, dict):
-            tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
-            del time_value['tzHour'], time_value['tzMinute']
-            # all-zero time is assumed to be no time info
-            if any(time_value.values()):
-                precision = 6
-        else:
+        if not time_value or isinstance(time_value, str):
             # missing or malformed time
             time_value = {}
             tz_offset = None
+        else:
+            time_value = dict(time_value)
+            tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
+            del time_value['tzHour'], time_value['tzMinute']
+            if tz_offset == 0:
+                # unknown offets are zero in IPTC
+                tz_offset = None
+            # all-zero time is assumed to be no time info
+            if any(time_value.values()):
+                precision = 6
         if date_value['day'] == 0:
             date_value['day'] = 1
             precision = 2
@@ -464,20 +468,19 @@ class MD_DateTime(MD_Dict):
     def merge(self, info, tag, other):
         if other == self or not other:
             return self
-        if other['datetime'] != self['datetime']:
-            verbose = (other['datetime'] != self.truncate_datetime(
-                self['datetime'], other['precision']))
-            # datetime values differ, choose self or other
-            if (self['tz_offset'] in (None, 0)) != (other['tz_offset'] in (None, 0)):
-                if self['tz_offset'] in (None, 0):
-                    # other has "better" time zone info so choose it
-                    if verbose:
-                        self.log_replaced(info, tag, other)
-                    return other
-                # self has better time zone info
+        verbose = (other.to_utc() != self.truncate_datetime(
+            self.to_utc(), other['precision']))
+        if other['tz_offset'] != self['tz_offset']:
+            verbose = verbose and other['datetime'] != self['datetime']
+            if self['tz_offset'] is None:
+                # other has time zone info so choose it
                 if verbose:
-                    self.log_ignored(info, tag, other)
-                return self
+                    self.log_replaced(info, tag, other)
+                return other
+            if verbose:
+                self.log_ignored(info, tag, other)
+            return self
+        if other['datetime'] != self['datetime']:
             if other['precision'] > self['precision']:
                 # other has higher precision so choose it
                 if verbose:
@@ -486,21 +489,10 @@ class MD_DateTime(MD_Dict):
             if verbose:
                 self.log_ignored(info, tag, other)
             return self
-        # datetime values agree, merge other info
-        result = dict(self)
-        if tag.startswith('Xmp'):
-            # other is Xmp, so has trusted timezone and precision
-            result['precision'] = other['precision']
-            result['tz_offset'] = other['tz_offset']
-        else:
-            # use higher precision
-            if other['precision'] > self['precision']:
-                result['precision'] = other['precision']
-            # only trust non-zero timezone (IPTC defaults to zero)
-            if (self['tz_offset'] in (None, 0)
-                    and other['tz_offset'] not in (None, 0)):
-                result['tz_offset'] = other['tz_offset']
-        return MD_DateTime(result)
+        # datetime and timezone values agree, use higher precision
+        if other['precision'] > self['precision']:
+            return other
+        return self
 
 
 class MD_LensSpec(MD_Dict):
