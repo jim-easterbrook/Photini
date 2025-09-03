@@ -334,20 +334,17 @@ class MetadataHandler(object):
         thumb.setJpegThumbnail(buffer)
 
     def get_exif_comment(self, tag, value):
+        data = value.data()
         if isinstance(value, exiv2.CommentValue):
-            data = value.data()
             charset = value.charsetId()
+        elif data[:5] == b'ASCII':
+            charset = exiv2.CommentValue.CharsetId.ascii
+        elif data[:3] == b'JIS':
+            charset = exiv2.CommentValue.CharsetId.jis
+        elif data[:7] == b'UNICODE':
+            charset = exiv2.CommentValue.CharsetId.unicode
         else:
-            data = bytearray(len(value))
-            value.copy(data, exiv2.ByteOrder.invalidByteOrder)
-            if data[:5] == b'ASCII':
-                charset = exiv2.CommentValue.CharsetId.ascii
-            elif data[:3] == b'JIS':
-                charset = exiv2.CommentValue.CharsetId.jis
-            elif data[:7] == b'UNICODE':
-                charset = exiv2.CommentValue.CharsetId.unicode
-            else:
-                charset = exiv2.CommentValue.CharsetId.undefined
+            charset = exiv2.CommentValue.CharsetId.undefined
         # ignore Exiv2's comment decoding, Python is better at unicode
         if not any(data):
             return None
