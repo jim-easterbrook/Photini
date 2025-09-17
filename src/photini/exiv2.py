@@ -334,7 +334,11 @@ class MetadataHandler(object):
         thumb.setJpegThumbnail(buffer)
 
     def get_exif_comment(self, tag, value):
-        data = value.data()
+        if isinstance(value, exiv2.DataValue):
+            data = bytearray(len(value))
+            value.copy(data, exiv2.ByteOrder.invalidByteOrder)
+        else:
+            data = value.data()
         if isinstance(value, exiv2.CommentValue):
             charset = value.charsetId()
         elif data[:5] == b'ASCII':
@@ -729,9 +733,9 @@ class MetadataHandler(object):
     @classmethod
     def iptc_max_len(cls, tag_name):
         data_set = cls.get_info(tag_name)
-        if 'maxbytes' in data_set:
-            return data_set['maxbytes']
-        return None
+        if exiv2.__version_tuple__ >= (0, 18):
+            return data_set.maxbytes
+        return data_set['maxbytes']
 
     @classmethod
     def max_bytes(cls, name):
