@@ -733,6 +733,8 @@ class MetadataHandler(object):
     @classmethod
     def iptc_max_len(cls, tag_name):
         data_set = cls.get_info(tag_name)
+        if not data_set:
+            return None
         if exiv2.__version_tuple__ >= (0, 18):
             return data_set.maxbytes
         return data_set['maxbytes']
