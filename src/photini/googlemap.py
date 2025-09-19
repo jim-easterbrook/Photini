@@ -30,11 +30,10 @@ translate = QtCore.QCoreApplication.translate
 
 
 class GoogleGeocoder(GeocoderBase):
-    api_key = fetch_key('googlemap')
     interval = 50
 
     def query(self, params, url):
-        params['key'] = self.api_key
+        params['key'] = fetch_key('googlemap')
         with Busy():
             self.rate_limit()
             try:
@@ -90,8 +89,6 @@ class GoogleGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = fetch_key('googlemap')
-
     @staticmethod
     def tab_name():
         return translate('MapTabGoogle', 'Google Map',
@@ -111,7 +108,7 @@ class TabWidget(PhotiniMap):
                '&loading=async')
         if self.app.options.test:
             url += '&v=beta'
-        url += '&key=' + self.api_key
+        url += '&key=' + fetch_key('googlemap')
         url += '&language=' + self.app.locale.language_code()
         territory = self.app.locale.territory_code()
         if territory:

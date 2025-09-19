@@ -343,24 +343,10 @@ class EditMapKeys(QtWidgets.QDialog):
         if button != self.button_box.button(
                 QtWidgets.QDialogButtonBox.StandardButton.Apply):
             return self.reject()
-        changed = False
         for section, widget in self.widgets.items():
-            old_value = keyring.get_password('photini', section) or ''
-            value = widget.get_value() or ''
-            changed = changed or value != old_value
+            value = widget.get_value()
             if value:
                 keyring.set_password('photini', section, value)
-            elif old_value:
+            elif keyring.get_password('photini', section):
                 keyring.delete_password('photini', section)
-        if changed:
-            dialog = QtWidgets.QMessageBox(parent=self)
-            dialog.setWindowTitle(translate(
-                'EditSettings', 'Photini: restart required'))
-            dialog.setText('<h3>{}</h3>'.format(translate(
-                'EditSettings', 'Restart required.')))
-            dialog.setInformativeText(translate(
-                'EditSettings', 'The change of map key will take'
-                ' effect when Photini is restarted.'))
-            dialog.setIcon(dialog.Icon.Information)
-            execute(dialog)
         return self.accept()

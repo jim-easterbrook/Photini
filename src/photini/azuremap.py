@@ -33,10 +33,9 @@ translate = QtCore.QCoreApplication.translate
 
 class AzureGeocoder(GeocoderBase):
     interval = 50
-    api_key = fetch_key('azuremap')
 
     def query(self, params, url):
-        params['subscription-key'] = self.api_key
+        params['subscription-key'] = fetch_key('azuremap')
         with Busy():
             self.rate_limit()
             try:
@@ -106,8 +105,6 @@ class AzureGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = fetch_key('azuremap')
-
     @staticmethod
     def tab_name():
         return translate('MapTabAzure', 'Azure Map',
@@ -139,7 +136,7 @@ class TabWidget(PhotiniMap):
         options = {
             'authOptions': {
                 'authType': 'subscriptionKey',
-                'subscriptionKey': self.api_key,
+                'subscriptionKey': fetch_key('azuremap'),
                 },
             'language': self.app.locale.bcp47Name(),
             }

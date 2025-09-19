@@ -44,11 +44,14 @@ translate = QtCore.QCoreApplication.translate
 
 
 def fetch_key(section):
+    result = None
     if keyring:
         result = keyring.get_password('photini', section)
-        if result:
-            return result
-    return key_store.get(section, 'api_key')
+    if not result:
+        result = key_store.get(section, 'api_key')
+    app = QtWidgets.QApplication.instance()
+    app.loggerwindow.hide_word(result)
+    return result
 
 
 class MapIconFactory(QtCore.QObject):
@@ -200,6 +203,8 @@ class CallHandler(QtCore.QObject):
 
 
 class MapWebPage(QtWebEngineCore.QWebEnginePage):
+    load_failed = QtSignal()
+
     def __init__(self, *args, call_handler=None, transient=False, **kwds):
         super(MapWebPage, self).__init__(*args, **kwds)
         self.call_handler = call_handler
@@ -233,6 +238,8 @@ class MapWebPage(QtWebEngineCore.QWebEnginePage):
 
     @catch_all
     def javaScriptConsoleMessage(self, level, msg, line, source):
+        if level == self.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
+            self.load_failed.emit()
         level = {
             self.JavaScriptConsoleMessageLevel.InfoMessageLevel: logging.INFO,
             self.JavaScriptConsoleMessageLevel.WarningMessageLevel: logging.WARNING,
@@ -280,18 +287,13 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
-        self.app.loggerwindow.hide_word(self.api_key)
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(
             True, False)
         w, h = self.app.map_icon_factory.get_pin_size(True)
         self.search_string = None
-        self.map_loaded = 0     # not loaded
-        self.marker_info = {}
+        self.reset_map()
         self.map_status = {}
-        self.dropped_images = []
-        self.geocoder = self.get_geocoder()
-        self.gpx_ids = []
         self.widgets = {}
         # timer to count marker clicks
         self.click_info = {'id': None}
@@ -368,12 +370,20 @@ class PhotiniMap(QtWidgets.QWidget):
         self.widgets['map'] = MapWebView(self.call_handler)
         self.widgets['map'].setUrl(QtCore.QUrl(''))
         self.widgets['map'].drop_text.connect(self.drop_text)
+        self.widgets['map'].page().load_failed.connect(self.load_failed)
         self.widgets['map'].setAcceptDrops(False)
         self.layout().addWidget(self.widgets['map'])
         self.layout().setStretch(1, 1)
         # other init
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
         self.app.map_icon_factory.icons_changed.connect(self.set_icon_data)
+
+    def reset_map(self):
+        self.map_loaded = 0     # not loaded
+        self.marker_info = {}
+        self.dropped_images = []
+        self.geocoder = self.get_geocoder()
+        self.gpx_ids = []
 
     @QtSlot()
     @catch_all
@@ -495,6 +505,15 @@ class PhotiniMap(QtWidgets.QWidget):
         for key in ('centre', 'zoom'):
             if key in status:
                 self.app.config_store.set('map', key, self.map_status[key])
+
+    @QtSlot()
+    @catch_all
+    def load_failed(self):
+        if self.map_loaded < 1:
+            return
+        if self.map_loaded < 2:
+            QtWidgets.QApplication.restoreOverrideCursor()
+        self.reset_map()
 
     @QtSlot(int, int, str)
     @catch_all

@@ -38,7 +38,7 @@ from photini.editsettings import EditMapKeys, EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
 from photini.metadata import ImageMetadata
-from photini.photinimap import MapIconFactory
+from photini.photinimap import MapIconFactory, PhotiniMap
 from photini.pyqt import *
 from photini.pyqt import QtNetwork, qt_version_info, QtWebEngineCore
 from photini.spelling import SpellCheck
@@ -267,14 +267,20 @@ class MenuBar(QtWidgets.QMenuBar):
     @catch_all
     def edit_settings(self):
         dialog = EditSettings(self)
-        execute(dialog)
-        self.parent().tabs.currentWidget().refresh()
+        if execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted:
+            self.parent().tabs.currentWidget().refresh()
 
     @QtSlot()
     @catch_all
     def edit_map_keys(self):
         dialog = EditMapKeys(self)
-        execute(dialog)
+        if execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted:
+            tabs = self.parent().tabs
+            for idx in range(tabs.count()):
+                widget = tabs.widget(idx)
+                if isinstance(widget, PhotiniMap):
+                    widget.reset_map()
+            tabs.currentWidget().refresh()
 
     @QtSlot(QtGui2.QAction)
     @catch_all

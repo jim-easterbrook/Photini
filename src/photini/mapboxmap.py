@@ -30,13 +30,12 @@ translate = QtCore.QCoreApplication.translate
 
 class MapboxGeocoder(GeocoderBase):
     # see https://docs.mapbox.com/api/search/geocoding-v5/
-    api_key = fetch_key('mapboxmap')
     cache_size = 0
 
     def query(self, params):
         query = params['query']
         del params['query']
-        params['access_token'] = self.api_key
+        params['access_token'] = fetch_key('mapboxmap')
         params['autocomplete '] = 'false'
         params['language'] = self.app.locale.bcp47Name()
         query += '.json'
@@ -97,7 +96,6 @@ class MapboxGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = fetch_key('mapboxmap')
     map_choice = None
 
     @staticmethod
@@ -163,7 +161,7 @@ function loadMap(lat, lng, zoom, options) {{
     def get_options(self):
         if self.map_choice:
             options = {
-                'accessToken': self.api_key,
+                'accessToken': fetch_key('mapboxmap'),
                 'language': self.app.locale.bcp47Name(),
                 }
             # MapBox doesn't recognise numeric region/country codes
