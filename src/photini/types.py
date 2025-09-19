@@ -370,8 +370,12 @@ class MD_DateTime(MD_Dict):
         datetime_string = self.to_ISO_8601(precision=max(self['precision'], 6))
         date_string = datetime_string[:10].replace('-', ':')
         time_string = datetime_string[11:19]
-        sub_sec_string = datetime_string[20:-6]
-        offset_string = datetime_string[-6:]
+        if self['tz_offset'] is None:
+            sub_sec_string = datetime_string[20:]
+            offset_string = None
+        else:
+            sub_sec_string = datetime_string[20:-6]
+            offset_string = datetime_string[-6:]
         return date_string + ' ' + time_string, sub_sec_string, offset_string
 
     # The exiv2 library parses correctly formatted IPTC date & time and
