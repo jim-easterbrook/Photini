@@ -780,11 +780,10 @@ class Metadata(object):
         if self._sc:
             image.merge_sc(self._sc)
         image.save_file()
-        io = image._image.io()
         if exiv2.__version_tuple__ >= (0, 18):
-            data = io.data()
+            data = image._image.data()
         else:
-            data = memoryview(io)
+            data = memoryview(image._image.io())
         return data
 
     def _handler_save(self, handler, *arg, **kw):
