@@ -25,12 +25,16 @@ import os
 import sys
 import warnings
 
+try:
+    import keyring
+except ImportError:
+    keyring = None
 import platformdirs
 
 from photini import __version__
 from photini.configstore import (
     BaseConfigStore, ConfigFileHandler, get_config_dir)
-from photini.editsettings import EditSettings
+from photini.editsettings import EditMapKeys, EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
 from photini.metadata import ImageMetadata
@@ -204,6 +208,10 @@ class MenuBar(QtWidgets.QMenuBar):
         options_menu = self.addMenu(translate('MenuBar', 'Options'))
         action = options_menu.addAction(translate('MenuBar', 'Settings'))
         action.triggered.connect(self.edit_settings)
+        action = options_menu.addAction(translate('MenuBar', 'Map keys'))
+        action.triggered.connect(self.edit_map_keys)
+        if not keyring:
+            action.setEnabled(False)
         options_menu.addSeparator()
         for module in self.parent().modules:
             tab = self.parent().tab_info[module]
@@ -261,6 +269,12 @@ class MenuBar(QtWidgets.QMenuBar):
         dialog = EditSettings(self)
         execute(dialog)
         self.parent().tabs.currentWidget().refresh()
+
+    @QtSlot()
+    @catch_all
+    def edit_map_keys(self):
+        dialog = EditMapKeys(self)
+        execute(dialog)
 
     @QtSlot(QtGui2.QAction)
     @catch_all

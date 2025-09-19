@@ -22,9 +22,8 @@ import os
 
 import requests
 
-from photini.configstore import key_store
 from photini.metadata import ImageMetadata
-from photini.photinimap import GeocoderBase
+from photini.photinimap import fetch_key, GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (AltitudeDisplay, CompactButton, Label,
@@ -35,7 +34,7 @@ translate = QtCore.QCoreApplication.translate
 
 
 class OpenCage(GeocoderBase):
-    api_key = key_store.get('opencage', 'api_key')
+    api_key = fetch_key('opencage')
 
     def query(self, params):
         params['key'] = self.api_key

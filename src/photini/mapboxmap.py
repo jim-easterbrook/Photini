@@ -20,8 +20,7 @@ import logging
 
 import requests
 
-from photini.configstore import key_store
-from photini.photinimap import GeocoderBase, PhotiniMap
+from photini.photinimap import fetch_key, GeocoderBase, PhotiniMap
 from photini.pyqt import Busy, catch_all, QtCore, QtGui, QtSlot, QtWidgets
 from photini.widgets import CompactButton
 
@@ -31,7 +30,7 @@ translate = QtCore.QCoreApplication.translate
 
 class MapboxGeocoder(GeocoderBase):
     # see https://docs.mapbox.com/api/search/geocoding-v5/
-    api_key = key_store.get('mapboxmap', 'api_key')
+    api_key = fetch_key('mapboxmap')
     cache_size = 0
 
     def query(self, params):
@@ -98,7 +97,7 @@ class MapboxGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = key_store.get('mapboxmap', 'api_key')
+    api_key = fetch_key('mapboxmap')
     map_choice = None
 
     @staticmethod

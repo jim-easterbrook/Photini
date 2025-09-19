@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -18,9 +18,15 @@
 
 import logging
 
+try:
+    import keyring
+except ImportError:
+    keyring = None
+
 from photini.pyqt import (
     available_packages, catch_all, execute, FormLayout, qt_lib, QtCore, QtGui,
     QtSlot, QtWidgets, width_for_text)
+from photini.widgets import Label, MultiLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -290,4 +296,71 @@ class EditSettings(QtWidgets.QDialog):
                     dialog.setIcon(dialog.Icon.Information)
                     execute(dialog)
                     break
+        return self.accept()
+
+
+class EditMapKeys(QtWidgets.QDialog):
+    def __init__(self, *arg, **kw):
+        super(EditMapKeys, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
+        self.config_store = self.app.config_store
+        self.setWindowTitle(translate('EditSettings', 'Photini: map keys'))
+        self.setLayout(QtWidgets.QVBoxLayout())
+        # main dialog area
+        scroll_area = QtWidgets.QScrollArea()
+        self.layout().addWidget(scroll_area)
+        panel = QtWidgets.QWidget()
+        layout = FormLayout()
+        panel.setLayout(layout)
+        if layout.rowWrapPolicy() == layout.RowWrapPolicy.DontWrapRows:
+            layout.setRowWrapPolicy(layout.RowWrapPolicy.WrapLongRows)
+        self.widgets = {}
+        for section, title, lines in (
+                ('azuremap', translate('EditSettings', 'Azure map'), 1),
+                ('googlemap', translate('EditSettings', 'Google map'), 1),
+                ('mapboxmap', translate('EditSettings', 'Mapbox map'), 1),
+                ('opencage', translate('EditSettings',
+                                       'Address lookup (OpenCage)'), 2)):
+            self.widgets[section] = MultiLineEdit(section, min_width=60)
+            self.widgets[section].set_height(3)
+            self.widgets[section].set_value(
+                keyring.get_password('photini', section))
+            panel.layout().addRow(
+                Label(title, lines=lines), self.widgets[section])
+        # apply & cancel buttons
+        self.button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Apply |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        self.button_box.clicked.connect(self.button_clicked)
+        self.layout().addWidget(self.button_box)
+        # add panel to scroll area after its size is known
+        scroll_area.viewport().setMinimumWidth(panel.sizeHint().width())
+        scroll_area.setWidget(panel)
+
+    @QtSlot(QtWidgets.QAbstractButton)
+    @catch_all
+    def button_clicked(self, button):
+        if button != self.button_box.button(
+                QtWidgets.QDialogButtonBox.StandardButton.Apply):
+            return self.reject()
+        changed = False
+        for section, widget in self.widgets.items():
+            old_value = keyring.get_password('photini', section) or ''
+            value = widget.get_value() or ''
+            changed = changed or value != old_value
+            if value:
+                keyring.set_password('photini', section, value)
+            elif old_value:
+                keyring.delete_password('photini', section)
+        if changed:
+            dialog = QtWidgets.QMessageBox(parent=self)
+            dialog.setWindowTitle(translate(
+                'EditSettings', 'Photini: restart required'))
+            dialog.setText('<h3>{}</h3>'.format(translate(
+                'EditSettings', 'Restart required.')))
+            dialog.setInformativeText(translate(
+                'EditSettings', 'The change of map key will take'
+                ' effect when Photini is restarted.'))
+            dialog.setIcon(dialog.Icon.Information)
+            execute(dialog)
         return self.accept()

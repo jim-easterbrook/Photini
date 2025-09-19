@@ -24,9 +24,14 @@ import os
 import pickle
 
 import cachetools
+try:
+    import keyring
+except ImportError:
+    keyring = None
 import PIL.Image, PIL.ImageDraw
 import platformdirs
 
+from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
@@ -36,6 +41,14 @@ from photini.widgets import AltitudeDisplay, ComboBox, Label, LatLongDisplay
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+def fetch_key(section):
+    if keyring:
+        result = keyring.get_password('photini', section)
+        if result:
+            return result
+    return key_store.get(section, 'api_key')
 
 
 class MapIconFactory(QtCore.QObject):

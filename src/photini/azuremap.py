@@ -23,8 +23,7 @@ import os
 
 import requests
 
-from photini.configstore import key_store
-from photini.photinimap import GeocoderBase, PhotiniMap
+from photini.photinimap import fetch_key, GeocoderBase, PhotiniMap
 from photini.pyqt import Busy, catch_all, Qt, QtCore, QtWidgets, scale_font
 from photini.widgets import Label
 
@@ -34,7 +33,7 @@ translate = QtCore.QCoreApplication.translate
 
 class AzureGeocoder(GeocoderBase):
     interval = 50
-    api_key = key_store.get('azuremap', 'api_key')
+    api_key = fetch_key('azuremap')
 
     def query(self, params, url):
         params['subscription-key'] = self.api_key
@@ -107,7 +106,7 @@ class AzureGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = key_store.get('azuremap', 'api_key')
+    api_key = fetch_key('azuremap')
 
     @staticmethod
     def tab_name():
