@@ -334,7 +334,8 @@ class MetadataHandler(object):
         thumb.setJpegThumbnail(buffer)
 
     def get_exif_comment(self, tag, value):
-        if isinstance(value, exiv2.DataValue):
+        if (isinstance(value, exiv2.DataValue)
+                and exiv2.__version_tuple__ < (0, 18)):
             data = bytearray(len(value))
             value.copy(data, exiv2.ByteOrder.invalidByteOrder)
         else:
@@ -444,6 +445,8 @@ class MetadataHandler(object):
         if isinstance(value, exiv2.AsciiValue):
             return value.toString()
         if isinstance(value, exiv2.DataValue):
+            if exiv2.__version_tuple__ >= (0, 18):
+                return value.data()
             result = bytearray(value.size())
             value.copy(result, exiv2.ByteOrder.invalidByteOrder)
             return result
