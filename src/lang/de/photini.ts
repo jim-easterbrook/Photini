@@ -365,6 +365,26 @@
         <source>The change of Qt package will take effect when Photini is restarted.</source>
         <translation>Die Änderung des Qt-Pakets wird wirksam, wenn Photini neu gestartet wird.</translation>
     </message>
+    <message>
+        <source>Photini: map keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Azure map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Google map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapbox map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup (OpenCage)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
@@ -1109,17 +1129,17 @@
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
-        <translation>Server überlastet, bitte nochmal probieren</translation>
+        <translation type="vanished">Server überlastet, bitte nochmal probieren</translation>
     </message>
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Bing-Karte</translation>
+        <translation type="vanished">Bing-Karte</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>Karte &amp;B</translation>
+        <translation type="vanished">Karte &amp;B</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
@@ -1127,7 +1147,7 @@
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
-        <translation>Suche und Nachschlagen der Höhe provided by Bing</translation>
+        <translation type="vanished">Suche und Nachschlagen der Höhe provided by Bing</translation>
     </message>
 </context>
 <context>
@@ -1194,6 +1214,10 @@
     <message>
         <source>Settings</source>
         <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Map keys</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Spelling</source>

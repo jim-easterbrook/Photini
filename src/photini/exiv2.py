@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ import re
 import chardet
 import exiv2
 
-from photini.pyqt import QtCore, QtGui, using_pyside
+from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +148,7 @@ class MetadataHandler(object):
                     continue
                 for encoding in encodings:
                     value = self.decode_string(key, raw_value, encoding)
-                    if value:
+                    if value is not None:
                         break
                 else:
                     encoding = chardet.detect(bytearray(raw_value))['encoding']
@@ -163,7 +163,7 @@ class MetadataHandler(object):
                         value = self.decode_string(key, raw_value, encoding)
                     else:
                         value = None
-                    if value:
+                    if value is not None:
                         encodings.append(encoding)
                     else:
                         logger.warning('%s: failed to transcode %s',
@@ -199,7 +199,7 @@ class MetadataHandler(object):
         if sub_key in self._xmp_type_id:
             if value == self._xmp_type_id[sub_key]:
                 return
-            logger.warning('altered type_id %s', sub_key)
+            logger.warning('%s: altered type_id %s', self._name, sub_key)
         self._xmp_type_id[sub_key] = value
 
     def get_xmp_type(self, key):
@@ -214,8 +214,19 @@ class MetadataHandler(object):
         return exiv2.TypeId.xmpText
 
     def decode_string(self, tag, raw_value, encoding):
+        encoding = codecs.lookup(encoding).name
+        if encoding == 'utf-32-be':
+            null = b'\x00\x00\x00\x00'
+        elif encoding in ('utf-16-be', 'utf-16-le'):
+            null = b'\x00\x00'
+        else:
+            null = b'\x00'
+        raw_value = bytes(raw_value)
+        idx = raw_value.find(null)
+        if idx >= 0:
+            raw_value = raw_value[:idx]
         try:
-            result = codecs.decode(raw_value, encoding=encoding)
+            result = raw_value.decode(encoding=encoding)
         except UnicodeDecodeError:
             return None
         if encoding != 'utf-8':
@@ -273,8 +284,8 @@ class MetadataHandler(object):
                     return 'utf-32-be'
                 if final == 0x4c:
                     return 'utf-16-be'
-        logger.error('Unrecognised IPTC character set %s',
-                     repr(bytes(iptc_charset_code)))
+        logger.error('%s: Unrecognised IPTC character set %s',
+                     self._name, repr(bytes(iptc_charset_code)))
         return None
 
     def set_iptc_encoding(self):
@@ -307,10 +318,11 @@ class MetadataHandler(object):
             return cls(path, *arg, **kw)
         except exiv2.Exiv2Error as ex:
             # expected if unrecognised file format
+            name = os.path.basename(path)
             if quiet:
-                logger.info(str(ex))
+                logger.info('%s: %s', name, str(ex))
             else:
-                logger.warning(str(ex))
+                logger.warning('%s: %s', name, str(ex))
             return None
         except Exception as ex:
             logger.error('Exception opening %s', path)
@@ -322,20 +334,22 @@ class MetadataHandler(object):
         thumb.setJpegThumbnail(buffer)
 
     def get_exif_comment(self, tag, value):
-        if isinstance(value, exiv2.CommentValue):
-            data = value.data()
-            charset = value.charsetId()
-        else:
+        if (isinstance(value, exiv2.DataValue)
+                and exiv2.__version_tuple__ < (0, 18)):
             data = bytearray(len(value))
             value.copy(data, exiv2.ByteOrder.invalidByteOrder)
-            if data[:5] == b'ASCII':
-                charset = exiv2.CommentValue.CharsetId.ascii
-            elif data[:3] == b'JIS':
-                charset = exiv2.CommentValue.CharsetId.jis
-            elif data[:7] == b'UNICODE':
-                charset = exiv2.CommentValue.CharsetId.unicode
-            else:
-                charset = exiv2.CommentValue.CharsetId.undefined
+        else:
+            data = value.data()
+        if isinstance(value, exiv2.CommentValue):
+            charset = value.charsetId()
+        elif data[:5] == b'ASCII':
+            charset = exiv2.CommentValue.CharsetId.ascii
+        elif data[:3] == b'JIS':
+            charset = exiv2.CommentValue.CharsetId.jis
+        elif data[:7] == b'UNICODE':
+            charset = exiv2.CommentValue.CharsetId.unicode
+        else:
+            charset = exiv2.CommentValue.CharsetId.undefined
         # ignore Exiv2's comment decoding, Python is better at unicode
         if not any(data):
             return None
@@ -350,16 +364,16 @@ class MetadataHandler(object):
             # Check for BOM.
             if raw_value[:3] == b'\xef\xbb\xbf':
                 raw_value = raw_value[3:]
-                encodings = ('utf_8',)
+                encodings = ('utf-8',)
             elif raw_value[:2] == b'\xff\xfe':
                 raw_value = raw_value[2:]
-                encodings = ('utf_16_le',)
+                encodings = ('utf-16-le',)
             elif raw_value[:2] == b'\xfe\xff':
                 raw_value = raw_value[2:]
-                encodings = ('utf_16_be',)
+                encodings = ('utf-16-be',)
             else:
                 # If no BOM, utf-16 should be bigendian so try that first.
-                encodings = ('utf_16_be', 'utf_16_le', 'utf_8')
+                encodings = ('utf-16-be', 'utf-16-le', 'utf-8')
         else:
             encodings = ()
             if charset != exiv2.CommentValue.CharsetId.undefined:
@@ -371,7 +385,7 @@ class MetadataHandler(object):
         result = None
         for encoding in encodings:
             result = self.decode_string(tag, raw_value, encoding)
-            if result:
+            if result is not None:
                 break
         else:
             detector = chardet.universaldetector.UniversalDetector()
@@ -389,7 +403,7 @@ class MetadataHandler(object):
             if '\0' in result:
                 # NULLs within the string are not allowed
                 result = None
-        if not result:
+        if result is None:
             logger.error(
                 '%s: %s: %d bytes binary data will be deleted when metadata'
                 ' is saved', self._name, tag, value.size())
@@ -431,6 +445,8 @@ class MetadataHandler(object):
         if isinstance(value, exiv2.AsciiValue):
             return value.toString()
         if isinstance(value, exiv2.DataValue):
+            if exiv2.__version_tuple__ >= (0, 18):
+                return value.data()
             result = bytearray(value.size())
             value.copy(result, exiv2.ByteOrder.invalidByteOrder)
             return result
@@ -542,6 +558,10 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
         if data:
+            if exiv2.__version_tuple__ >= (0, 18):
+                data = data.data()
+            else:
+                data = memoryview(data)
             logger.info('%s: trying thumbnail', self._name)
             yield data, 'thumbnail'
         # try preview images
@@ -557,7 +577,11 @@ class MetadataHandler(object):
                 logger.info('%s: trying preview %dx%d', self._name,
                             props[idx].width_, props[idx].height_)
                 image = preview_manager.getPreviewImage(props[idx])
-                yield image, 'preview ' + str(idx)
+                if exiv2.__version_tuple__ >= (0, 18):
+                    data = image.data()
+                else:
+                    data = memoryview(image)
+                yield data, 'preview ' + str(idx)
 
     def select_xmp_thumbnail(self, file_value):
         if not file_value:
@@ -585,14 +609,6 @@ class MetadataHandler(object):
                         candidate['width'], candidate['height'])
             yield candidate['image'], 'xmp thumb ' + str(n)
 
-    def get_previews(self):
-        preview_manager = exiv2.PreviewManager(self._image)
-        props = preview_manager.getPreviewProperties()
-        idx = len(props)
-        while idx:
-            idx -= 1
-            yield preview_manager.getPreviewImage(props[idx])
-
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
@@ -617,14 +633,18 @@ class MetadataHandler(object):
             idx = len(props)
             while idx:
                 idx -= 1
-                preview_dims = [props[idx]['width'], props[idx]['height']]
+                preview_dims = [props[idx].width_, props[idx].height_]
                 preview_dims.sort()
                 if min(preview_dims[0] / image_dims[0],
                        preview_dims[1] / image_dims[1]) < 0.98:
                     break
                 data = preview_manager.getPreviewImage(props[idx])
+                if exiv2.__version_tuple__ >= (0, 18):
+                    data = data.data()
+                else:
+                    data = memoryview(data)
                 buf = QtCore.QBuffer()
-                # PySide insists on bytes, can't use buffer interface
+                # PySide insists on bytes, can't use memoryview
                 if using_pyside:
                     data = bytes(data)
                 buf.setData(data)
@@ -634,6 +654,9 @@ class MetadataHandler(object):
                 if pixmap.isNull():
                     logger.error('%s: %s', self._name, reader.errorString())
                     continue
+                if qt_version_info < (6, 0):
+                    # Qt5 doesn't keep a reference to the buffer
+                    pixmap._buf = buf
                 preview_dims = [pixmap.width(), pixmap.height()]
                 return pixmap
         reader = QtGui.QImageReader(self._path)
@@ -713,9 +736,11 @@ class MetadataHandler(object):
     @classmethod
     def iptc_max_len(cls, tag_name):
         data_set = cls.get_info(tag_name)
-        if 'maxbytes' in data_set:
-            return data_set['maxbytes']
-        return None
+        if not data_set:
+            return None
+        if exiv2.__version_tuple__ >= (0, 18):
+            return data_set.maxbytes
+        return data_set['maxbytes']
 
     @classmethod
     def max_bytes(cls, name):
@@ -839,9 +864,12 @@ class MetadataHandler(object):
             # can be a struct or array
             if value.xmpStruct() == exiv2.XmpValue.XmpStruct.xsStruct:
                 self.clear_xmp_struct(tag)
+                datum = self._xmpData.findKey(key)
             elif value.xmpArrayType() != exiv2.XmpValue.XmpArrayType.xaNone:
                 self.clear_xmp_array(tag)
+                datum = self._xmpData.findKey(key)
         if children_only:
+            next(datum)
             return datum
         return self._xmpData.erase(datum)
 
@@ -875,7 +903,7 @@ class MetadataHandler(object):
         try:
             self._image.writeMetadata()
         except exiv2.Exiv2Error as ex:
-            logger.error(str(ex))
+            logger.error('%s: %s', self._name, str(ex))
             return False
         except Exception as ex:
             logger.exception(ex)

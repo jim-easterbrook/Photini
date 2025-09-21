@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-24  Jim Easterbrook.
+   Copyright (C)  2012-25  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 .. |nbsp| unicode:: 0xA0
@@ -9,9 +9,8 @@ Geotagging
 ==========
 
 The map tabs allow you to set the location of where a photograph was taken.
-Photini currently uses four different map providers: Google, Bing, Azure, and Mapbox/OpenStreetMap.
-(Microsoft have announced that Bing Maps will be "retired" in June 2025. Azure Maps is its replacement.)
-All four tabs have similar functionality, but have different styles and levels of detail.
+Photini currently uses three different map providers: Google, Azure, and Mapbox/OpenStreetMap.
+All three tabs have similar functionality, but have different styles and levels of detail.
 Each map has a button to switch between map and aerial / satellite imagery.
 
 .. image:: ../images/screenshot_130.png
@@ -170,7 +169,6 @@ This has had several `Earth Gravitational Models`_ (EGM) over the years, each of
 The GPS tracking app I use on my phone has an option to apply "EGM96 correction", which changes the altitude by 45 m at my home in the UK.
 If your app has a similar option I recommend you enable it.
 
-Bing Maps' altitude is corrected using the "EGM2008" model, according to their documentation.
 Google Maps uses "local mean sea level".
 They don't cite a standard and may be using their own measurements, or combining data from several sources.
 

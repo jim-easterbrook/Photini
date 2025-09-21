@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-24  Jim Easterbrook.
+   Copyright (C)  2012-25  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Tag reference
@@ -21,11 +21,19 @@ These tags are where Photini stores its metadata.
 Note that some fields, such as "Title / Object Name" and "Keywords", are not stored in Exif.
 You may prefer not to use these fields to ensure compatibility with software that only handles Exif.
 
-Some of the field names in the table below lingk to their definition in the IPTC standard.
+Some of the field names in the table below link to their definition in the IPTC standard.
 You may find this useful when deciding what to write in those fields.
+
+.. |wbr| unicode:: 0xAD
+    :trim:
+
+.. |lbr| raw:: html
+
+    <div style="line-height: 0; padding: 0; margin: 0"></div>
 
 .. list-table:: Primary tags
     :header-rows: 1
+    :class: wrapped-table
 
     * - Photini field
       - Exif tag
@@ -33,130 +41,162 @@ You may find this useful when deciding what to write in those fields.
       - IPTC-IIM tag
     * - `Title / Object Name`_
       -
-      - Xmp.dc.title
-      - Iptc.Application2.ObjectName
+      - Xmp.dc |wbr| .title
+      - Iptc.Application2 |wbr| .ObjectName
     * - Headline_
       -
-      - Xmp.photoshop.Headline
-      - Iptc.Application2.Headline
+      - Xmp.photoshop |wbr| .Headline
+      - Iptc.Application2 |wbr| .Headline
     * - `Description / Caption`_
-      - Exif.Image.ImageDescription
-      - Xmp.dc.description
-      - Iptc.Application2.Caption
+      - Exif.Image |wbr| .ImageDescription
+      - Xmp.dc |wbr| .description
+      - Iptc.Application2 |wbr| .Caption
     * - `Alt Text`_
       -
-      - Xmp.iptc.AltTextAccessibility
+      - Xmp.iptc |wbr| .AltTextAccessibility
       -
     * - `Extended Description`_
       -
-      - Xmp.iptc.ExtDescrAccessibility
+      - Xmp.iptc |wbr| .ExtDescrAccessibility
       -
     * - `Person(s) shown`_
       -
-      - Xmp.iptcExt.PersonInImage
+      - Xmp.iptcExt |wbr| .PersonInImage
       -
     * - Rating_
       -
-      - Xmp.xmp.Rating
+      - Xmp.xmp |wbr| .Rating
       -
     * - Keywords_
       -
-      - Xmp.dc.subject
-      - Iptc.Application2.Keywords
+      - Xmp.dc |wbr| .subject
+      - Iptc.Application2 |wbr| .Keywords
     * - Hierarchical keywords
       -
-      - Xmp.lr.hierarchicalSubject Xmp.digiKam.TagsList
+      - Xmp.lr |wbr| .hierarchicalSubject |lbr|
+        Xmp.digiKam |wbr| .TagsList
       -
     * - Creator_
-      - Exif.Image.Artist
-      - Xmp.dc.creator
-      - Iptc.Application2.Byline
+      - Exif.Image |wbr| .Artist
+      - Xmp.dc |wbr| .creator
+      - Iptc.Application2 |wbr| .Byline
     * - `Creator's Jobtitle`_
       -
-      - Xmp.photoshop.AuthorsPosition
-      - Iptc.Application2.BylineTitle
+      - Xmp.photoshop |wbr| .AuthorsPosition
+      - Iptc.Application2 |wbr| .BylineTitle
     * - `Credit Line`_
       -
-      - Xmp.photoshop.Credit
-      - Iptc.Application2.Credit
+      - Xmp.photoshop |wbr| .Credit
+      - Iptc.Application2 |wbr| .Credit
     * - `Copyright Notice`_
-      - Exif.Image.Copyright
-      - Xmp.dc.rights
-      - Iptc.Application2.Copyright
+      - Exif.Image |wbr| .Copyright
+      - Xmp.dc |wbr| .rights
+      - Iptc.Application2 |wbr| .Copyright
     * - `Rights: Usage Terms`_
       -
-      - Xmp.xmpRights.UsageTerms
+      - Xmp.xmpRights |wbr| .UsageTerms
       -
     * - `Rights: Web Statement`_
       -
-      - Xmp.xmpRights.WebStatement
+      - Xmp.xmpRights |wbr| .WebStatement
       -
     * - Instructions_
       -
-      - Xmp.photoshop.Instructions
-      - Iptc.Application2.SpecialInstructions
+      - Xmp.photoshop |wbr| .Instructions
+      - Iptc.Application2 |wbr| .SpecialInstructions
     * - `Contact Information`_
       -
       - Xmp.plus.Licensor
-      - Iptc.Application2.Contact
+      - Iptc.Application2 |wbr| .Contact
     * - `Date / time Taken`_
-      - Exif.Photo.DateTimeOriginal Exif.Photo.SubSecTimeOriginal
-      - Xmp.photoshop.DateCreated
-      - Iptc.Application2.DateCreated Iptc.Application2.TimeCreated
+      - Exif.Photo |wbr| .DateTimeOriginal |lbr|
+        Exif.Photo |wbr| .SubSecTimeOriginal |lbr|
+        Exif.Photo |wbr| .OffsetTimeOriginal
+      - Xmp.photoshop |wbr| .DateCreated
+      - Iptc.Application2 |wbr| .DateCreated |lbr|
+        Iptc.Application2 |wbr| .TimeCreated
     * - Date / time Digitised
-      - Exif.Photo.DateTimeDigitized Exif.Photo.SubSecTimeDigitized
-      - Xmp.xmp.CreateDate
-      - Iptc.Application2.DigitizationDate Iptc.Application2.DigitizationTime
+      - Exif.Photo |wbr| .DateTimeDigitized |lbr|
+        Exif.Photo |wbr| .SubSecTimeDigitized |lbr|
+        Exif.Photo |wbr| .OffsetTimeDigitized
+      - Xmp.xmp |wbr| .CreateDate
+      - Iptc.Application2 |wbr| .DigitizationDate |lbr|
+        Iptc.Application2 |wbr| .DigitizationTime
     * - Date / time Modified
-      - Exif.Image.DateTime Exif.Photo.SubSecTime
-      - Xmp.xmp.ModifyDate
+      - Exif.Image |wbr| .DateTime |lbr|
+        Exif.Photo |wbr| .SubSecTime |lbr|
+        Exif.Photo |wbr| .OffsetTime
+      - Xmp.xmp |wbr| .ModifyDate
       -
     * - Orientation
-      - Exif.Image.Orientation
+      - Exif.Image |wbr| .Orientation
       -
       -
     * - Camera
-      - Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber
+      - Exif.Image |wbr| .Make |lbr|
+        Exif.Image |wbr| .Model |lbr|
+        Exif.Photo |wbr| .BodySerialNumber
       -
       -
     * - Lens
-      - Exif.Photo.LensMake Exif.Photo.LensModel Exif.Photo.LensSerialNumber Exif.Photo.LensSpecification
+      - Exif.Photo |wbr| .LensMake |lbr|
+        Exif.Photo |wbr| .LensModel |lbr|
+        Exif.Photo |wbr| .LensSerialNumber |lbr|
+        Exif.Photo |wbr| .LensSpecification
       -
       -
     * - Focal length
-      - Exif.Photo.FocalLength
+      - Exif.Photo |wbr| .FocalLength
       -
       -
     * - 35mm equiv
-      - Exif.Photo.FocalLengthIn35mmFilm
+      - Exif.Photo |wbr| .FocalLengthIn35mmFilm
       -
       -
     * - Aperture
-      - Exif.Photo.FNumber Exif.Photo.ApertureValue
+      - Exif.Photo |wbr| .FNumber |lbr|
+        Exif.Photo |wbr| .ApertureValue
       -
       -
     * - `Image Regions`_
       -
-      - Xmp.iptcExt.ImageRegion Xmp.mwg-rs.Regions Xmp.MP.RegionInfo
+      - Xmp.iptcExt |wbr| .ImageRegion |lbr|
+        Xmp.mwg-rs |wbr| .Regions |lbr|
+        Xmp.MP |wbr| .RegionInfo
       -
     * - Latitude_, longitude_
-      - Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLatitudeRef Exif.GPSInfo.GPSLongitude Exif.GPSInfo.GPSLongitudeRef
+      - Exif.GPSInfo |wbr| .GPSLatitude |lbr|
+        Exif.GPSInfo |wbr| .GPSLatitudeRef |lbr|
+        Exif.GPSInfo |wbr| .GPSLongitude |lbr|
+        Exif.GPSInfo |wbr| .GPSLongitudeRef
       -
       -
     * - Altitude_
-      - Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef
+      - Exif.GPSInfo |wbr| .GPSAltitude |lbr|
+        Exif.GPSInfo |wbr| .GPSAltitudeRef
       -
       -
     * - `Camera address`_
       -
-      - Xmp.iptcExt.LocationCreated Xmp.iptc.Location Xmp.photoshop.City Xmp.photoshop.State Xmp.photoshop.Country Xmp.iptc.CountryCode
-      - Iptc.Application2.SubLocation Iptc.Application2.City Iptc.Application2.ProvinceState Iptc.Application2.CountryName Iptc.Application2.CountryCode
+      - Xmp.iptcExt |wbr| .LocationCreated |lbr|
+        Xmp.iptc |wbr| .Location |lbr|
+        Xmp.photoshop |wbr| .City |lbr|
+        Xmp.photoshop |wbr| .State |lbr|
+        Xmp.photoshop |wbr| .Country |lbr|
+        Xmp.iptc |wbr| .CountryCode
+      - Iptc.Application2 |wbr| .SubLocation |lbr|
+        Iptc.Application2 |wbr| .City |lbr|
+        Iptc.Application2 |wbr| .ProvinceState |lbr|
+        Iptc.Application2 |wbr| .CountryName |lbr|
+        Iptc.Application2 |wbr| .CountryCode
     * - `Subject address`_
       -
-      - Xmp.iptcExt.LocationShown
+      - Xmp.iptcExt |wbr| .LocationShown
       -
     * - Thumbnail image
-      - Exif.Thumbnail.Compression Exif.Thumbnail.ImageWidth Exif.Thumbnail.ImageLength
+      - Exif.Thumbnail |wbr| .Compression |lbr|
+        Exif.Thumbnail |wbr| .ImageWidth |lbr|
+        Exif.Thumbnail |wbr| .ImageLength
       -
       -
 
@@ -168,52 +208,58 @@ These tags are deleted when the corresponding primary tags are saved.
 
 .. list-table:: Secondary tags
     :header-rows: 1
+    :class: wrapped-table
 
     * - Photini field
       - Exif tag
       - XMP tag
     * - Title / Object Name
-      - Exif.Image.XPTitle
+      - Exif.Image |wbr| .XPTitle
       -
     * - Description / Caption
-      - Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment
-      - Xmp.exif.UserComment Xmp.tiff.ImageDescription
+      - Exif.Image |wbr| .XPComment |lbr|
+        Exif.Image |wbr| .XPSubject |lbr|
+        Exif.Photo |wbr| .UserComment
+      - Xmp.exif |wbr| .UserComment |lbr|
+        Xmp.tiff |wbr| .ImageDescription
     * - Keywords
-      - Exif.Image.XPKeywords
+      - Exif.Image |wbr| .XPKeywords
       -
     * - Rating
-      - Exif.Image.Rating Exif.Image.RatingPercent
-      - Xmp.MicrosoftPhoto.Rating
+      - Exif.Image |wbr| .Rating |lbr|
+        Exif.Image |wbr| .RatingPercent
+      - Xmp.MicrosoftPhoto |wbr| .Rating
     * - Creator
-      - Exif.Image.XPAuthor
-      - Xmp.tiff.Artist
+      - Exif.Image |wbr| .XPAuthor
+      - Xmp.tiff |wbr| .Artist
     * - Copyright
       -
-      - Xmp.tiff.Copyright
+      - Xmp.tiff |wbr| .Copyright
     * - Contact Information
       -
-      - Xmp.iptc.CreatorContactInfo
+      - Xmp.iptc |wbr| .CreatorContactInfo
     * - Date / time Taken
-      - Exif.Image.DateTimeOriginal
-      - Xmp.exif.DateTimeOriginal
+      - Exif.Image |wbr| .DateTimeOriginal
+      - Xmp.exif |wbr| .DateTimeOriginal
     * - Date / time Digitised
       -
-      - Xmp.exif.DateTimeDigitized
+      - Xmp.exif |wbr| .DateTimeDigitized
     * - Date / time Modified
       -
-      - Xmp.tiff.DateTime
+      - Xmp.tiff |wbr| .DateTime
     * - Lens
-      - Exif.Image.LensInfo
-      - Xmp.aux.Lens
+      - Exif.Image |wbr| .LensInfo
+      - Xmp.aux |wbr| .Lens
     * - Focal length
-      - Exif.Image.FocalLength
+      - Exif.Image |wbr| .FocalLength
       -
     * - Aperture
-      - Exif.Image.FNumber Exif.Image.ApertureValue
+      - Exif.Image |wbr| .FNumber |lbr|
+        Exif.Image |wbr| .ApertureValue
       -
     * - Thumbnail image
       -
-      - Xmp.xmp.Thumbnails[n]/xapGImg
+      - Xmp.xmp |wbr| .Thumbnails[n]/xapGImg
 
 XMP only tags
 -------------
@@ -222,25 +268,32 @@ These tags are read if present, but are only written if the file format doesn't 
 
 .. list-table:: XMP only tags
     :header-rows: 1
+    :class: wrapped-table
 
     * - Photini field
       - XMP tag
     * - Orientation
-      - Xmp.tiff.Orientation
+      - Xmp.tiff |wbr| .Orientation
     * - Lens
-      - Xmp.exifEX.LensMake Xmp.exifEX.LensModel Xmp.exifEX.LensSerialNumber Xmp.exifEX.LensSpecification
+      - Xmp.exifEX |wbr| .LensMake |lbr|
+        Xmp.exifEX |wbr| .LensModel |lbr|
+        Xmp.exifEX |wbr| .LensSerialNumber |lbr|
+        Xmp.exifEX |wbr| .LensSpecification
     * - Focal length
-      - Xmp.exif.FocalLength
+      - Xmp.exif |wbr| .FocalLength
     * - 35mm equiv
-      - Xmp.exif.FocalLengthIn35mmFilm
+      - Xmp.exif |wbr| .FocalLengthIn35mmFilm
     * - Aperture
-      - Xmp.exif.FNumber Xmp.exif.ApertureValue
+      - Xmp.exif |wbr| .FNumber |lbr|
+        Xmp.exif |wbr| .ApertureValue
     * - Latitude, longitude
-      - Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude
+      - Xmp.exif |wbr| .GPSLatitude |lbr|
+        Xmp.exif |wbr| .GPSLongitude
     * - Altitude
-      - Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef
+      - Xmp.exif |wbr| .GPSAltitude |lbr|
+        Xmp.exif |wbr| .GPSAltitudeRef
     * - Thumbnail image
-      - Xmp.xmp.Thumbnails[n]/xmpGImg
+      - Xmp.xmp |wbr| .Thumbnails[n]/xmpGImg
 
 Read only tags
 --------------
@@ -250,43 +303,72 @@ These tags are not deleted when the corresponding primary tags are saved.
 
 .. list-table:: Read only tags
     :header-rows: 1
+    :class: wrapped-table
 
     * - Photini field
       - Exif tag
       - XMP tag
     * - Title / Object Name
       -
-      - Xmp.video.StreamName
+      - Xmp.video |wbr| .StreamName
     * - Description / Caption
       -
-      - Xmp.video.Information
+      - Xmp.video |wbr| .Information
     * - Time zone offset[1]
-      - Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone
-      - Xmp.video.TimeZone
+      - Exif.Image |wbr| .TimeZoneOffset |lbr|
+        Exif.NikonWt |wbr| .Timezone
+      - Xmp.video |wbr| .TimeZone
     * - Creator
-      - Exif.Photo.CameraOwnerName Exif.Canon.OwnerName
+      - Exif.Photo |wbr| .CameraOwnerName |lbr|
+        Exif.Canon |wbr| .OwnerName
       -
     * - Date / time Taken
       -
-      - Xmp.video.DateTimeOriginal Xmp.video.CreateDate Xmp.video.CreationDate Xmp.video.DateUTC Xmp.video.MediaCreateDate Xmp.video.TrackCreateDate
+      - Xmp.video |wbr| .DateTimeOriginal |lbr|
+        Xmp.video |wbr| .CreateDate |lbr|
+        Xmp.video |wbr| .CreationDate |lbr|
+        Xmp.video |wbr| .DateUTC |lbr|
+        Xmp.video |wbr| .MediaCreateDate |lbr|
+        Xmp.video |wbr| .TrackCreateDate
     * - Date / time Modified
       -
-      - Xmp.video.ModificationDate Xmp.video.MediaModifyDate Xmp.video.TrackModifyDate
+      - Xmp.video |wbr| .ModificationDate |lbr|
+        Xmp.video |wbr| .MediaModifyDate |lbr|
+        Xmp.video |wbr| .TrackModifyDate
     * - Camera
-      - Exif.Image.CameraSerialNumber Exif.Image.UniqueCameraModel Exif.Canon.ModelID Exif.Canon.SerialNumber Exif.Fujifilm.SerialNumber Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType Exif.OlympusEq.SerialNumber Exif.Pentax.ModelID Exif.Pentax.SerialNumber
-      - Xmp.aux.SerialNumber Xmp.video.Make Xmp.video.Model
+      - Exif.Image |wbr| .CameraSerialNumber |lbr|
+        Exif.Image |wbr| .UniqueCameraModel |lbr|
+        Exif.Canon |wbr| .ModelID |lbr|
+        Exif.Canon |wbr| .SerialNumber |lbr|
+        Exif.Fujifilm |wbr| .SerialNumber |lbr|
+        Exif.Nikon3 |wbr| .SerialNumber |lbr|
+        Exif.OlympusEq |wbr| .CameraType |lbr|
+        Exif.OlympusEq |wbr| .SerialNumber |lbr|
+        Exif.Pentax |wbr| .ModelID |lbr|
+        Exif.Pentax |wbr| .SerialNumber
+      - Xmp.aux |wbr| .SerialNumber |lbr|
+        Xmp.video |wbr| .Make |lbr|
+        Xmp.video |wbr| .Model
     * - Lens
-      - Exif.Canon.LensModel Exif.CanonCs.Lens Exif.CanonCs.LensType Exif.Nikon3.Lens Exif.NikonLd1.LensIDNumber Exif.NikonLd2.LensIDNumber Exif.NikonLd3.LensIDNumber Exif.OlympusEq.LensModel Exif.OlympusEq.LensSerialNumber
+      - Exif.Canon |wbr| .LensModel |lbr|
+        Exif.CanonCs |wbr| .Lens |lbr|
+        Exif.CanonCs |wbr| .LensType |lbr|
+        Exif.Nikon3 |wbr| .Lens |lbr|
+        Exif.NikonLd1 |wbr| .LensIDNumber |lbr|
+        Exif.NikonLd2 |wbr| .LensIDNumber |lbr|
+        Exif.NikonLd3 |wbr| .LensIDNumber |lbr|
+        Exif.OlympusEq |wbr| .LensModel |lbr|
+        Exif.OlympusEq |wbr| .LensSerialNumber
       -
     * - Image Regions
-      - Exif.Photo.SubjectArea
+      - Exif.Photo |wbr| .SubjectArea
       -
     * - Latitude, longitude
       -
-      - Xmp.video.GPSCoordinates
+      - Xmp.video |wbr| .GPSCoordinates
     * - Altitude
       -
-      - Xmp.video.GPSCoordinates
+      - Xmp.video |wbr| .GPSCoordinates
     * - Thumbnail image
       - Exif.SubImage*
       -
