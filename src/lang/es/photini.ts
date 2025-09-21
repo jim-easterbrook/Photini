@@ -348,6 +348,26 @@
         <source>The change of Qt package will take effect when Photini is restarted.</source>
         <translation>El cambio en el paquete Qt surtirá efecto cuando se reinicie Photini.</translation>
     </message>
+    <message>
+        <source>Photini: map keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Azure map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Google map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapbox map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup (OpenCage)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
@@ -1064,17 +1084,17 @@
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
-        <translation>Sobrecarga del servidor, inténtalo de nuevo</translation>
+        <translation type="vanished">Sobrecarga del servidor, inténtalo de nuevo</translation>
     </message>
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Mapa Bing</translation>
+        <translation type="vanished">Mapa Bing</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>Mapa &amp;B</translation>
+        <translation type="vanished">Mapa &amp;B</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
@@ -1082,7 +1102,7 @@
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
-        <translation>Búsqueda y consulta de altitud proporcionado por Bing</translation>
+        <translation type="vanished">Búsqueda y consulta de altitud proporcionado por Bing</translation>
     </message>
 </context>
 <context>
@@ -1149,6 +1169,10 @@
     <message>
         <source>Settings</source>
         <translation>Configuración</translation>
+    </message>
+    <message>
+        <source>Map keys</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Spelling</source>

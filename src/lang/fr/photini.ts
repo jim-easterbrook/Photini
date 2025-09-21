@@ -356,6 +356,26 @@
         <source>The change of Qt package will take effect when Photini is restarted.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Photini: map keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Azure map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Google map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapbox map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup (OpenCage)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
@@ -1100,17 +1120,12 @@
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
-        <translation>Surcharge du serveur, veuillez réessayer</translation>
-    </message>
-    <message>
-        <source>Bing Map</source>
-        <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Surcharge du serveur, veuillez réessayer</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>Carte &amp;B</translation>
+        <translation type="vanished">Carte &amp;B</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
@@ -1118,7 +1133,7 @@
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
-        <translation>Recherche et altitude fournie par Bing</translation>
+        <translation type="vanished">Recherche et altitude fournie par Bing</translation>
     </message>
 </context>
 <context>
@@ -1185,6 +1200,10 @@
     <message>
         <source>Settings</source>
         <translation>Paramètres</translation>
+    </message>
+    <message>
+        <source>Map keys</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Spelling</source>
