@@ -20,6 +20,10 @@ Photini users are encouraged to obtain their own "personal" API keys (for the se
 (There is nothing to stop you sharing your "personal" keys with trusted family and friends, if they also use Photini.)
 Photini's API keys can be set via its :ref:`configuration<configuration-api-keys>` menu.
 
+The tabs below describe how to set up an account and obtain an API key for each of the services Photini uses.
+They are rather brief at present.
+Please let me know if you encounter any problems and I'll try to improve these instructions.
+
 .. tabs::
 
     .. tab:: Azure Maps
