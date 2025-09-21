@@ -340,6 +340,26 @@
         <source>The change of Qt package will take effect when Photini is restarted.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Photini: map keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Azure map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Google map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapbox map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup (OpenCage)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
@@ -1009,27 +1029,6 @@
     </message>
 </context>
 <context>
-    <name>MapTabBing</name>
-    <message>
-        <source>Server overload, please try again</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bing Map</source>
-        <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Map &amp;B</source>
-        <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search and altitude lookup provided by Bing</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>MapTabGoogle</name>
     <message>
         <source>Search and altitude lookup powered by Google</source>
@@ -1100,6 +1099,10 @@
     </message>
     <message>
         <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

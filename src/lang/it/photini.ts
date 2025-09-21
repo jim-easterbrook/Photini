@@ -361,6 +361,26 @@
         <source>The change of Qt package will take effect when Photini is restarted.</source>
         <translation>La modifica del pacchetto Qt avrà effetto al riavvio di Photini.</translation>
     </message>
+    <message>
+        <source>Photini: map keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Azure map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Google map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapbox map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup (OpenCage)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
@@ -1069,17 +1089,17 @@
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
-        <translation>Sovraccarico del server, per favore riprova</translation>
+        <translation type="vanished">Sovraccarico del server, per favore riprova</translation>
     </message>
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Bing Map</translation>
+        <translation type="vanished">Bing Map</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>Mappa &amp;B</translation>
+        <translation type="vanished">Mappa &amp;B</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
@@ -1087,7 +1107,7 @@
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
-        <translation>Ricerca dell&apos;altitudine fornita da Bing</translation>
+        <translation type="vanished">Ricerca dell&apos;altitudine fornita da Bing</translation>
     </message>
 </context>
 <context>
@@ -1170,6 +1190,10 @@
     <message>
         <source>Settings</source>
         <translation>Impostazioni</translation>
+    </message>
+    <message>
+        <source>Map keys</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Spelling</source>

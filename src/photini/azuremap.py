@@ -23,8 +23,7 @@ import os
 
 import requests
 
-from photini.configstore import key_store
-from photini.photinimap import GeocoderBase, PhotiniMap
+from photini.photinimap import fetch_key, GeocoderBase, PhotiniMap
 from photini.pyqt import Busy, catch_all, Qt, QtCore, QtWidgets, scale_font
 from photini.widgets import Label
 
@@ -34,10 +33,9 @@ translate = QtCore.QCoreApplication.translate
 
 class AzureGeocoder(GeocoderBase):
     interval = 50
-    api_key = key_store.get('azuremap', 'api_key')
 
     def query(self, params, url):
-        params['subscription-key'] = self.api_key
+        params['subscription-key'] = fetch_key('azuremap')
         with Busy():
             self.rate_limit()
             try:
@@ -107,8 +105,6 @@ class AzureGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = key_store.get('azuremap', 'api_key')
-
     @staticmethod
     def tab_name():
         return translate('MapTabAzure', 'Azure Map',
@@ -140,7 +136,7 @@ class TabWidget(PhotiniMap):
         options = {
             'authOptions': {
                 'authType': 'subscriptionKey',
-                'subscriptionKey': self.api_key,
+                'subscriptionKey': fetch_key('azuremap'),
                 },
             'language': self.app.locale.bcp47Name(),
             }

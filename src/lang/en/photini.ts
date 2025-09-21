@@ -150,7 +150,7 @@
     </message>
     <message>
         <source>restore config from a backup</source>
-        <translation type="unfinished"></translation>
+        <translation>restore config from a backup</translation>
     </message>
 </context>
 <context>
@@ -347,6 +347,26 @@
     <message>
         <source>The change of Qt package will take effect when Photini is restarted.</source>
         <translation>The change of Qt package will take effect when Photini is restarted.</translation>
+    </message>
+    <message>
+        <source>Photini: map keys</source>
+        <translation>Photini: map keys</translation>
+    </message>
+    <message>
+        <source>Azure map</source>
+        <translation>Azure map</translation>
+    </message>
+    <message>
+        <source>Google map</source>
+        <translation>Google map</translation>
+    </message>
+    <message>
+        <source>Mapbox map</source>
+        <translation>Mapbox map</translation>
+    </message>
+    <message>
+        <source>Address lookup (OpenCage)</source>
+        <translation>Address lookup (OpenCage)</translation>
     </message>
 </context>
 <context>
@@ -1052,17 +1072,17 @@
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
-        <translation>Server overload, please try again</translation>
+        <translation type="vanished">Server overload, please try again</translation>
     </message>
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Bing Map</translation>
+        <translation type="vanished">Bing Map</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>Map &amp;B</translation>
+        <translation type="vanished">Map &amp;B</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
@@ -1070,7 +1090,7 @@
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
-        <translation>Search and altitude lookup provided by Bing</translation>
+        <translation type="vanished">Search and altitude lookup provided by Bing</translation>
     </message>
 </context>
 <context>
@@ -1137,6 +1157,10 @@
     <message>
         <source>Settings</source>
         <translation>Settings</translation>
+    </message>
+    <message>
+        <source>Map keys</source>
+        <translation>Map keys</translation>
     </message>
     <message>
         <source>Spelling</source>

@@ -20,8 +20,7 @@ import logging
 
 import requests
 
-from photini.configstore import key_store
-from photini.photinimap import GeocoderBase, PhotiniMap
+from photini.photinimap import fetch_key, GeocoderBase, PhotiniMap
 from photini.pyqt import Busy, catch_all, QtCore, QtGui, QtSlot, QtWidgets
 from photini.widgets import CompactButton
 
@@ -31,13 +30,12 @@ translate = QtCore.QCoreApplication.translate
 
 class MapboxGeocoder(GeocoderBase):
     # see https://docs.mapbox.com/api/search/geocoding-v5/
-    api_key = key_store.get('mapboxmap', 'api_key')
     cache_size = 0
 
     def query(self, params):
         query = params['query']
         del params['query']
-        params['access_token'] = self.api_key
+        params['access_token'] = fetch_key('mapboxmap')
         params['autocomplete '] = 'false'
         params['language'] = self.app.locale.bcp47Name()
         query += '.json'
@@ -98,7 +96,6 @@ class MapboxGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = key_store.get('mapboxmap', 'api_key')
     map_choice = None
 
     @staticmethod
@@ -146,7 +143,7 @@ function loadMap(lat, lng, zoom, options) {{
     def get_head(self):
         if self.map_choice == 'mapbox-gl':
             return self.head_gl.format(
-                url_mb='https://api.mapbox.com/mapbox-gl-js/v3.6.0',
+                url_mb='https://api.mapbox.com/mapbox-gl-js/v3.14.0',
                 url_ss='https://cdnjs.cloudflare.com/ajax/libs'
                        '/mapbox-gl-style-switcher/1.0.11')
         if self.map_choice == 'mapbox.js':
@@ -164,7 +161,7 @@ function loadMap(lat, lng, zoom, options) {{
     def get_options(self):
         if self.map_choice:
             options = {
-                'accessToken': self.api_key,
+                'accessToken': fetch_key('mapboxmap'),
                 'language': self.app.locale.bcp47Name(),
                 }
             # MapBox doesn't recognise numeric region/country codes

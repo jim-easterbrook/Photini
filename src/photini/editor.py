@@ -25,16 +25,20 @@ import os
 import sys
 import warnings
 
+try:
+    import keyring
+except ImportError:
+    keyring = None
 import platformdirs
 
 from photini import __version__
 from photini.configstore import (
     BaseConfigStore, ConfigFileHandler, get_config_dir)
-from photini.editsettings import EditSettings
+from photini.editsettings import EditMapKeys, EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
 from photini.metadata import ImageMetadata
-from photini.photinimap import MapIconFactory
+from photini.photinimap import MapIconFactory, PhotiniMap
 from photini.pyqt import *
 from photini.pyqt import QtNetwork, qt_version_info, QtWebEngineCore
 from photini.spelling import SpellCheck
@@ -204,6 +208,10 @@ class MenuBar(QtWidgets.QMenuBar):
         options_menu = self.addMenu(translate('MenuBar', 'Options'))
         action = options_menu.addAction(translate('MenuBar', 'Settings'))
         action.triggered.connect(self.edit_settings)
+        action = options_menu.addAction(translate('MenuBar', 'Map keys'))
+        action.triggered.connect(self.edit_map_keys)
+        if not keyring:
+            action.setEnabled(False)
         options_menu.addSeparator()
         for module in self.parent().modules:
             tab = self.parent().tab_info[module]
@@ -259,8 +267,20 @@ class MenuBar(QtWidgets.QMenuBar):
     @catch_all
     def edit_settings(self):
         dialog = EditSettings(self)
-        execute(dialog)
-        self.parent().tabs.currentWidget().refresh()
+        if execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted:
+            self.parent().tabs.currentWidget().refresh()
+
+    @QtSlot()
+    @catch_all
+    def edit_map_keys(self):
+        dialog = EditMapKeys(self)
+        if execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted:
+            tabs = self.parent().tabs
+            for idx in range(tabs.count()):
+                widget = tabs.widget(idx)
+                if isinstance(widget, PhotiniMap):
+                    widget.reset_map()
+            tabs.currentWidget().refresh()
 
     @QtSlot(QtGui2.QAction)
     @catch_all
@@ -432,16 +452,16 @@ class MainWindow(QtWidgets.QMainWindow):
         default_modules = ['photini.descriptive',  'photini.keywords',
                            'photini.ownership',    'photini.technical',
                            'photini.regions',      'photini.googlemap',
-                           'photini.bingmap',      'photini.azuremap',
-                           'photini.mapboxmap',    'photini.address',
-                           'photini.flickr',       'photini.ipernity',
-                           'photini.googlephotos', 'photini.pixelfed',
-                           'photini.importer']
+                           'photini.azuremap',     'photini.mapboxmap',
+                           'photini.address',      'photini.flickr',
+                           'photini.ipernity',     'photini.googlephotos',
+                           'photini.pixelfed',     'photini.importer']
         self.modules = self.app.config_store.get(
             'tabs', 'modules', default_modules)
-        if 'photini.openstreetmap' in self.modules:
-            self.modules.remove('photini.openstreetmap')
-            self.app.config_store.delete('tabs', 'photini.openstreetmap')
+        for key in ('photini.openstreetmap', 'photini.bingmap'):
+            if key in self.modules:
+                self.modules.remove(key)
+                self.app.config_store.delete('tabs', key)
         # insert any new tabs straight after first tab
         idx = min(1, len(self.modules))
         self.modules[idx:idx] = [x for x in default_modules

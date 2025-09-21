@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -248,7 +248,7 @@ class MD_DateTime(MD_Dict):
             tz_offset = (int(hours) * 60) + int(minutes)
             if sign == '-':
                 tz_offset = -tz_offset
-        elif unparsed[-1] == 'Z':
+        elif unparsed and unparsed[-1] == 'Z':
             tz_offset = 0
             unparsed = unparsed[:-1]
         else:
@@ -355,22 +355,28 @@ class MD_DateTime(MD_Dict):
     # resolution datetime and get the precision from the Xmp value.
     @classmethod
     def from_exif(cls, file_value):
-        datetime_string, sub_sec_string = file_value
+        datetime_string, sub_sec_string, offset_string = file_value
         if not datetime_string:
             return cls([])
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
         # do conversion
+        if offset_string and len(datetime_string) > 11:
+            datetime_string += offset_string
         return cls.from_ISO_8601(datetime_string, sub_sec_string=sub_sec_string)
 
     def to_exif(self):
-        datetime_string = self.to_ISO_8601(
-            precision=max(self['precision'], 6), time_zone=False)
+        datetime_string = self.to_ISO_8601(precision=max(self['precision'], 6))
         date_string = datetime_string[:10].replace('-', ':')
         time_string = datetime_string[11:19]
-        sub_sec_string = datetime_string[20:]
-        return date_string + ' ' + time_string, sub_sec_string
+        if self['tz_offset'] is None:
+            sub_sec_string = datetime_string[20:]
+            offset_string = None
+        else:
+            sub_sec_string = datetime_string[20:-6]
+            offset_string = datetime_string[-6:]
+        return date_string + ' ' + time_string, sub_sec_string, offset_string
 
     # The exiv2 library parses correctly formatted IPTC date & time and
     # gives us integer values for each element. If the date or time is
@@ -392,16 +398,20 @@ class MD_DateTime(MD_Dict):
         if date_value['year'] == 0:
             return cls([])
         precision = 3
-        if isinstance(time_value, dict):
-            tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
-            del time_value['tzHour'], time_value['tzMinute']
-            # all-zero time is assumed to be no time info
-            if any(time_value.values()):
-                precision = 6
-        else:
+        if not time_value or isinstance(time_value, str):
             # missing or malformed time
             time_value = {}
             tz_offset = None
+        else:
+            time_value = dict(time_value)
+            tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
+            del time_value['tzHour'], time_value['tzMinute']
+            if tz_offset == 0:
+                # unknown offets are zero in IPTC
+                tz_offset = None
+            # all-zero time is assumed to be no time info
+            if any(time_value.values()):
+                precision = 6
         if date_value['day'] == 0:
             date_value['day'] = 1
             precision = 2
@@ -462,20 +472,19 @@ class MD_DateTime(MD_Dict):
     def merge(self, info, tag, other):
         if other == self or not other:
             return self
-        if other['datetime'] != self['datetime']:
-            verbose = (other['datetime'] != self.truncate_datetime(
-                self['datetime'], other['precision']))
-            # datetime values differ, choose self or other
-            if (self['tz_offset'] in (None, 0)) != (other['tz_offset'] in (None, 0)):
-                if self['tz_offset'] in (None, 0):
-                    # other has "better" time zone info so choose it
-                    if verbose:
-                        self.log_replaced(info, tag, other)
-                    return other
-                # self has better time zone info
+        verbose = (other.to_utc() != self.truncate_datetime(
+            self.to_utc(), other['precision']))
+        if other['tz_offset'] != self['tz_offset']:
+            verbose = verbose and other['datetime'] != self['datetime']
+            if self['tz_offset'] is None:
+                # other has time zone info so choose it
                 if verbose:
-                    self.log_ignored(info, tag, other)
-                return self
+                    self.log_replaced(info, tag, other)
+                return other
+            if verbose:
+                self.log_ignored(info, tag, other)
+            return self
+        if other['datetime'] != self['datetime']:
             if other['precision'] > self['precision']:
                 # other has higher precision so choose it
                 if verbose:
@@ -484,21 +493,10 @@ class MD_DateTime(MD_Dict):
             if verbose:
                 self.log_ignored(info, tag, other)
             return self
-        # datetime values agree, merge other info
-        result = dict(self)
-        if tag.startswith('Xmp'):
-            # other is Xmp, so has trusted timezone and precision
-            result['precision'] = other['precision']
-            result['tz_offset'] = other['tz_offset']
-        else:
-            # use higher precision
-            if other['precision'] > self['precision']:
-                result['precision'] = other['precision']
-            # only trust non-zero timezone (IPTC defaults to zero)
-            if (self['tz_offset'] in (None, 0)
-                    and other['tz_offset'] not in (None, 0)):
-                result['tz_offset'] = other['tz_offset']
-        return MD_DateTime(result)
+        # datetime and timezone values agree, use higher precision
+        if other['precision'] > self['precision']:
+            return other
+        return self
 
 
 class MD_LensSpec(MD_Dict):
@@ -539,7 +537,7 @@ class MD_Thumbnail(MD_Dict):
 
     @staticmethod
     def image_from_data(data):
-        # PySide insists on bytes, can't use buffer interface
+        # PySide insists on bytes, can't use memoryview or buffer interface
         if using_pyside and not isinstance(data, bytes):
             data = bytes(data)
         buf = QtCore.QBuffer()
@@ -2199,13 +2197,15 @@ class MD_ImageRegion(MD_Structure):
         if tag == 'Xmp.mwg-rs.Regions':
             dims = self['AppliedToDimensions']
             regions = [x.to_MWG(dims) for x in self]
-            if not any(regions):
+            regions = [x for x in regions if x]
+            if not regions:
                 return None
             return {'mwg-rs:AppliedToDimensions': dims.to_exiv2(tag),
                     'mwg-rs:RegionList': regions}
         if tag == 'Xmp.MP.RegionInfo':
             regions = [x.to_MP(self['AppliedToDimensions']) for x in self]
-            if not any(regions):
+            regions = [x for x in regions if x]
+            if not regions:
                 return None
             return {'MPRI:Regions': regions}
         return None

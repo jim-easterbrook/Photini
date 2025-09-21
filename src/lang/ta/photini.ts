@@ -340,6 +340,26 @@
         <source>The change of Qt package will take effect when Photini is restarted.</source>
         <translation>ஃபோட்டினி மறுதொடக்கம் செய்யப்படும்போது கியுடி தொகுப்பின் மாற்றம் நடைமுறைக்கு வரும்.</translation>
     </message>
+    <message>
+        <source>Photini: map keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Azure map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Google map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapbox map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup (OpenCage)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
@@ -1016,21 +1036,21 @@
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
-        <translation>சேவையக சுமை, தயவுசெய்து மீண்டும் முயற்சிக்கவும்</translation>
+        <translation type="vanished">சேவையக சுமை, தயவுசெய்து மீண்டும் முயற்சிக்கவும்</translation>
     </message>
     <message>
         <source>Bing Map</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>பிங் வரைபடம்</translation>
+        <translation type="vanished">பிங் வரைபடம்</translation>
     </message>
     <message>
         <source>Map &amp;B</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>வரைபடம் &amp; பி</translation>
+        <translation type="vanished">வரைபடம் &amp; பி</translation>
     </message>
     <message>
         <source>Search and altitude lookup provided by Bing</source>
-        <translation>பிங் வழங்கிய தேடல் மற்றும் உயர தேடல்</translation>
+        <translation type="vanished">பிங் வழங்கிய தேடல் மற்றும் உயர தேடல்</translation>
     </message>
 </context>
 <context>
@@ -1105,6 +1125,10 @@
     <message>
         <source>Settings</source>
         <translation>அமைப்புகள்</translation>
+    </message>
+    <message>
+        <source>Map keys</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Spelling</source>

@@ -21,8 +21,7 @@ import re
 
 import requests
 
-from photini.configstore import key_store
-from photini.photinimap import GeocoderBase, PhotiniMap
+from photini.photinimap import fetch_key, GeocoderBase, PhotiniMap
 from photini.pyqt import Busy, Qt, QtCore, QtWidgets, scale_font
 from photini.widgets import Label
 
@@ -31,11 +30,10 @@ translate = QtCore.QCoreApplication.translate
 
 
 class GoogleGeocoder(GeocoderBase):
-    api_key = key_store.get('googlemap', 'api_key')
     interval = 50
 
     def query(self, params, url):
-        params['key'] = self.api_key
+        params['key'] = fetch_key('googlemap')
         with Busy():
             self.rate_limit()
             try:
@@ -91,8 +89,6 @@ class GoogleGeocoder(GeocoderBase):
 
 
 class TabWidget(PhotiniMap):
-    api_key = key_store.get('googlemap', 'api_key')
-
     @staticmethod
     def tab_name():
         return translate('MapTabGoogle', 'Google Map',
@@ -112,7 +108,7 @@ class TabWidget(PhotiniMap):
                '&loading=async')
         if self.app.options.test:
             url += '&v=beta'
-        url += '&key=' + self.api_key
+        url += '&key=' + fetch_key('googlemap')
         url += '&language=' + self.app.locale.language_code()
         territory = self.app.locale.territory_code()
         if territory:

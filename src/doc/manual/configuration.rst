@@ -53,6 +53,25 @@ Clicking on one of the "map icon colours" fields opens a colour chooser dialog t
 Lastly, if you have more than one Qt package installed then you can choose which one to use.
 If you change the Qt package Photini informs you that it needs to be restarted to use the new package.
 
+.. _configuration-api-keys:
+
+Map API keys
+^^^^^^^^^^^^
+
+.. image:: ../images/screenshot_087.png
+
+If you have `Python keyring`_ installed then the ``Options`` menu has a ``Map keys`` item which opens the dialog shown above.
+This shows your current "personal" API keys for the map and geolocation (address lookup) services.
+Photini's default API keys are not shown.
+
+.. image:: ../images/screenshot_088.png
+
+If you obtain your own API key from any of the service providers then you can copy it into the appropriate text box and then click the ``Apply`` button.
+Your API key will be securely stored and used to access the service.
+(Don't bother copying the key shown in the screenshot -- it's disabled.)
+
+To learn more about why you might want to do this, see the :doc:`../other/api_keys` section.
+
 .. _configuration-spell:
 
 Spell checking
@@ -242,3 +261,5 @@ See :doc:`extending` for more information.
 .. _LibreOffice dictionaries:
     https://cgit.freedesktop.org/libreoffice/dictionaries/tree/
 .. _Metadata Working Group: https://en.wikipedia.org/wiki/Metadata_Working_Group
+.. _Python keyring:
+    https://keyring.readthedocs.io/

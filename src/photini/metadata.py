@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -277,8 +277,9 @@ class ImageMetadata(MetadataHandler):
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime*': (
-            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
-        'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', ''),
+            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime',
+            'Exif.Photo.OffsetTime'),
+        'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
         'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
         'Exif.Image.Lens*': ('', '', '', 'Exif.Image.LensInfo'),
@@ -311,9 +312,11 @@ class ImageMetadata(MetadataHandler):
         'Exif.PentaxDng.LensType*': ('', 'Exif.PentaxDng.LensType'),
         'Exif.PentaxDng.ModelID*': ('', 'Exif.PentaxDng.ModelID'),
         'Exif.Photo.DateTimeDigitized*': (
-            'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
+            'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized',
+            'Exif.Photo.OffsetTimeDigitized'),
         'Exif.Photo.DateTimeOriginal*': (
-            'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
+            'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal',
+            'Exif.Photo.OffsetTimeOriginal'),
         'Exif.Photo.FNumber*': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
         'Exif.Photo.Lens*': (
@@ -357,6 +360,11 @@ class ImageMetadata(MetadataHandler):
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
         }
+    if not exiv2.testVersion(0, 27, 4):
+        for key in ('Exif.Image.DateTime*', 'Exif.Photo.DateTimeDigitized*',
+                    'Exif.Photo.DateTimeOriginal*'):
+            _multi_tags[key] = list(_multi_tags[key])
+            _multi_tags[key][2] = ''
 
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs. The mode is a string containing the write mode
@@ -728,6 +736,8 @@ class Metadata(object):
                     if not (tag.startswith('Exif') or
                             tag.startswith('Xmp.video')):
                         continue
+                    if value['tz_offset'] is not None:
+                        continue
                     value = dict(value)
                     value['tz_offset'] = self.timezone
                     values[n] = (tag, self._data_type[name](value))
@@ -770,7 +780,11 @@ class Metadata(object):
         if self._sc:
             image.merge_sc(self._sc)
         image.save_file()
-        return image._image
+        if exiv2.__version_tuple__ >= (0, 18):
+            data = image._image.data()
+        else:
+            data = memoryview(image._image.io())
+        return data
 
     def _handler_save(self, handler, *arg, **kw):
         # store Photini metadata items
@@ -821,11 +835,6 @@ class Metadata(object):
             self.dirty = False
             if self._notify:
                 self._notify(self.dirty)
-
-    def get_previews(self):
-        if not self._if:
-            return
-        return self._if.get_previews()
 
     def get_image_pixmap(self):
         if self._if:

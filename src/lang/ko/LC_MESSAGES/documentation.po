@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2023.4.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 08:27+0000\n"
+"POT-Creation-Date: 2025-09-21 09:33+0100\n"
 "PO-Revision-Date: 2023-04-19 08:54+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2023\n"
 "Language: ko\n"
@@ -36,7 +36,7 @@ msgstr ""
 ":doc:`the introduction <other/introduction>` 를 읽어보시기 바랍니다. 기능에 대한 자세한 내용은 "
 ":doc:`the user manual <manual/index>` 에서 찾을 수 있습니다."
 
-msgid "Copyright (C)  2012-23  Jim Easterbrook."
+msgid "Copyright (C)  2012-25  Jim Easterbrook."
 msgstr ""
 
 msgid ""
@@ -251,6 +251,29 @@ msgid ""
 "Lastly, if you have more than one Qt package installed then you can choose "
 "which one to use. If you change the Qt package Photini informs you that it "
 "needs to be restarted to use the new package."
+msgstr ""
+
+#, fuzzy
+msgid "Map API keys"
+msgstr "특징"
+
+msgid ""
+"If you have `Python keyring`_ installed then the ``Options`` menu has a "
+"``Map keys`` item which opens the dialog shown above. This shows your "
+"current \"personal\" API keys for the map and geolocation (address lookup) "
+"services. Photini's default API keys are not shown."
+msgstr ""
+
+msgid ""
+"If you obtain your own API key from any of the service providers then you "
+"can copy it into the appropriate text box and then click the ``Apply`` "
+"button. Your API key will be securely stored and used to access the service."
+" (Don't bother copying the key shown in the screenshot -- it's disabled.)"
+msgstr ""
+
+msgid ""
+"To learn more about why you might want to do this, see the "
+":doc:`../other/api_keys` section."
 msgstr ""
 
 msgid "Spell checking"
@@ -1695,11 +1718,10 @@ msgstr "위치 태깅"
 #, fuzzy
 msgid ""
 "The map tabs allow you to set the location of where a photograph was taken. "
-"Photini currently uses four different map providers: Google, Bing, Azure, "
-"and Mapbox/OpenStreetMap. (Microsoft have announced that Bing Maps will be "
-"\"retired\" in June 2025. Azure Maps is its replacement.) All four tabs have"
-" similar functionality, but have different styles and levels of detail. Each"
-" map has a button to switch between map and aerial / satellite imagery."
+"Photini currently uses three different map providers: Google, Azure, and "
+"Mapbox/OpenStreetMap. All three tabs have similar functionality, but have "
+"different styles and levels of detail. Each map has a button to switch "
+"between map and aerial / satellite imagery."
 msgstr ""
 "지도 탭을 사용하면 사진을 찍은 위치를 설정할 수 있습니다. Photini는 현재 Google, Bing 및 "
 "Mapbox/OpenStreetMap의 세 가지 지도 제공업체를 사용합니다. 세 탭 모두 기능은 비슷하지만 스타일과 세부 수준이 "
@@ -1951,10 +1973,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Bing Maps' altitude is corrected using the \"EGM2008\" model, according to "
-"their documentation. Google Maps uses \"local mean sea level\". They don't "
-"cite a standard and may be using their own measurements, or combining data "
-"from several sources."
+"Google Maps uses \"local mean sea level\". They don't cite a standard and "
+"may be using their own measurements, or combining data from several sources."
 msgstr ""
 
 msgid ""
@@ -2418,8 +2438,9 @@ msgstr ""
 "\"Title / Object Name\" 및 \"Keywords\"와 같은 일부 필드는 Exif에 저장되지 않습니다. Exif만 "
 "처리하는 소프트웨어와의 호환성을 보장하기 위해 이 필드를 사용하지 않는 것이 좋습니다."
 
+#, fuzzy
 msgid ""
-"Some of the field names in the table below lingk to their definition in the "
+"Some of the field names in the table below link to their definition in the "
 "IPTC standard. You may find this useful when deciding what to write in those"
 " fields."
 msgstr "아래 표의 일부 필드 이름은 IPTC 표준의 정의와 연결되어 있습니다. 해당 필드에 무엇을 쓸지 결정할 때 이 기능이 유용할 수 있습니다."
@@ -2439,134 +2460,158 @@ msgstr "IPTC-IIM 태그"
 msgid "`Title / Object Name`_"
 msgstr "`제목/개체 이름`_"
 
-msgid "Xmp.dc.title"
+#, fuzzy
+msgid "Xmp.dc |wbr| .title"
 msgstr "Xmp.dc.title"
 
-msgid "Iptc.Application2.ObjectName"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .ObjectName"
 msgstr "Iptc.Application2.ObjectName"
 
 msgid "Headline_"
 msgstr "Headline_"
 
-msgid "Xmp.photoshop.Headline"
+#, fuzzy
+msgid "Xmp.photoshop |wbr| .Headline"
 msgstr "Xmp.photoshop.Headline"
 
-msgid "Iptc.Application2.Headline"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .Headline"
 msgstr "Iptc.Application2.Headline"
 
 msgid "`Description / Caption`_"
 msgstr "`설명/캡션`_"
 
-msgid "Exif.Image.ImageDescription"
+#, fuzzy
+msgid "Exif.Image |wbr| .ImageDescription"
 msgstr "Exif.Image.ImageDescription"
 
-msgid "Xmp.dc.description"
+#, fuzzy
+msgid "Xmp.dc |wbr| .description"
 msgstr "Xmp.dc.description"
 
-msgid "Iptc.Application2.Caption"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .Caption"
 msgstr "Iptc.Application2.Caption"
 
 msgid "`Alt Text`_"
 msgstr ""
 
-msgid "Xmp.iptc.AltTextAccessibility"
+msgid "Xmp.iptc |wbr| .AltTextAccessibility"
 msgstr ""
 
 msgid "`Extended Description`_"
 msgstr ""
 
-msgid "Xmp.iptc.ExtDescrAccessibility"
+msgid "Xmp.iptc |wbr| .ExtDescrAccessibility"
 msgstr ""
 
 msgid "`Person(s) shown`_"
 msgstr ""
 
 #, fuzzy
-msgid "Xmp.iptcExt.PersonInImage"
+msgid "Xmp.iptcExt |wbr| .PersonInImage"
 msgstr "Xmp.iptcExt.LocationShown"
 
 msgid "Rating_"
 msgstr "Rating_"
 
-msgid "Xmp.xmp.Rating"
+#, fuzzy
+msgid "Xmp.xmp |wbr| .Rating"
 msgstr "Xmp.xmp.Rating"
 
 msgid "Keywords_"
 msgstr "Keywords_"
 
-msgid "Xmp.dc.subject"
+#, fuzzy
+msgid "Xmp.dc |wbr| .subject"
 msgstr "Xmp.dc.subject"
 
-msgid "Iptc.Application2.Keywords"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .Keywords"
 msgstr "Iptc.Application2.Keywords"
 
 msgid "Hierarchical keywords"
 msgstr ""
 
-msgid "Xmp.lr.hierarchicalSubject Xmp.digiKam.TagsList"
+msgid "Xmp.lr |wbr| .hierarchicalSubject |lbr| Xmp.digiKam |wbr| .TagsList"
 msgstr ""
 
 msgid "Creator_"
 msgstr ""
 
-msgid "Exif.Image.Artist"
+#, fuzzy
+msgid "Exif.Image |wbr| .Artist"
 msgstr "Exif.Image.Artist"
 
-msgid "Xmp.dc.creator"
+#, fuzzy
+msgid "Xmp.dc |wbr| .creator"
 msgstr "Xmp.dc.creator"
 
-msgid "Iptc.Application2.Byline"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .Byline"
 msgstr "Iptc.Application2.Byline"
 
 msgid "`Creator's Jobtitle`_"
 msgstr "`크리에이터의 Jobtitle`_"
 
-msgid "Xmp.photoshop.AuthorsPosition"
+#, fuzzy
+msgid "Xmp.photoshop |wbr| .AuthorsPosition"
 msgstr "Xmp.photoshop.AuthorsPosition"
 
-msgid "Iptc.Application2.BylineTitle"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .BylineTitle"
 msgstr "Iptc.Application2.BylineTitle"
 
 msgid "`Credit Line`_"
 msgstr "`Credit Line`_"
 
-msgid "Xmp.photoshop.Credit"
+#, fuzzy
+msgid "Xmp.photoshop |wbr| .Credit"
 msgstr "Xmp.photoshop.Credit"
 
-msgid "Iptc.Application2.Credit"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .Credit"
 msgstr "Iptc.Application2.Credit"
 
 msgid "`Copyright Notice`_"
 msgstr "`저작권 고지`_"
 
-msgid "Exif.Image.Copyright"
+#, fuzzy
+msgid "Exif.Image |wbr| .Copyright"
 msgstr "Exif.Image.Copyright"
 
-msgid "Xmp.dc.rights"
+#, fuzzy
+msgid "Xmp.dc |wbr| .rights"
 msgstr "Xmp.dc.rights"
 
-msgid "Iptc.Application2.Copyright"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .Copyright"
 msgstr "Iptc.Application2.Copyright"
 
 msgid "`Rights: Usage Terms`_"
 msgstr "`권한: 이용약관`_"
 
-msgid "Xmp.xmpRights.UsageTerms"
+#, fuzzy
+msgid "Xmp.xmpRights |wbr| .UsageTerms"
 msgstr "Xmp.xmpRights.UsageTerms"
 
 msgid "`Rights: Web Statement`_"
 msgstr "`권한: Web Statement`_"
 
-msgid "Xmp.xmpRights.WebStatement"
+#, fuzzy
+msgid "Xmp.xmpRights |wbr| .WebStatement"
 msgstr "Xmp.xmpRights.WebStatement"
 
 msgid "Instructions_"
 msgstr "Instructions_"
 
-msgid "Xmp.photoshop.Instructions"
+#, fuzzy
+msgid "Xmp.photoshop |wbr| .Instructions"
 msgstr "Xmp.photoshop.Instructions"
 
-msgid "Iptc.Application2.SpecialInstructions"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .SpecialInstructions"
 msgstr "Iptc.Application2.SpecialInstructions"
 
 msgid "`Contact Information`_"
@@ -2575,60 +2620,83 @@ msgstr "`연락처`_"
 msgid "Xmp.plus.Licensor"
 msgstr ""
 
-msgid "Iptc.Application2.Contact"
+#, fuzzy
+msgid "Iptc.Application2 |wbr| .Contact"
 msgstr "Iptc.Application2.Contact"
 
 msgid "`Date / time Taken`_"
 msgstr "`날짜/시간`_"
 
-msgid "Exif.Photo.DateTimeOriginal Exif.Photo.SubSecTimeOriginal"
+#, fuzzy
+msgid ""
+"Exif.Photo |wbr| .DateTimeOriginal |lbr| Exif.Photo |wbr| "
+".SubSecTimeOriginal |lbr| Exif.Photo |wbr| .OffsetTimeOriginal"
 msgstr "Exif.Photo.DateTimeOriginal Exif.Photo.SubSecTimeOriginal"
 
-msgid "Xmp.photoshop.DateCreated"
+#, fuzzy
+msgid "Xmp.photoshop |wbr| .DateCreated"
 msgstr "Xmp.photoshop.DateCreated"
 
-msgid "Iptc.Application2.DateCreated Iptc.Application2.TimeCreated"
+#, fuzzy
+msgid ""
+"Iptc.Application2 |wbr| .DateCreated |lbr| Iptc.Application2 |wbr| "
+".TimeCreated"
 msgstr "Iptc.Application2.DateCreated Iptc.Application2.TimeCreated"
 
 msgid "Date / time Digitised"
 msgstr "날짜/시간 디지털화"
 
-msgid "Exif.Photo.DateTimeDigitized Exif.Photo.SubSecTimeDigitized"
+#, fuzzy
+msgid ""
+"Exif.Photo |wbr| .DateTimeDigitized |lbr| Exif.Photo |wbr| "
+".SubSecTimeDigitized |lbr| Exif.Photo |wbr| .OffsetTimeDigitized"
 msgstr "Exif.Photo.DateTimeDigitized Exif.Photo.SubSecTimeDigitized"
 
-msgid "Xmp.xmp.CreateDate"
+#, fuzzy
+msgid "Xmp.xmp |wbr| .CreateDate"
 msgstr "Xmp.xmp.CreateDate"
 
-msgid "Iptc.Application2.DigitizationDate Iptc.Application2.DigitizationTime"
+#, fuzzy
+msgid ""
+"Iptc.Application2 |wbr| .DigitizationDate |lbr| Iptc.Application2 |wbr| "
+".DigitizationTime"
 msgstr "Iptc.Application2.DigitizationDate Iptc.Application2.DigitizationTime"
 
 msgid "Date / time Modified"
 msgstr "날짜/시간 수정됨"
 
-msgid "Exif.Image.DateTime Exif.Photo.SubSecTime"
-msgstr "Exif.Image.DateTime Exif.Photo.SubSecTime"
+msgid ""
+"Exif.Image |wbr| .DateTime |lbr| Exif.Photo |wbr| .SubSecTime |lbr| "
+"Exif.Photo |wbr| .OffsetTime"
+msgstr ""
 
-msgid "Xmp.xmp.ModifyDate"
+#, fuzzy
+msgid "Xmp.xmp |wbr| .ModifyDate"
 msgstr "Xmp.xmp.ModifyDate"
 
 msgid "Orientation"
 msgstr "Orientation"
 
-msgid "Exif.Image.Orientation"
+#, fuzzy
+msgid "Exif.Image |wbr| .Orientation"
 msgstr "Exif.Image.Orientation"
 
 msgid "Camera"
 msgstr "카메라"
 
-msgid "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
+#, fuzzy
+msgid ""
+"Exif.Image |wbr| .Make |lbr| Exif.Image |wbr| .Model |lbr| Exif.Photo |wbr| "
+".BodySerialNumber"
 msgstr "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
 
 msgid "Lens"
 msgstr "렌즈"
 
+#, fuzzy
 msgid ""
-"Exif.Photo.LensMake Exif.Photo.LensModel Exif.Photo.LensSerialNumber "
-"Exif.Photo.LensSpecification"
+"Exif.Photo |wbr| .LensMake |lbr| Exif.Photo |wbr| .LensModel |lbr| "
+"Exif.Photo |wbr| .LensSerialNumber |lbr| Exif.Photo |wbr| .LensSpecification"
 msgstr ""
 "Exif.Photo.LensMake Exif.Photo.LensModel Exif.Photo.LensSerialNumber "
 "Exif.Photo.LensSpecification"
@@ -2636,33 +2704,39 @@ msgstr ""
 msgid "Focal length"
 msgstr "초점 거리"
 
-msgid "Exif.Photo.FocalLength"
+#, fuzzy
+msgid "Exif.Photo |wbr| .FocalLength"
 msgstr "Exif.Photo.FocalLength"
 
 msgid "35mm equiv"
 msgstr "35mm equiv"
 
-msgid "Exif.Photo.FocalLengthIn35mmFilm"
+#, fuzzy
+msgid "Exif.Photo |wbr| .FocalLengthIn35mmFilm"
 msgstr "Exif.Photo.FocalLengthIn35mmFilm"
 
 msgid "Aperture"
 msgstr "조리개"
 
-msgid "Exif.Photo.FNumber Exif.Photo.ApertureValue"
+msgid "Exif.Photo |wbr| .FNumber |lbr| Exif.Photo |wbr| .ApertureValue"
 msgstr ""
 
 msgid "`Image Regions`_"
 msgstr ""
 
-msgid "Xmp.iptcExt.ImageRegion Xmp.mwg-rs.Regions Xmp.MP.RegionInfo"
+msgid ""
+"Xmp.iptcExt |wbr| .ImageRegion |lbr| Xmp.mwg-rs |wbr| .Regions |lbr| Xmp.MP "
+"|wbr| .RegionInfo"
 msgstr ""
 
 msgid "Latitude_, longitude_"
 msgstr "위도_, 경도_"
 
+#, fuzzy
 msgid ""
-"Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLatitudeRef "
-"Exif.GPSInfo.GPSLongitude Exif.GPSInfo.GPSLongitudeRef"
+"Exif.GPSInfo |wbr| .GPSLatitude |lbr| Exif.GPSInfo |wbr| .GPSLatitudeRef "
+"|lbr| Exif.GPSInfo |wbr| .GPSLongitude |lbr| Exif.GPSInfo |wbr| "
+".GPSLongitudeRef"
 msgstr ""
 "Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLatitudeRef "
 "Exif.GPSInfo.GPSLongitude Exif.GPSInfo.GPSLongitudeRef"
@@ -2670,23 +2744,27 @@ msgstr ""
 msgid "Altitude_"
 msgstr "고도_"
 
-msgid "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
+#, fuzzy
+msgid "Exif.GPSInfo |wbr| .GPSAltitude |lbr| Exif.GPSInfo |wbr| .GPSAltitudeRef"
 msgstr "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
 
 msgid "`Camera address`_"
 msgstr "`카메라 주소`_"
 
+#, fuzzy
 msgid ""
-"Xmp.iptcExt.LocationCreated Xmp.iptc.Location Xmp.photoshop.City "
-"Xmp.photoshop.State Xmp.photoshop.Country Xmp.iptc.CountryCode"
+"Xmp.iptcExt |wbr| .LocationCreated |lbr| Xmp.iptc |wbr| .Location |lbr| "
+"Xmp.photoshop |wbr| .City |lbr| Xmp.photoshop |wbr| .State |lbr| "
+"Xmp.photoshop |wbr| .Country |lbr| Xmp.iptc |wbr| .CountryCode"
 msgstr ""
 "Xmp.iptcExt.LocationCreated Xmp.iptc.Location Xmp.photoshop.City "
 "Xmp.photoshop.State Xmp.photoshop.Country Xmp.iptc.CountryCode"
 
+#, fuzzy
 msgid ""
-"Iptc.Application2.SubLocation Iptc.Application2.City "
-"Iptc.Application2.ProvinceState Iptc.Application2.CountryName "
-"Iptc.Application2.CountryCode"
+"Iptc.Application2 |wbr| .SubLocation |lbr| Iptc.Application2 |wbr| .City "
+"|lbr| Iptc.Application2 |wbr| .ProvinceState |lbr| Iptc.Application2 |wbr| "
+".CountryName |lbr| Iptc.Application2 |wbr| .CountryCode"
 msgstr ""
 "Iptc.Application2.SubLocation Iptc.Application2.City "
 "Iptc.Application2.ProvinceState Iptc.Application2.CountryName "
@@ -2695,15 +2773,17 @@ msgstr ""
 msgid "`Subject address`_"
 msgstr "`대상 주소`_"
 
-msgid "Xmp.iptcExt.LocationShown"
+#, fuzzy
+msgid "Xmp.iptcExt |wbr| .LocationShown"
 msgstr "Xmp.iptcExt.LocationShown"
 
 msgid "Thumbnail image"
 msgstr "썸네일 이미지"
 
+#, fuzzy
 msgid ""
-"Exif.Thumbnail.Compression Exif.Thumbnail.ImageWidth "
-"Exif.Thumbnail.ImageLength"
+"Exif.Thumbnail |wbr| .Compression |lbr| Exif.Thumbnail |wbr| .ImageWidth "
+"|lbr| Exif.Thumbnail |wbr| .ImageLength"
 msgstr ""
 "Exif.Thumbnail.Compression Exif.Thumbnail.ImageWidth "
 "Exif.Thumbnail.ImageLength"
@@ -2722,79 +2802,98 @@ msgstr ""
 msgid "Title / Object Name"
 msgstr "제목 / 개체 이름"
 
-msgid "Exif.Image.XPTitle"
+#, fuzzy
+msgid "Exif.Image |wbr| .XPTitle"
 msgstr "Exif.Image.XPTitle"
 
 msgid "Description / Caption"
 msgstr "설명 / 캡션"
 
-msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
+#, fuzzy
+msgid ""
+"Exif.Image |wbr| .XPComment |lbr| Exif.Image |wbr| .XPSubject |lbr| "
+"Exif.Photo |wbr| .UserComment"
 msgstr "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 
-msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
+msgid "Xmp.exif |wbr| .UserComment |lbr| Xmp.tiff |wbr| .ImageDescription"
 msgstr ""
 
-msgid "Exif.Image.XPKeywords"
+#, fuzzy
+msgid "Exif.Image |wbr| .XPKeywords"
 msgstr "Exif.Image.XPKeywords"
 
 msgid "Rating"
 msgstr "평가"
 
-msgid "Exif.Image.Rating Exif.Image.RatingPercent"
+#, fuzzy
+msgid "Exif.Image |wbr| .Rating |lbr| Exif.Image |wbr| .RatingPercent"
 msgstr "Exif.Image.Rating Exif.Image.RatingPercent"
 
-msgid "Xmp.MicrosoftPhoto.Rating"
+#, fuzzy
+msgid "Xmp.MicrosoftPhoto |wbr| .Rating"
 msgstr "Xmp.MicrosoftPhoto.Rating"
 
 msgid "Creator"
 msgstr ""
 
-msgid "Exif.Image.XPAuthor"
+#, fuzzy
+msgid "Exif.Image |wbr| .XPAuthor"
 msgstr "Exif.Image.XPAuthor"
 
-msgid "Xmp.tiff.Artist"
+#, fuzzy
+msgid "Xmp.tiff |wbr| .Artist"
 msgstr "Xmp.tiff.Artist"
 
 msgid "Copyright"
 msgstr "저작권"
 
-msgid "Xmp.tiff.Copyright"
+#, fuzzy
+msgid "Xmp.tiff |wbr| .Copyright"
 msgstr "Xmp.tiff.Copyright"
 
 msgid "Contact Information"
 msgstr ""
 
-msgid "Xmp.iptc.CreatorContactInfo"
+#, fuzzy
+msgid "Xmp.iptc |wbr| .CreatorContactInfo"
 msgstr "Xmp.iptc.CreatorContactInfo"
 
 msgid "Date / time Taken"
 msgstr "촬영 날짜/시간"
 
-msgid "Exif.Image.DateTimeOriginal"
+#, fuzzy
+msgid "Exif.Image |wbr| .DateTimeOriginal"
 msgstr "Exif.Image.DateTimeOriginal"
 
-msgid "Xmp.exif.DateTimeOriginal"
+#, fuzzy
+msgid "Xmp.exif |wbr| .DateTimeOriginal"
 msgstr "Xmp.exif.DateTimeOriginal"
 
-msgid "Xmp.exif.DateTimeDigitized"
+#, fuzzy
+msgid "Xmp.exif |wbr| .DateTimeDigitized"
 msgstr "Xmp.exif.DateTimeDigitized"
 
-msgid "Xmp.tiff.DateTime"
+#, fuzzy
+msgid "Xmp.tiff |wbr| .DateTime"
 msgstr "Xmp.tiff.DateTime"
 
-msgid "Exif.Image.LensInfo"
+#, fuzzy
+msgid "Exif.Image |wbr| .LensInfo"
 msgstr "Exif.Image.LensInfo"
 
-msgid "Xmp.aux.Lens"
+#, fuzzy
+msgid "Xmp.aux |wbr| .Lens"
 msgstr "Xmp.aux.Lens"
 
-msgid "Exif.Image.FocalLength"
+#, fuzzy
+msgid "Exif.Image |wbr| .FocalLength"
 msgstr "Exif.Image.FocalLength"
 
-msgid "Exif.Image.FNumber Exif.Image.ApertureValue"
+msgid "Exif.Image |wbr| .FNumber |lbr| Exif.Image |wbr| .ApertureValue"
 msgstr ""
 
-msgid "Xmp.xmp.Thumbnails[n]/xapGImg"
+#, fuzzy
+msgid "Xmp.xmp |wbr| .Thumbnails[n]/xapGImg"
 msgstr "Xmp.xmp.Thumbnails[n]/xapGImg"
 
 msgid "XMP only tags"
@@ -2805,38 +2904,45 @@ msgid ""
 "doesn't support Exif, e.g. an XMP sidecar."
 msgstr "이 태그는 존재하는 경우 읽히지만 파일 형식이 Exif를 지원하지 않는 경우에만 작성됩니다. XMP 사이드카."
 
-msgid "Xmp.tiff.Orientation"
+#, fuzzy
+msgid "Xmp.tiff |wbr| .Orientation"
 msgstr "Xmp.tiff.Orientation"
 
+#, fuzzy
 msgid ""
-"Xmp.exifEX.LensMake Xmp.exifEX.LensModel Xmp.exifEX.LensSerialNumber "
-"Xmp.exifEX.LensSpecification"
+"Xmp.exifEX |wbr| .LensMake |lbr| Xmp.exifEX |wbr| .LensModel |lbr| "
+"Xmp.exifEX |wbr| .LensSerialNumber |lbr| Xmp.exifEX |wbr| .LensSpecification"
 msgstr ""
 "Xmp.exifEX.LensMake Xmp.exifEX.LensModel Xmp.exifEX.LensSerialNumber "
 "Xmp.exifEX.LensSpecification"
 
-msgid "Xmp.exif.FocalLength"
+#, fuzzy
+msgid "Xmp.exif |wbr| .FocalLength"
 msgstr "Xmp.exif.FocalLength"
 
-msgid "Xmp.exif.FocalLengthIn35mmFilm"
+#, fuzzy
+msgid "Xmp.exif |wbr| .FocalLengthIn35mmFilm"
 msgstr "Xmp.exif.FocalLengthIn35mmFilm"
 
-msgid "Xmp.exif.FNumber Xmp.exif.ApertureValue"
+msgid "Xmp.exif |wbr| .FNumber |lbr| Xmp.exif |wbr| .ApertureValue"
 msgstr ""
 
 msgid "Latitude, longitude"
 msgstr "위도, 경도"
 
-msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
+#, fuzzy
+msgid "Xmp.exif |wbr| .GPSLatitude |lbr| Xmp.exif |wbr| .GPSLongitude"
 msgstr "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 
 msgid "Altitude"
 msgstr "고도"
 
-msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
+#, fuzzy
+msgid "Xmp.exif |wbr| .GPSAltitude |lbr| Xmp.exif |wbr| .GPSAltitudeRef"
 msgstr "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 
-msgid "Xmp.xmp.Thumbnails[n]/xmpGImg"
+#, fuzzy
+msgid "Xmp.xmp |wbr| .Thumbnails[n]/xmpGImg"
 msgstr "Xmp.xmp.Thumbnails[n]/xmpGImg"
 
 msgid "Read only tags"
@@ -2850,53 +2956,63 @@ msgstr ""
 "Photini는 이러한 태그에서 정보를 읽고 이를 기본 태그의 정보와 병합할 수 있습니다. 이러한 태그는 해당 기본 태그가 저장될 때 "
 "삭제되지 않습니다."
 
-msgid "Xmp.video.StreamName"
+msgid "Xmp.video |wbr| .StreamName"
 msgstr ""
 
-msgid "Xmp.video.Information"
+msgid "Xmp.video |wbr| .Information"
 msgstr ""
 
 msgid "Time zone offset[1]"
 msgstr "Time zone offset[1]"
 
-msgid "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
+#, fuzzy
+msgid "Exif.Image |wbr| .TimeZoneOffset |lbr| Exif.NikonWt |wbr| .Timezone"
 msgstr "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
 
-msgid "Xmp.video.TimeZone"
+msgid "Xmp.video |wbr| .TimeZone"
 msgstr ""
 
-msgid "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
+#, fuzzy
+msgid "Exif.Photo |wbr| .CameraOwnerName |lbr| Exif.Canon |wbr| .OwnerName"
 msgstr "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
 
 msgid ""
-"Xmp.video.DateTimeOriginal Xmp.video.CreateDate Xmp.video.CreationDate "
-"Xmp.video.DateUTC Xmp.video.MediaCreateDate Xmp.video.TrackCreateDate"
+"Xmp.video |wbr| .DateTimeOriginal |lbr| Xmp.video |wbr| .CreateDate |lbr| "
+"Xmp.video |wbr| .CreationDate |lbr| Xmp.video |wbr| .DateUTC |lbr| Xmp.video"
+" |wbr| .MediaCreateDate |lbr| Xmp.video |wbr| .TrackCreateDate"
 msgstr ""
 
 msgid ""
-"Xmp.video.ModificationDate Xmp.video.MediaModifyDate "
-"Xmp.video.TrackModifyDate"
+"Xmp.video |wbr| .ModificationDate |lbr| Xmp.video |wbr| .MediaModifyDate "
+"|lbr| Xmp.video |wbr| .TrackModifyDate"
 msgstr ""
 
+#, fuzzy
 msgid ""
+"Exif.Image |wbr| .CameraSerialNumber |lbr| Exif.Image |wbr| "
+".UniqueCameraModel |lbr| Exif.Canon |wbr| .ModelID |lbr| Exif.Canon |wbr| "
+".SerialNumber |lbr| Exif.Fujifilm |wbr| .SerialNumber |lbr| Exif.Nikon3 "
+"|wbr| .SerialNumber |lbr| Exif.OlympusEq |wbr| .CameraType |lbr| "
+"Exif.OlympusEq |wbr| .SerialNumber |lbr| Exif.Pentax |wbr| .ModelID |lbr| "
+"Exif.Pentax |wbr| .SerialNumber"
+msgstr ""
 "Exif.Image.CameraSerialNumber Exif.Image.UniqueCameraModel "
 "Exif.Canon.ModelID Exif.Canon.SerialNumber Exif.Fujifilm.SerialNumber "
 "Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType "
 "Exif.OlympusEq.SerialNumber Exif.Pentax.ModelID Exif.Pentax.SerialNumber"
-msgstr ""
-"Exif.Image.CameraSerialNumber Exif.Image.UniqueCameraModel "
-"Exif.Canon.ModelID Exif.Canon.SerialNumber Exif.Fujifilm.SerialNumber "
-"Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType "
-"Exif.OlympusEq.SerialNumber Exif.Pentax.ModelID Exif.Pentax.SerialNumber"
-
-msgid "Xmp.aux.SerialNumber Xmp.video.Make Xmp.video.Model"
-msgstr ""
 
 msgid ""
-"Exif.Canon.LensModel Exif.CanonCs.Lens Exif.CanonCs.LensType "
-"Exif.Nikon3.Lens Exif.NikonLd1.LensIDNumber Exif.NikonLd2.LensIDNumber "
-"Exif.NikonLd3.LensIDNumber Exif.OlympusEq.LensModel "
-"Exif.OlympusEq.LensSerialNumber"
+"Xmp.aux |wbr| .SerialNumber |lbr| Xmp.video |wbr| .Make |lbr| Xmp.video "
+"|wbr| .Model"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Exif.Canon |wbr| .LensModel |lbr| Exif.CanonCs |wbr| .Lens |lbr| "
+"Exif.CanonCs |wbr| .LensType |lbr| Exif.Nikon3 |wbr| .Lens |lbr| "
+"Exif.NikonLd1 |wbr| .LensIDNumber |lbr| Exif.NikonLd2 |wbr| .LensIDNumber "
+"|lbr| Exif.NikonLd3 |wbr| .LensIDNumber |lbr| Exif.OlympusEq |wbr| "
+".LensModel |lbr| Exif.OlympusEq |wbr| .LensSerialNumber"
 msgstr ""
 "Exif.Canon.LensModel Exif.CanonCs.Lens Exif.CanonCs.LensType "
 "Exif.Nikon3.Lens Exif.NikonLd1.LensIDNumber Exif.NikonLd2.LensIDNumber "
@@ -2906,10 +3022,10 @@ msgstr ""
 msgid "Image Regions"
 msgstr ""
 
-msgid "Exif.Photo.SubjectArea"
+msgid "Exif.Photo |wbr| .SubjectArea"
 msgstr ""
 
-msgid "Xmp.video.GPSCoordinates"
+msgid "Xmp.video |wbr| .GPSCoordinates"
 msgstr ""
 
 msgid "Exif.SubImage*"
@@ -3236,6 +3352,139 @@ msgstr "GNU General Public License"
 
 msgid "The Photini software is licensed under the GNU General Public License."
 msgstr "Photini 소프트웨어는 GNU General Public License에 따라 사용이 허가됩니다."
+
+msgid ""
+"Photini's maps and address lookup tabs all rely on commercial online "
+"services. Access to these services is controlled via \"API keys\". The map "
+"services are all free of charge, up to a certain level of usage, while the "
+"address lookup (geolocation) service has a small charge per lookup."
+msgstr ""
+
+msgid ""
+"By default Photini uses API keys provided by its developer, Jim Easterbrook."
+" This works well enough at present, but these keys could be disabled at any "
+"time. For example:"
+msgstr ""
+
+msgid ""
+"If usage increases sufficiently to cross the \"free use\" threshold then the"
+" relevant key will be disabled."
+msgstr ""
+
+msgid ""
+"If Jim's credit card expires or is cancelled then the relevant keys may "
+"become disabled."
+msgstr ""
+
+msgid ""
+"Photini users are encouraged to obtain their own \"personal\" API keys (for "
+"the services they use) to reduce reliance on the default keys. (There is "
+"nothing to stop you sharing your \"personal\" keys with trusted family and "
+"friends, if they also use Photini.) Photini's API keys can be set via its "
+":ref:`configuration<configuration-api-keys>` menu."
+msgstr ""
+
+msgid ""
+"The tabs below describe how to set up an account and obtain an API key for "
+"each of the services Photini uses. They are rather brief at present. Please "
+"let me know if you encounter any problems and I'll try to improve these "
+"instructions."
+msgstr ""
+
+msgid "Azure Maps"
+msgstr ""
+
+msgid ""
+"Please see the `Azure Maps quickstart`_ page that guides you through the "
+"process of setting up an Azure account and getting a map API key. When you "
+"create an Azure account I suggest choosing a \"pay as you go\" account to "
+"avoid any difficulty changing account type later on."
+msgstr ""
+
+msgid ""
+"When you create an \"Azure Maps Account resource\" select the only "
+"\"Subscription\" and \"Resource Group\" you have, invent a suitable name, "
+"choose the \"Region\" closest to where you live, tick the \"I confirm that I"
+" have read...\" box and click ``Review + create`` followed by ``Create``."
+msgstr ""
+
+msgid ""
+"After clicking ``Go to resource`` the ``Settings -> Authentication`` menu "
+"shows a \"Primary Key\" and a \"Secondary Key\". Either of these can be "
+"copied to Photini's configuration dialog."
+msgstr ""
+
+msgid "Google Maps"
+msgstr ""
+
+msgid ""
+"Please see `Getting started with Google Maps Platform`_ for details of how "
+"to set up a Google Maps account. Create a project, then enable these APIs:"
+msgstr ""
+
+msgid "Maps JavaScript API"
+msgstr ""
+
+msgid "Geocoding API"
+msgstr ""
+
+msgid "Maps Elevation API"
+msgstr ""
+
+msgid ""
+"Now go to the ``Credentials`` page and click ``Create credentials -> API "
+"key`` to generate a new API key. Give it a name, if you like, then select "
+"``Application restrictions -> None``, ``API restrictions -> Restrict key``, "
+"``Select APIs -> Geocoding, Maps Elevation, Maps JavaScript``, then click on"
+" ``Create``."
+msgstr ""
+
+msgid ""
+"If all goes well you should now be shown an API key that you can copy and "
+"paste to Photini's configuration dialog."
+msgstr ""
+
+msgid ""
+"Even with these restrictions, Google may still occasionally send you emails "
+"warning of dire consequences if you don't restrict your API keys. They "
+"really want you to limit usage to a fixed IP address, but that's not useful "
+"if you use Photini from more than one location."
+msgstr ""
+
+msgid "Mapbox Maps"
+msgstr ""
+
+msgid ""
+"Mapbox is delightfully to simple to set up, compared to Google and Azure. "
+"First go to `Create your account`_, fill in the form and click on "
+"``Continue``."
+msgstr ""
+
+msgid ""
+"On your \"Account overview\" page click on ``View all tokens``, then "
+"``Create a token``. Choose a name, deselect all \"scopes\" except "
+"``Styles:tiles``, ``Styles:read``, and ``Fonts:read``, then click ``Create "
+"token``. This should take you to the \"Access tokens\" page, from where you "
+"can copy the new token to Photini's configuration dialog."
+msgstr ""
+
+msgid "OpenCage Geocoding"
+msgstr ""
+
+msgid ""
+"First create an account via the `OpenCage Create account`_ page. You need to"
+" give an organisation or company name; I suggest \"Personal\" or similar. On"
+" the next page select \"Reverse geocoding\" as the primary use case, and "
+"enter \"Python\" in the software box, then click ``Continue``."
+msgstr ""
+
+msgid ""
+"On the \"Your Dashboard\" page select \"Geocoding API\" and copy the key to "
+"Photini's configuration dialog. After verifying that your key works, you "
+"should click ``Purchase a plan``, then choose ``One-time purchase`` and buy "
+"the \"small one-time\" option. This buys 10,000 address lookups, which "
+"should cover many years of use with Photini."
+msgstr ""
 
 msgid "Installation"
 msgstr "설치"
@@ -5863,5 +6112,74 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+#~ msgstr ""
+
+#~ msgid "Copyright (C)  2012-23  Jim Easterbrook."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Bing Maps' altitude is corrected using "
+#~ "the \"EGM2008\" model, according to their"
+#~ " documentation. Google Maps uses \"local "
+#~ "mean sea level\". They don't cite a"
+#~ " standard and may be using their "
+#~ "own measurements, or combining data from"
+#~ " several sources."
+#~ msgstr ""
+
+#~ msgid "Xmp.iptc.AltTextAccessibility"
+#~ msgstr ""
+
+#~ msgid "Xmp.iptc.ExtDescrAccessibility"
+#~ msgstr ""
+
+#~ msgid "Xmp.lr.hierarchicalSubject Xmp.digiKam.TagsList"
+#~ msgstr ""
+
+#~ msgid "Exif.Image.DateTime Exif.Photo.SubSecTime"
+#~ msgstr "Exif.Image.DateTime Exif.Photo.SubSecTime"
+
+#~ msgid "Exif.Photo.FNumber Exif.Photo.ApertureValue"
+#~ msgstr ""
+
+#~ msgid "Xmp.iptcExt.ImageRegion Xmp.mwg-rs.Regions Xmp.MP.RegionInfo"
+#~ msgstr ""
+
+#~ msgid "Xmp.exif.UserComment Xmp.tiff.ImageDescription"
+#~ msgstr ""
+
+#~ msgid "Exif.Image.FNumber Exif.Image.ApertureValue"
+#~ msgstr ""
+
+#~ msgid "Xmp.exif.FNumber Xmp.exif.ApertureValue"
+#~ msgstr ""
+
+#~ msgid "Xmp.video.StreamName"
+#~ msgstr ""
+
+#~ msgid "Xmp.video.Information"
+#~ msgstr ""
+
+#~ msgid "Xmp.video.TimeZone"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Xmp.video.DateTimeOriginal Xmp.video.CreateDate "
+#~ "Xmp.video.CreationDate Xmp.video.DateUTC "
+#~ "Xmp.video.MediaCreateDate Xmp.video.TrackCreateDate"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Xmp.video.ModificationDate Xmp.video.MediaModifyDate "
+#~ "Xmp.video.TrackModifyDate"
+#~ msgstr ""
+
+#~ msgid "Xmp.aux.SerialNumber Xmp.video.Make Xmp.video.Model"
+#~ msgstr ""
+
+#~ msgid "Exif.Photo.SubjectArea"
+#~ msgstr ""
+
+#~ msgid "Xmp.video.GPSCoordinates"
 #~ msgstr ""
 
