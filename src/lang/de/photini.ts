@@ -371,15 +371,15 @@
     </message>
     <message>
         <source>Azure map</source>
-        <translation type="unfinished"></translation>
+        <translation>Azure-Karte</translation>
     </message>
     <message>
         <source>Google map</source>
-        <translation type="unfinished"></translation>
+        <translation>Google-Karte</translation>
     </message>
     <message>
         <source>Mapbox map</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapbox-Karte</translation>
     </message>
     <message>
         <source>Address lookup (OpenCage)</source>
