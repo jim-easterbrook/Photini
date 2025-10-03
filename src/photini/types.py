@@ -2077,38 +2077,6 @@ class ImageRegionItem(MD_Structure):
             return None
         return cls(region)
 
-    @classmethod
-    def from_Exif(cls, file_value):
-        # Convert Exif.Photo.SubjectArea to an image region. See
-        # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
-        # Later the above was deprecated. See
-        # https://www.iptc.org/std/photometadata/documentation/userguide/#_note_about_the_exif_subjectarea_and_the_iptc_image_region
-        # I'm leaving this in for now as it's a one way mapping so should be
-        # mostly harmless.
-        if len(file_value) == 2:
-            region = {'Iptc4xmpExt:rbShape': 'polygon',
-                      'Iptc4xmpExt:rbVertices': [{
-                          'Iptc4xmpExt:rbX': file_value[0],
-                          'Iptc4xmpExt:rbY': file_value[1]}]}
-        elif len(file_value) == 3:
-            region = {'Iptc4xmpExt:rbShape': 'circle',
-                      'Iptc4xmpExt:rbX': file_value[0],
-                      'Iptc4xmpExt:rbY': file_value[1],
-                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
-        elif len(file_value) == 4:
-            region = {'Iptc4xmpExt:rbShape': 'rectangle',
-                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
-                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
-                      'Iptc4xmpExt:rbW': file_value[2],
-                      'Iptc4xmpExt:rbH': file_value[3]}
-        else:
-            return None
-        region['Iptc4xmpExt:rbUnit'] = 'pixel'
-        return cls({
-            'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_name('mainSubjectArea')],
-            })
-
     def has_type(self, label):
         if label in MWGTypeCV.vocab:
             data = MWGTypeCV.vocab[label]['data']
@@ -2193,8 +2161,6 @@ class MD_ImageRegion(MD_Structure):
         elif tag == 'Xmp.MP.RegionInfo':
             value = {'RegionList': [ImageRegionItem.from_MP(x)
                                     for x in file_value['MPRI:Regions']]}
-        elif tag == 'Exif.Photo.SubjectArea':
-            value = {'RegionList': [ImageRegionItem.from_Exif(file_value)]}
         else:
             return cls()
         return cls(value)
