@@ -199,7 +199,9 @@ class MetadataHandler(object):
         if sub_key in self._xmp_type_id:
             if value == self._xmp_type_id[sub_key]:
                 return
-            logger.warning('%s: altered type_id %s', self._name, sub_key)
+            logger.warning("%s: changed type of '%s' from '%s' to '%s'",
+                           self._name, sub_key,
+                           self._xmp_type_id[sub_key].name, value.name)
         self._xmp_type_id[sub_key] = value
 
     def get_xmp_type(self, key):
