@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -1024,3 +1024,63 @@ class AltitudeDisplay(DoubleSpinBox):
         self.setToolTip('<p>{}</p>'.format(translate(
             'AltitudeDisplay', 'Altitude of the location in metres.')))
         self.label = Label(translate('AltitudeDisplay', 'Altitude'))
+
+
+class CompoundWidgetMixin(object):
+    clipboard = None
+
+    def compound_context_menu(self, event):
+        if qt_version_info >= (6, 7):
+            icons = {'Cut': QtGui.QIcon.ThemeIcon.EditCut,
+                     'Copy': QtGui.QIcon.ThemeIcon.EditCopy,
+                     'Paste': QtGui.QIcon.ThemeIcon.EditPaste,
+                     'Delete': QtGui.QIcon.ThemeIcon.EditDelete}
+        else:
+            icons = {'Cut': 'edit-cut',
+                     'Copy': 'edit-copy',
+                     'Paste': 'edit-paste',
+                     'Delete': 'edit-delete'}
+        functions = {'Cut': self.do_cut,
+                     'Copy': self.do_copy,
+                     'Paste': self.do_paste,
+                     'Delete': self.do_delete}
+        menu = QtWidgets.QMenu()
+        for key in ('Cut', 'Copy', 'Paste', 'Delete'):
+            action = menu.addAction(QtGui.QIcon.fromTheme(icons[key]),
+                                    translate('QShortcut', key), functions[key])
+            if key == 'Paste':
+                action.setEnabled(bool(self.clipboard))
+            elif key == 'Delete':
+                action.setEnabled(
+                    any(x.get_value() for x in self.widgets.values()))
+            else:
+                action.setEnabled(
+                    any(x.get_value() for x in self.widgets.values()) and not
+                    any(x.is_multiple() for x in self.widgets.values()))
+        execute(menu, event.globalPos())
+
+    @QtSlot()
+    @catch_all
+    def do_cut(self):
+        self.do_copy()
+        self.do_delete()
+
+    @QtSlot()
+    @catch_all
+    def do_copy(self):
+        self.clipboard = dict(
+            (k, self.widgets[k].get_value()) for k in self.widgets)
+
+    @QtSlot()
+    @catch_all
+    def do_paste(self):
+        for k, v in self.clipboard.items():
+            self.widgets[k].set_value(v)
+            self.widgets[k].emit_value()
+
+    @QtSlot()
+    @catch_all
+    def do_delete(self):
+        for w in self.widgets.values():
+            w.set_value(None)
+            w.emit_value()

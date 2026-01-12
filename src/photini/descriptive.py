@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -20,8 +20,8 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.widgets import (
-    Label, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
+from photini.widgets import (CompoundWidgetMixin, Label, LangAltWidget,
+                             MultiLineEdit, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -53,6 +53,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.layout().addWidget(self.display)
         # adopt child methods/signals
+        self.emit_value = self.slider.emit_value
         self.is_multiple = self.slider.is_multiple
         self.new_value = self.slider.new_value
         # over-ride child methods
@@ -89,7 +90,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setPlaceholderText(self.multiple_values)
 
 
-class TabWidget(QtWidgets.QScrollArea):
+class TabWidget(QtWidgets.QScrollArea, CompoundWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('DescriptiveTab', 'Descriptive metadata',
@@ -187,6 +188,10 @@ class TabWidget(QtWidgets.QScrollArea):
                       self.widgets['rating'])
         # disable until an image is selected
         self.widget().setEnabled(False)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
