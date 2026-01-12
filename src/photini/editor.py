@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -422,6 +422,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.image_list = ImageList()
         self.app.image_list.selection_changed.connect(self.new_selection)
         self.app.map_icon_factory = MapIconFactory(parent=self)
+        self.app.clipboard = {}
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # initialise web engine

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -26,8 +26,9 @@ from photini.metadata import ImageMetadata
 from photini.photinimap import fetch_key, GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
-from photini.widgets import (AltitudeDisplay, CompactButton, Label,
-                             LatLongDisplay, LangAltWidget, SingleLineEdit)
+from photini.widgets import (
+    AltitudeDisplay, CompactButton, CompoundWidgetMixin, Label, LatLongDisplay,
+    LangAltWidget, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -168,23 +169,25 @@ class OpenCage(GeocoderBase):
             QtCore.QUrl('http://www.openstreetmap.org/copyright'))
 
 
-class LocationInfo(QtWidgets.QScrollArea):
+class LocationInfo(QtWidgets.QScrollArea, CompoundWidgetMixin):
     new_value = QtSignal(object, dict)
+    clipboard_key = 'LocationInfo'
 
     def __init__(self, *args, **kw):
         super(LocationInfo, self).__init__(*args, **kw)
+        self.app = QtWidgets.QApplication.instance()
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self.setWidgetResizable(True)
         form = QtWidgets.QWidget()
         layout = QtWidgets.QGridLayout()
         form.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.members = {}
-        self.members['LocationName'] = LangAltWidget(
+        self.widgets = {}
+        self.widgets['LocationName'] = LangAltWidget(
             'Iptc4xmpExt:LocationName', multi_line=False)
-        self.members['LocationName'].setToolTip('<p>{}</p>'.format(
+        self.widgets['LocationName'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Enter a full name of the location.')))
-        self.members['LocationName'].new_value.connect(self.editing_finished)
+        self.widgets['LocationName'].new_value.connect(self.editing_finished)
         for (key, tool_tip) in (
                 ('Sublocation', translate(
                     'AddressTab', 'Enter the name of the sublocation.')),
@@ -202,17 +205,17 @@ class LocationInfo(QtWidgets.QScrollArea):
                 ('LocationId', translate(
                     'AddressTab', 'Enter globally unique identifier(s) of the'
                     ' location. Separate them with ";" characters.'))):
-            self.members[key] = SingleLineEdit(
+            self.widgets[key] = SingleLineEdit(
                 'Iptc4xmpExt:' + key, length_check=ImageMetadata.iptc_max_len(
                     'Iptc.Application2.' + key))
-            self.members[key].setToolTip('<p>{}</p>'.format(tool_tip))
-            self.members[key].new_value.connect(self.editing_finished)
-        self.members['latlon'] = LatLongDisplay()
-        self.members['latlon'].new_value.connect(self.editing_finished)
-        self.members['alt'] = AltitudeDisplay()
-        self.members['alt'].new_value.connect(self.editing_finished)
-        self.members['CountryCode'].setMaximumWidth(
-            width_for_text(self.members['CountryCode'], 'W' * 4))
+            self.widgets[key].setToolTip('<p>{}</p>'.format(tool_tip))
+            self.widgets[key].new_value.connect(self.editing_finished)
+        self.widgets['latlon'] = LatLongDisplay()
+        self.widgets['latlon'].new_value.connect(self.editing_finished)
+        self.widgets['alt'] = AltitudeDisplay()
+        self.widgets['alt'].new_value.connect(self.editing_finished)
+        self.widgets['CountryCode'].setMaximumWidth(
+            width_for_text(self.widgets['CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),
                                   translate('AddressTab', 'Street'),
                                   translate('AddressTab', 'City'),
@@ -222,27 +225,31 @@ class LocationInfo(QtWidgets.QScrollArea):
                                   translate('AddressTab', 'Location ID'))):
             label = Label(text)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['LocationName'], 0, 1, 1, 5)
-        layout.addWidget(self.members['Sublocation'], 1, 1, 1, 5)
-        layout.addWidget(self.members['City'], 2, 1, 1, 5)
-        layout.addWidget(self.members['ProvinceState'], 3, 1, 1, 5)
-        layout.addWidget(self.members['CountryName'], 4, 1, 1, 4)
-        layout.addWidget(self.members['CountryCode'], 4, 5)
-        layout.addWidget(self.members['WorldRegion'], 5, 1, 1, 5)
-        layout.addWidget(self.members['LocationId'], 6, 1, 1, 5)
-        layout.addWidget(self.members['latlon'].label, 7, 0)
-        layout.addWidget(self.members['latlon'], 7, 1)
-        layout.addWidget(self.members['alt'].label, 7, 2)
-        self.members['alt'].setFixedWidth(self.members['latlon'].width())
-        layout.addWidget(self.members['alt'], 7, 3)
+        layout.addWidget(self.widgets['LocationName'], 0, 1, 1, 5)
+        layout.addWidget(self.widgets['Sublocation'], 1, 1, 1, 5)
+        layout.addWidget(self.widgets['City'], 2, 1, 1, 5)
+        layout.addWidget(self.widgets['ProvinceState'], 3, 1, 1, 5)
+        layout.addWidget(self.widgets['CountryName'], 4, 1, 1, 4)
+        layout.addWidget(self.widgets['CountryCode'], 4, 5)
+        layout.addWidget(self.widgets['WorldRegion'], 5, 1, 1, 5)
+        layout.addWidget(self.widgets['LocationId'], 6, 1, 1, 5)
+        layout.addWidget(self.widgets['latlon'].label, 7, 0)
+        layout.addWidget(self.widgets['latlon'], 7, 1)
+        layout.addWidget(self.widgets['alt'].label, 7, 2)
+        self.widgets['alt'].setFixedWidth(self.widgets['latlon'].width())
+        layout.addWidget(self.widgets['alt'], 7, 3)
         layout.setColumnStretch(4, 1)
         layout.setRowStretch(8, 1)
         self.setWidget(form)
 
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
+
     def get_value(self):
         new_value = {}
-        for key in self.members:
-            new_value.update(self.members[key].get_value_dict())
+        for key in self.widgets:
+            new_value.update(self.widgets[key].get_value_dict())
         return new_value
 
     @QtSlot(dict)
@@ -425,6 +432,8 @@ class TabWidget(QtWidgets.QWidget):
                             ' which is shown in this image.')
         self.location_info.setTabText(idx, text)
         self.location_info.setTabToolTip(idx, '<p>' + tip + '</p>')
+        self.location_info.widget(idx).setObjectName(translate(
+            'AddressTab', '{tab} location details').format(tab=text))
 
     @QtSlot()
     @catch_all
@@ -456,8 +465,8 @@ class TabWidget(QtWidgets.QWidget):
         for idx in range(count):
             widget = self.location_info.widget(idx)
             values = [self._get_location(image, idx) for image in images]
-            for key in widget.members:
-                widget.members[key].set_value_list(values)
+            for key in widget.widgets:
+                widget.widgets[key].set_value_list(values)
 
     def new_selection(self, selection):
         self.location_info.setEnabled(bool(selection))

@@ -106,6 +106,8 @@ class RightsDropDown(DropDownSelector):
 
 
 class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
+    clipboard_key = 'OwnerTab'
+
     @staticmethod
     def tab_name():
         return translate('OwnerTab', 'Ownership metadata',

@@ -92,6 +92,8 @@ class RatingWidget(QtWidgets.QWidget):
 
 
 class TabWidget(QtWidgets.QScrollArea, CompoundWidgetMixin):
+    clipboard_key = 'DescriptiveTab'
+
     @staticmethod
     def tab_name():
         return translate('DescriptiveTab', 'Descriptive metadata',

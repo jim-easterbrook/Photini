@@ -1027,8 +1027,6 @@ class AltitudeDisplay(DoubleSpinBox):
 
 
 class CompoundWidgetMixin(object):
-    clipboard = None
-
     def compound_context_menu(self, event):
         if qt_version_info >= (6, 7):
             icons = {'Cut': QtGui.QIcon.ThemeIcon.EditCut,
@@ -1054,7 +1052,7 @@ class CompoundWidgetMixin(object):
             action = menu.addAction(QtGui.QIcon.fromTheme(icons[key]),
                                     translate('QShortcut', key), functions[key])
             if key == 'Paste':
-                action.setEnabled(bool(self.clipboard))
+                action.setEnabled(self.clipboard_key in self.app.clipboard)
             elif key == 'Delete':
                 action.setEnabled(
                     any(x.get_value() for x in self.widgets.values()))
@@ -1073,13 +1071,13 @@ class CompoundWidgetMixin(object):
     @QtSlot()
     @catch_all
     def do_copy(self):
-        self.clipboard = dict(
+        self.app.clipboard[self.clipboard_key] = dict(
             (k, self.widgets[k].get_value()) for k in self.widgets)
 
     @QtSlot()
     @catch_all
     def do_paste(self):
-        for k, v in self.clipboard.items():
+        for k, v in self.app.clipboard[self.clipboard_key].items():
             self.widgets[k].set_value(v)
             self.widgets[k].emit_value()
 

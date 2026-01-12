@@ -508,10 +508,12 @@ class ListProxyModel(QtCore.QAbstractListModel):
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                              CompoundWidgetMixin):
+    clipboard_key = 'HierarchicalTags'
     update_value = QtSignal(str, str)
 
     def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
+        self.app = QtWidgets.QApplication.instance()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._key = key
         self._is_multiple = False
@@ -607,6 +609,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
 
 
 class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
+    clipboard_key = 'KeywordsTab'
+
     @staticmethod
     def tab_name():
         return translate('KeywordsTab', 'Keywords or tags',

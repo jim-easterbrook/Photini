@@ -283,6 +283,7 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
 
 
 class PhotiniMap(QtWidgets.QWidget, CompoundWidgetMixin):
+    clipboard_key = 'PhotiniMap'
     use_layout_direction = True
 
     def __init__(self, parent=None):
