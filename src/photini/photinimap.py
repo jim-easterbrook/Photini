@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -36,7 +36,8 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
                           QtWebEngineWidgets, qt_version_info)
-from photini.widgets import AltitudeDisplay, ComboBox, Label, LatLongDisplay
+from photini.widgets import (AltitudeDisplay, ComboBox, CompoundWidgetMixin,
+                             Label, LatLongDisplay)
 
 
 logger = logging.getLogger(__name__)
@@ -281,7 +282,7 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
             event.acceptProposedAction()
 
 
-class PhotiniMap(QtWidgets.QWidget):
+class PhotiniMap(QtWidgets.QWidget, CompoundWidgetMixin):
     use_layout_direction = True
 
     def __init__(self, parent=None):
@@ -295,6 +296,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.reset_map()
         self.map_status = {}
         self.widgets = {}
+        self.controls = {}
         # timer to count marker clicks
         self.click_info = {'id': None}
         self.click_timer = QtCore.QTimer(self)
@@ -315,25 +317,25 @@ class PhotiniMap(QtWidgets.QWidget):
         self.widgets['alt'].new_value.connect(self.new_value)
         left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
-            self.widgets['get_altitude'] = QtWidgets.QPushButton(
+            self.controls['get_altitude'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Get altitude from map'))
-            self.widgets['get_altitude'].clicked.connect(self.get_altitude)
-            left_side.addWidget(self.widgets['get_altitude'], 2, 1)
+            self.controls['get_altitude'].clicked.connect(self.get_altitude)
+            left_side.addWidget(self.controls['get_altitude'], 2, 1)
         else:
-            self.widgets['get_altitude'] = None
+            self.controls['get_altitude'] = None
         # search
         label = Label(translate('PhotiniMap', 'Search'))
         left_side.addWidget(label, 3, 0)
-        self.widgets['search'] = ComboBox()
-        self.widgets['search'].setEditable(True)
-        self.widgets['search'].setInsertPolicy(ComboBox.InsertPolicy.NoInsert)
-        self.widgets['search'].lineEdit().setPlaceholderText(
+        self.controls['search'] = ComboBox()
+        self.controls['search'].setEditable(True)
+        self.controls['search'].setInsertPolicy(ComboBox.InsertPolicy.NoInsert)
+        self.controls['search'].lineEdit().setPlaceholderText(
             translate('PhotiniMap', '<new search>'))
-        self.widgets['search'].lineEdit().returnPressed.connect(self.search)
-        self.widgets['search'].activated.connect(self.goto_search_result)
+        self.controls['search'].lineEdit().returnPressed.connect(self.search)
+        self.controls['search'].activated.connect(self.goto_search_result)
         self.clear_search()
-        self.widgets['search'].setEnabled(False)
-        left_side.addWidget(self.widgets['search'], 3, 1)
+        self.controls['search'].setEnabled(False)
+        left_side.addWidget(self.controls['search'], 3, 1)
         # search terms and conditions
         for n, widget in enumerate(self.geocoder.search_terms()):
             left_side.addWidget(widget, n+4, 0, 1, 2)
@@ -341,42 +343,46 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.setRowStretch(7, 1)
         # GPX importer
         if self.app.gpx_importer:
-            self.widgets['load_gpx'] = QtWidgets.QPushButton(
+            self.controls['load_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Load GPX file'))
-            self.widgets['load_gpx'].setEnabled(False)
-            self.widgets['load_gpx'].clicked.connect(self.load_gpx)
-            self.widgets['set_from_gpx'] = QtWidgets.QPushButton(
+            self.controls['load_gpx'].setEnabled(False)
+            self.controls['load_gpx'].clicked.connect(self.load_gpx)
+            self.controls['set_from_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Set coords from GPX'))
-            self.widgets['set_from_gpx'].setEnabled(False)
-            self.widgets['set_from_gpx'].clicked.connect(self.set_from_gpx)
-            self.widgets['clear_gpx'] = QtWidgets.QPushButton(
+            self.controls['set_from_gpx'].setEnabled(False)
+            self.controls['set_from_gpx'].clicked.connect(self.set_from_gpx)
+            self.controls['clear_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Remove GPX data'))
-            self.widgets['clear_gpx'].setEnabled(False)
-            self.widgets['clear_gpx'].clicked.connect(self.clear_gpx)
-            width = max(self.widgets['load_gpx'].sizeHint().width(),
-                        self.widgets['set_from_gpx'].sizeHint().width(),
-                        self.widgets['clear_gpx'].sizeHint().width())
+            self.controls['clear_gpx'].setEnabled(False)
+            self.controls['clear_gpx'].clicked.connect(self.clear_gpx)
+            width = max(self.controls['load_gpx'].sizeHint().width(),
+                        self.controls['set_from_gpx'].sizeHint().width(),
+                        self.controls['clear_gpx'].sizeHint().width())
             if width > self.widgets['latlon'].size().width():
                 args = 0, 1, 2
             else:
                 args = 1, 1, 1
-            left_side.addWidget(self.widgets['load_gpx'], 8, *args)
-            left_side.addWidget(self.widgets['set_from_gpx'], 9, *args)
-            left_side.addWidget(self.widgets['clear_gpx'], 10, *args)
+            left_side.addWidget(self.controls['load_gpx'], 8, *args)
+            left_side.addWidget(self.controls['set_from_gpx'], 9, *args)
+            left_side.addWidget(self.controls['clear_gpx'], 10, *args)
         self.layout().addLayout(left_side)
         # map
         # create handler for calls from JavaScript
         self.call_handler = CallHandler(parent=self)
-        self.widgets['map'] = MapWebView(self.call_handler)
-        self.widgets['map'].setUrl(QtCore.QUrl(''))
-        self.widgets['map'].drop_text.connect(self.drop_text)
-        self.widgets['map'].page().load_failed.connect(self.load_failed)
-        self.widgets['map'].setAcceptDrops(False)
-        self.layout().addWidget(self.widgets['map'])
+        self.controls['map'] = MapWebView(self.call_handler)
+        self.controls['map'].setUrl(QtCore.QUrl(''))
+        self.controls['map'].drop_text.connect(self.drop_text)
+        self.controls['map'].page().load_failed.connect(self.load_failed)
+        self.controls['map'].setAcceptDrops(False)
+        self.layout().addWidget(self.controls['map'])
         self.layout().setStretch(1, 1)
         # other init
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
         self.app.map_icon_factory.icons_changed.connect(self.set_icon_data)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
 
     def reset_map(self):
         self.map_loaded = 0     # not loaded
@@ -439,19 +445,19 @@ class PhotiniMap(QtWidgets.QWidget):
                   head=self.get_head(), body=self.get_body(text_dir),
                   options=self.get_options())
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-        self.widgets['map'].setHtml(
+        self.controls['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
 
     @catch_all
     def initialize_finished(self, OK):
         QtWidgets.QApplication.restoreOverrideCursor()
         if not OK:
-            self.widgets['map'].page().set_local_links()
+            self.controls['map'].page().set_local_links()
             link = '<a href="https://webglreport.com/">webglreport.com</a>'
             msg = translate('PhotiniMap', 'The map could not be loaded.'
                             ' This might be a WebGL problem. You can test'
                             ' this by clicking on {}.').format(link)
-            self.widgets['map'].setHtml('''<!DOCTYPE html>
+            self.controls['map'].setHtml('''<!DOCTYPE html>
 <html>
   <head><meta charset="utf-8" /></head>
   <body><h1>{}</h1><p>{}</p>
@@ -460,10 +466,10 @@ class PhotiniMap(QtWidgets.QWidget):
             return
         self.map_loaded = 2     # finished loading
         self.set_icon_data()
-        self.widgets['search'].setEnabled(True)
-        if 'load_gpx' in self.widgets:
-            self.widgets['load_gpx'].setEnabled(True)
-        self.widgets['map'].setAcceptDrops(True)
+        self.controls['search'].setEnabled(True)
+        if 'load_gpx' in self.controls:
+            self.controls['load_gpx'].setEnabled(True)
+        self.controls['map'].setAcceptDrops(True)
         self.new_selection(
             self.app.image_list.get_selected_images(), adjust_map=False)
 
@@ -552,8 +558,8 @@ class PhotiniMap(QtWidgets.QWidget):
             values.append(image.metadata.gps_info)
         self.widgets['latlon'].set_value_list(values)
         self.widgets['alt'].set_value_list(values)
-        if self.widgets['get_altitude']:
-            self.widgets['get_altitude'].setEnabled(
+        if self.controls['get_altitude']:
+            self.controls['get_altitude'].setEnabled(
                 bool(self.widgets['latlon'].get_value()))
         if adjust_map:
             self.see_selection(images)
@@ -581,10 +587,10 @@ class PhotiniMap(QtWidgets.QWidget):
             self.JavaScript('fitPoints({!r})'.format(locations))
 
     def new_selection(self, selection, adjust_map=True):
-        if 'set_from_gpx' in self.widgets:
-            self.widgets['set_from_gpx'].setEnabled(
+        if 'set_from_gpx' in self.controls:
+            self.controls['set_from_gpx'].setEnabled(
                 bool(selection) and bool(self.app.gpx_importer.display_points))
-            self.widgets['clear_gpx'].setEnabled(
+            self.controls['clear_gpx'].setEnabled(
                 bool(self.app.gpx_importer.display_points))
         self.redraw_gps_track(selection)
         self.update_display(selection, adjust_map=adjust_map)
@@ -684,10 +690,10 @@ class PhotiniMap(QtWidgets.QWidget):
             time_stamp, lat, lng = p
             latlngs.append([lat, lng])
         self.JavaScript('fitPoints({!r})'.format(latlngs))
-        self.widgets['set_from_gpx'].setEnabled(
+        self.controls['set_from_gpx'].setEnabled(
             bool(self.app.image_list.get_selected_images())
             and bool(self.app.gpx_importer.display_points))
-        self.widgets['clear_gpx'].setEnabled(
+        self.controls['clear_gpx'].setEnabled(
             bool(self.app.gpx_importer.display_points))
 
     @QtSlot()
@@ -726,8 +732,8 @@ class PhotiniMap(QtWidgets.QWidget):
     def clear_gpx(self):
         self.app.gpx_importer.clear_data()
         self.redraw_gps_track()
-        self.widgets['set_from_gpx'].setEnabled(False)
-        self.widgets['clear_gpx'].setEnabled(False)
+        self.controls['set_from_gpx'].setEnabled(False)
+        self.controls['clear_gpx'].setEnabled(False)
 
     @QtSlot()
     @catch_all
@@ -743,8 +749,8 @@ class PhotiniMap(QtWidgets.QWidget):
     @catch_all
     def search(self, search_string=None, bounded=True):
         if not search_string:
-            search_string = self.widgets['search'].lineEdit().text()
-            self.widgets['search'].clearEditText()
+            search_string = self.controls['search'].lineEdit().text()
+            self.controls['search'].clearEditText()
         if not search_string:
             return
         self.search_string = search_string
@@ -755,27 +761,27 @@ class PhotiniMap(QtWidgets.QWidget):
             bounds = None
         for result in self.geocoder.search(search_string, bounds=bounds):
             north, east, south, west, name = result
-            self.widgets['search'].addItem(name, (north, east, south, west))
-        self.widgets['search'].set_dropdown_width()
-        self.widgets['search'].showPopup()
+            self.controls['search'].addItem(name, (north, east, south, west))
+        self.controls['search'].set_dropdown_width()
+        self.controls['search'].showPopup()
 
     def clear_search(self):
-        self.widgets['search'].clear()
-        self.widgets['search'].addItem('')
+        self.controls['search'].clear()
+        self.controls['search'].addItem('')
         if self.search_string:
-            self.widgets['search'].addItem(
+            self.controls['search'].addItem(
                 translate('PhotiniMap', '<widen search>'), 'widen')
-            self.widgets['search'].addItem(
+            self.controls['search'].addItem(
                 translate('PhotiniMap', '<repeat search>'), 'repeat')
 
     @QtSlot(int)
     @catch_all
     def goto_search_result(self, idx):
-        self.widgets['search'].setCurrentIndex(0)
-        self.widgets['search'].clearFocus()
+        self.controls['search'].setCurrentIndex(0)
+        self.controls['search'].clearFocus()
         if idx == 0:
             return
-        data = self.widgets['search'].itemData(idx)
+        data = self.controls['search'].itemData(idx)
         if data is None:
             return
         if data == 'widen':
@@ -842,4 +848,4 @@ class PhotiniMap(QtWidgets.QWidget):
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:
-            self.widgets['map'].page().runJavaScript(command)
+            self.controls['map'].page().runJavaScript(command)

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2021-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2021-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -21,8 +21,9 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.widgets import (DropDownSelector, Label, LangAltWidget,
-                             MultiLineEdit, PushButton, SingleLineEdit)
+from photini.widgets import (
+    CompoundWidgetMixin, DropDownSelector, Label, LangAltWidget, MultiLineEdit,
+    PushButton, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -104,7 +105,7 @@ class RightsDropDown(DropDownSelector):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(action.data()))
 
 
-class TabWidget(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('OwnerTab', 'Ownership metadata',
@@ -167,6 +168,10 @@ class TabWidget(QtWidgets.QWidget):
             if not self.config_store.get('ownership', 'contact_info/URL'):
                 self.config_store.set('ownership', 'contact_info/URL', value)
             self.config_store.delete('ownership', 'rights/licensorurl')
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
 
     def data_form(self):
         widgets = {}
