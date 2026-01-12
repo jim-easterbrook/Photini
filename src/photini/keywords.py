@@ -641,10 +641,11 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
         # hierarchical keywords
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
+        self.widgets['nested_tags'].setObjectName(
+            translate('KeywordsTab', 'Hierarchical keywords'))
         self.widgets['nested_tags'].new_value.connect(self.new_value)
         self.widgets['nested_tags'].update_value.connect(self.update_nested)
-        label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
-                      lines=2)
+        label = Label(self.widgets['nested_tags'].objectName(), lines=2)
         layout.addWidget(label, 1, 0)
         layout.addWidget(self.widgets['nested_tags'], 1, 1, 3, 1)
         # tree view button
