@@ -30,6 +30,7 @@ translate = QtCore.QCoreApplication.translate
 class RatingWidget(QtWidgets.QWidget):
     def __init__(self, key, *arg, **kw):
         super(RatingWidget, self).__init__(*arg, **kw)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
         self.multiple_values = multiple_values()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
