@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2024-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2024-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This file is part of Photini.
 #
@@ -27,8 +27,8 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
-from photini.widgets import (
-    ComboBox, Label, MultiLineEdit, TextEditMixin, WidgetMixin)
+from photini.widgets import (ComboBox, CompoundWidgetMixin, Label,
+                             MultiLineEdit, TextEditMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -506,7 +506,8 @@ class ListProxyModel(QtCore.QAbstractListModel):
         return item.data(role)
 
 
-class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
+class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
+                             CompoundWidgetMixin):
     update_value = QtSignal(str, str)
 
     def __init__(self, key, data_model, *args, **kwds):
@@ -515,6 +516,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self._key = key
         self._is_multiple = False
         self._value = []
+        # CompoundWidgetMixin needs a 'widgets' dict
+        self.widgets = {'self': self}
         self.setWidget(QtWidgets.QWidget())
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
@@ -522,6 +525,10 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self.data_model = data_model
         self.list_view = ListProxyModel(self.data_model)
         self.set_rows()
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
 
     def set_rows(self, rows=1):
         # layout includes a spacer, which is always the last row
@@ -599,7 +606,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         execute(dialog)
 
 
-class TabWidget(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('KeywordsTab', 'Keywords or tags',
@@ -651,6 +658,10 @@ class TabWidget(QtWidgets.QWidget):
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
         # disable until an image is selected
         self.setEnabled(False)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
 
     def sync_nested_from_flat(self, images, remove=False, silent=False):
         for image in images:
