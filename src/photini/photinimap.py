@@ -36,8 +36,8 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
                           QtWebEngineWidgets, qt_version_info)
-from photini.widgets import (AltitudeDisplay, ComboBox, CompoundWidgetMixin,
-                             Label, LatLongDisplay)
+from photini.widgets import (AltitudeDisplay, ComboBox, Label, LatLongDisplay,
+                             StaticCompoundMixin)
 
 
 logger = logging.getLogger(__name__)
@@ -282,7 +282,7 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
             event.acceptProposedAction()
 
 
-class PhotiniMap(QtWidgets.QWidget, CompoundWidgetMixin):
+class PhotiniMap(QtWidgets.QWidget, StaticCompoundMixin):
     clipboard_key = 'PhotiniMap'
     use_layout_direction = True
 
@@ -545,10 +545,13 @@ class PhotiniMap(QtWidgets.QWidget, CompoundWidgetMixin):
     @catch_all
     def new_value(self, value, images=[], adjust_map=False):
         images = images or self.app.image_list.get_selected_images()
-        value['method'] = 'MANUAL'
+        new_value = self.widgets['latlon'].get_value_dict()
+        new_value.update(self.widgets['alt'].get_value_dict())
+        new_value.update(value)
+        new_value['method'] = 'MANUAL'
         for image in images:
             gps = dict(image.metadata.gps_info)
-            gps.update(value)
+            gps.update(new_value)
             image.metadata.gps_info = gps
         self.update_display(images, adjust_map=adjust_map)
 

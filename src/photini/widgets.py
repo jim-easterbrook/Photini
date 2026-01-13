@@ -41,6 +41,9 @@ class WidgetMixin(object):
             return {}
         return {self._key: self.get_value()}
 
+    def set_value_dict(self, value):
+        self.set_value(value.get(self._key))
+
     def set_value_list(self, values):
         if not values:
             self.setEnabled(False)
@@ -953,6 +956,12 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
                 value = self.value_to_text(value)
             self.lineEdit().setText(value)
 
+    def set_value_dict(self, value):
+        value = [value.get(k) for k in self._key]
+        if any(x is None for x in value):
+            value = None
+        self.set_value(value)
+
     def set_value_list(self, values):
         choices = set()
         if not values:
@@ -1054,12 +1063,10 @@ class CompoundWidgetMixin(object):
             if key == 'Paste':
                 action.setEnabled(self.clipboard_key in self.app.clipboard)
             elif key == 'Delete':
-                action.setEnabled(
-                    any(x.get_value() for x in self.widgets.values()))
+                action.setEnabled(any(self.get_value_dict().values()))
             else:
-                action.setEnabled(
-                    any(x.get_value() for x in self.widgets.values()) and not
-                    any(x.is_multiple() for x in self.widgets.values()))
+                action.setEnabled(any(self.get_value_dict().values())
+                                  and not self.is_multiple())
         execute(menu, event.globalPos())
 
     @QtSlot()
@@ -1071,19 +1078,36 @@ class CompoundWidgetMixin(object):
     @QtSlot()
     @catch_all
     def do_copy(self):
-        self.app.clipboard[self.clipboard_key] = dict(
-            (k, self.widgets[k].get_value()) for k in self.widgets)
+        self.app.clipboard[self.clipboard_key] = self.get_value_dict()
 
     @QtSlot()
     @catch_all
     def do_paste(self):
-        for k, v in self.app.clipboard[self.clipboard_key].items():
-            self.widgets[k].set_value(v)
-            self.widgets[k].emit_value()
+        self.set_value_dict(self.app.clipboard[self.clipboard_key])
+        self.emit_value()
 
     @QtSlot()
     @catch_all
     def do_delete(self):
+        self.set_value_dict(None)
+        self.emit_value()
+
+
+class StaticCompoundMixin(CompoundWidgetMixin):
+    # self.widgets is a non-changing dict of widgets
+    def emit_value(self):
         for w in self.widgets.values():
-            w.set_value(None)
             w.emit_value()
+
+    def get_value_dict(self):
+        result = {}
+        for w in self.widgets.values():
+            result.update(w.get_value_dict())
+        return result
+
+    def is_multiple(self):
+        return any(w.is_multiple() for w in self.widgets.values())
+
+    def set_value_dict(self, value):
+        for w in self.widgets.values():
+            w.set_value_dict(value or {})

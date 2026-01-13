@@ -27,8 +27,9 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
-from photini.widgets import (ComboBox, CompoundWidgetMixin, Label,
-                             MultiLineEdit, TextEditMixin, WidgetMixin)
+from photini.widgets import (
+    ComboBox, CompoundWidgetMixin, Label, MultiLineEdit, TextEditMixin,
+    StaticCompoundMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -37,6 +38,7 @@ translate = QtCore.QCoreApplication.translate
 class KeywordsEditor(QtWidgets.QWidget):
     def __init__(self, key, **kw):
         super(KeywordsEditor, self).__init__()
+        self._key = key
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.league_table = {}
         for keyword, score in self.config_store.get(
@@ -65,6 +67,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         # adopt child widget methods and signals
         self.get_value = self.edit.get_value
         self.set_value = self.edit.set_value
+        self.set_value_dict = self.edit.set_value_dict
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
         self.new_value = self.edit.new_value
@@ -116,6 +119,11 @@ class KeywordsEditor(QtWidgets.QWidget):
             new_value = current_value + '; ' + new_value
         self.set_value(new_value)
         self.edit.emit_value()
+
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return {self._key: self.get_value()}
 
 
 class KeywordCompleter(QtWidgets.QCompleter):
@@ -508,7 +516,6 @@ class ListProxyModel(QtCore.QAbstractListModel):
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                              CompoundWidgetMixin):
-    clipboard_key = 'HierarchicalTags'
     update_value = QtSignal(str, str)
 
     def __init__(self, key, data_model, *args, **kwds):
@@ -516,10 +523,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         self.app = QtWidgets.QApplication.instance()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._key = key
+        self.clipboard_key = key
         self._is_multiple = False
         self._value = []
-        # CompoundWidgetMixin needs a 'widgets' dict
-        self.widgets = {'self': self}
         self.setWidget(QtWidgets.QWidget())
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
@@ -562,6 +568,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
 
     def get_value(self):
         return self._value
+
+    def get_value_dict(self):
+        return {self._key: self._value}
 
     def set_value(self, value):
         if self._is_multiple:
@@ -608,7 +617,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         execute(dialog)
 
 
-class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
+class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
     clipboard_key = 'KeywordsTab'
 
     @staticmethod

@@ -20,8 +20,8 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.widgets import (CompoundWidgetMixin, Label, LangAltWidget,
-                             MultiLineEdit, SingleLineEdit, Slider)
+from photini.widgets import (Label, LangAltWidget, MultiLineEdit,
+                             SingleLineEdit, Slider, StaticCompoundMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -32,6 +32,7 @@ class RatingWidget(QtWidgets.QWidget):
         super(RatingWidget, self).__init__(*arg, **kw)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
         self.multiple_values = multiple_values()
+        self._key = key
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # slider
@@ -57,6 +58,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.emit_value = self.slider.emit_value
         self.is_multiple = self.slider.is_multiple
         self.new_value = self.slider.new_value
+        self.set_value_dict = self.slider.set_value_dict
         # over-ride child methods
         self.slider.get_value = self.get_value
 
@@ -85,13 +87,18 @@ class RatingWidget(QtWidgets.QWidget):
             return None
         return value
 
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return {self._key: self.get_value()}
+
     def set_multiple(self, choices=[]):
         self.slider.set_multiple()
         self.slider.setValue(-2)
         self.display.setPlaceholderText(self.multiple_values)
 
 
-class TabWidget(QtWidgets.QScrollArea, CompoundWidgetMixin):
+class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
     clipboard_key = 'DescriptiveTab'
 
     @staticmethod

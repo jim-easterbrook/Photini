@@ -28,7 +28,7 @@ from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
     AltitudeDisplay, CompactButton, CompoundWidgetMixin, Label, LatLongDisplay,
-    LangAltWidget, SingleLineEdit)
+    LangAltWidget, SingleLineEdit, StaticCompoundMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -169,8 +169,8 @@ class OpenCage(GeocoderBase):
             QtCore.QUrl('http://www.openstreetmap.org/copyright'))
 
 
-class LocationInfo(QtWidgets.QScrollArea, CompoundWidgetMixin):
-    new_value = QtSignal(object, dict)
+class LocationInfo(QtWidgets.QScrollArea, StaticCompoundMixin):
+    new_value = QtSignal(dict)
     clipboard_key = 'LocationInfo'
 
     def __init__(self, *args, **kw):
@@ -187,7 +187,7 @@ class LocationInfo(QtWidgets.QScrollArea, CompoundWidgetMixin):
             'Iptc4xmpExt:LocationName', multi_line=False)
         self.widgets['LocationName'].setToolTip('<p>{}</p>'.format(
             translate('AddressTab', 'Enter a full name of the location.')))
-        self.widgets['LocationName'].new_value.connect(self.editing_finished)
+        self.widgets['LocationName'].new_value.connect(self.new_value)
         for (key, tool_tip) in (
                 ('Sublocation', translate(
                     'AddressTab', 'Enter the name of the sublocation.')),
@@ -209,11 +209,11 @@ class LocationInfo(QtWidgets.QScrollArea, CompoundWidgetMixin):
                 'Iptc4xmpExt:' + key, length_check=ImageMetadata.iptc_max_len(
                     'Iptc.Application2.' + key))
             self.widgets[key].setToolTip('<p>{}</p>'.format(tool_tip))
-            self.widgets[key].new_value.connect(self.editing_finished)
+            self.widgets[key].new_value.connect(self.new_value)
         self.widgets['latlon'] = LatLongDisplay()
-        self.widgets['latlon'].new_value.connect(self.editing_finished)
+        self.widgets['latlon'].new_value.connect(self.new_value)
         self.widgets['alt'] = AltitudeDisplay()
-        self.widgets['alt'].new_value.connect(self.editing_finished)
+        self.widgets['alt'].new_value.connect(self.new_value)
         self.widgets['CountryCode'].setMaximumWidth(
             width_for_text(self.widgets['CountryCode'], 'W' * 4))
         for j, text in enumerate((translate('AddressTab', 'Name'),
@@ -252,11 +252,6 @@ class LocationInfo(QtWidgets.QScrollArea, CompoundWidgetMixin):
             new_value.update(self.widgets[key].get_value_dict())
         return new_value
 
-    @QtSlot(dict)
-    @catch_all
-    def editing_finished(self, value):
-        self.new_value.emit(self, value)
-
 
 class QTabBar(QtWidgets.QTabBar):
     context_menu = QtSignal(QtGui.QContextMenuEvent)
@@ -266,7 +261,87 @@ class QTabBar(QtWidgets.QTabBar):
         self.context_menu.emit(event)
 
 
-class TabWidget(QtWidgets.QWidget):
+class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
+    new_value = QtSignal(int, dict)
+    clipboard_key = 'LocationTabs'
+
+    def __init__(self, key, *args, **kw):
+        super(AddressTabs, self).__init__(*args, **kw)
+        self._key = key
+        self.setObjectName(translate('AddressTab', 'All locations'))
+        self.app = QtWidgets.QApplication.instance()
+        self.setTabBar(QTabBar())
+        self.setElideMode(Qt.TextElideMode.ElideLeft)
+        self.setMovable(True)
+        self.setEnabled(False)
+        self.spare_widgets = []
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
+
+    def emit_value(self):
+        for idx in range(self.count()):
+            self.new_value.emit(idx, self.widget(idx).get_value_dict())
+
+    def get_value_dict(self):
+        result = {}
+        for idx in range(self.count()):
+            result[idx] = self.widget(idx).get_value()
+        return {self._key: result}
+
+    def is_multiple(self):
+        for idx in range(self.count()):
+            if self.widget(idx).is_multiple():
+                return True
+        return False
+
+    def set_value_dict(self, value):
+        value = value.get(self._key, {})
+        self.set_tab_count(len(value))
+        for idx in value:
+            self.widget(idx).set_value_dict(value[idx])
+
+    @QtSlot(dict)
+    @catch_all
+    def _new_value(self, value):
+        self.new_value.emit(self.currentIndex(), value)
+
+    def set_tab_count(self, count):
+        if self.currentIndex() >= count:
+            self.setCurrentIndex(count - 1)
+        idx = self.count()
+        while idx < count:
+            if not self.spare_widgets:
+                widget = LocationInfo()
+                widget.new_value.connect(self._new_value)
+                self.spare_widgets.append(widget)
+            self.addTab(self.spare_widgets.pop(), '')
+            self.set_tab_text(idx)
+            idx += 1
+        while idx > count:
+            idx -= 1
+            self.spare_widgets.append(self.widget(idx))
+            self.removeTab(idx)
+
+    def set_tab_text(self, idx):
+        if idx == 0:
+            text = translate('AddressTab', 'camera')
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' where this image was created.')
+        else:
+            text = translate('AddressTab', 'subject {idx}').format(idx=idx)
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' which is shown in this image.')
+        self.setTabText(idx, text)
+        self.setTabToolTip(idx, '<p>' + tip + '</p>')
+        self.widget(idx).setObjectName(translate(
+            'AddressTab', '{tab} location details').format(tab=text))
+
+
+class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
+    clipboard_key = 'AddressTab'
+
     @staticmethod
     def tab_name():
         return translate('AddressTab', 'Location addresses',
@@ -282,13 +357,14 @@ class TabWidget(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.geocoder = OpenCage(parent=self)
         self.setLayout(QtWidgets.QHBoxLayout())
+        self.widgets = {}
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.coords = LatLongDisplay()
-        self.coords.setReadOnly(True)
-        left_side.addWidget(self.coords.label, 0, 0)
-        left_side.addWidget(self.coords, 0, 1)
+        self.widgets['coords'] = LatLongDisplay()
+        self.widgets['coords'].setReadOnly(True)
+        left_side.addWidget(self.widgets['coords'].label, 0, 0)
+        left_side.addWidget(self.widgets['coords'], 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('AddressTab', 'Get address from lat, long'))
@@ -304,67 +380,20 @@ class TabWidget(QtWidgets.QWidget):
         self.layout().addLayout(left_side)
         ## right side
         # location info
-        self.location_widgets = []
-        self.location_info = QtWidgets.QTabWidget()
-        tab_bar = QTabBar()
-        self.location_info.setTabBar(tab_bar)
-        tab_bar.context_menu.connect(self.location_tab_context_menu)
-        tab_bar.tabMoved.connect(self.location_tab_moved)
-        self.location_info.setElideMode(Qt.TextElideMode.ElideLeft)
-        self.location_info.setMovable(True)
-        self.location_info.setEnabled(False)
-        self.layout().addWidget(self.location_info, stretch=1)
+        self.widgets['locations'] = AddressTabs('locations')
+        self.widgets['locations'].new_value.connect(self.new_location)
+        self.widgets['locations'].tabBar().tabMoved.connect(self.location_tab_moved)
+        self.layout().addWidget(self.widgets['locations'], stretch=1)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
-
-    @QtSlot(QtGui.QContextMenuEvent)
-    @catch_all
-    def location_tab_context_menu(self, event):
-        idx = self.location_info.tabBar().tabAt(event.pos())
-        self.location_info.setCurrentIndex(idx)
-        menu = QtWidgets.QMenu(self)
-        menu.addAction(translate(
-            'AddressTab', 'Duplicate location'), self.duplicate_location)
-        menu.addAction(translate(
-            'AddressTab', 'Delete location'), self.delete_location)
-        action = execute(menu, event.globalPos())
-
-    @QtSlot()
-    @catch_all
-    def duplicate_location(self):
-        idx = self.location_info.currentIndex()
-        for image in self.app.image_list.get_selected_images():
-            # duplicate data
-            location = self._get_location(image, idx)
-            # shuffle data up
-            location_list = list(image.metadata.location_shown)
-            location_list.insert(idx, location)
-            image.metadata.location_shown = location_list
-        # display data
-        self.display_location()
-
-    @QtSlot()
-    @catch_all
-    def delete_location(self):
-        idx = self.location_info.currentIndex()
-        for image in self.app.image_list.get_selected_images():
-            # shuffle data down
-            location_list = list(image.metadata.location_shown)
-            if idx == 0:
-                if location_list:
-                    location = [location_list.pop(0)]
-                else:
-                    location = []
-                image.metadata.location_taken = location
-            elif idx <= len(location_list):
-                del location_list[max(idx - 1, 0)]
-            image.metadata.location_shown = location_list
-        # display data
-        self.display_location()
 
     @QtSlot(int, int)
     @catch_all
@@ -385,7 +414,7 @@ class TabWidget(QtWidgets.QWidget):
             self._set_location(image, idx_b, temp_a)
         # adjust tab names
         for idx in range(min(idx_a, idx_b), max(idx_a, idx_b) + 1):
-            self.set_tab_text(idx)
+            self.widgets['locations'].set_tab_text(idx)
         # display data
         self.display_location()
 
@@ -408,32 +437,17 @@ class TabWidget(QtWidgets.QWidget):
             location_list[idx - 1] = location
             image.metadata.location_shown = location_list
 
-    @QtSlot(object, dict)
+    @QtSlot(int, dict)
     @catch_all
-    def new_location(self, widget, new_value, images=[]):
+    def new_location(self, idx, value, images=[]):
         images = images or self.app.image_list.get_selected_images()
-        idx = self.location_info.indexOf(widget)
         for image in images:
-            temp = dict(self._get_location(image, idx))
-            temp.update(new_value)
-            self._set_location(image, idx, temp)
+            location = dict(self._get_location(image, idx))
+            location.update(value)
+            self._set_location(image, idx, location)
         # new_location can be called when changing tab, so don't delete
         # tabs until later
         QtCore.QTimer.singleShot(0, self.display_location)
-
-    def set_tab_text(self, idx):
-        if idx == 0:
-            text = translate('AddressTab', 'camera')
-            tip = translate('AddressTab', 'Enter the details about a location'
-                            ' where this image was created.')
-        else:
-            text = translate('AddressTab', 'subject {idx}').format(idx=idx)
-            tip = translate('AddressTab', 'Enter the details about a location'
-                            ' which is shown in this image.')
-        self.location_info.setTabText(idx, text)
-        self.location_info.setTabToolTip(idx, '<p>' + tip + '</p>')
-        self.location_info.widget(idx).setObjectName(translate(
-            'AddressTab', '{tab} location details').format(tab=text))
 
     @QtSlot()
     @catch_all
@@ -445,43 +459,28 @@ class TabWidget(QtWidgets.QWidget):
             if image.metadata.location_shown:
                 count = max(count, len(image.metadata.location_shown))
         count += 2
-        # add or remove tabs
-        if self.location_info.currentIndex() >= count:
-            self.location_info.setCurrentIndex(count - 1)
-        idx = self.location_info.count()
-        while idx < count:
-            if not self.location_widgets:
-                widget = LocationInfo()
-                widget.new_value.connect(self.new_location)
-                self.location_widgets.append(widget)
-            self.location_info.addTab(self.location_widgets.pop(), '')
-            self.set_tab_text(idx)
-            idx += 1
-        while idx > count:
-            idx -= 1
-            self.location_widgets.append(self.location_info.widget(idx))
-            self.location_info.removeTab(idx)
+        self.widgets['locations'].set_tab_count(count)
         # display data
         for idx in range(count):
-            widget = self.location_info.widget(idx)
+            widget = self.widgets['locations'].widget(idx)
             values = [self._get_location(image, idx) for image in images]
             for key in widget.widgets:
                 widget.widgets[key].set_value_list(values)
 
     def new_selection(self, selection):
-        self.location_info.setEnabled(bool(selection))
+        self.widgets['locations'].setEnabled(bool(selection))
         values = []
         for image in selection:
             values.append(image.metadata.gps_info)
-        self.coords.set_value_list(values)
-        self.auto_location.setEnabled(bool(self.coords.get_value()))
+        self.widgets['coords'].set_value_list(values)
+        self.auto_location.setEnabled(bool(self.widgets['coords'].get_value()))
         self.display_location()
 
     @QtSlot()
     @catch_all
     def get_address(self):
         images = self.app.image_list.get_selected_images()
-        location = self.geocoder.get_address(self.coords.get_value())
+        location = self.geocoder.get_address(self.widgets['coords'].get_value())
         if location:
             self.new_location(
-                self.location_info.currentWidget(), location, images)
+                self.widgets['locations'].currentIndex(), location, images)

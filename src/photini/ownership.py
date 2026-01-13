@@ -22,8 +22,8 @@ import logging
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
-    CompoundWidgetMixin, DropDownSelector, Label, LangAltWidget, MultiLineEdit,
-    PushButton, SingleLineEdit)
+    DropDownSelector, Label, LangAltWidget, MultiLineEdit, PushButton,
+    SingleLineEdit, StaticCompoundMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -105,7 +105,7 @@ class RightsDropDown(DropDownSelector):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(action.data()))
 
 
-class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
+class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
     clipboard_key = 'OwnerTab'
 
     @staticmethod
