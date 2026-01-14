@@ -973,8 +973,6 @@ class AddTabButton(QtWidgets.QPushButton):
         return super(AddTabButton, self).sizeHint()
 
 class RegionTabs(QtWidgets.QTabWidget):
-    new_regions = QtSignal(int, list)
-
     def __init__(self, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
         self.setTabBar(QTabBar())
@@ -994,7 +992,6 @@ class RegionTabs(QtWidgets.QTabWidget):
         new_tab.setMenu(menu)
         # image display area
         self.image_display = ImageDisplayWidget(self)
-        self.new_regions.connect(self.image_display.draw_boundaries)
         self.image_display.new_idx.connect(self.setCurrentIndex)
         self.image_display.new_value.connect(self.new_value)
 
@@ -1096,11 +1093,11 @@ class RegionTabs(QtWidgets.QTabWidget):
     def tab_changed(self, idx):
         regions = list((self.image and self.image.metadata.image_region) or [])
         if idx < 0 or idx >= len(regions):
-            self.new_regions.emit(-1, regions)
+            self.image_display.draw_boundaries(-1, regions)
             return
         region_form = self.widget(idx)
         region_form.set_value(regions[idx])
-        self.new_regions.emit(idx, regions)
+        self.image_display.draw_boundaries(idx, regions)
 
     @QtSlot(int, dict)
     @catch_all
@@ -1128,7 +1125,7 @@ class RegionTabs(QtWidgets.QTabWidget):
             'w': dims['width'], 'h': dims['height']})
         if key == 'Iptc4xmpExt:rRole':
             # aspect ratio constraint may have changed
-            self.new_regions.emit(idx, list(md.image_region))
+            self.image_display.draw_boundaries(idx, list(md.image_region))
 
 
 class TabWidget(QtWidgets.QWidget):
