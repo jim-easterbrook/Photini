@@ -517,6 +517,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             boundary.set_scale()
 
     def set_image(self, image):
+        if image == self.image:
+            return
         self.image = image
         scene = self.scene()
         scene.clear()
@@ -947,6 +949,11 @@ class RegionTabs(QtWidgets.QTabWidget):
         menu.addAction(translate('RegionsTab', 'New polygon'),
                        self.new_polygon)
         new_tab.setMenu(menu)
+        # image display area
+        self.image_display = ImageDisplayWidget()
+        self.new_regions.connect(self.image_display.draw_boundaries)
+        self.image_display.new_idx.connect(self.setCurrentIndex)
+        self.image_display.new_value.connect(self.new_value)
 
     def context_menu(self, idx, pos):
         md = self.image.metadata
@@ -1020,6 +1027,7 @@ class RegionTabs(QtWidgets.QTabWidget):
         self.setCurrentIndex(len(md.image_region) - 1)
 
     def set_image(self, image):
+        self.image_display.set_image(image)
         current = self.currentIndex()
         self.image = image
         regions = (image and image.metadata.image_region) or []
@@ -1099,12 +1107,7 @@ class TabWidget(QtWidgets.QWidget):
         self.region_tabs = RegionTabs()
         self.layout().addWidget(self.region_tabs)
         # image display area
-        self.image_display = ImageDisplayWidget()
-        self.layout().addWidget(self.image_display, stretch=1)
-        # connections
-        self.region_tabs.new_regions.connect(self.image_display.draw_boundaries)
-        self.image_display.new_idx.connect(self.region_tabs.setCurrentIndex)
-        self.image_display.new_value.connect(self.region_tabs.new_value)
+        self.layout().addWidget(self.region_tabs.image_display, stretch=1)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -1114,10 +1117,8 @@ class TabWidget(QtWidgets.QWidget):
 
     def new_selection(self, selection):
         if len(selection) != 1:
-            self.image_display.set_image(None)
             self.region_tabs.set_image(None)
             self.setEnabled(False)
             return
-        self.image_display.set_image(selection[0])
         self.region_tabs.set_image(selection[0])
         self.setEnabled(True)
