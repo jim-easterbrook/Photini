@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2023-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2023-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -477,8 +477,9 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
     new_idx = QtSignal(int)
     new_value = QtSignal(int, dict)
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, tab_widget, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
+        self.tab_widget = tab_widget
         self.setRenderHint(
             QtGui.QPainter.RenderHint.Antialiasing, True)
         self.setRenderHint(
@@ -487,6 +488,48 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.setDragMode(self.DragMode.ScrollHandDrag)
         self.boundaries = []
         self.image = None
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        pos = event.pos()
+        w = min(self.viewport().width(), self.viewport().height()) * 0.15
+        rect = QtCore.QRectF(
+            self.mapToScene(QtCore.QPoint(pos.x() - w, pos.y() - w)),
+            self.mapToScene(QtCore.QPoint(pos.x() + w, pos.y() + w)))
+        bounds = self.scene().sceneRect()
+        menu = QtWidgets.QMenu()
+        action = menu.addAction(translate('RegionsTab', 'New rectangle'))
+        x = max(min(rect.left(), bounds.right() - rect.width()), bounds.left())
+        y = max(min(rect.top(), bounds.bottom() - rect.height()), bounds.top())
+        action.setData({'Iptc4xmpExt:rbShape': 'rectangle',
+                        'Iptc4xmpExt:rbX': x,
+                        'Iptc4xmpExt:rbY': y,
+                        'Iptc4xmpExt:rbW': rect.width(),
+                        'Iptc4xmpExt:rbH': rect.height()})
+        action = menu.addAction(translate('RegionsTab', 'New circle'))
+        action.setData({'Iptc4xmpExt:rbShape': 'circle',
+                        'Iptc4xmpExt:rbX': rect.center().x(),
+                        'Iptc4xmpExt:rbY': rect.center().y(),
+                        'Iptc4xmpExt:rbRx': rect.width() / 2.0})
+        action = menu.addAction(translate('RegionsTab', 'New point'))
+        x = max(min(rect.center().x(), bounds.right()), bounds.left())
+        y = max(min(rect.center().y(), bounds.bottom()), bounds.top())
+        action.setData({'Iptc4xmpExt:rbShape': 'polygon',
+                        'Iptc4xmpExt:rbVertices': [{
+                            'Iptc4xmpExt:rbX': x,
+                            'Iptc4xmpExt:rbY': y}]})
+        action = menu.addAction(translate('RegionsTab', 'New polygon'))
+        action.setData({'Iptc4xmpExt:rbShape': 'polygon',
+                        'Iptc4xmpExt:rbVertices': [
+                            {'Iptc4xmpExt:rbX': rect.left(),
+                             'Iptc4xmpExt:rbY': rect.top()},
+                            {'Iptc4xmpExt:rbX': rect.right(),
+                             'Iptc4xmpExt:rbY': rect.center().y()},
+                            {'Iptc4xmpExt:rbX': rect.center().x(),
+                             'Iptc4xmpExt:rbY': rect.bottom()}]})
+        action = execute(menu, event.globalPos())
+        if action:
+            self.tab_widget.add_region(action.data(), relative=False)
 
     @catch_all
     def keyPressEvent(self, event):
@@ -950,7 +993,7 @@ class RegionTabs(QtWidgets.QTabWidget):
                        self.new_polygon)
         new_tab.setMenu(menu)
         # image display area
-        self.image_display = ImageDisplayWidget()
+        self.image_display = ImageDisplayWidget(self)
         self.new_regions.connect(self.image_display.draw_boundaries)
         self.image_display.new_idx.connect(self.setCurrentIndex)
         self.image_display.new_value.connect(self.new_value)
@@ -1015,8 +1058,8 @@ class RegionTabs(QtWidgets.QTabWidget):
                              {'Iptc4xmpExt:rbX': 0.5,
                               'Iptc4xmpExt:rbY': 0.6}]})
 
-    def add_region(self, boundary):
-        boundary['Iptc4xmpExt:rbUnit'] = 'relative'
+    def add_region(self, boundary, relative=True):
+        boundary['Iptc4xmpExt:rbUnit'] = ('pixel', 'relative')[relative]
         region = {'Iptc4xmpExt:RegionBoundary': boundary}
         md = self.image.metadata
         md.image_region = md.image_region.new_region(region)
