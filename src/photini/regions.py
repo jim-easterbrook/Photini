@@ -126,12 +126,24 @@ class RegionMixin(object):
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
-    def __init__(self, region, display_widget, draw_unit, active,
-                 constraint=None, *arg, **kw):
+    def __init__(self, region, display_widget, draw_unit, active, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
-        self.constraint = constraint
+        if region.has_role('squareCropping'):
+            self.constraint = 'square'
+        elif region.has_role('landscapeCropping'):
+            if display_widget.transform().isRotating():
+                self.constraint = 'portrait'
+            else:
+                self.constraint = 'landscape'
+        elif region.has_role('portraitCropping'):
+            if display_widget.transform().isRotating():
+                self.constraint = 'landscape'
+            else:
+                self.constraint = 'portrait'
+        else:
+            self.constraint = None
         self.handles = []
         if active:
             for idx in range(4):
@@ -634,22 +646,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             active = n == idx
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                if region.has_role('squareCropping'):
-                    constraint = 'square'
-                elif region.has_role('landscapeCropping'):
-                    if self.transform().isRotating():
-                        constraint = 'portrait'
-                    else:
-                        constraint = 'landscape'
-                elif region.has_role('portraitCropping'):
-                    if self.transform().isRotating():
-                        constraint = 'landscape'
-                    else:
-                        constraint = 'portrait'
-                else:
-                    constraint = None
-                boundary = RectangleRegion(
-                    region, self, draw_unit, active, constraint=constraint)
+                boundary = RectangleRegion(region, self, draw_unit, active)
             elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
                 boundary = CircleRegion(region, self, draw_unit, active)
             elif len(boundary['Iptc4xmpExt:rbVertices']) == 1:
