@@ -898,6 +898,9 @@ class RegionForm(QtWidgets.QScrollArea):
             ' of what is happening in this region.')))
         self.widgets[key].new_value.connect(self.emit_value)
         layout.addRow(self.widgets[key])
+        # disable widgets until value is set
+        for widget in self.widgets.values():
+            widget.setEnabled(False)
 
     @QtSlot(dict)
     @catch_all
@@ -935,14 +938,15 @@ class RegionForm(QtWidgets.QScrollArea):
             else:
                 layout.addRow(self.widgets[key])
         # set values
-        for key in self.widgets:
+        for key, widget in self.widgets.items():
+            widget.setEnabled(True)
             value = region
             for part in key.split('/'):
                 if part not in value:
                     value = None
                     break
                 value = value[part]
-            self.widgets[key].set_value(value)
+            widget.set_value(value)
 
 
 class QTabBar(QtWidgets.QTabBar):
@@ -1000,15 +1004,9 @@ class RegionTabs(QtWidgets.QTabWidget):
         current = self.currentIndex()
         self.image = image
         regions = (image and image.metadata.image_region) or []
-        if not regions:
-            region_form = RegionForm(-1)
-            region_form.setEnabled(False)
-            self.clear()
-            self.addTab(region_form, '')
-            return
         blocked = self.blockSignals(True)
         self.clear()
-        for idx in range(len(regions)):
+        for idx in range(len(regions) + 1):
             region_form = RegionForm(idx)
             region_form.new_value.connect(self.new_value)
             self.addTab(region_form, str(idx + 1))

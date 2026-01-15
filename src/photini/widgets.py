@@ -587,6 +587,11 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.define_new_value = self._define_new_lang
 
     @catch_all
+    def setEnabled(self, enabled):
+        self.edit.setEnabled(enabled)
+        self.lang.setEnabled(enabled)
+
+    @catch_all
     def setToolTip(self, text):
         self.edit.setToolTip(text)
 
