@@ -126,7 +126,7 @@ class RegionMixin(object):
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
-    def __init__(self, region, display_widget, draw_unit, active, *arg, **kw):
+    def __init__(self, region, display_widget, active, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
@@ -147,14 +147,15 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.handles = []
         if active:
             for idx in range(4):
-                self.handles.append(ResizeHandle(draw_unit, parent=self))
+                self.handles.append(ResizeHandle(
+                    display_widget.draw_unit, parent=self))
         corners = self.to_scene.map(region.to_Qt(self.image))
         rect = QtCore.QRectF(corners.at(0), corners.at(1))
         self.setRect(rect)
         self.bg_parts = [self]
         self.fg_parts = [QtWidgets.QGraphicsRectItem(parent=self)]
         self.adjust_handles()
-        self.set_style(draw_unit)
+        self.set_style(display_widget.draw_unit)
         self.set_scale()
 
     @catch_all
@@ -268,20 +269,21 @@ RectangleRegion.ar_thresholds = [
 
 
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
-    def __init__(self, region, display_widget, draw_unit, active, *arg, **kw):
+    def __init__(self, region, display_widget, active, *arg, **kw):
         super(CircleRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
         self.handles = []
         if active:
             for idx in range(4):
-                self.handles.append(ResizeHandle(draw_unit, parent=self))
+                self.handles.append(ResizeHandle(
+                    display_widget.draw_unit, parent=self))
         points = self.to_scene.map(region.to_Qt(self.image))
         centre = points.at(0)
         radius = (points.at(1) - centre).manhattanLength()
         self.bg_parts = [self]
         self.fg_parts = [QtWidgets.QGraphicsEllipseItem(parent=self)]
         self.set_geometry(centre, radius)
-        self.set_style(draw_unit)
+        self.set_style(display_widget.draw_unit)
         self.set_scale()
 
     @catch_all
@@ -332,15 +334,15 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
 
 
 class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
-    def __init__(self, region, display_widget, draw_unit, active, *arg, **kw):
+    def __init__(self, region, display_widget, active, *arg, **kw):
         super(PointRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw cross hairs with a centre circle
-        r = draw_unit * 6
+        r = display_widget.draw_unit * 6
         dx1 = r / 1.35
-        dx2 = draw_unit * 20
+        dx2 = display_widget.draw_unit * 20
         self.bg_parts = []
         self.fg_parts = []
         for parts in (self.bg_parts, self.fg_parts):
@@ -354,7 +356,7 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
             self.addToGroup(circle)
         pos = self.to_scene.map(region.to_Qt(self.image)).at(0)
         self.setPos(pos)
-        self.set_style(draw_unit)
+        self.set_style(display_widget.draw_unit)
         self.set_scale()
 
     def set_scale(self):
@@ -391,22 +393,22 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
 
 
 class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, region, display_widget, draw_unit, active, *arg, **kw):
+    def __init__(self, region, display_widget, active, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
         self.initialise(region, display_widget, active)
-        self.draw_unit = draw_unit
+        self.draw_unit = display_widget.draw_unit
         polygon = self.to_scene.map(region.to_Qt(self.image))
         self.handles = []
         if self.active:
             for idx in range(polygon.count()):
-                handle = PolygonHandle(draw_unit, parent=self)
+                handle = PolygonHandle(display_widget.draw_unit, parent=self)
                 handle.setPos(polygon.at(idx))
                 self.handles.append(handle)
         self.setPolygon(polygon)
         self.bg_parts = [self]
         self.fg_parts = [QtWidgets.QGraphicsPolygonItem(parent=self)]
         self.fg_parts[0].setPolygon(polygon)
-        self.set_style(draw_unit)
+        self.set_style(display_widget.draw_unit)
         self.set_scale()
 
     @catch_all
@@ -500,6 +502,8 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         self.setDragMode(self.DragMode.ScrollHandDrag)
         self.boundaries = []
         self.image = None
+        # a dimension to set the size of elements such as line thickness
+        self.draw_unit = width_for_text(self, 'x') * 0.14
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -640,19 +644,17 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             self.boundaries = []
         if not regions:
             return
-        # a dimension to set the size of elements such as line thickness
-        draw_unit = width_for_text(self, 'x') * 0.14
         for n, region in enumerate(regions):
             active = n == idx
             boundary = region['Iptc4xmpExt:RegionBoundary']
             if boundary['Iptc4xmpExt:rbShape'] == 'rectangle':
-                boundary = RectangleRegion(region, self, draw_unit, active)
+                boundary = RectangleRegion(region, self, active)
             elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
-                boundary = CircleRegion(region, self, draw_unit, active)
+                boundary = CircleRegion(region, self, active)
             elif len(boundary['Iptc4xmpExt:rbVertices']) == 1:
-                boundary = PointRegion(region, self, draw_unit, active)
+                boundary = PointRegion(region, self, active)
             else:
-                boundary = PolygonRegion(region, self, draw_unit, active)
+                boundary = PolygonRegion(region, self, active)
             if active:
                 boundary.setZValue(100)
             scene.addItem(boundary)
