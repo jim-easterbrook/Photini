@@ -652,7 +652,11 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         items = self.boundaries()
         for item in items:
             item.setZValue(0)
+        active = None
+        # first ensure big regions don't hide small regions
         for m, item_m in enumerate(items):
+            if item_m.active:
+                active = item_m
             for item_n in items[m+1:]:
                 if item_m.collidesWithItem(
                         item_n, Qt.ItemSelectionMode.ContainsItemBoundingRect):
@@ -660,6 +664,12 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 elif item_n.collidesWithItem(
                         item_m, Qt.ItemSelectionMode.ContainsItemBoundingRect):
                     item_n.setZValue(max(item_n.zValue(), item_m.zValue() + 1))
+        # lastly make sure active item isn't hidden by any other item
+        if active:
+            for item in items:
+                if item != active and item.collidesWithItem(
+                        active, Qt.ItemSelectionMode.ContainsItemBoundingRect):
+                    active.setZValue(max(active.zValue(), item.zValue() + 1))
 
     def ensure_visible(self, boundary):
         if not boundary:
