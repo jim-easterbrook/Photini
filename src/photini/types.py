@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -1830,7 +1830,32 @@ class RegionBoundary(MD_Structure):
                         result[key] = round(result[key] / dims['stDim:w'], 4)
                     elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
                         result[key] = round(result[key] / dims['stDim:h'], 4)
-        return result
+        return RegionBoundary(result)
+
+    def to_pixel(self, dims):
+        if self['Iptc4xmpExt:rbUnit'] == 'pixel':
+            return self
+        if not dims:
+            return None
+        result = dict(self)
+        result['Iptc4xmpExt:rbUnit'] = 'pixel'
+        if result['Iptc4xmpExt:rbShape'] == 'polygon':
+            result['Iptc4xmpExt:rbVertices'] = []
+            for v in self['Iptc4xmpExt:rbVertices']:
+                result['Iptc4xmpExt:rbVertices'].append({
+                    'Iptc4xmpExt:rbX': round(
+                        v['Iptc4xmpExt:rbX'] * dims['stDim:w'], 0),
+                    'Iptc4xmpExt:rbY': round(
+                        v['Iptc4xmpExt:rbY'] * dims['stDim:h'], 0)})
+        else:
+            for key, value in result.items():
+                if value:
+                    if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbW',
+                               'Iptc4xmpExt:rbRx'):
+                        result[key] = round(result[key] * dims['stDim:w'], 0)
+                    elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
+                        result[key] = round(result[key] * dims['stDim:h'], 0)
+        return RegionBoundary(result)
 
     def to_Qt(self, image):
         # convert the boundary to a Qt polygon defining the shape in
