@@ -650,26 +650,17 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
 
     def stack_boundaries(self):
         items = self.boundaries()
+        # put active item at the front by default
         for item in items:
-            item.setZValue(0)
-        active = None
-        # first ensure big regions don't hide small regions
-        for m, item_m in enumerate(items):
-            if item_m.active:
-                active = item_m
-            for item_n in items[m+1:]:
-                if item_m.collidesWithItem(
-                        item_n, Qt.ItemSelectionMode.ContainsItemBoundingRect):
-                    item_m.setZValue(max(item_m.zValue(), item_n.zValue() + 1))
-                elif item_n.collidesWithItem(
-                        item_m, Qt.ItemSelectionMode.ContainsItemBoundingRect):
+            item.setZValue((0, len(items) * 2)[item.active])
+        # ensure big regions don't hide small regions
+        mode = Qt.ItemSelectionMode.ContainsItemBoundingRect
+        for item_m in items:
+            for item_n in items:
+                if item_n == item_m:
+                    continue
+                if item_n.collidesWithItem(item_m, mode):
                     item_n.setZValue(max(item_n.zValue(), item_m.zValue() + 1))
-        # lastly make sure active item isn't hidden by any other item
-        if active:
-            for item in items:
-                if item != active and item.collidesWithItem(
-                        active, Qt.ItemSelectionMode.ContainsItemBoundingRect):
-                    active.setZValue(max(active.zValue(), item.zValue() + 1))
 
     def ensure_visible(self, boundary):
         if not boundary:
