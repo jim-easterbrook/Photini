@@ -998,11 +998,6 @@ class RegionForm(QtWidgets.QScrollArea, StaticCompoundMixin):
 
 class QTabBar(QtWidgets.QTabBar):
     @catch_all
-    def contextMenuEvent(self, event):
-        self.parentWidget().context_menu(
-            self.tabAt(event.pos()), event.globalPos())
-
-    @catch_all
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
         size.setWidth(size.height() * 140 // 100)
@@ -1017,19 +1012,6 @@ class RegionTabs(QtWidgets.QTabWidget):
         self.currentChanged.connect(self.tab_changed)
         # image display area
         self.image_display = ImageDisplayWidget(self)
-
-    def context_menu(self, idx, pos):
-        md = self.image.metadata
-        menu = QtWidgets.QMenu()
-        delete_action = (
-            bool(md.image_region)
-            and menu.addAction(translate('RegionsTab', 'Delete region')))
-        action = execute(menu, pos)
-        if action == delete_action:
-            idx = self.currentIndex()
-            self.remove_tab(idx)
-            md.image_region = md.image_region.new_region(None, idx)
-            self.adjust_tabs(idx)
 
     def add_region(self, region):
         md = self.image.metadata
