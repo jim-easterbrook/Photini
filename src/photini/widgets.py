@@ -702,7 +702,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
 
     def set_value(self, value):
         self.choices = {}
-        self.lang.setEnabled(True)
+        self.lang.setEnabled(self.edit.isEnabled())
         self.value = MD_LangAlt(value, strip=False)
         # use current language, if available
         lang = self.lang.get_value()
