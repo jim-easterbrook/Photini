@@ -168,15 +168,11 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         if value.has_role('squareCropping'):
             self.constraint = 'square'
         elif value.has_role('landscapeCropping'):
-            if self.display.transform().isRotating():
-                self.constraint = 'portrait'
-            else:
-                self.constraint = 'landscape'
+            self.constraint = ('landscape', 'portrait')[
+                self.display.transform().isRotating()]
         elif value.has_role('portraitCropping'):
-            if self.display.transform().isRotating():
-                self.constraint = 'landscape'
-            else:
-                self.constraint = 'portrait'
+            self.constraint = ('portrait', 'landscape')[
+                self.display.transform().isRotating()]
         else:
             self.constraint = None
 
@@ -212,11 +208,27 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
 
     @classmethod
     def nearest_aspect(cls, width, height):
-        aspect = abs(width / height)
+        width = abs(width)
+        height = abs(height)
         for idx, boundary in enumerate(cls.ar_thresholds):
-            if aspect <= boundary:
+            if width <= height * boundary:
                 return cls.aspect_ratios[idx]
         return cls.aspect_ratios[-1]
+
+    def constrain(self, rect, enlarge=True):
+        w = rect.width()
+        h = rect.height()
+        if self.constraint == 'square':
+            aspect_ratio = 1.0
+        elif self.constraint == 'landscape':
+            aspect_ratio = self.nearest_aspect(w, h)
+        elif self.constraint == 'portrait':
+            aspect_ratio = 1.0 / self.nearest_aspect(h, w)
+        if enlarge == abs(w) < abs(h) * aspect_ratio:
+            rect.setWidth(h * aspect_ratio)
+        else:
+            rect.setHeight(w / aspect_ratio)
+        return rect
 
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
@@ -224,20 +236,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         rect = QtCore.QRectF(anchor, pos)
         if self.constraint:
             # enlarge rectangle to correct aspect ratio
-            w = rect.width()
-            h = rect.height()
-            if self.constraint == 'square':
-                aspect_ratio = 1.0
-            elif self.constraint == 'landscape':
-                aspect_ratio = self.nearest_aspect(w, h)
-            elif self.constraint == 'portrait':
-                aspect_ratio = 1.0 / self.nearest_aspect(h, w)
-            w_new = abs(h * aspect_ratio)
-            h_new = abs(w / aspect_ratio)
-            if h_new < abs(h):
-                rect.setWidth(w_new * abs(w) / w)
-            else:
-                rect.setHeight(h_new * abs(h) / h)
+            rect = self.constrain(rect)
             pos = rect.bottomRight()
         # constrain handle to scene bounds
         scene = self.scene()
@@ -251,14 +250,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
                 rect = QtCore.QRectF(anchor, pos)
                 if self.constraint:
                     # shrink rectangle to correct aspect ratio
-                    w = rect.width()
-                    h = rect.height()
-                    w_new = abs(h * aspect_ratio)
-                    h_new = abs(w / aspect_ratio)
-                    if h_new > abs(h):
-                        rect.setWidth(w_new * abs(w) / w)
-                    else:
-                        rect.setHeight(h_new * abs(h) / h)
+                    rect = self.constrain(rect, enlarge=False)
         self.setRect(rect.normalized())
         self.adjust_handles()
 
@@ -853,7 +845,6 @@ class RegionForm(QtWidgets.QScrollArea, StaticCompoundMixin):
     def __init__(self, image_display, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
-        self.setObjectName(translate('RegionsTab', 'This region'))
         self.image_display = image_display
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self.setWidget(QtWidgets.QWidget())
@@ -939,6 +930,8 @@ class RegionForm(QtWidgets.QScrollArea, StaticCompoundMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
+        self.setObjectName(translate(
+            'RegionsTab', 'Region {}').format(self.idx + 1))
         self.compound_context_menu(event)
 
     @QtSlot(dict)
