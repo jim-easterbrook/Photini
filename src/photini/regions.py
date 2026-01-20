@@ -22,7 +22,6 @@ import os
 import re
 
 from photini.pyqt import *
-from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (LangAltWidget, MultiStringEdit, SingleLineEdit,

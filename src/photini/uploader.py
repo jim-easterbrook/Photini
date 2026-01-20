@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -34,7 +34,6 @@ from photini import __version__
 from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import *
-from photini.pyqt import using_pyside
 from photini.widgets import Label, StartStopButton
 
 logger = logging.getLogger(__name__)

@@ -118,6 +118,7 @@ if using_pyside:
     qt_version_info = QtCore.__version_info__
     qt_version = '{} {}, Qt {}'.format(
         qt_lib, PySide_version, QtCore.__version__)
+    qbuffer_needs_bytes = True
 else:
     qt_version_info = namedtuple(
         'qt_version_info', ('major', 'minor', 'micro'))._make(
@@ -127,6 +128,12 @@ else:
     pyqt_version_info = namedtuple(
         'pyqt_version_info', ('major', 'minor', 'micro'))._make(
             map(int, QtCore.PYQT_VERSION_STR.split('.')[:3]))
+    if pyqt_version_info < (6, 0):
+        qbuffer_needs_bytes = False
+    else:
+        from PyQt6.sip import SIP_VERSION_STR
+        qbuffer_needs_bytes = tuple(
+            int(x) for x in SIP_VERSION_STR.split('.')) <= (13, 8)
     if pyqt_version_info < (5, 11):
         raise ImportError(
             'PyQt version {}.{}.{} is less than 5.11'.format(*pyqt_version_info))

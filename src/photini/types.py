@@ -28,7 +28,7 @@ import exiv2
 
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import *
-from photini.pyqt import qt_version_info, using_pyside
+from photini.pyqt import qbuffer_needs_bytes, qt_version_info
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 
 logger = logging.getLogger(__name__)
@@ -538,7 +538,7 @@ class MD_Thumbnail(MD_Dict):
     @staticmethod
     def image_from_data(data):
         # PySide insists on bytes, can't use memoryview or buffer interface
-        if using_pyside and not isinstance(data, bytes):
+        if qbuffer_needs_bytes and not isinstance(data, bytes):
             data = bytes(data)
         buf = QtCore.QBuffer()
         buf.setData(data)
