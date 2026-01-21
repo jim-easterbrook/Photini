@@ -305,6 +305,8 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.initialise(key, owner)
         for idx in range(4):
             self.handles.append(ResizeHandle(self.draw_unit, parent=self))
+        self.bg_parts = [self]
+        self.fg_parts = [QtWidgets.QGraphicsEllipseItem(parent=self)]
         centre = QtCore.QPointF(
             boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'])
         edge = centre + QtCore.QPointF(boundary['Iptc4xmpExt:rbRx'], 0.0)
@@ -313,10 +315,13 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         x = centre.x()
         y = centre.y()
         r = edge.x() - x
-        self.setRect(QtCore.QRectF(x - r, y - r, r * 2, r * 2))
-        self.bg_parts = [self]
-        self.fg_parts = [QtWidgets.QGraphicsEllipseItem(parent=self)]
-        self.adjust_handles()
+        rect = QtCore.QRectF(x - r, y - r, r * 2, r * 2)
+        self.setRect(rect)
+        self.fg_parts[0].setRect(rect)
+        self.handles[0].setPos(x - r, y)
+        self.handles[1].setPos(x, y - r)
+        self.handles[2].setPos(x, y + r)
+        self.handles[3].setPos(x + r, y)
         self.set_style()
         self.set_scale()
 
@@ -336,13 +341,20 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         x = anchor.x()
         y = anchor.y()
         if idx in (0, 3):
-            d = pos.x() - x
-            y -= d / 2.0
+            r = (pos.x() - x) / 2.0
+            x += r
+            self.handles[idx].setY(y)
+            self.handles[1].setPos(x, y - r)
+            self.handles[2].setPos(x, y + r)
         else:
-            d = pos.y() - y
-            x -= d / 2.0
-        self.setRect(QtCore.QRectF(x, y, d, d).normalized())
-        self.adjust_handles()
+            r = (pos.y() - y) / 2.0
+            y += r
+            self.handles[idx].setX(x)
+            self.handles[0].setPos(x - r, y)
+            self.handles[3].setPos(x + r, y)
+        rect = QtCore.QRectF(x - r, y - r, r * 2, r * 2).normalized()
+        self.setRect(rect)
+        self.fg_parts[0].setRect(rect)
 
     def get_value(self):
         rect = self.rect()
@@ -357,16 +369,6 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
             'Iptc4xmpExt:rbRx': rect.width() / 2.0,
             }
         return RegionBoundary(boundary)
-
-    def adjust_handles(self):
-        rect = self.rect()
-        self.fg_parts[0].setRect(rect)
-        centre = rect.center()
-        radius = rect.width() / 2.0
-        self.handles[0].setPos(centre.x() - radius, centre.y())
-        self.handles[1].setPos(centre.x(), centre.y() - radius)
-        self.handles[2].setPos(centre.x(), centre.y() + radius)
-        self.handles[3].setPos(centre.x() + radius, centre.y())
 
 
 class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
