@@ -155,12 +155,17 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         for idx in range(4):
             self.handles.append(ResizeHandle(self.draw_unit, parent=self))
-        self.setRect(self.display.to_scene.mapRect(QtCore.QRectF(
-            boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'],
-            boundary['Iptc4xmpExt:rbW'], boundary['Iptc4xmpExt:rbH'])))
         self.bg_parts = [self]
         self.fg_parts = [QtWidgets.QGraphicsRectItem(parent=self)]
-        self.adjust_handles()
+        rect = self.display.to_scene.mapRect(QtCore.QRectF(
+            boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'],
+            boundary['Iptc4xmpExt:rbW'], boundary['Iptc4xmpExt:rbH']))
+        self.setRect(rect)
+        self.fg_parts[0].setRect(rect)
+        self.handles[0].setPos(rect.topLeft())
+        self.handles[1].setPos(rect.topRight())
+        self.handles[2].setPos(rect.bottomLeft())
+        self.handles[3].setPos(rect.bottomRight())
         self.set_style()
         self.set_scale()
 
@@ -208,51 +213,69 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
 
     @classmethod
     def nearest_aspect(cls, width, height):
-        width = abs(width)
-        height = abs(height)
+        w = abs(width)
+        h = abs(height)
         for idx, boundary in enumerate(cls.ar_thresholds):
-            if width <= height * boundary:
-                return cls.aspect_ratios[idx]
-        return cls.aspect_ratios[-1]
+            if w <= h * boundary:
+                result = cls.aspect_ratios[idx]
+                break
+        else:
+            result = cls.aspect_ratios[-1]
+        if (width * height) < 0:
+            result = -result
+        return result
 
-    def constrain(self, rect, enlarge=True):
-        w = rect.width()
-        h = rect.height()
+    def constrain(self, pos, anchor, bounds=None):
+        x = anchor.x()
+        y = anchor.y()
+        w = pos.x() - x
+        h = pos.y() - y
         if self.constraint == 'square':
             aspect_ratio = 1.0
         elif self.constraint == 'landscape':
             aspect_ratio = self.nearest_aspect(w, h)
         elif self.constraint == 'portrait':
             aspect_ratio = 1.0 / self.nearest_aspect(h, w)
-        if enlarge == abs(w) < abs(h) * aspect_ratio:
-            rect.setWidth(h * aspect_ratio)
+        if abs(w) < abs(h * aspect_ratio):
+            w = h * aspect_ratio
         else:
-            rect.setHeight(w / aspect_ratio)
-        return rect
+            h = w / aspect_ratio
+        pos = QtCore.QPointF(x + w, y + h)
+        if bounds and not bounds.contains(pos):
+            w = min(max(pos.x(), bounds.left()), bounds.right()) - x
+            h = min(max(pos.y(), bounds.top()), bounds.bottom()) - y
+            if abs(w) < abs(h * aspect_ratio):
+                h = w / aspect_ratio
+            else:
+                w = h * aspect_ratio
+            pos = QtCore.QPointF(x + w, y + h)
+        return pos
 
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
         anchor = self.handles[3-idx].pos()
-        rect = QtCore.QRectF(anchor, pos)
-        if self.constraint:
-            # enlarge rectangle to correct aspect ratio
-            rect = self.constrain(rect)
-            pos = rect.bottomRight()
-        # constrain handle to scene bounds
         scene = self.scene()
-        if scene:
-            bounds = scene.sceneRect()
-            bounds.translate(-self.pos())
-            if not bounds.contains(pos):
-                pos = QtCore.QPointF(
-                    min(max(pos.x(), bounds.x()), bounds.right()),
-                    min(max(pos.y(), bounds.y()), bounds.bottom()))
-                rect = QtCore.QRectF(anchor, pos)
-                if self.constraint:
-                    # shrink rectangle to correct aspect ratio
-                    rect = self.constrain(rect, enlarge=False)
-        self.setRect(rect.normalized())
-        self.adjust_handles()
+        bounds = scene.sceneRect()
+        bounds.translate(-self.pos())
+        if self.constraint:
+            # force rectangle to correct aspect ratio
+            pos = self.constrain(pos, anchor, bounds=bounds)
+        elif not bounds.contains(pos):
+            # constrain handle to scene bounds
+            pos = QtCore.QPointF(
+                min(max(pos.x(), bounds.left()), bounds.right()),
+                min(max(pos.y(), bounds.top()), bounds.bottom()))
+        self.handles[idx].setPos(pos)
+        rect = QtCore.QRectF(anchor, pos)
+        if idx in (0, 3):
+            self.handles[1].setPos(rect.topRight())
+            self.handles[2].setPos(rect.bottomLeft())
+        else:
+            self.handles[0].setPos(rect.topRight())
+            self.handles[3].setPos(rect.bottomLeft())
+        rect = rect.normalized()
+        self.setRect(rect)
+        self.fg_parts[0].setRect(rect)
 
     def get_value(self):
         rect = self.rect()
@@ -267,14 +290,6 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
             'Iptc4xmpExt:rbH': rect.height(),
             }
         return RegionBoundary(boundary)
-
-    def adjust_handles(self):
-        rect = self.rect()
-        self.fg_parts[0].setRect(rect)
-        self.handles[0].setPos(rect.topLeft())
-        self.handles[1].setPos(rect.topRight())
-        self.handles[2].setPos(rect.bottomLeft())
-        self.handles[3].setPos(rect.bottomRight())
 
     aspect_ratios = (4.0 / 3.0, 3.0 / 2.0, 16.0 / 9.0)
 
