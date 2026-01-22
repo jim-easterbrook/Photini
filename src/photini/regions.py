@@ -958,6 +958,9 @@ class RegionForm(QtWidgets.QScrollArea, StaticCompoundMixin):
     def emit_value(self):
         self.new_value.emit(self.idx, self.get_value_dict())
 
+    def get_value(self):
+        return self.get_value_dict()
+
     @QtSlot()
     @catch_all
     def region_clicked(self):
@@ -1013,13 +1016,43 @@ class QTabBar(QtWidgets.QTabBar):
 
 
 class RegionTabs(QtWidgets.QTabWidget):
-    def __init__(self, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
+        self._key = key
+        self.app = QtWidgets.QApplication.instance()
         self.setTabBar(QTabBar())
         self.setFixedWidth(width_for_text(self, 'x' * 42))
         self.currentChanged.connect(self.tab_changed)
         # image display area
         self.image_display = ImageDisplayWidget(self)
+
+    def emit_value(self):
+        value = self.get_value_dict()[self._key]
+        md = self.image.metadata
+        while len(md.image_region) > len(value):
+            md.image_region = md.image_region.new_region(None, 0)
+        for idx in range(len(value)):
+            md.image_region = md.image_region.new_region(value[idx], idx)
+
+    def get_value_dict(self):
+        result = {}
+        for idx in range(self.count()):
+            result[idx] = self.widget(idx).get_value()
+        return {self._key: result}
+
+    def is_multiple(self):
+        return False
+
+    def set_value_dict(self, value):
+        value = value.get(self._key, {})
+        current = self.currentIndex()
+        blocked = self.blockSignals(True)
+        for idx in reversed(range(self.count())):
+            self.remove_tab(idx)
+        for idx in range(len(value)):
+            self.add_tab(idx, value[idx])
+        self.adjust_tabs(current)
+        self.blockSignals(blocked)
 
     def add_region(self, region):
         md = self.image.metadata
@@ -1123,7 +1156,9 @@ class RegionTabs(QtWidgets.QTabWidget):
         self.adjust_tabs(current)
 
 
-class TabWidget(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
+    clipboard_key = 'RegionsTab'
+
     @staticmethod
     def tab_name():
         return translate('RegionsTab', 'Image regions',
@@ -1139,10 +1174,15 @@ class TabWidget(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QHBoxLayout())
         # data display area
-        self.region_tabs = RegionTabs()
-        self.layout().addWidget(self.region_tabs)
+        self.widgets = {'region_tabs': RegionTabs('region_tabs')}
+        self.layout().addWidget(self.widgets['region_tabs'])
         # image display area
-        self.layout().addWidget(self.region_tabs.image_display, stretch=1)
+        self.layout().addWidget(
+            self.widgets['region_tabs'].image_display, stretch=1)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -1152,8 +1192,8 @@ class TabWidget(QtWidgets.QWidget):
 
     def new_selection(self, selection):
         if len(selection) != 1:
-            self.region_tabs.set_image(None)
+            self.widgets['region_tabs'].set_image(None)
             self.setEnabled(False)
             return
-        self.region_tabs.set_image(selection[0])
+        self.widgets['region_tabs'].set_image(selection[0])
         self.setEnabled(True)
