@@ -1040,7 +1040,9 @@ class AltitudeDisplay(DoubleSpinBox):
         self.label = Label(translate('AltitudeDisplay', 'Altitude'))
 
 
-class CompoundWidgetMixin(object):
+class ContextMenuMixin(object):
+    # adds a cut/copy/paste/delete context menu to any widget
+    # requires self.app and self.clipboard_key to be set
     def compound_context_menu(self, event, title=None):
         title = title or translate(
             'Widgets', 'All "{tab_name}" data').format(
@@ -1097,7 +1099,7 @@ class CompoundWidgetMixin(object):
         self.emit_value()
 
 
-class StaticCompoundMixin(CompoundWidgetMixin):
+class StaticCompoundMixin(ContextMenuMixin):
     # self.widgets is a non-changing dict of widgets
     def emit_value(self):
         for w in self.widgets.values():

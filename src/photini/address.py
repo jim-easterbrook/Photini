@@ -27,7 +27,7 @@ from photini.photinimap import fetch_key, GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
-    AltitudeDisplay, CompactButton, CompoundWidgetMixin, Label, LatLongDisplay,
+    AltitudeDisplay, CompactButton, ContextMenuMixin, Label, LatLongDisplay,
     LangAltWidget, SingleLineEdit, StaticCompoundMixin)
 
 logger = logging.getLogger(__name__)
@@ -261,7 +261,7 @@ class QTabBar(QtWidgets.QTabBar):
         self.context_menu.emit(event)
 
 
-class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
+class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin):
     new_value = QtSignal(int, dict)
     clipboard_key = 'LocationTabs'
 

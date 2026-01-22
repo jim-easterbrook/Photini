@@ -28,7 +28,7 @@ from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
 from photini.widgets import (
-    ComboBox, CompoundWidgetMixin, Label, MultiLineEdit, TextEditMixin,
+    ComboBox, ContextMenuMixin, Label, MultiLineEdit, TextEditMixin,
     StaticCompoundMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
@@ -515,7 +515,7 @@ class ListProxyModel(QtCore.QAbstractListModel):
 
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
-                             CompoundWidgetMixin):
+                             ContextMenuMixin):
     update_value = QtSignal(str, str)
 
     def __init__(self, key, data_model, *args, **kwds):
@@ -569,9 +569,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
 
     def get_value(self):
         return self._value
-
-    def get_value_dict(self):
-        return {self._key: self._value}
 
     def set_value(self, value):
         if self._is_multiple:
