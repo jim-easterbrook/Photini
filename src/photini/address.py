@@ -253,14 +253,6 @@ class LocationInfo(QtWidgets.QScrollArea, StaticCompoundMixin):
         return new_value
 
 
-class QTabBar(QtWidgets.QTabBar):
-    context_menu = QtSignal(QtGui.QContextMenuEvent)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu.emit(event)
-
-
 class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin):
     new_value = QtSignal(int, dict)
     clipboard_key = 'LocationTabs'
@@ -269,9 +261,7 @@ class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin):
         super(AddressTabs, self).__init__(*args, **kw)
         self._key = key
         self.app = QtWidgets.QApplication.instance()
-        self.setTabBar(QTabBar())
         self.setElideMode(Qt.TextElideMode.ElideLeft)
-        self.setMovable(True)
         self.setEnabled(False)
         self.spare_widgets = []
 
@@ -382,7 +372,6 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
         # location info
         self.widgets['locations'] = AddressTabs('locations')
         self.widgets['locations'].new_value.connect(self.new_location)
-        self.widgets['locations'].tabBar().tabMoved.connect(self.location_tab_moved)
         self.layout().addWidget(self.widgets['locations'], stretch=1)
 
     @catch_all
@@ -394,29 +383,6 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
 
     def do_not_close(self):
         return False
-
-    @QtSlot(int, int)
-    @catch_all
-    def location_tab_moved(self, idx_a, idx_b):
-        self.pending_move = idx_a, idx_b
-        # do actual swap when idle to avoid seg fault
-        QtCore.QTimer.singleShot(0, self._location_tab_moved)
-
-    @QtSlot()
-    @catch_all
-    def _location_tab_moved(self):
-        idx_a, idx_b = self.pending_move
-        # swap data
-        for image in self.app.image_list.get_selected_images():
-            temp_a = self._get_location(image, idx_a)
-            temp_b = self._get_location(image, idx_b)
-            self._set_location(image, idx_a, temp_b)
-            self._set_location(image, idx_b, temp_a)
-        # adjust tab names
-        for idx in range(min(idx_a, idx_b), max(idx_a, idx_b) + 1):
-            self.widgets['locations'].set_tab_text(idx)
-        # display data
-        self.display_location()
 
     def _get_location(self, image, idx):
         if idx == 0:
@@ -451,8 +417,8 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
 
     @QtSlot()
     @catch_all
-    def display_location(self):
-        images = self.app.image_list.get_selected_images()
+    def display_location(self, images=[]):
+        images = images or self.app.image_list.get_selected_images()
         # get required number of tabs
         count = 0
         for image in images:
@@ -474,7 +440,7 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
             values.append(image.metadata.gps_info)
         self.widgets['coords'].set_value_list(values)
         self.auto_location.setEnabled(bool(self.widgets['coords'].get_value()))
-        self.display_location()
+        self.display_location(images=selection)
 
     @QtSlot()
     @catch_all
@@ -482,5 +448,6 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
         images = self.app.image_list.get_selected_images()
         location = self.geocoder.get_address(self.widgets['coords'].get_value())
         if location:
-            self.new_location(
-                self.widgets['locations'].currentIndex(), location, images)
+            widget = self.widgets['locations'].currentWidget()
+            widget.set_value_dict(location)
+            widget.emit_value()
