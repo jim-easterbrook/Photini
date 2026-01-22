@@ -278,7 +278,7 @@ class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
     @catch_all
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=translate(
-            'AddressTab', "All locations' data"))
+            'AddressTab', "All locations' address data"))
 
     def emit_value(self):
         for idx in range(self.count()):
@@ -336,7 +336,7 @@ class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
         self.setTabText(idx, text)
         self.setTabToolTip(idx, '<p>' + tip + '</p>')
         self.widget(idx).context_menu_title = translate(
-            'AddressTab', 'All "{tab}" location data').format(tab=text)
+            'AddressTab', 'All "{tab}" address data').format(tab=text)
 
 
 class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):

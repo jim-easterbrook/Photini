@@ -1060,8 +1060,7 @@ class CompoundWidgetMixin(object):
                      'Paste': self.do_paste,
                      'Delete': self.do_delete}
         menu = QtWidgets.QMenu()
-        menu.addAction(title)
-        menu.addSeparator()
+        menu.addSection(title)
         for key in ('Cut', 'Copy', 'Paste', 'Delete'):
             action = menu.addAction(QtGui.QIcon.fromTheme(icons[key]),
                                     translate('QShortcut', key), functions[key])
