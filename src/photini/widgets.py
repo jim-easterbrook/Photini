@@ -1041,7 +1041,10 @@ class AltitudeDisplay(DoubleSpinBox):
 
 
 class CompoundWidgetMixin(object):
-    def compound_context_menu(self, event):
+    def compound_context_menu(self, event, title=None):
+        title = title or translate(
+            'Widgets', 'All "{tab_name}" data').format(
+                tab_name=self.tab_short_name())
         if qt_version_info >= (6, 7):
             icons = {'Cut': QtGui.QIcon.ThemeIcon.EditCut,
                      'Copy': QtGui.QIcon.ThemeIcon.EditCopy,
@@ -1057,10 +1060,7 @@ class CompoundWidgetMixin(object):
                      'Paste': self.do_paste,
                      'Delete': self.do_delete}
         menu = QtWidgets.QMenu()
-        if self.objectName():
-            menu.addAction(self.objectName())
-        else:
-            menu.addAction(translate('Widgets', 'All tab metadata'))
+        menu.addAction(title)
         menu.addSeparator()
         for key in ('Cut', 'Copy', 'Paste', 'Delete'):
             action = menu.addAction(QtGui.QIcon.fromTheme(icons[key]),

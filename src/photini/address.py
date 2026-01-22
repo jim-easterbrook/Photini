@@ -244,7 +244,7 @@ class LocationInfo(QtWidgets.QScrollArea, StaticCompoundMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
+        self.compound_context_menu(event, title=self.context_menu_title)
 
     def get_value(self):
         new_value = {}
@@ -268,7 +268,6 @@ class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
     def __init__(self, key, *args, **kw):
         super(AddressTabs, self).__init__(*args, **kw)
         self._key = key
-        self.setObjectName(translate('AddressTab', 'All locations'))
         self.app = QtWidgets.QApplication.instance()
         self.setTabBar(QTabBar())
         self.setElideMode(Qt.TextElideMode.ElideLeft)
@@ -278,7 +277,8 @@ class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
+        self.compound_context_menu(event, title=translate(
+            'AddressTab', "All locations' data"))
 
     def emit_value(self):
         for idx in range(self.count()):
@@ -335,8 +335,8 @@ class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
                             ' which is shown in this image.')
         self.setTabText(idx, text)
         self.setTabToolTip(idx, '<p>' + tip + '</p>')
-        self.widget(idx).setObjectName(translate(
-            'AddressTab', '{tab} location details').format(tab=text))
+        self.widget(idx).context_menu_title = translate(
+            'AddressTab', 'All "{tab}" location data').format(tab=text)
 
 
 class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):

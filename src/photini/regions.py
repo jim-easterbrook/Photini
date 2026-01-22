@@ -947,9 +947,8 @@ class RegionForm(QtWidgets.QScrollArea, StaticCompoundMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.setObjectName(translate(
-            'RegionsTab', 'Region {}').format(self.idx + 1))
-        self.compound_context_menu(event)
+        self.compound_context_menu(event, title=translate(
+            'RegionsTab', 'All "region {}" data').format(self.idx + 1))
 
     @QtSlot(dict)
     @catch_all

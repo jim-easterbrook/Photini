@@ -383,7 +383,8 @@ class PhotiniMap(QtWidgets.QWidget, StaticCompoundMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
+        self.compound_context_menu(event, title=translate(
+            'PhotiniMap', 'All "GPS" data'))
 
     def reset_map(self):
         self.map_loaded = 0     # not loaded

@@ -536,7 +536,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
+        self.compound_context_menu(event, title=translate(
+            'KeywordsTab', 'All hierarchical keywords'))
 
     def set_rows(self, rows=1):
         # layout includes a spacer, which is always the last row
@@ -654,8 +655,6 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
         # hierarchical keywords
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
-        self.widgets['nested_tags'].setObjectName(
-            translate('KeywordsTab', 'Hierarchical keywords'))
         self.widgets['nested_tags'].new_value.connect(self.new_value)
         self.widgets['nested_tags'].update_value.connect(self.update_nested)
         label = Label(self.widgets['nested_tags'].objectName(), lines=2)
