@@ -1043,6 +1043,8 @@ class AltitudeDisplay(DoubleSpinBox):
 class ContextMenuMixin(object):
     # adds a cut/copy/paste/delete context menu to any widget
     # requires self.app and self.clipboard_key to be set
+    multi_page = False
+
     def compound_context_menu(self, event, title=None):
         title = title or translate(
             'Widgets', 'All "{tab_name}" data').format(
@@ -1061,6 +1063,10 @@ class ContextMenuMixin(object):
                      'Copy': self.do_copy,
                      'Paste': self.do_paste,
                      'Delete': self.do_delete}
+        if self.multi_page:
+            get_value = self.get_value
+        else:
+            get_value = self.get_value_dict
         menu = QtWidgets.QMenu()
         menu.addSection(title)
         for key in ('Cut', 'Copy', 'Paste', 'Delete'):
@@ -1069,9 +1075,9 @@ class ContextMenuMixin(object):
             if key == 'Paste':
                 action.setEnabled(self.clipboard_key in self.app.clipboard)
             elif key == 'Delete':
-                action.setEnabled(any(self.get_value_dict().values()))
+                action.setEnabled(any(get_value().values()))
             else:
-                action.setEnabled(any(self.get_value_dict().values())
+                action.setEnabled(any(get_value().values())
                                   and not self.is_multiple())
         execute(menu, event.globalPos())
 
@@ -1084,18 +1090,26 @@ class ContextMenuMixin(object):
     @QtSlot()
     @catch_all
     def do_copy(self):
-        self.app.clipboard[self.clipboard_key] = self.get_value_dict()
+        if self.multi_page:
+            value = self.get_value()
+        else:
+            value = self.get_value_dict()
+        self.app.clipboard[self.clipboard_key] = value
 
     @QtSlot()
     @catch_all
     def do_paste(self):
-        self.set_value_dict(self.app.clipboard[self.clipboard_key])
+        value = self.app.clipboard[self.clipboard_key]
+        if self.multi_page:
+            self.set_value(value)
+        else:
+            self.set_value_dict(value)
         self.emit_value()
 
     @QtSlot()
     @catch_all
     def do_delete(self):
-        self.set_value_dict(None)
+        self.set_value_dict({})
         self.emit_value()
 
 
