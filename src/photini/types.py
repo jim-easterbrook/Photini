@@ -1929,6 +1929,9 @@ class ImageRegionItem(MD_Structure):
         'dc:description': MD_LangAlt,
         }
 
+    def __bool__(self):
+        return bool(self['Iptc4xmpExt:RegionBoundary'])
+
     def merge(self, info, tag, other):
         result = super(ImageRegionItem, self).merge(info, tag, other)
         for old_key, new_key in (('mwg-rs:Name', 'dc:description'),
@@ -2237,18 +2240,10 @@ class MD_ImageRegion(MD_Structure):
         return MD_ImageRegion({
             'AppliedToDimensions': dimensions, 'RegionList': regions})
 
-    def new_region(self, region, idx=None):
-        if idx is None:
-            idx = len(self)
+    def set_regions(self, regions):
         dimensions = dict(self['AppliedToDimensions'])
-        regions = list(self)
-        if region:
-            if idx < len(regions):
-                regions[idx] = region
-            else:
-                regions.append(region)
-        elif idx < len(regions):
-            regions.pop(idx)
+        regions = [ImageRegionItem(x) for x in regions]
+        regions = [x for x in regions if x]
         return MD_ImageRegion({
             'AppliedToDimensions': dimensions, 'RegionList': regions})
 
