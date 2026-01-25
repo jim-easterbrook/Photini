@@ -52,9 +52,7 @@ class WidgetMixin(object):
         self.setEnabled(True)
         choices = []
         for value_dict in values:
-            value = None
-            if self._key in value_dict:
-                value = value_dict[self._key]
+            value = value_dict.get(self._key) or None
             if value not in choices:
                 choices.append(value)
         if len(choices) > 1:
