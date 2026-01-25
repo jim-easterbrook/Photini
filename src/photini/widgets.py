@@ -1109,7 +1109,10 @@ class ContextMenuMixin(object):
     @QtSlot()
     @catch_all
     def do_delete(self):
-        self.set_value_dict({})
+        if self.multi_page:
+            self.set_value({})
+        else:
+            self.set_value_dict({})
         self.emit_value()
 
 

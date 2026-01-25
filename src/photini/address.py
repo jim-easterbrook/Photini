@@ -28,7 +28,7 @@ from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
     AltitudeDisplay, CompactButton, ContextMenuMixin, Label, LatLongDisplay,
-    LangAltWidget, SingleLineEdit, StaticCompoundMixin, WidgetMixin)
+    LangAltWidget, SingleLineEdit, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -277,7 +277,7 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
 
     def get_value(self):
         result = {}
-        for idx in range(self.count() - 1):
+        for idx in range(self.count()):
             result.update(self.widget(idx).get_value_dict())
         return result
 
@@ -288,8 +288,9 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
         return False
 
     def set_value(self, value):
-        self.set_tab_count(len(value) + 1)
-        for idx in range(self.count() - 1):
+        value = value or {}
+        self.set_tab_count(len(value))
+        for idx in range(self.count()):
             self.widget(idx).set_value_dict(value)
 
     def paste_address(self, address):
@@ -297,11 +298,14 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
         widget.set_value(address)
         widget.emit_value()
 
-    def set_tab_count(self, count):
-        if self.currentIndex() >= count:
-            self.setCurrentIndex(count - 1)
+    def set_tab_count(self, data_len):
+        # minimum is camera location plus one empty data location
+        data_len += 1
+        data_len = max(data_len, 2)
+        if self.currentIndex() >= data_len:
+            self.setCurrentIndex(data_len - 1)
         idx = self.count()
-        while idx < count:
+        while idx < data_len:
             if idx == 0:
                 text = translate('AddressTab', 'camera')
                 tip = translate('AddressTab', 'Enter the details about a'
@@ -317,7 +321,7 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
             self.addTab(widget, text)
             self.setTabToolTip(idx, '<p>' + tip + '</p>')
             idx += 1
-        while idx > count:
+        while idx > data_len:
             idx -= 1
             self.removeTab(idx)
 
@@ -326,8 +330,10 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
     def update_value(self, value):
         self.new_value.emit({self._key: value})
 
-class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
+
+class TabWidget(QtWidgets.QWidget, ContextMenuMixin):
     clipboard_key = 'AddressTab'
+    multi_page = True
 
     @staticmethod
     def tab_name():
@@ -344,7 +350,6 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
         self.app = QtWidgets.QApplication.instance()
         self.geocoder = OpenCage(parent=self)
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.widgets = {}
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
@@ -367,9 +372,14 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
         self.layout().addLayout(left_side)
         ## right side
         # location info
-        self.widgets['locations'] = AddressTabs()
-        self.widgets['locations'].new_value.connect(self.update_value)
-        self.layout().addWidget(self.widgets['locations'], stretch=1)
+        self.locations_widget = AddressTabs()
+        self.locations_widget.new_value.connect(self.update_value)
+        self.layout().addWidget(self.locations_widget, stretch=1)
+        # as there is only one data widget, adopt its methods for cut/paste
+        self.emit_value = self.locations_widget.emit_value
+        self.get_value = self.locations_widget.get_value
+        self.is_multiple = self.locations_widget.is_multiple
+        self.set_value = self.locations_widget.set_value
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -419,21 +429,21 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
 
     def display_location(self, images):
         # get required number of tabs
-        count = 0
+        data_len = 0
         for image in images:
             if image.metadata.location_shown:
-                count = max(count, len(image.metadata.location_shown))
-        count += 2
-        self.widgets['locations'].set_tab_count(count)
+                data_len = max(data_len, len(image.metadata.location_shown))
+        data_len += 1
+        self.locations_widget.set_tab_count(data_len)
         # display data
-        for idx in range(count):
-            widget = self.widgets['locations'].widget(idx)
+        for idx in range(self.locations_widget.count()):
+            widget = self.locations_widget.widget(idx)
             values = [self._get_location(image, idx) for image in images]
             for key in widget.widgets:
                 widget.widgets[key].set_value_list(values)
 
     def new_selection(self, selection):
-        self.widgets['locations'].setEnabled(bool(selection))
+        self.locations_widget.setEnabled(bool(selection))
         values = []
         for image in selection:
             values.append(image.metadata.gps_info)
@@ -446,4 +456,4 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
     def get_address(self):
         location = self.geocoder.get_address(self.coords_widget.get_value())
         if location:
-            self.widgets['locations'].paste_address(location)
+            self.locations_widget.paste_address(location)
