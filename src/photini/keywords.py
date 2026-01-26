@@ -516,7 +516,6 @@ class ListProxyModel(QtCore.QAbstractListModel):
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                              ContextMenuMixin):
     update_value = QtSignal(str, str)
-    multi_page = True
 
     def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
@@ -567,13 +566,12 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         self.update_value.emit(old_value, new_value)
 
     def get_value(self):
-        # only used for cut/paste, expects a dict of values
-        return dict(enumerate(self._value))
+        return self._value
+
+    def has_value(self):
+        return bool(self._value)
 
     def set_value(self, value):
-        if isinstance(value, dict):
-            # cut/paste delivers a dict of values
-            value = list(value.values())
         if self._is_multiple:
             self._is_multiple = False
         self._value = list(value or [])
@@ -620,7 +618,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
 
 class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'KeywordsTab'
-    multi_page = True
 
     @staticmethod
     def tab_name():
@@ -825,20 +822,20 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     @QtSlot(dict)
     @catch_all
     def sw_new_value(self, value):
-        key, value = list(value.items())[0]
         images = self.app.image_list.get_selected_images()
-        for image in images:
-            setattr(image.metadata, key, value)
-        if key == 'keywords':
-            self.sync_nested_from_flat(images, remove=True)
-            self.sync_flat_from_nested(images)
-            self._update_widget('nested_tags', images)
-            self.widgets['keywords'].update_league_table(images)
-        elif key == 'nested_tags':
-            self.sync_flat_from_nested(images, remove=True)
-            self._update_widget('keywords', images)
-            self.widgets['keywords'].update_league_table(images)
-        self._update_widget(key, images)
+        for key, value in value.items():
+            for image in images:
+                setattr(image.metadata, key, value)
+            if key == 'keywords':
+                self.sync_nested_from_flat(images, remove=True)
+                self.sync_flat_from_nested(images)
+                self._update_widget('nested_tags', images)
+                self.widgets['keywords'].update_league_table(images)
+            elif key == 'nested_tags':
+                self.sync_flat_from_nested(images, remove=True)
+                self._update_widget('keywords', images)
+                self.widgets['keywords'].update_league_table(images)
+            self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:

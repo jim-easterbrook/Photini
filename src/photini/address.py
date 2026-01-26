@@ -171,7 +171,6 @@ class OpenCage(GeocoderBase):
 
 class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'LocationInfo'
-    multi_page = True
 
     def __init__(self, idx, menu_title, *args, **kw):
         super(LocationInfo, self).__init__(*args, **kw)
@@ -301,7 +300,6 @@ class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
 
 class TabWidget(QtWidgets.QWidget, ContextMenuMixin):
     clipboard_key = 'AddressTab'
-    multi_page = True
 
     @staticmethod
     def tab_name():

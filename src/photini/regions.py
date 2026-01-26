@@ -862,7 +862,6 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
 class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     select_region = QtSignal(int)
     clipboard_key = 'RegionForm'
-    multi_page = True
 
     def __init__(self, idx, image_display, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
@@ -1146,7 +1145,6 @@ class RegionTabs(QtWidgets.QTabWidget, WidgetMixin):
 
 class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'RegionsTab'
-    multi_page = True
 
     @staticmethod
     def tab_name():

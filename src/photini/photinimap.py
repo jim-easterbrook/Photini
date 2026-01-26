@@ -285,7 +285,6 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
 class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'PhotiniMap'
     use_layout_direction = True
-    multi_page = True
 
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)

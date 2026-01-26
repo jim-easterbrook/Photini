@@ -107,7 +107,6 @@ class RightsDropDown(DropDownSelector):
 
 class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'OwnerTab'
-    multi_page = True
 
     @staticmethod
     def tab_name():

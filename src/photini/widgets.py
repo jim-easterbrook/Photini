@@ -68,6 +68,9 @@ class CompoundWidgetMixin(WidgetMixin):
             result.update(widget.get_value_dict())
         return result
 
+    def has_value(self):
+        return any(bool(w.get_value()) for w in self.sub_widgets())
+
     def is_multiple(self):
         return any(w.is_multiple() for w in self.sub_widgets())
 
@@ -1062,8 +1065,6 @@ class AltitudeDisplay(DoubleSpinBox):
 class ContextMenuMixin(object):
     # adds a cut/copy/paste/delete context menu to any widget
     # requires self.app and self.clipboard_key to be set
-    multi_page = False
-
     def compound_context_menu(self, event, title=None):
         title = title or translate(
             'Widgets', 'All "{tab_name}" data').format(
@@ -1082,10 +1083,6 @@ class ContextMenuMixin(object):
                      'Copy': self.do_copy,
                      'Paste': self.do_paste,
                      'Delete': self.do_delete}
-        if self.multi_page:
-            get_value = self.get_value
-        else:
-            get_value = self.get_value_dict
         menu = QtWidgets.QMenu()
         menu.addSection(title)
         for key in ('Cut', 'Copy', 'Paste', 'Delete'):
@@ -1094,10 +1091,9 @@ class ContextMenuMixin(object):
             if key == 'Paste':
                 action.setEnabled(self.clipboard_key in self.app.clipboard)
             elif key == 'Delete':
-                action.setEnabled(any(get_value().values()))
+                action.setEnabled(self.has_value())
             else:
-                action.setEnabled(any(get_value().values())
-                                  and not self.is_multiple())
+                action.setEnabled(self.has_value() and not self.is_multiple())
         execute(menu, event.globalPos())
 
     @QtSlot()
@@ -1109,11 +1105,7 @@ class ContextMenuMixin(object):
     @QtSlot()
     @catch_all
     def do_copy(self):
-        if self.multi_page:
-            value = self.get_value()
-        else:
-            value = self.get_value_dict()
-        self.app.clipboard[self.clipboard_key] = value
+        self.app.clipboard[self.clipboard_key] = self.get_value()
 
     @QtSlot()
     @catch_all
@@ -1126,8 +1118,5 @@ class ContextMenuMixin(object):
         self.paste_value({})
 
     def paste_value(self, value):
-        if self.multi_page:
-            self.set_value(value)
-        else:
-            self.set_value_dict(value)
+        self.set_value(value)
         self.emit_value()

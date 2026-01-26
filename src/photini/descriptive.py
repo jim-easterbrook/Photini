@@ -101,7 +101,6 @@ class RatingWidget(QtWidgets.QWidget):
 
 class TabWidget(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'DescriptiveTab'
-    multi_page = True
 
     @staticmethod
     def tab_name():
