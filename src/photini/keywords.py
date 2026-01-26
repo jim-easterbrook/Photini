@@ -27,9 +27,8 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
-from photini.widgets import (
-    ComboBox, ContextMenuMixin, Label, MultiLineEdit, TextEditMixin,
-    StaticCompoundMixin, WidgetMixin)
+from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
+                             Label, MultiLineEdit, TextEditMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -615,8 +614,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         execute(dialog)
 
 
-class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
+class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'KeywordsTab'
+    multi_page = True
 
     @staticmethod
     def tab_name():
@@ -646,13 +646,13 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.')))
-        self.widgets['keywords'].new_value.connect(self.new_value)
+        self.widgets['keywords'].new_value.connect(self.sw_new_value)
         layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
         layout.addWidget(self.widgets['keywords'], 0, 1)
         # hierarchical keywords
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
-        self.widgets['nested_tags'].new_value.connect(self.new_value)
+        self.widgets['nested_tags'].new_value.connect(self.sw_new_value)
         self.widgets['nested_tags'].update_value.connect(self.update_nested)
         label = Label(self.widgets['nested_tags'].objectName(), lines=2)
         layout.addWidget(label, 1, 0)
@@ -672,6 +672,9 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
     @catch_all
     def contextMenuEvent(self, event):
         self.compound_context_menu(event)
+
+    def sub_widgets(self):
+        return self.widgets.values()
 
     def sync_nested_from_flat(self, images, remove=False, silent=False):
         for image in images:
@@ -810,9 +813,14 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
         self._update_widget('keywords', images)
         self.widgets['keywords'].update_league_table(images)
 
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        self.sw_new_value(self.get_value())
+
     @QtSlot(dict)
     @catch_all
-    def new_value(self, value):
+    def sw_new_value(self, value):
         key, value = list(value.items())[0]
         images = self.app.image_list.get_selected_images()
         for image in images:

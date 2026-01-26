@@ -36,8 +36,8 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
                           QtWebEngineWidgets, qt_version_info)
-from photini.widgets import (AltitudeDisplay, ComboBox, Label, LatLongDisplay,
-                             StaticCompoundMixin)
+from photini.widgets import (AltitudeDisplay, ComboBox, CompoundWidgetMixin,
+                             ContextMenuMixin, Label, LatLongDisplay)
 
 
 logger = logging.getLogger(__name__)
@@ -282,9 +282,10 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
             event.acceptProposedAction()
 
 
-class PhotiniMap(QtWidgets.QWidget, StaticCompoundMixin):
+class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'PhotiniMap'
     use_layout_direction = True
+    multi_page = True
 
     def __init__(self, parent=None):
         super(PhotiniMap, self).__init__(parent)
@@ -315,7 +316,7 @@ class PhotiniMap(QtWidgets.QWidget, StaticCompoundMixin):
         # altitude
         self.widgets['alt'] = AltitudeDisplay()
         left_side.addWidget(self.widgets['alt'].label, 1, 0)
-        self.widgets['alt'].new_value.connect(self.new_value)
+        self.widgets['alt'].new_value.connect(self.sw_new_value)
         left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
             self.controls['get_altitude'] = QtWidgets.QPushButton(
@@ -385,6 +386,9 @@ class PhotiniMap(QtWidgets.QWidget, StaticCompoundMixin):
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=translate(
             'PhotiniMap', 'All "GPS" data'))
+
+    def sub_widgets(self):
+        return self.widgets.values()
 
     def reset_map(self):
         self.map_loaded = 0     # not loaded
@@ -535,16 +539,21 @@ class PhotiniMap(QtWidgets.QWidget, StaticCompoundMixin):
         images = [self.app.image_list.get_image(path)
                   for path in self.dropped_images]
         self.dropped_images = []
-        self.new_value(value, images=images, adjust_map=False)
+        self.sw_new_value(value, images=images, adjust_map=False)
 
     @QtSlot(dict)
     @catch_all
     def new_latlon(self, value):
-        self.new_value(value, adjust_map=True)
+        self.sw_new_value(value, adjust_map=True)
+
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        self.sw_new_value(self.get_value(), adjust_map=True)
 
     @QtSlot(dict)
     @catch_all
-    def new_value(self, value, images=[], adjust_map=False):
+    def sw_new_value(self, value, images=[], adjust_map=False):
         images = images or self.app.image_list.get_selected_images()
         new_value = self.widgets['latlon'].get_value_dict()
         new_value.update(self.widgets['alt'].get_value_dict())
@@ -747,7 +756,7 @@ class PhotiniMap(QtWidgets.QWidget, StaticCompoundMixin):
         altitude = self.geocoder.get_altitude(
             self.widgets['latlon'].get_value())
         if altitude is not None:
-            self.new_value(
+            self.sw_new_value(
                 {'exif:GPSAltitude': round(altitude, 1)}, images=images)
 
     @QtSlot()

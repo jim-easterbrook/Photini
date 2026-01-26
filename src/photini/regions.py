@@ -26,7 +26,7 @@ from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, LangAltWidget, MultiStringEdit,
-    SingleLineEdit, StaticCompoundMixin, WidgetMixin)
+    SingleLineEdit, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -1144,8 +1144,9 @@ class RegionTabs(QtWidgets.QTabWidget, WidgetMixin):
             self.update_display(current=idx)
 
 
-class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
+class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'RegionsTab'
+    multi_page = True
 
     @staticmethod
     def tab_name():
@@ -1171,6 +1172,14 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
     @catch_all
     def contextMenuEvent(self, event):
         self.compound_context_menu(event)
+
+    def sub_widgets(self):
+        return [self.widgets['region_tabs']]
+
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        pass
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())

@@ -20,8 +20,9 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.widgets import (Label, LangAltWidget, MultiLineEdit,
-                             SingleLineEdit, Slider, StaticCompoundMixin)
+from photini.widgets import (
+    CompoundWidgetMixin, ContextMenuMixin, Label, LangAltWidget, MultiLineEdit,
+    SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -98,8 +99,9 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setPlaceholderText(self.multiple_values)
 
 
-class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
+class TabWidget(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'DescriptiveTab'
+    multi_page = True
 
     @staticmethod
     def tab_name():
@@ -128,7 +130,7 @@ class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
         self.widgets['title'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.')))
-        self.widgets['title'].new_value.connect(self.new_value)
+        self.widgets['title'].new_value.connect(self.sw_new_value)
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
@@ -139,7 +141,7 @@ class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
         self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
             ' of the contents of the image.')))
-        self.widgets['headline'].new_value.connect(self.new_value)
+        self.widgets['headline'].new_value.connect(self.sw_new_value)
         layout.addRow(translate('DescriptiveTab', 'Headline'),
                       self.widgets['headline'])
         # description
@@ -151,7 +153,7 @@ class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
             ' and why of what is happening in this image, this might include'
             ' names of people, and/or their role in the action that is taking'
             ' place within the image.')))
-        self.widgets['description'].new_value.connect(self.new_value)
+        self.widgets['description'].new_value.connect(self.sw_new_value)
         layout.addRow(translate('DescriptiveTab', 'Description / Caption'),
                       self.widgets['description'])
         # alt text
@@ -163,7 +165,7 @@ class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
             'DescriptiveTab', 'Enter text describing the appearance of the'
             ' image from a visual perspective, focusing on details that are'
             ' relevant to the purpose and meaning of the image.')))
-        self.widgets['alt_text'].new_value.connect(self.new_value)
+        self.widgets['alt_text'].new_value.connect(self.sw_new_value)
         layout.addRow(
             Label(translate('DescriptiveTab', 'Alt Text (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text'])
@@ -177,7 +179,7 @@ class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
             ' This property does not have a character limitation and is not'
             ' required if the Alt Text (Accessibility) field sufficiently'
             ' describes the image..')))
-        self.widgets['alt_text_ext'].new_value.connect(self.new_value)
+        self.widgets['alt_text_ext'].new_value.connect(self.sw_new_value)
         layout.addRow(
             Label(translate('DescriptiveTab',
                             'Extended Description (Accessibility)'),
@@ -188,12 +190,12 @@ class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
         self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
             ' image. Separate them with ";" characters.')))
-        self.widgets['people'].new_value.connect(self.new_value)
+        self.widgets['people'].new_value.connect(self.sw_new_value)
         layout.addRow(translate('DescriptiveTab', 'Person(s) shown'),
                       self.widgets['people'])
         # rating
         self.widgets['rating'] = RatingWidget('rating')
-        self.widgets['rating'].new_value.connect(self.new_value)
+        self.widgets['rating'].new_value.connect(self.sw_new_value)
         layout.addRow(translate('DescriptiveTab', 'Rating'),
                       self.widgets['rating'])
         # disable until an image is selected
@@ -203,20 +205,28 @@ class TabWidget(QtWidgets.QScrollArea, StaticCompoundMixin):
     def contextMenuEvent(self, event):
         self.compound_context_menu(event)
 
+    def sub_widgets(self):
+        return self.widgets.values()
+
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
 
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        self.sw_new_value(self.get_value())
+
     @QtSlot(dict)
     @catch_all
-    def new_value(self, value):
-        key, value = list(value.items())[0]
+    def sw_new_value(self, value):
         images = self.app.image_list.get_selected_images()
-        for image in images:
-            setattr(image.metadata, key, value)
-        self._update_widget(key, images)
+        for key, value in value.items():
+            for image in images:
+                setattr(image.metadata, key, value)
+            self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:

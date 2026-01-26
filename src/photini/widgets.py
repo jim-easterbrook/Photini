@@ -1131,23 +1131,3 @@ class ContextMenuMixin(object):
         else:
             self.set_value_dict(value)
         self.emit_value()
-
-
-class StaticCompoundMixin(ContextMenuMixin):
-    # self.widgets is a non-changing dict of widgets
-    def emit_value(self):
-        for w in self.widgets.values():
-            w.emit_value()
-
-    def get_value_dict(self):
-        result = {}
-        for w in self.widgets.values():
-            result.update(w.get_value_dict())
-        return result
-
-    def is_multiple(self):
-        return any(w.is_multiple() for w in self.widgets.values())
-
-    def set_value_dict(self, value):
-        for w in self.widgets.values():
-            w.set_value_dict(value or {})

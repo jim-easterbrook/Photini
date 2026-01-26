@@ -22,8 +22,8 @@ import logging
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
-    DropDownSelector, Label, LangAltWidget, MultiLineEdit, PushButton,
-    SingleLineEdit, StaticCompoundMixin)
+    CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
+    LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -105,8 +105,9 @@ class RightsDropDown(DropDownSelector):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(action.data()))
 
 
-class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
+class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'OwnerTab'
+    multi_page = True
 
     @staticmethod
     def tab_name():
@@ -130,7 +131,7 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
         form, self.widgets = self.data_form()
         self.enableable.append(form.widget())
         for key in self.widgets:
-            self.widgets[key].new_value.connect(self.new_value)
+            self.widgets[key].new_value.connect(self.sw_new_value)
         self.layout().addWidget(form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
@@ -325,6 +326,9 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
             lines=3, layout=form), contact_group)
         return scrollarea, widgets
 
+    def sub_widgets(self):
+        return self.widgets.values()
+
     def set_enabled(self, enabled):
         for widget in self.enableable:
             widget.setEnabled(enabled)
@@ -335,14 +339,19 @@ class TabWidget(QtWidgets.QWidget, StaticCompoundMixin):
     def do_not_close(self):
         return False
 
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        self.sw_new_value(self.get_value())
+
     @QtSlot(dict)
     @catch_all
-    def new_value(self, value):
-        (key, value), = value.items()
+    def sw_new_value(self, value):
         images = self.app.image_list.get_selected_images()
-        for image in images:
-            self._set_value(image, key, value)
-        self._update_widget(key, images)
+        for key, value in value.items():
+            for image in images:
+                self._set_value(image, key, value)
+            self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:
