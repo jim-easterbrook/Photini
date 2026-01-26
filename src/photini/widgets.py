@@ -1097,20 +1097,18 @@ class ContextMenuMixin(object):
     @QtSlot()
     @catch_all
     def do_paste(self):
-        value = self.app.clipboard[self.clipboard_key]
-        if self.multi_page:
-            self.set_value(value)
-        else:
-            self.set_value_dict(value)
-        self.emit_value()
+        self.paste_value(self.app.clipboard[self.clipboard_key])
 
     @QtSlot()
     @catch_all
     def do_delete(self):
+        self.paste_value({})
+
+    def paste_value(self, value):
         if self.multi_page:
-            self.set_value({})
+            self.set_value(value)
         else:
-            self.set_value_dict({})
+            self.set_value_dict(value)
         self.emit_value()
 
 

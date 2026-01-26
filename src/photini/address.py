@@ -294,9 +294,7 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
             self.widget(idx).set_value_dict(value)
 
     def paste_address(self, address):
-        widget = self.currentWidget()
-        widget.set_value(address)
-        widget.emit_value()
+        self.currentWidget().paste_value(address)
 
     def set_tab_count(self, data_len):
         # minimum is camera location plus one empty data location
