@@ -27,8 +27,8 @@ from photini.photinimap import fetch_key, GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
-    AltitudeDisplay, CompactButton, ContextMenuMixin, Label, LatLongDisplay,
-    LangAltWidget, SingleLineEdit, WidgetMixin)
+    AltitudeDisplay, CompactButton, CompoundWidgetMixin, ContextMenuMixin,
+    Label, LatLongDisplay, LangAltWidget, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -169,7 +169,7 @@ class OpenCage(GeocoderBase):
             QtCore.QUrl('http://www.openstreetmap.org/copyright'))
 
 
-class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, WidgetMixin):
+class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'LocationInfo'
     multi_page = True
 
@@ -239,34 +239,18 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, WidgetMixin):
         layout.setColumnStretch(4, 1)
         layout.setRowStretch(8, 1)
         self.setWidget(form)
-        for widget in self.widgets.values():
-            widget.new_value.connect(self.update_value)
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
 
     @catch_all
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=self.menu_title)
 
-    def get_value(self):
-        result = {}
-        for widget in self.widgets.values():
-            result.update(widget.get_value_dict())
-        return result
-
-    def is_multiple(self):
-        return any(w.is_multiple() for w in self.widgets.values())
-
-    def set_value(self, value):
-        value = value or {}
-        for widget in self.widgets.values():
-            widget.set_value_dict(value)
-
-    @QtSlot(dict)
-    @catch_all
-    def update_value(self, value):
-        self.new_value.emit({self._key: value})
+    def sub_widgets(self):
+        return self.widgets.values()
 
 
-class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
+class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
     _key = 'iptcExt:Location'
 
     def __init__(self, *args, **kw):
@@ -275,23 +259,10 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
         self.setElideMode(Qt.TextElideMode.ElideLeft)
         self.setEnabled(False)
 
-    def get_value(self):
-        result = {}
-        for idx in range(self.count()):
-            result.update(self.widget(idx).get_value_dict())
-        return result
-
-    def is_multiple(self):
-        for idx in range(self.count() - 1):
-            if self.widget(idx).is_multiple():
-                return True
-        return False
-
     def set_value(self, value):
         value = value or {}
         self.set_tab_count(len(value))
-        for idx in range(self.count()):
-            self.widget(idx).set_value_dict(value)
+        super(AddressTabs, self).set_value(value)
 
     def paste_address(self, address):
         self.currentWidget().paste_value(address)
@@ -315,7 +286,7 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
             menu_title = translate(
                 'AddressTab', 'All "{tab}" address data').format(tab=text)
             widget = LocationInfo(idx, menu_title)
-            widget.new_value.connect(self.update_value)
+            widget.new_value.connect(self.sw_new_value)
             self.addTab(widget, text)
             self.setTabToolTip(idx, '<p>' + tip + '</p>')
             idx += 1
@@ -323,10 +294,9 @@ class AddressTabs(QtWidgets.QTabWidget, WidgetMixin):
             idx -= 1
             self.removeTab(idx)
 
-    @QtSlot(dict)
-    @catch_all
-    def update_value(self, value):
-        self.new_value.emit({self._key: value})
+    def sub_widgets(self):
+        for idx in range(self.count()):
+            yield self.widget(idx)
 
 
 class TabWidget(QtWidgets.QWidget, ContextMenuMixin):

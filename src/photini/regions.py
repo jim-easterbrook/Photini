@@ -25,8 +25,8 @@ from photini.pyqt import *
 from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
-    ContextMenuMixin, LangAltWidget, MultiStringEdit, SingleLineEdit,
-    StaticCompoundMixin, WidgetMixin)
+    CompoundWidgetMixin, ContextMenuMixin, LangAltWidget, MultiStringEdit,
+    SingleLineEdit, StaticCompoundMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -859,7 +859,7 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
             self.graphic.set_role(ImageRegionItem(value))
 
 
-class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, WidgetMixin):
+class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     select_region = QtSignal(int)
     clipboard_key = 'RegionForm'
     multi_page = True
@@ -940,8 +940,8 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, WidgetMixin):
             'RegionsTab', 'Enter a "caption" describing the who, what, and why'
             ' of what is happening in this region.')))
         layout.addRow(self.widgets[key])
-        for widget in self.widgets.values():
-            widget.new_value.connect(self.update_value)
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
         # disable widgets until value is set
         self.set_value_dict({})
 
@@ -950,16 +950,8 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, WidgetMixin):
         self.compound_context_menu(event, title=translate(
             'RegionsTab', 'All "region {}" data').format(self._key + 1))
 
-    @QtSlot(dict)
-    @catch_all
-    def update_value(self, value):
-        self.new_value.emit({self._key: value})
-
-    def get_value(self):
-        result = {}
-        for widget in self.widgets.values():
-            result.update(widget.get_value_dict())
-        return result
+    def sub_widgets(self):
+        return self.widgets.values()
 
     def is_multiple(self):
         return False
@@ -1007,7 +999,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, WidgetMixin):
             else:
                 layout.addRow(self.widgets[key])
         # set values and enable or disable widgets
-        for widget in self.widgets.values():
+        for widget in self.sub_widgets():
             widget.setEnabled(bool(region))
             widget.set_value_dict(region)
         # set region constraints

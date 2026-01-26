@@ -61,6 +61,27 @@ class WidgetMixin(object):
             self.set_value(choices and choices[0])
 
 
+class CompoundWidgetMixin(WidgetMixin):
+    def get_value(self):
+        result = {}
+        for widget in self.sub_widgets():
+            result.update(widget.get_value_dict())
+        return result
+
+    def is_multiple(self):
+        return any(w.is_multiple() for w in self.sub_widgets())
+
+    def set_value(self, value):
+        value = value or {}
+        for widget in self.sub_widgets():
+            widget.set_value_dict(value)
+
+    @QtSlot(dict)
+    @catch_all
+    def sw_new_value(self, value):
+        self.new_value.emit({self._key: value})
+
+
 class ComboBox(QtWidgets.QComboBox):
     def __init__(self, *args, **kwds):
         super(ComboBox, self).__init__(*args, **kwds)
