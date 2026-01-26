@@ -149,7 +149,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
                  length_check=None, multi_string=False, length_always=False,
                  length_bytes=True, min_width=None, **kw):
         super(HtmlTextEdit, self).__init__(*arg, **kw)
-        self.init_mixin(key,spell_check, length_check, length_always,
+        self.init_mixin(key, spell_check, length_check, length_always,
                         length_bytes, multi_string, min_width)
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
         self.setLineWrapMode(self.LineWrapMode.NoWrap)
@@ -516,6 +516,7 @@ class ListProxyModel(QtCore.QAbstractListModel):
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                              ContextMenuMixin):
     update_value = QtSignal(str, str)
+    multi_page = True
 
     def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
@@ -544,7 +545,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         rows = max(rows, 1)
         # insert new rows if needed
         for idx in range(layout.count() - 1, rows):
-            widget = HtmlTextEdit(str(idx), self.list_view, spell_check=True)
+            widget = HtmlTextEdit(idx, self.list_view, spell_check=True)
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
@@ -559,7 +560,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
     @catch_all
     def _new_value(self, value):
         idx, new_value = list(value.items())[0]
-        idx = int(idx)
         if idx < len(self._value):
             old_value = self._value[idx]
         else:
@@ -567,9 +567,13 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         self.update_value.emit(old_value, new_value)
 
     def get_value(self):
-        return self._value
+        # only used for cut/paste, expects a dict of values
+        return dict(enumerate(self._value))
 
     def set_value(self, value):
+        if isinstance(value, dict):
+            # cut/paste delivers a dict of values
+            value = list(value.values())
         if self._is_multiple:
             self._is_multiple = False
         self._value = list(value or [])
