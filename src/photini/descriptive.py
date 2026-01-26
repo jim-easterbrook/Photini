@@ -57,11 +57,13 @@ class RatingWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.display)
         # adopt child methods/signals
         self.emit_value = self.slider.emit_value
+        self.get_value_dict = self.slider.get_value_dict
         self.is_multiple = self.slider.is_multiple
         self.new_value = self.slider.new_value
         self.set_value_dict = self.slider.set_value_dict
         # over-ride child methods
         self.slider.get_value = self.get_value
+        self.slider.set_value = self.set_value
 
     @QtSlot(int)
     @catch_all
@@ -77,9 +79,9 @@ class RatingWidget(QtWidgets.QWidget):
 
     def set_value(self, value):
         if not value:
-            self.slider.set_value(-2)
+            self.slider.setValue(-2)
         else:
-            self.slider.set_value(int(value + 1.5) - 1)
+            self.slider.setValue(int(value + 1.5) - 1)
         self.set_display(self.slider.value())
 
     def get_value(self):
@@ -87,11 +89,6 @@ class RatingWidget(QtWidgets.QWidget):
         if value == -2:
             return None
         return value
-
-    def get_value_dict(self):
-        if self.is_multiple():
-            return {}
-        return {self._key: self.get_value()}
 
     def set_multiple(self, choices=[]):
         self.slider.set_multiple()
