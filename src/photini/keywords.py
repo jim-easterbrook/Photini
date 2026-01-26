@@ -655,7 +655,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             'nested_tags', self.data_model)
         self.widgets['nested_tags'].new_value.connect(self.sw_new_value)
         self.widgets['nested_tags'].update_value.connect(self.update_nested)
-        label = Label(self.widgets['nested_tags'].objectName(), lines=2)
+        label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
+                      lines=2)
         layout.addWidget(label, 1, 0)
         layout.addWidget(self.widgets['nested_tags'], 1, 1, 3, 1)
         # tree view button
