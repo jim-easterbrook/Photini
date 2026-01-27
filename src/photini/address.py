@@ -249,8 +249,9 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
         return self.widgets.values()
 
 
-class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
+class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin, CompoundWidgetMixin):
     _key = 'iptcExt:Location'
+    clipboard_key = 'AddressTab'
 
     def __init__(self, *args, **kw):
         super(AddressTabs, self).__init__(*args, **kw)
@@ -298,9 +299,7 @@ class AddressTabs(QtWidgets.QTabWidget, CompoundWidgetMixin):
             yield self.widget(idx)
 
 
-class TabWidget(QtWidgets.QWidget, ContextMenuMixin):
-    clipboard_key = 'AddressTab'
-
+class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
         return translate('AddressTab', 'Location addresses',
@@ -341,15 +340,12 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin):
         self.locations_widget = AddressTabs()
         self.locations_widget.new_value.connect(self.update_value)
         self.layout().addWidget(self.locations_widget, stretch=1)
-        # as there is only one data widget, adopt its methods for cut/paste
-        self.emit_value = self.locations_widget.emit_value
-        self.get_value = self.locations_widget.get_value
-        self.is_multiple = self.locations_widget.is_multiple
-        self.set_value = self.locations_widget.set_value
+        # delegate context menu to locations widget
+        self.locations_widget.tab_short_name = self.tab_short_name
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
+        self.locations_widget.compound_context_menu(event)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
