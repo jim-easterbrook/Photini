@@ -216,9 +216,79 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         return self.widgets.values()
 
 
-class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
+class DataForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'OwnerTab'
+    _key = 'form'
 
+    def __init__(self, *arg, **kw):
+        super(DataForm, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
+        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
+        self.setWidget(QtWidgets.QWidget())
+        self.setWidgetResizable(True)
+        self.widgets = {}
+        form = FormLayout()
+        self.widget().setLayout(form)
+        # creator
+        self.widgets['creator'] = SingleLineEdit(
+            'creator', spell_check=True, multi_string=True,
+            length_check=ImageMetadata.max_bytes('creator'))
+        self.widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
+            'OwnerTab', 'Enter the name of the person that created this'
+            ' image.')))
+        form.addRow(translate('OwnerTab', 'Creator'), self.widgets['creator'])
+        # creator title
+        self.widgets['creator_title'] = SingleLineEdit(
+            'creator_title', spell_check=True, multi_string=True,
+            length_check=ImageMetadata.max_bytes('creator_title'))
+        self.widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
+            'OwnerTab', 'Enter the job title of the person listed in the'
+            ' Creator field.')))
+        form.addRow(translate('OwnerTab', "Creator's Jobtitle"),
+                    self.widgets['creator_title'])
+        # credit line
+        self.widgets['credit_line'] = SingleLineEdit(
+            'credit_line', spell_check=True,
+            length_check=ImageMetadata.max_bytes('credit_line'))
+        self.widgets['credit_line'].setToolTip('<p>{}</p>'.format(translate(
+            'OwnerTab', 'Enter who should be credited when this image is'
+            ' published.')))
+        form.addRow(translate('OwnerTab', 'Credit Line'),
+                    self.widgets['credit_line'])
+        # copyright
+        self.widgets['copyright'] = LangAltWidget(
+            'copyright', multi_line=False, spell_check=True,
+            length_check=ImageMetadata.max_bytes('copyright'))
+        self.widgets['copyright'].setToolTip('<p>{}</p>'.format(translate(
+            'OwnerTab', 'Enter a notice on the current owner of the'
+            ' copyright for this image, such as "©2008 Jane Doe".')))
+        form.addRow(translate('OwnerTab', 'Copyright Notice'),
+                    self.widgets['copyright'])
+        ## usage information
+        self.widgets['rights'] = RightsGroup('rights')
+        form.addRow(translate('OwnerTab', 'Rights'), self.widgets['rights'])
+        # special instructions
+        self.widgets['instructions'] = SingleLineEdit(
+            'instructions', spell_check=True,
+            length_check=ImageMetadata.max_bytes('instructions'))
+        self.widgets['instructions'].setToolTip('<p>{}</p>'.format(translate(
+            'OwnerTab', 'Enter information about embargoes, or other'
+            ' restrictions not covered by the Rights Usage Terms field.')))
+        form.addRow(translate('OwnerTab', 'Instructions'),
+                    self.widgets['instructions'])
+        ## creator contact information
+        self.widgets['contact_info'] = ContactInfoGroup('contact_info')
+        form.addRow(Label(
+            translate('OwnerTab', 'Creator / Licensor Contact Information'),
+            lines=3, layout=form), self.widgets['contact_info'])
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
+
+    def sub_widgets(self):
+        return self.widgets.values()
+
+
+class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('OwnerTab', 'Ownership metadata',
@@ -238,11 +308,12 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         # construct widgets
         self.enableable = []
         ## data fields
-        form, self.widgets = self.data_form()
-        self.enableable.append(form.widget())
-        for key in self.widgets:
-            self.widgets[key].new_value.connect(self.sw_new_value)
-        self.layout().addWidget(form)
+        self.form = DataForm()
+        self.form.tab_short_name = self.tab_short_name
+        self.widgets = self.form.widgets
+        self.enableable.append(self.form.widget())
+        self.form.new_value.connect(self.sw_new_value)
+        self.layout().addWidget(self.form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
@@ -292,72 +363,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
-
-    def data_form(self):
-        widgets = {}
-        scrollarea = QtWidgets.QScrollArea()
-        scrollarea.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
-        scrollarea.setWidget(QtWidgets.QWidget())
-        scrollarea.setWidgetResizable(True)
-        form = FormLayout()
-        scrollarea.widget().setLayout(form)
-        # creator
-        widgets['creator'] = SingleLineEdit(
-            'creator', spell_check=True, multi_string=True,
-            length_check=ImageMetadata.max_bytes('creator'))
-        widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
-            'OwnerTab', 'Enter the name of the person that created this'
-            ' image.')))
-        form.addRow(translate('OwnerTab', 'Creator'), widgets['creator'])
-        # creator title
-        widgets['creator_title'] = SingleLineEdit(
-            'creator_title', spell_check=True, multi_string=True,
-            length_check=ImageMetadata.max_bytes('creator_title'))
-        widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
-            'OwnerTab', 'Enter the job title of the person listed in the'
-            ' Creator field.')))
-        form.addRow(translate('OwnerTab', "Creator's Jobtitle"),
-                    widgets['creator_title'])
-        # credit line
-        widgets['credit_line'] = SingleLineEdit(
-            'credit_line', spell_check=True,
-            length_check=ImageMetadata.max_bytes('credit_line'))
-        widgets['credit_line'].setToolTip('<p>{}</p>'.format(translate(
-            'OwnerTab', 'Enter who should be credited when this image is'
-            ' published.')))
-        form.addRow(translate('OwnerTab', 'Credit Line'),
-                    widgets['credit_line'])
-        # copyright
-        widgets['copyright'] = LangAltWidget(
-            'copyright', multi_line=False, spell_check=True,
-            length_check=ImageMetadata.max_bytes('copyright'))
-        widgets['copyright'].setToolTip('<p>{}</p>'.format(translate(
-            'OwnerTab', 'Enter a notice on the current owner of the'
-            ' copyright for this image, such as "©2008 Jane Doe".')))
-        form.addRow(translate('OwnerTab', 'Copyright Notice'),
-                    widgets['copyright'])
-        ## usage information
-        widgets['rights'] = RightsGroup('rights')
-        form.addRow(translate('OwnerTab', 'Rights'), widgets['rights'])
-        # special instructions
-        widgets['instructions'] = SingleLineEdit(
-            'instructions', spell_check=True,
-            length_check=ImageMetadata.max_bytes('instructions'))
-        widgets['instructions'].setToolTip('<p>{}</p>'.format(translate(
-            'OwnerTab', 'Enter information about embargoes, or other'
-            ' restrictions not covered by the Rights Usage Terms field.')))
-        form.addRow(translate('OwnerTab', 'Instructions'),
-                    widgets['instructions'])
-        ## creator contact information
-        widgets['contact_info'] = ContactInfoGroup('contact_info')
-        form.addRow(Label(
-            translate('OwnerTab', 'Creator / Licensor Contact Information'),
-            lines=3, layout=form), widgets['contact_info'])
-        return scrollarea, widgets
-
-    def sub_widgets(self):
-        return self.widgets.values()
+        self.form.compound_context_menu(event)
 
     def set_enabled(self, enabled):
         for widget in self.enableable:
@@ -369,14 +375,10 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     def do_not_close(self):
         return False
 
-    @QtSlot()
-    @catch_all
-    def emit_value(self):
-        self.sw_new_value(self.get_value())
-
     @QtSlot(dict)
     @catch_all
     def sw_new_value(self, value):
+        (key, value), = value.items()
         images = self.app.image_list.get_selected_images()
         for key, value in value.items():
             for image in images:
@@ -405,9 +407,9 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 if isinstance(value, MD_LangAlt):
                     # langalt copyright
                     value = dict(value)
-                    for v in value.values():
-                        if year in v:
-                            v = v.replace(year, '%Y')
+                    for k in value:
+                        if year in value[k]:
+                            value[k] = value[k].replace(year, '%Y')
                 elif isinstance(value, dict):
                     value = dict(value)
                 else:
@@ -447,17 +449,14 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             translate('OwnerTab', 'Photini: ownership template'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
-        form, widgets = self.data_form()
+        form = DataForm()
+        widgets = form.widgets
         widgets['copyright'].setToolTip(
             widgets['copyright'].toolTip() + '<p>{}</p>'.format(
                 translate('OwnerTab', 'Use %Y to insert the year the photograph'
                           ' was taken.')))
         # initialise values
-        for key in widgets:
-            if key in template:
-                widgets[key].set_value(template[key])
-            else:
-                widgets[key].set_value(None)
+        form.set_value(template)
         dialog.layout().addWidget(form)
         # apply & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
@@ -469,18 +468,16 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return
         self.config_store.remove_section('ownership')
-        for key in widgets:
-            value = widgets[key].get_value()
-            if value:
-                if (isinstance(value, dict)
-                        and not isinstance(value, MD_LangAlt)):
-                    for k, v in value.items():
-                        if v:
-                            compound_key = '{}/{}'.format(
-                                key, k.split(':')[-1])
-                            self.config_store.set('ownership', compound_key, v)
-                else:
-                    self.config_store.set('ownership', key, value)
+        template = form.get_value()
+        for key, value in template.items():
+            if key in ('rights', 'contact_info'):
+                for k, v in value.items():
+                    if v:
+                        compound_key = '{}/{}'.format(
+                            key, k.split(':')[-1])
+                        self.config_store.set('ownership', compound_key, v)
+            elif value:
+                self.config_store.set('ownership', key, value)
 
     @QtSlot()
     @catch_all
