@@ -196,6 +196,7 @@ class DropDownSelector(ComboBox, WidgetMixin):
         return self.itemData(self.currentIndex())
 
     def set_value(self, value):
+        value = value or None
         self._old_idx = self.findData(value)
         if self._old_idx < 0:
             self._old_idx = self.add_item(self.data_to_text(value), value)
