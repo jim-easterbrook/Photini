@@ -21,7 +21,6 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.types import MD_LangAlt
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
     LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit)
@@ -404,14 +403,14 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             year = str(date_taken.year)
             for key in self.widgets:
                 value = getattr(md, key)
-                if isinstance(value, MD_LangAlt):
+                if key in ('rights', 'contact_info'):
+                    value = dict(value)
+                elif isinstance(value, dict):
                     # langalt copyright
                     value = dict(value)
                     for k in value:
                         if year in value[k]:
                             value[k] = value[k].replace(year, '%Y')
-                elif isinstance(value, dict):
-                    value = dict(value)
                 else:
                     value = str(value)
                     if year in value:
@@ -428,11 +427,14 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 template[key] = {}
                 for w in widget.sub_widgets():
                     sub_key = w._key
-                    template[key][sub_key] = self.config_store.get(
-                        'ownership',
-                        '{}/{}'.format(key, sub_key.split(':')[-1])) or ''
+                    value = self.config_store.get('ownership', '{}/{}'.format(
+                        key, sub_key.split(':')[-1]))
+                    if value:
+                        template[key][sub_key] = value
             else:
-                template[key] = self.config_store.get('ownership', key) or ''
+                value = self.config_store.get('ownership', key)
+                if value:
+                    template[key] = value
         return template
 
     @QtSlot()
@@ -492,7 +494,14 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 date_taken = datetime.now()
             for key in template:
                 value = template[key]
-                if isinstance(value, MD_LangAlt):
+                if key in ('rights', 'contact_info'):
+                    for k, v in value.items():
+                        if isinstance(v, dict):
+                            value[k] = dict((x, date_taken.strftime(y))
+                                            for (x, y) in v.items())
+                        else:
+                            value[k] = date_taken.strftime(value[k])
+                elif isinstance(value, dict):
                     value = dict((k, date_taken.strftime(v))
                                  for (k, v) in value.items())
                 elif isinstance(value, str):
