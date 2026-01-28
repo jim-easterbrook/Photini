@@ -96,27 +96,14 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setPlaceholderText(self.multiple_values)
 
 
-class TabWidget(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
+class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'DescriptiveTab'
 
-    @staticmethod
-    def tab_name():
-        return translate('DescriptiveTab', 'Descriptive metadata',
-                         'Full name of tab shown as a tooltip')
-
-    @staticmethod
-    def tab_short_name():
-        return translate('DescriptiveTab', '&Descriptive',
-                         'Shortest possible name used as tab label')
-
     def __init__(self, *arg, **kw):
-        super(TabWidget, self).__init__(*arg, **kw)
+        super(DescriptiveData, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
-        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
-        self.setWidget(QtWidgets.QWidget())
-        self.setWidgetResizable(True)
         layout = FormLayout()
-        self.widget().setLayout(layout)
+        self.setLayout(layout)
         # construct widgets
         self.widgets = {}
         # title
@@ -195,20 +182,10 @@ class TabWidget(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         layout.addRow(translate('DescriptiveTab', 'Rating'),
                       self.widgets['rating'])
         # disable until an image is selected
-        self.widget().setEnabled(False)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
+        self.setEnabled(False)
 
     def sub_widgets(self):
         return self.widgets.values()
-
-    def refresh(self):
-        self.new_selection(self.app.image_list.get_selected_images())
-
-    def do_not_close(self):
-        return False
 
     @QtSlot()
     @catch_all
@@ -241,8 +218,43 @@ class TabWidget(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         if not selection:
             for key in self.widgets:
                 self.widgets[key].set_value(None)
-            self.widget().setEnabled(False)
+            self.setEnabled(False)
             return
         for key in self.widgets:
             self._update_widget(key, selection)
-        self.widget().setEnabled(True)
+        self.setEnabled(True)
+
+
+class TabWidget(QtWidgets.QScrollArea):
+    @staticmethod
+    def tab_name():
+        return translate('DescriptiveTab', 'Descriptive metadata',
+                         'Full name of tab shown as a tooltip')
+
+    @staticmethod
+    def tab_short_name():
+        return translate('DescriptiveTab', '&Descriptive',
+                         'Shortest possible name used as tab label')
+
+    def __init__(self, *arg, **kw):
+        super(TabWidget, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
+        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
+        self.setWidget(QtWidgets.QWidget())
+        self.setWidgetResizable(True)
+        form = DescriptiveData()
+        form.tab_short_name = self.tab_short_name
+        self.setWidget(form)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.widget().compound_context_menu(event)
+
+    def refresh(self):
+        self.new_selection(self.app.image_list.get_selected_images())
+
+    def do_not_close(self):
+        return False
+
+    def new_selection(self, selection):
+        self.widget().new_selection(selection)
