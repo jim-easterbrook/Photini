@@ -44,6 +44,25 @@ class WidgetMixin(object):
     def set_value_dict(self, value):
         self.set_value(value.get(self._key))
 
+    def _load_data(self, md_list):
+        choices = []
+        for md in md_list:
+            value = None
+            if self._key in md:
+                value = md[self._key] or None
+            if value not in choices:
+                choices.append(value)
+        if len(choices) > 1:
+            self.set_multiple(choices=[x for x in choices if x])
+        else:
+            self.set_value(choices and choices[0])
+        self.setEnabled(True)
+
+    def _save_data(self, md_list, value):
+        if self._key in value:
+            for md in md_list:
+                md[self._key] = value[self._key]
+
     def set_value_list(self, values):
         if not values:
             self.setEnabled(False)
@@ -81,10 +100,48 @@ class CompoundWidgetMixin(WidgetMixin):
         for widget in self.sub_widgets():
             widget.set_value_dict(value)
 
+    def _load_data(self, md_list):
+        md_list = [md[self._key] for md in md_list]
+        for widget in self.sub_widgets():
+            widget._load_data(md_list)
+
+    def _save_data(self, md_list, value):
+        if self._key in value:
+            for md in md_list:
+                new_value = dict(md[self._key])
+                new_value.update(value[self._key])
+                md[self._key] = new_value
+
     @QtSlot(dict)
     @catch_all
     def sw_new_value(self, value):
         self.new_value.emit({self._key: value})
+
+
+class TopLevelWidgetMixin(WidgetMixin):
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        self.save_data(self.get_value())
+
+    def load_data(self, images):
+        if not images:
+            for widget in self.sub_widgets():
+                widget.set_value(None)
+            self.setEnabled(False)
+            return
+        metadata = [im.metadata for im in images]
+        for widget in self.sub_widgets():
+            widget._load_data(metadata)
+        self.setEnabled(True)
+
+    @QtSlot(dict)
+    @catch_all
+    def save_data(self, value, images=None):
+        images = images or self.app.image_list.get_selected_images()
+        metadata = [im.metadata for im in images]
+        for widget in self.sub_widgets():
+            widget._save_data(metadata, value)
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -1069,6 +1126,8 @@ class ContextMenuMixin(object):
     # adds a cut/copy/paste/delete context menu to any widget
     # requires self.app and self.clipboard_key to be set
     def compound_context_menu(self, event, title=None):
+        if not self.isEnabled():
+            return
         title = title or translate(
             'Widgets', 'All "{tab_name}" data').format(
                 tab_name=self.tab_short_name())

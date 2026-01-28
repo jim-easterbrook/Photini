@@ -22,7 +22,7 @@ from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, Label, LangAltWidget, MultiLineEdit,
-    SingleLineEdit, Slider)
+    SingleLineEdit, Slider, TopLevelWidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -61,6 +61,8 @@ class RatingWidget(QtWidgets.QWidget):
         self.is_multiple = self.slider.is_multiple
         self.new_value = self.slider.new_value
         self.set_value_dict = self.slider.set_value_dict
+        self._load_data = self.slider._load_data
+        self._save_data = self.slider._save_data
         # over-ride child methods
         self.slider.get_value = self.get_value
         self.slider.set_value = self.set_value
@@ -96,7 +98,8 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setPlaceholderText(self.multiple_values)
 
 
-class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
+class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
+                      ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'DescriptiveTab'
 
     def __init__(self, *arg, **kw):
@@ -113,7 +116,7 @@ class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.widgets['title'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.')))
-        self.widgets['title'].new_value.connect(self.sw_new_value)
+        self.widgets['title'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
@@ -124,7 +127,7 @@ class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
             ' of the contents of the image.')))
-        self.widgets['headline'].new_value.connect(self.sw_new_value)
+        self.widgets['headline'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Headline'),
                       self.widgets['headline'])
         # description
@@ -136,7 +139,7 @@ class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             ' and why of what is happening in this image, this might include'
             ' names of people, and/or their role in the action that is taking'
             ' place within the image.')))
-        self.widgets['description'].new_value.connect(self.sw_new_value)
+        self.widgets['description'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Description / Caption'),
                       self.widgets['description'])
         # alt text
@@ -148,7 +151,7 @@ class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             'DescriptiveTab', 'Enter text describing the appearance of the'
             ' image from a visual perspective, focusing on details that are'
             ' relevant to the purpose and meaning of the image.')))
-        self.widgets['alt_text'].new_value.connect(self.sw_new_value)
+        self.widgets['alt_text'].new_value.connect(self.save_data)
         layout.addRow(
             Label(translate('DescriptiveTab', 'Alt Text (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text'])
@@ -162,7 +165,7 @@ class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             ' This property does not have a character limitation and is not'
             ' required if the Alt Text (Accessibility) field sufficiently'
             ' describes the image..')))
-        self.widgets['alt_text_ext'].new_value.connect(self.sw_new_value)
+        self.widgets['alt_text_ext'].new_value.connect(self.save_data)
         layout.addRow(
             Label(translate('DescriptiveTab',
                             'Extended Description (Accessibility)'),
@@ -173,12 +176,12 @@ class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
             ' image. Separate them with ";" characters.')))
-        self.widgets['people'].new_value.connect(self.sw_new_value)
+        self.widgets['people'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Person(s) shown'),
                       self.widgets['people'])
         # rating
         self.widgets['rating'] = RatingWidget('rating')
-        self.widgets['rating'].new_value.connect(self.sw_new_value)
+        self.widgets['rating'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Rating'),
                       self.widgets['rating'])
         # disable until an image is selected
@@ -186,43 +189,6 @@ class DescriptiveData(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     def sub_widgets(self):
         return self.widgets.values()
-
-    @QtSlot()
-    @catch_all
-    def emit_value(self):
-        self.sw_new_value(self.get_value())
-
-    @QtSlot(dict)
-    @catch_all
-    def sw_new_value(self, value):
-        images = self.app.image_list.get_selected_images()
-        for key, value in value.items():
-            for image in images:
-                setattr(image.metadata, key, value)
-            self._update_widget(key, images)
-
-    def _update_widget(self, key, images):
-        if not images:
-            return
-        values = []
-        for image in images:
-            value = getattr(image.metadata, key)
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets[key].set_multiple(choices=[x for x in values if x])
-        else:
-            self.widgets[key].set_value(values[0])
-
-    def new_selection(self, selection):
-        if not selection:
-            for key in self.widgets:
-                self.widgets[key].set_value(None)
-            self.setEnabled(False)
-            return
-        for key in self.widgets:
-            self._update_widget(key, selection)
-        self.setEnabled(True)
 
 
 class TabWidget(QtWidgets.QScrollArea):
@@ -257,4 +223,4 @@ class TabWidget(QtWidgets.QScrollArea):
         return False
 
     def new_selection(self, selection):
-        self.widget().new_selection(selection)
+        self.widget().load_data(selection)

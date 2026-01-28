@@ -23,7 +23,8 @@ from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
-    LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit)
+    LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit,
+    TopLevelWidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -215,7 +216,8 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         return self.widgets.values()
 
 
-class DataForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
+class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
+               ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'OwnerTab'
     _key = 'form'
 
@@ -281,7 +283,7 @@ class DataForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
             translate('OwnerTab', 'Creator / Licensor Contact Information'),
             lines=3, layout=form), self.widgets['contact_info'])
         for widget in self.sub_widgets():
-            widget.new_value.connect(self.sw_new_value)
+            widget.new_value.connect(self.save_data)
 
     def sub_widgets(self):
         return self.widgets.values()
@@ -311,7 +313,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.form.tab_short_name = self.tab_short_name
         self.widgets = self.form.widgets
         self.enableable.append(self.form.widget())
-        self.form.new_value.connect(self.sw_new_value)
         self.layout().addWidget(self.form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
@@ -373,21 +374,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     def do_not_close(self):
         return False
-
-    @QtSlot(dict)
-    @catch_all
-    def sw_new_value(self, value):
-        (key, value), = value.items()
-        images = self.app.image_list.get_selected_images()
-        for key, value in value.items():
-            for image in images:
-                self._set_value(image, key, value)
-            self._update_widget(key, images)
-
-    def _update_widget(self, key, images):
-        if not images:
-            return
-        self.widgets[key].set_value_list(x.metadata for x in images)
 
     @QtSlot()
     @catch_all
@@ -492,38 +478,23 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 date_taken = date_taken['datetime']
             else:
                 date_taken = datetime.now()
-            for key in template:
-                value = template[key]
-                if key in ('rights', 'contact_info'):
-                    for k, v in value.items():
-                        if isinstance(v, dict):
-                            value[k] = dict((x, date_taken.strftime(y))
-                                            for (x, y) in v.items())
-                        else:
-                            value[k] = date_taken.strftime(value[k])
-                elif isinstance(value, dict):
-                    value = dict((k, date_taken.strftime(v))
-                                 for (k, v) in value.items())
-                elif isinstance(value, str):
-                    value = date_taken.strftime(value)
-                self._set_value(image, key, value)
-        for key in template:
-            self._update_widget(key, images)
+            value = self.process_template(template, date_taken)
+            self.form.save_data(value, [image])
+        self.form.load_data(images)
 
-    def _set_value(self, image, key, value):
-        if key in ('rights', 'contact_info'):
-            info = dict(getattr(image.metadata, key))
-            info.update(value)
-            setattr(image.metadata, key, info)
-        else:
-            setattr(image.metadata, key, value)
+    def process_template(self, template, date_taken):
+        result = {}
+        for key in template:
+            value = template[key]
+            if key in ('rights', 'contact_info'):
+                result[key] = self.process_template(value, date_taken)
+            elif isinstance(value, dict):
+                result[key] = dict((k, date_taken.strftime(v))
+                                   for (k, v) in value.items())
+            elif isinstance(value, str):
+                result[key] = date_taken.strftime(value)
+        return result
 
     def new_selection(self, selection):
-        if not selection:
-            for key in self.widgets:
-                self.widgets[key].set_value(None)
-            self.set_enabled(False)
-            return
-        for key in self.widgets:
-            self._update_widget(key, selection)
-        self.set_enabled(True)
+        self.form.load_data(selection)
+        self.set_enabled(bool(selection))
