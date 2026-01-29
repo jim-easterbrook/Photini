@@ -41,6 +41,9 @@ class WidgetMixin(object):
             return {}
         return {self._key: self.get_value()}
 
+    def has_value(self):
+        return bool(self.get_value())
+
     def set_value_dict(self, value):
         self.set_value(value.get(self._key))
 
@@ -58,10 +61,9 @@ class WidgetMixin(object):
             self.set_value(choices and choices[0])
         self.setEnabled(True)
 
-    def _save_data(self, md_list, value):
+    def _save_data(self, metadata, value):
         if self._key in value:
-            for md in md_list:
-                md[self._key] = value[self._key]
+            metadata[self._key] = value[self._key]
 
     def set_value_list(self, values):
         if not values:
@@ -83,6 +85,9 @@ class WidgetMixin(object):
 
 
 class CompoundWidgetMixin(WidgetMixin):
+    def adjust_widget(self, value_list=None):
+        pass
+
     def get_value(self):
         result = {}
         for widget in self.sub_widgets():
@@ -90,32 +95,56 @@ class CompoundWidgetMixin(WidgetMixin):
         return result
 
     def has_value(self):
-        return any(bool(w.get_value()) for w in self.sub_widgets())
+        return any(w.has_value() for w in self.sub_widgets())
 
     def is_multiple(self):
         return any(w.is_multiple() for w in self.sub_widgets())
 
     def set_value(self, value):
         value = value or {}
+        self.adjust_widget([value])
         for widget in self.sub_widgets():
             widget.set_value_dict(value)
 
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
+        self.adjust_widget(md_list)
         for widget in self.sub_widgets():
             widget._load_data(md_list)
 
-    def _save_data(self, md_list, value):
+    def _save_data(self, metadata, value):
         if self._key in value:
-            for md in md_list:
-                new_value = dict(md[self._key])
-                new_value.update(value[self._key])
-                md[self._key] = new_value
+            md = dict(metadata[self._key])
+            for widget in self.sub_widgets():
+                widget._save_data(md, value[self._key])
+            metadata[self._key] = md
+            self.adjust_widget()
 
     @QtSlot(dict)
     @catch_all
     def sw_new_value(self, value):
         self.new_value.emit({self._key: value})
+
+
+class ListWidgetMixin(CompoundWidgetMixin):
+    def _load_data(self, md_list):
+        md_list = [list(md[self._key]) for md in md_list]
+        self.adjust_widget(md_list)
+        for widget in self.sub_widgets():
+            for md in md_list:
+                while len(md) <= widget._key:
+                    md.append({})
+            widget._load_data(md_list)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            md = list(metadata[self._key])
+            for widget in self.sub_widgets():
+                while len(md) <= widget._key:
+                    md.append({})
+                widget._save_data(md, value[self._key])
+            metadata[self._key] = md
+            self.adjust_widget()
 
 
 class TopLevelWidgetMixin(WidgetMixin):
@@ -139,9 +168,9 @@ class TopLevelWidgetMixin(WidgetMixin):
     @catch_all
     def save_data(self, value, images=None):
         images = images or self.app.image_list.get_selected_images()
-        metadata = [im.metadata for im in images]
-        for widget in self.sub_widgets():
-            widget._save_data(metadata, value)
+        for image in images:
+            for widget in self.sub_widgets():
+                widget._save_data(image.metadata, value)
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -1120,6 +1149,7 @@ class AltitudeDisplay(DoubleSpinBox):
         self.setToolTip('<p>{}</p>'.format(translate(
             'AltitudeDisplay', 'Altitude of the location in metres.')))
         self.label = Label(translate('AltitudeDisplay', 'Altitude'))
+        self.set_value(None)
 
 
 class ContextMenuMixin(object):
