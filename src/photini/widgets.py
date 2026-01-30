@@ -967,11 +967,13 @@ class AugmentSpinBox(AugmentSpinBoxBase):
 
 
 class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
-    def __init__(self, *args, **kwds):
-        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
+    lat_key = 'exif:GPSLatitude'
+    lng_key = 'exif:GPSLongitude'
+
+    def __init__(self, *arg, **kw):
         self.default_value = ''
         self.multiple = multiple_values()
-        super(LatLongDisplay, self).__init__(*args, **kwds)
+        super(LatLongDisplay, self).__init__(*arg, **kw)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
@@ -984,11 +986,6 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
             ' decimal numbers separated by a space.')))
-
-    @catch_all
-    def focusOutEvent(self, event):
-        self.emit_value()
-        super(LatLongDisplay, self).focusOutEvent(event)
 
     @catch_all
     def keyPressEvent(self, event):
@@ -1004,18 +1001,15 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         if self._is_multiple and self.choices:
             sep = menu.insertSeparator(menu.actions()[0])
             for suggestion in self.choices:
-                label = str(suggestion)
+                label = self.value_to_text(suggestion)
                 action = QtGui2.QAction(label, suggestion_group)
-                action.setData(str(suggestion))
+                action.setData(suggestion)
                 menu.insertAction(sep, action)
         action = execute(menu, event.globalPos())
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
                 self.set_value(action.data())
                 self.emit_value()
-
-    def stepEnabled(self):
-        return self.StepEnabledFlag.StepNone
 
     @catch_all
     def validate(self, text, pos):
@@ -1036,67 +1030,81 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
     @catch_all
     def fixup(self, value):
         value = self.text_to_value(value)
-        if len(value) != 2:
-            return
-        value[0] = min(max(value[0], -90.0), 90.0)
-        value[1] = ((value[1] + 180.0) % 360.0) - 180.0
-        self.lineEdit().setText(self.value_to_text(value))
+        if value == (None, None):
+            return ''
+        value = (min(max(value[0], -90.0), 90.0),
+                 ((value[1] + 180.0) % 360.0) - 180.0)
+        return self.value_to_text(value)
 
-    def text_to_value(self, text):
-        value = [self.locale().toDouble(x) for x in text.split()]
-        if not all(x[1] for x in value):
+    def text_to_value(self, value):
+        value = [self.locale().toDouble(x) for x in value.split()]
+        if len(value) != 2 or not value[0][1] or not value[1][1]:
             # float conversion failed
-            return []
-        return [x[0] for x in value]
+            return (None, None)
+        return (value[0][0], value[1][0])
 
     def value_to_text(self, value):
         return ' '.join(self.locale().toString(float(x), 'f', 6) for x in value)
 
     def get_value(self):
-        value = self.text_to_value(self.text())
-        if len(value) != 2:
-            return None
-        return value
+        return self.text_to_value(self.text())
 
     def get_value_dict(self):
         if self.is_multiple():
             return {}
-        return dict(zip(self._key, self.get_value() or (None, None)))
+        value = self.get_value()
+        return {self.lat_key: value[0], self.lng_key: value[1]}
+
+    def has_value(self):
+        return bool(self.text().strip())
 
     def set_value(self, value):
         self.set_not_multiple()
-        if not value:
+        if value in (None, (None, None)):
             self.clear()
         else:
-            if not isinstance(value, str):
-                value = self.value_to_text(value)
-            self.lineEdit().setText(value)
+            self.lineEdit().setText(self.value_to_text(value))
 
     def set_value_dict(self, value):
-        value = [value.get(k) for k in self._key]
-        if any(x is None for x in value):
-            value = None
-        self.set_value(value)
+        value = value or {}
+        self.set_value(self.dict_to_value(value))
 
-    def set_value_list(self, values):
-        choices = set()
-        if not values:
-            self.setEnabled(False)
-            self.set_value(None)
-            return
-        self.setEnabled(True)
-        for value in values:
-            if value:
-                lat = value['exif:GPSLatitude']
-                lon = value['exif:GPSLongitude']
-                if lat and lon:
-                    choices.add(self.value_to_text((lat, lon)))
-                    continue
-            choices.add(None)
+    def dict_to_value(self, value):
+        return (value.get(self.lat_key), value.get(self.lng_key))
+
+    def _load_data(self, md_list):
+        md_list = [self.dict_to_value(md) for md in md_list]
+        choices = []
+        for value in md_list:
+            if value not in choices:
+                choices.append(value)
         if len(choices) > 1:
-            self.set_multiple(choices=[x for x in choices if x])
+            self.set_multiple(choices=[
+                x for x in choices if x != (None, None)])
         else:
-            self.set_value(choices and choices.pop())
+            self.set_value(choices and choices[0])
+        self.setEnabled(True)
+
+    def _save_data(self, metadata, value):
+        if self.lat_key in value and self.lng_key in value:
+            metadata[self.lat_key] = value[self.lat_key]
+            metadata[self.lng_key] = value[self.lng_key]
+
+
+class GPSInfoWidget(QtCore.QObject, CompoundWidgetMixin):
+    _key = 'gps_info'
+
+    def __init__(self, *arg, **kw):
+        super(GPSInfoWidget, self).__init__(*arg, **kw)
+        # child widgets
+        self.widget = LatLongDisplay()
+        self.label = self.widget.label
+        self.widget.new_value.connect(self.sw_new_value)
+        # adopt child methods and signals
+        self.setReadOnly = self.widget.setReadOnly
+
+    def sub_widgets(self):
+        return [self.widget]
 
 
 class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):

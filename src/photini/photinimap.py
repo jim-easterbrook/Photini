@@ -37,7 +37,7 @@ from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
                           QtWebEngineWidgets, qt_version_info)
 from photini.widgets import (AltitudeDisplay, ComboBox, CompoundWidgetMixin,
-                             ContextMenuMixin, Label, LatLongDisplay)
+                             ContextMenuMixin, GPSInfoWidget, Label)
 
 
 logger = logging.getLogger(__name__)
@@ -308,10 +308,10 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.widgets['latlon'] = LatLongDisplay()
+        self.widgets['latlon'] = GPSInfoWidget()
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
         self.widgets['latlon'].new_value.connect(self.new_latlon)
-        left_side.addWidget(self.widgets['latlon'], 0, 1)
+        left_side.addWidget(self.widgets['latlon'].widget, 0, 1)
         # altitude
         self.widgets['alt'] = AltitudeDisplay()
         left_side.addWidget(self.widgets['alt'].label, 1, 0)
@@ -359,7 +359,7 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             width = max(self.controls['load_gpx'].sizeHint().width(),
                         self.controls['set_from_gpx'].sizeHint().width(),
                         self.controls['clear_gpx'].sizeHint().width())
-            if width > self.widgets['latlon'].size().width():
+            if width > self.widgets['latlon'].widget.size().width():
                 args = 0, 1, 2
             else:
                 args = 1, 1, 1
@@ -543,7 +543,7 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     @QtSlot(dict)
     @catch_all
     def new_latlon(self, value):
-        self.sw_new_value(value, adjust_map=True)
+        self.sw_new_value(value['gps_info'], adjust_map=True)
 
     @QtSlot()
     @catch_all
@@ -554,7 +554,7 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     @catch_all
     def sw_new_value(self, value, images=[], adjust_map=False):
         images = images or self.app.image_list.get_selected_images()
-        new_value = self.widgets['latlon'].get_value_dict()
+        new_value = self.widgets['latlon'].get_value()
         new_value.update(self.widgets['alt'].get_value_dict())
         new_value.update(value)
         new_value['method'] = 'MANUAL'
@@ -569,11 +569,11 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         values = []
         for image in images:
             values.append(image.metadata.gps_info)
-        self.widgets['latlon'].set_value_list(values)
+        self.widgets['latlon']._load_data([im.metadata for im in images])
         self.widgets['alt'].set_value_list(values)
         if self.controls['get_altitude']:
             self.controls['get_altitude'].setEnabled(
-                bool(self.widgets['latlon'].get_value()))
+                self.widgets['latlon'].has_value())
         if adjust_map:
             self.see_selection(images)
 
@@ -753,7 +753,7 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     def get_altitude(self):
         images = self.app.image_list.get_selected_images()
         altitude = self.geocoder.get_altitude(
-            self.widgets['latlon'].get_value())
+            self.widgets['latlon'].widget.get_value())
         if altitude is not None:
             self.sw_new_value(
                 {'exif:GPSAltitude': round(altitude, 1)}, images=images)
@@ -843,7 +843,7 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     @catch_all
     def marker_drag(self, lat, lng):
-        self.widgets['latlon'].set_value((lat, lng))
+        self.widgets['latlon'].widget.set_value((lat, lng))
 
     @catch_all
     def marker_drag_end(self, lat, lng, marker_id):
@@ -856,8 +856,7 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             image.metadata.gps_info = gps
         info['location'] = [float(image.metadata.gps_info['exif:GPSLatitude']),
                             float(image.metadata.gps_info['exif:GPSLongitude'])]
-        self.widgets['latlon'].set_value_list(
-            [info['images'][0].metadata.gps_info])
+        self.widgets['latlon']._load_data([info['images'][0].metadata])
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:

@@ -28,8 +28,8 @@ from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
     AltitudeDisplay, CompactButton, CompoundWidgetMixin, ContextMenuMixin,
-    Label, LatLongDisplay, LangAltWidget, ListWidgetMixin, SingleLineEdit,
-    TopLevelWidgetMixin)
+    GPSInfoWidget, Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
+    SingleLineEdit, TopLevelWidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -359,10 +359,10 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.coords_widget = LatLongDisplay()
+        self.coords_widget = GPSInfoWidget()
         self.coords_widget.setReadOnly(True)
         left_side.addWidget(self.coords_widget.label, 0, 0)
-        left_side.addWidget(self.coords_widget, 0, 1)
+        left_side.addWidget(self.coords_widget.widget, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('AddressTab', 'Get address from lat, long'))
@@ -402,15 +402,12 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def new_selection(self, selection):
         self.load_data(selection)
-        values = []
-        for image in selection:
-            values.append(image.metadata.gps_info)
-        self.coords_widget.set_value_list(values)
-        self.auto_location.setEnabled(bool(self.coords_widget.get_value()))
+        self.auto_location.setEnabled(self.coords_widget.has_value())
 
     @QtSlot()
     @catch_all
     def get_address(self):
-        location = self.geocoder.get_address(self.coords_widget.get_value())
+        location = self.geocoder.get_address(
+            self.coords_widget.widget.get_value())
         if location:
             self.locations_widget.paste_address(location)
