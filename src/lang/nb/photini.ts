@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation type="unfinished"></translation>
+        <translation>Hent adresse fra bredde- og lengdegrad.</translation>
     </message>
     <message>
         <source>Duplicate location</source>
@@ -62,7 +62,7 @@
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv inn detaljer om en posisjon der dette bildet ble opprettet.</translation>
     </message>
     <message>
         <source>subject {idx}</source>
@@ -70,7 +70,7 @@
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv inn detaljer om et sted vist på dette bildet.</translation>
     </message>
     <message>
         <source>Address lookup powered by OpenCage</source>
@@ -106,7 +106,7 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <source>Province</source>
@@ -254,11 +254,11 @@
     </message>
     <message>
         <source>Always write</source>
-        <translation type="unfinished"></translation>
+        <translation>Alltid skriv</translation>
     </message>
     <message>
         <source>Always create</source>
-        <translation type="unfinished"></translation>
+        <translation>Alltid opprett</translation>
     </message>
     <message>
         <source>Sidecar files</source>
@@ -286,11 +286,11 @@
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis IPTC-IIM-lengdegrenser</translation>
     </message>
     <message>
         <source>Keep original</source>
-        <translation type="unfinished"></translation>
+        <translation>Behold original</translation>
     </message>
     <message>
         <source>File timestamps</source>
@@ -298,11 +298,11 @@
     </message>
     <message>
         <source>Set to when photo was taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett til når bilde ble tatt</translation>
     </message>
     <message>
         <source>Set to when file is saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett til når bilde ble lagret</translation>
     </message>
     <message>
         <source>Write if exists</source>
@@ -314,11 +314,11 @@
     </message>
     <message>
         <source>set altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>sett høyde</translation>
     </message>
     <message>
         <source>GPX importer</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX-importør</translation>
     </message>
     <message>
         <source>location pin (selected)</source>
@@ -599,7 +599,7 @@
     </message>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
-        <translation>GPX-filer (*.gpx *.GPX *.Gpx);;All filer (*)</translation>
+        <translation>GPX-filer (*.gpx *.GPX *.Gpx);;Alle filer (*)</translation>
     </message>
 </context>
 <context>
@@ -610,7 +610,7 @@
     </message>
     <message>
         <source>date taken</source>
-        <translation type="unfinished">dato knipset</translation>
+        <translation>dato tatt</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -679,11 +679,11 @@
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation>Noen bilder har ulagret metadata.</translation>
+        <translation>Noen bilder har ikke lagrede metadata.</translation>
     </message>
     <message>
         <source>No thumbnail in file</source>
-        <translation>Ingen miniatyrbilder i fil</translation>
+        <translation>Ikke noe miniatyrbilde i filen</translation>
     </message>
     <message>
         <source>Sort by</source>
@@ -975,15 +975,15 @@
     </message>
     <message>
         <source>keyword</source>
-        <translation type="unfinished"></translation>
+        <translation>nøkkelord</translation>
     </message>
     <message>
         <source>in photo</source>
-        <translation type="unfinished"></translation>
+        <translation>i foto</translation>
     </message>
     <message>
         <source>copyable</source>
-        <translation type="unfinished"></translation>
+        <translation>kopierbar</translation>
     </message>
     <message>
         <source>Edit keyword hierarchy</source>
@@ -1009,7 +1009,7 @@
     <message>
         <source>&amp;Keywords</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nøkkelord</translation>
     </message>
     <message>
         <source>Hierarchical keywords</source>
@@ -1235,7 +1235,7 @@
     </message>
     <message>
         <source>Check for update</source>
-        <translation type="unfinished"></translation>
+        <translation>Se etter oppdatering</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
@@ -1308,11 +1308,11 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>E-post(er)</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nettadresse(r)</translation>
     </message>
     <message>
         <source>Phone(s)</source>
@@ -1408,11 +1408,11 @@
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Nettadresse</translation>
     </message>
     <message>
         <source>Web Statement</source>
@@ -1448,7 +1448,7 @@
     </message>
     <message>
         <source>Street Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Gateadresse</translation>
     </message>
     <message>
         <source>Photini: ownership template</source>
@@ -1636,7 +1636,7 @@
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Navn</translation>
+        <translation>Tittel</translation>
     </message>
     <message>
         <source>Description</source>
@@ -1695,7 +1695,7 @@
     </message>
     <message>
         <source>pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>piksel</translation>
     </message>
     <message>
         <source>A pixel of a digital image setting an absolute value.</source>
@@ -1767,37 +1767,37 @@
     </message>
     <message>
         <source>New rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt rektangel</translation>
     </message>
     <message>
         <source>New circle</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny sirkel</translation>
     </message>
     <message>
         <source>New point</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt punkt</translation>
     </message>
     <message>
         <source>New polygon</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny polygon</translation>
     </message>
     <message>
         <source>Delete region</source>
-        <translation type="unfinished"></translation>
+        <translation>Slett region</translation>
     </message>
     <message>
         <source>Image regions</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation>Bilderegioner</translation>
     </message>
     <message>
         <source>&amp;Regions</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Regioner</translation>
     </message>
     <message>
         <source>Region name</source>
-        <translation type="unfinished"></translation>
+        <translation>Regionnavn</translation>
     </message>
 </context>
 <context>
@@ -1808,7 +1808,7 @@
     </message>
     <message>
         <source>max</source>
-        <translation type="unfinished"></translation>
+        <translation>maks</translation>
     </message>
     <message>
         <source>Focal length</source>
@@ -1856,7 +1856,7 @@
     </message>
     <message>
         <source>Taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Tatt</translation>
     </message>
     <message>
         <source>Digitised</source>
@@ -1976,21 +1976,21 @@
     <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
-        <translation>roter -90</translation>
+        <translation>roter -90°</translation>
     </message>
     <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
-        <translation>roter +90</translation>
+        <translation>roter +90°</translation>
     </message>
     <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
-        <translation>roter 180</translation>
+        <translation>roter 180°</translation>
     </message>
     <message>
         <source>Precision</source>
-        <translation type="unfinished"></translation>
+        <translation>Nøyaktighet</translation>
     </message>
     <message>
         <source>ƒ/</source>
@@ -2005,7 +2005,7 @@
     <message>
         <source>h</source>
         <comment>single letter abbreviation of &quot;hours&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>t</translation>
     </message>
     <message>
         <source>m</source>
@@ -2078,7 +2078,7 @@
     </message>
     <message>
         <source>Create new album</source>
-        <translation type="unfinished"></translation>
+        <translation>Lag nytt album</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -2110,7 +2110,7 @@
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Hopp over</translation>
     </message>
     <message>
         <source>Photini: too large</source>
