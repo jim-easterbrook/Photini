@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -120,7 +120,7 @@ class TabWidget(PhotiniMap):
         url=url)
 
     def get_options(self):
-        user_agent = self.widgets['map'].page().profile().httpUserAgent()
+        user_agent = self.controls['map'].page().profile().httpUserAgent()
         match = re.search(r'\sChrome/(\d+)\.', user_agent)
         if match:
             chrome_version = int(match.group(1))

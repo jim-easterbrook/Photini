@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -41,6 +41,31 @@ class WidgetMixin(object):
             return {}
         return {self._key: self.get_value()}
 
+    def has_value(self):
+        return bool(self.get_value())
+
+    def set_value_dict(self, value):
+        self.set_value(value.get(self._key))
+
+    def _load_data(self, md_list):
+        choices = []
+        for md in md_list:
+            value = None
+            if self._key in md:
+                value = md[self._key] or None
+            if value not in choices:
+                choices.append(value)
+        if len(choices) > 1:
+            self.set_multiple(choices=[x for x in choices if x])
+        else:
+            choices = choices or [None]
+            self.set_value(choices[0])
+        self.setEnabled(True)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            metadata[self._key] = value[self._key]
+
     def set_value_list(self, values):
         if not values:
             self.setEnabled(False)
@@ -51,13 +76,106 @@ class WidgetMixin(object):
         for value_dict in values:
             value = None
             if self._key in value_dict:
-                value = value_dict[self._key]
+                value = value_dict[self._key] or None
             if value not in choices:
                 choices.append(value)
         if len(choices) > 1:
             self.set_multiple(choices=[x for x in choices if x])
         else:
             self.set_value(choices and choices[0])
+
+
+class CompoundWidgetMixin(WidgetMixin):
+    def adjust_widget(self, value_list=None):
+        pass
+
+    def get_value(self):
+        result = {}
+        for widget in self.sub_widgets():
+            result.update(widget.get_value_dict())
+        return result
+
+    def has_value(self):
+        return any(w.has_value() for w in self.sub_widgets())
+
+    def is_multiple(self):
+        return any(w.is_multiple() for w in self.sub_widgets())
+
+    def set_value(self, value):
+        value = value or {}
+        self.adjust_widget([value])
+        for widget in self.sub_widgets():
+            widget.set_value_dict(value)
+
+    def _load_data(self, md_list):
+        md_list = [md[self._key] for md in md_list]
+        self.adjust_widget(md_list)
+        for widget in self.sub_widgets():
+            widget._load_data(md_list)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            md = dict(metadata[self._key])
+            for widget in self.sub_widgets():
+                widget._save_data(md, value[self._key])
+            metadata[self._key] = md
+            self.adjust_widget()
+
+    @QtSlot(dict)
+    @catch_all
+    def sw_new_value(self, value):
+        self.new_value.emit({self._key: value})
+
+
+class ListWidgetMixin(CompoundWidgetMixin):
+    def _load_data(self, md_list):
+        md_list = [list(md[self._key]) for md in md_list]
+        self.adjust_widget(md_list)
+        for widget in self.sub_widgets():
+            for md in md_list:
+                while len(md) <= widget._key:
+                    md.append({})
+            widget._load_data(md_list)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            md = list(metadata[self._key])
+            for widget in self.sub_widgets():
+                while len(md) <= widget._key:
+                    md.append({})
+                widget._save_data(md, value[self._key])
+            metadata[self._key] = md
+            self.adjust_widget()
+
+
+class TopLevelWidgetMixin(WidgetMixin):
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        self.save_data(self.get_value())
+
+    def load_data(self, images):
+        if not images:
+            for widget in self.sub_widgets():
+                widget.set_value(None)
+                widget.setEnabled(False)
+        else:
+            metadata = [im.metadata for im in images]
+            for widget in self.sub_widgets():
+                widget._load_data(metadata)
+                widget.setEnabled(True)
+
+    @QtSlot(dict)
+    @catch_all
+    def save_data(self, value, images=None):
+        images = images or self.app.image_list.get_selected_images()
+        for image in images:
+            for widget in self.sub_widgets():
+                widget._save_data(image.metadata, value)
+        self.save_finished(images)
+
+    def save_finished(self, images):
+        pass
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -169,6 +287,7 @@ class DropDownSelector(ComboBox, WidgetMixin):
         return self.itemData(self.currentIndex())
 
     def set_value(self, value):
+        value = value or None
         self._old_idx = self.findData(value)
         if self._old_idx < 0:
             self._old_idx = self.add_item(self.data_to_text(value), value)
@@ -584,6 +703,11 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.define_new_value = self._define_new_lang
 
     @catch_all
+    def setEnabled(self, enabled):
+        self.edit.setEnabled(enabled)
+        self.lang.setEnabled(enabled)
+
+    @catch_all
     def setToolTip(self, text):
         self.edit.setToolTip(text)
 
@@ -694,7 +818,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
 
     def set_value(self, value):
         self.choices = {}
-        self.lang.setEnabled(True)
+        self.lang.setEnabled(self.edit.isEnabled())
         self.value = MD_LangAlt(value, strip=False)
         # use current language, if available
         lang = self.lang.get_value()
@@ -848,11 +972,13 @@ class AugmentSpinBox(AugmentSpinBoxBase):
 
 
 class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
-    def __init__(self, *args, **kwds):
-        self._key = ('exif:GPSLatitude', 'exif:GPSLongitude')
+    lat_key = 'exif:GPSLatitude'
+    lng_key = 'exif:GPSLongitude'
+
+    def __init__(self, *arg, **kw):
         self.default_value = ''
         self.multiple = multiple_values()
-        super(LatLongDisplay, self).__init__(*args, **kwds)
+        super(LatLongDisplay, self).__init__(*arg, **kw)
         self.lat_validator = QtGui.QDoubleValidator(
             -90.0, 90.0, 20, parent=self)
         self.lng_validator = QtGui.QDoubleValidator(
@@ -865,11 +991,6 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
             ' decimal numbers separated by a space.')))
-
-    @catch_all
-    def focusOutEvent(self, event):
-        self.emit_value()
-        super(LatLongDisplay, self).focusOutEvent(event)
 
     @catch_all
     def keyPressEvent(self, event):
@@ -885,18 +1006,15 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         if self._is_multiple and self.choices:
             sep = menu.insertSeparator(menu.actions()[0])
             for suggestion in self.choices:
-                label = str(suggestion)
+                label = self.value_to_text(suggestion)
                 action = QtGui2.QAction(label, suggestion_group)
-                action.setData(str(suggestion))
+                action.setData(suggestion)
                 menu.insertAction(sep, action)
         action = execute(menu, event.globalPos())
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
                 self.set_value(action.data())
                 self.emit_value()
-
-    def stepEnabled(self):
-        return self.StepEnabledFlag.StepNone
 
     @catch_all
     def validate(self, text, pos):
@@ -917,61 +1035,66 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
     @catch_all
     def fixup(self, value):
         value = self.text_to_value(value)
-        if len(value) != 2:
-            return
-        value[0] = min(max(value[0], -90.0), 90.0)
-        value[1] = ((value[1] + 180.0) % 360.0) - 180.0
-        self.lineEdit().setText(self.value_to_text(value))
+        if value == (None, None):
+            return ''
+        value = (min(max(value[0], -90.0), 90.0),
+                 ((value[1] + 180.0) % 360.0) - 180.0)
+        return self.value_to_text(value)
 
-    def text_to_value(self, text):
-        value = [self.locale().toDouble(x) for x in text.split()]
-        if not all(x[1] for x in value):
+    def text_to_value(self, value):
+        value = [self.locale().toDouble(x) for x in value.split()]
+        if len(value) != 2 or not value[0][1] or not value[1][1]:
             # float conversion failed
-            return []
-        return [x[0] for x in value]
+            return (None, None)
+        return (value[0][0], value[1][0])
 
     def value_to_text(self, value):
         return ' '.join(self.locale().toString(float(x), 'f', 6) for x in value)
 
     def get_value(self):
-        value = self.text_to_value(self.text())
-        if len(value) != 2:
-            return None
-        return value
+        return self.text_to_value(self.text())
 
     def get_value_dict(self):
         if self.is_multiple():
             return {}
-        return dict(zip(self._key, self.get_value() or (None, None)))
+        value = self.get_value()
+        return {self.lat_key: value[0], self.lng_key: value[1]}
+
+    def has_value(self):
+        return bool(self.text().strip())
 
     def set_value(self, value):
         self.set_not_multiple()
-        if not value:
+        if value in (None, (None, None)):
             self.clear()
         else:
-            if not isinstance(value, str):
-                value = self.value_to_text(value)
-            self.lineEdit().setText(value)
+            self.lineEdit().setText(self.value_to_text(value))
 
-    def set_value_list(self, values):
-        choices = set()
-        if not values:
-            self.setEnabled(False)
-            self.set_value(None)
-            return
-        self.setEnabled(True)
-        for value in values:
-            if value:
-                lat = value['exif:GPSLatitude']
-                lon = value['exif:GPSLongitude']
-                if lat and lon:
-                    choices.add(self.value_to_text((lat, lon)))
-                    continue
-            choices.add(None)
+    def set_value_dict(self, value):
+        value = value or {}
+        self.set_value(self.dict_to_value(value))
+
+    @classmethod
+    def dict_to_value(cls, value):
+        return (value.get(cls.lat_key), value.get(cls.lng_key))
+
+    def _load_data(self, md_list):
+        md_list = [self.dict_to_value(md) for md in md_list]
+        choices = []
+        for value in md_list:
+            if value not in choices:
+                choices.append(value)
         if len(choices) > 1:
-            self.set_multiple(choices=[x for x in choices if x])
+            self.set_multiple(choices=[
+                x for x in choices if x != (None, None)])
         else:
-            self.set_value(choices and choices.pop())
+            self.set_value(choices and choices[0])
+        self.setEnabled(True)
+
+    def _save_data(self, metadata, value):
+        if self.lat_key in value and self.lng_key in value:
+            metadata[self.lat_key] = value[self.lat_key]
+            metadata[self.lng_key] = value[self.lng_key]
 
 
 class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):
@@ -1024,3 +1147,87 @@ class AltitudeDisplay(DoubleSpinBox):
         self.setToolTip('<p>{}</p>'.format(translate(
             'AltitudeDisplay', 'Altitude of the location in metres.')))
         self.label = Label(translate('AltitudeDisplay', 'Altitude'))
+        self.set_value(None)
+
+
+class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
+    _key = 'gps_info'
+
+    def __init__(self, *arg, **kw):
+        super(GPSInfoWidgets, self).__init__(*arg, **kw)
+        # child widgets
+        self.latlon = LatLongDisplay()
+        self.latlon_label = self.latlon.label
+        self.alt = AltitudeDisplay()
+        self.alt_label = self.alt.label
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
+
+    def setEnabled(self, enabled):
+        for widget in self.sub_widgets():
+            widget.setEnabled(enabled)
+
+    def sub_widgets(self):
+        return (self.latlon, self.alt)
+
+
+class ContextMenuMixin(object):
+    # adds a cut/copy/paste/delete context menu to any widget
+    # requires self.app and self.clipboard_key to be set
+    def compound_context_menu(self, event, title=None):
+        if not self.isEnabled():
+            return
+        title = title or translate(
+            'Widgets', 'All "{tab_name}" data').format(
+                tab_name=self.tab_short_name())
+        if qt_version_info >= (6, 7):
+            icons = {'Cut': QtGui.QIcon.ThemeIcon.EditCut,
+                     'Copy': QtGui.QIcon.ThemeIcon.EditCopy,
+                     'Paste': QtGui.QIcon.ThemeIcon.EditPaste,
+                     'Delete': QtGui.QIcon.ThemeIcon.EditDelete}
+        else:
+            icons = {'Cut': 'edit-cut',
+                     'Copy': 'edit-copy',
+                     'Paste': 'edit-paste',
+                     'Delete': 'edit-delete'}
+        functions = {'Cut': self.do_cut,
+                     'Copy': self.do_copy,
+                     'Paste': self.do_paste,
+                     'Delete': self.do_delete}
+        menu = QtWidgets.QMenu()
+        menu.addSection(title)
+        for key in ('Cut', 'Copy', 'Paste', 'Delete'):
+            action = menu.addAction(QtGui.QIcon.fromTheme(icons[key]),
+                                    translate('QShortcut', key), functions[key])
+            if key == 'Paste':
+                action.setEnabled(self.clipboard_key in self.app.clipboard)
+            elif key == 'Delete':
+                action.setEnabled(self.has_value())
+            else:
+                action.setEnabled(self.has_value() and not self.is_multiple())
+        execute(menu, event.globalPos())
+
+    @QtSlot()
+    @catch_all
+    def do_cut(self):
+        self.do_copy()
+        self.do_delete()
+
+    @QtSlot()
+    @catch_all
+    def do_copy(self):
+        self.app.clipboard[self.clipboard_key] = self.get_value()
+
+    @QtSlot()
+    @catch_all
+    def do_paste(self):
+        self.paste_value(self.app.clipboard[self.clipboard_key])
+
+    @QtSlot()
+    @catch_all
+    def do_delete(self):
+        self.paste_value({})
+
+    def paste_value(self, value):
+        self.set_value(value)
+        self.emit_value()

@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2024-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2024-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This file is part of Photini.
 #
@@ -27,8 +27,8 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
-from photini.widgets import (
-    ComboBox, Label, MultiLineEdit, TextEditMixin, WidgetMixin)
+from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
+                             Label, MultiLineEdit, TextEditMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -37,6 +37,7 @@ translate = QtCore.QCoreApplication.translate
 class KeywordsEditor(QtWidgets.QWidget):
     def __init__(self, key, **kw):
         super(KeywordsEditor, self).__init__()
+        self._key = key
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.league_table = {}
         for keyword, score in self.config_store.get(
@@ -65,6 +66,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         # adopt child widget methods and signals
         self.get_value = self.edit.get_value
         self.set_value = self.edit.set_value
+        self.set_value_dict = self.edit.set_value_dict
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
         self.new_value = self.edit.new_value
@@ -117,6 +119,11 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.set_value(new_value)
         self.edit.emit_value()
 
+    def get_value_dict(self):
+        if self.is_multiple():
+            return {}
+        return {self._key: self.get_value()}
+
 
 class KeywordCompleter(QtWidgets.QCompleter):
     def __init__(self, list_view, widget, *arg, **kw):
@@ -142,7 +149,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
                  length_check=None, multi_string=False, length_always=False,
                  length_bytes=True, min_width=None, **kw):
         super(HtmlTextEdit, self).__init__(*arg, **kw)
-        self.init_mixin(key,spell_check, length_check, length_always,
+        self.init_mixin(key, spell_check, length_check, length_always,
                         length_bytes, multi_string, min_width)
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
         self.setLineWrapMode(self.LineWrapMode.NoWrap)
@@ -506,13 +513,16 @@ class ListProxyModel(QtCore.QAbstractListModel):
         return item.data(role)
 
 
-class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
+class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
+                             ContextMenuMixin):
     update_value = QtSignal(str, str)
 
     def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
+        self.app = QtWidgets.QApplication.instance()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._key = key
+        self.clipboard_key = key
         self._is_multiple = False
         self._value = []
         self.setWidget(QtWidgets.QWidget())
@@ -523,13 +533,18 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         self.list_view = ListProxyModel(self.data_model)
         self.set_rows()
 
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event, title=translate(
+            'KeywordsTab', 'All hierarchical keywords'))
+
     def set_rows(self, rows=1):
         # layout includes a spacer, which is always the last row
         layout = self.widget().layout()
         rows = max(rows, 1)
         # insert new rows if needed
         for idx in range(layout.count() - 1, rows):
-            widget = HtmlTextEdit(str(idx), self.list_view, spell_check=True)
+            widget = HtmlTextEdit(idx, self.list_view, spell_check=True)
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
@@ -544,7 +559,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
     @catch_all
     def _new_value(self, value):
         idx, new_value = list(value.items())[0]
-        idx = int(idx)
         if idx < len(self._value):
             old_value = self._value[idx]
         else:
@@ -553,6 +567,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
 
     def get_value(self):
         return self._value
+
+    def has_value(self):
+        return bool(self._value)
 
     def set_value(self, value):
         if self._is_multiple:
@@ -599,7 +616,9 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin):
         execute(dialog)
 
 
-class TabWidget(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
+    clipboard_key = 'KeywordsTab'
+
     @staticmethod
     def tab_name():
         return translate('KeywordsTab', 'Keywords or tags',
@@ -628,13 +647,13 @@ class TabWidget(QtWidgets.QWidget):
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.')))
-        self.widgets['keywords'].new_value.connect(self.new_value)
+        self.widgets['keywords'].new_value.connect(self.sw_new_value)
         layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
         layout.addWidget(self.widgets['keywords'], 0, 1)
         # hierarchical keywords
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
-        self.widgets['nested_tags'].new_value.connect(self.new_value)
+        self.widgets['nested_tags'].new_value.connect(self.sw_new_value)
         self.widgets['nested_tags'].update_value.connect(self.update_nested)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
                       lines=2)
@@ -651,6 +670,13 @@ class TabWidget(QtWidgets.QWidget):
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
         # disable until an image is selected
         self.setEnabled(False)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.compound_context_menu(event)
+
+    def sub_widgets(self):
+        return self.widgets.values()
 
     def sync_nested_from_flat(self, images, remove=False, silent=False):
         for image in images:
@@ -789,23 +815,28 @@ class TabWidget(QtWidgets.QWidget):
         self._update_widget('keywords', images)
         self.widgets['keywords'].update_league_table(images)
 
+    @QtSlot()
+    @catch_all
+    def emit_value(self):
+        self.sw_new_value(self.get_value())
+
     @QtSlot(dict)
     @catch_all
-    def new_value(self, value):
-        key, value = list(value.items())[0]
+    def sw_new_value(self, value):
         images = self.app.image_list.get_selected_images()
-        for image in images:
-            setattr(image.metadata, key, value)
-        if key == 'keywords':
-            self.sync_nested_from_flat(images, remove=True)
-            self.sync_flat_from_nested(images)
-            self._update_widget('nested_tags', images)
-            self.widgets['keywords'].update_league_table(images)
-        elif key == 'nested_tags':
-            self.sync_flat_from_nested(images, remove=True)
-            self._update_widget('keywords', images)
-            self.widgets['keywords'].update_league_table(images)
-        self._update_widget(key, images)
+        for key, value in value.items():
+            for image in images:
+                setattr(image.metadata, key, value)
+            if key == 'keywords':
+                self.sync_nested_from_flat(images, remove=True)
+                self.sync_flat_from_nested(images)
+                self._update_widget('nested_tags', images)
+                self.widgets['keywords'].update_league_table(images)
+            elif key == 'nested_tags':
+                self.sync_flat_from_nested(images, remove=True)
+                self._update_widget('keywords', images)
+                self.widgets['keywords'].update_league_table(images)
+            self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:

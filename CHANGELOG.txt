@@ -16,8 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2025.10.0:
+  1/ Add ability to use user-supplied map API keys.
+  2/ Fix bug in image regions with Apple face information metadata.
+  3/ Don't include Exif subject area in image regions.
+  4/ Remove Bing map tab.
+  5/ Other minor improvements and bug fixes.
+
 Changes in v2025.6.0:
-  1/ Fix MapBax map bug with numeric country/region locale codes.
+  1/ Fix MapBox map bug with numeric country/region locale codes.
   2/ Fix occasional "KeyError: 'bounds'" bug in Google Map search.
   3/ Other minor improvements and bug fixes.
 

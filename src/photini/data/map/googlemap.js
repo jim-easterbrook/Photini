@@ -72,7 +72,11 @@ async function loadMap(lat, lng, zoom, options) {
 
 function newBounds() {
     const centre = map.getCenter();
+    if (!centre)
+        return;
     const bounds = map.getBounds();
+    if (!bounds)
+        return;
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
     python.new_status({

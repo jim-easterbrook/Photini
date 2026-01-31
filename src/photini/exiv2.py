@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ import re
 import chardet
 import exiv2
 
-from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
+from photini.pyqt import qbuffer_needs_bytes, QtCore, QtGui, qt_version_info
 
 logger = logging.getLogger(__name__)
 
@@ -199,7 +199,9 @@ class MetadataHandler(object):
         if sub_key in self._xmp_type_id:
             if value == self._xmp_type_id[sub_key]:
                 return
-            logger.warning('%s: altered type_id %s', self._name, sub_key)
+            logger.warning("%s: changed type of '%s' from '%s' to '%s'",
+                           self._name, sub_key,
+                           self._xmp_type_id[sub_key].name, value.name)
         self._xmp_type_id[sub_key] = value
 
     def get_xmp_type(self, key):
@@ -645,7 +647,7 @@ class MetadataHandler(object):
                     data = memoryview(data)
                 buf = QtCore.QBuffer()
                 # PySide insists on bytes, can't use memoryview
-                if using_pyside:
+                if qbuffer_needs_bytes:
                     data = bytes(data)
                 buf.setData(data)
                 reader = QtGui.QImageReader(buf)

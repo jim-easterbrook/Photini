@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ import exiv2
 
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import *
-from photini.pyqt import qt_version_info, using_pyside
+from photini.pyqt import qbuffer_needs_bytes, qt_version_info
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 
 logger = logging.getLogger(__name__)
@@ -538,7 +538,7 @@ class MD_Thumbnail(MD_Dict):
     @staticmethod
     def image_from_data(data):
         # PySide insists on bytes, can't use memoryview or buffer interface
-        if using_pyside and not isinstance(data, bytes):
+        if qbuffer_needs_bytes and not isinstance(data, bytes):
             data = bytes(data)
         buf = QtCore.QBuffer()
         buf.setData(data)
@@ -683,8 +683,16 @@ class MD_Structure(MD_Value, dict):
     @classmethod
     def get_type(cls, key, value):
         if cls.extendable and key not in cls.item_type:
-            result = exiv2.XmpProperties.propertyType(
-                exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+            try:
+                result = exiv2.XmpProperties.propertyType(
+                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+            except exiv2.Exiv2Error as ex:
+                if ex.code != exiv2.ErrorCode.kerNoNamespaceInfoForXmpPrefix:
+                    raise
+                prefix = key.split(':')[0]
+                exiv2.XmpProperties.registerNs(
+                    f'http://example.com/{prefix}/', prefix)
+                result = exiv2.TypeId.xmpText
             if result in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
                           exiv2.TypeId.xmpSeq):
                 result = MD_MultiString
@@ -1472,10 +1480,16 @@ class GPSVersionId(MD_Value, bytes):
         return self.to_xmp()
 
 
+class GPSMethod(MD_UnmergableString):
+    def __new__(cls, value=None):
+        value = value or 'MANUAL'
+        return super(GPSMethod, cls).__new__(cls, value)
+
+
 class MD_GPSinfo(MD_Structure):
     item_type = {
         'version_id': GPSVersionId,
-        'method': MD_UnmergableString,
+        'method': GPSMethod,
         'exif:GPSAltitude': MD_Altitude,
         'exif:GPSLatitude': MD_Latitude,
         'exif:GPSLongitude': MD_Longitude,
@@ -1483,6 +1497,15 @@ class MD_GPSinfo(MD_Structure):
     legacy_keys = (
         'version_id', 'method',
         'exif:GPSAltitude', 'exif:GPSLatitude', 'exif:GPSLongitude')
+
+    @classmethod
+    def from_gpx(cls, value, set_altitude=False):
+        result = {'method': 'GPS'}
+        result['exif:GPSLatitude'] = value.latitude
+        result['exif:GPSLongitude'] = value.longitude
+        if set_altitude and value.elevation is not None:
+            result['exif:GPSAltitude'] = round(value.elevation, 1)
+        return cls(result)
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -1739,7 +1762,7 @@ class RegionBoundaryNumber(MD_Float):
         return round(self, self.decimals)
 
     def __eq__(self, other):
-        return round(other, self.decimals) == round(self, self.decimals)
+        return round((other - self) / 2.0, self.decimals) == 0.0
 
     def __str__(self):
         return '{:g}'.format(round(self, self.decimals))
@@ -1822,7 +1845,32 @@ class RegionBoundary(MD_Structure):
                         result[key] = round(result[key] / dims['stDim:w'], 4)
                     elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
                         result[key] = round(result[key] / dims['stDim:h'], 4)
-        return result
+        return RegionBoundary(result)
+
+    def to_pixel(self, dims):
+        if self['Iptc4xmpExt:rbUnit'] == 'pixel':
+            return self
+        if not dims:
+            return None
+        result = dict(self)
+        result['Iptc4xmpExt:rbUnit'] = 'pixel'
+        if result['Iptc4xmpExt:rbShape'] == 'polygon':
+            result['Iptc4xmpExt:rbVertices'] = []
+            for v in self['Iptc4xmpExt:rbVertices']:
+                result['Iptc4xmpExt:rbVertices'].append({
+                    'Iptc4xmpExt:rbX': round(
+                        v['Iptc4xmpExt:rbX'] * dims['stDim:w'], 0),
+                    'Iptc4xmpExt:rbY': round(
+                        v['Iptc4xmpExt:rbY'] * dims['stDim:h'], 0)})
+        else:
+            for key, value in result.items():
+                if value:
+                    if key in ('Iptc4xmpExt:rbX', 'Iptc4xmpExt:rbW',
+                               'Iptc4xmpExt:rbRx'):
+                        result[key] = round(result[key] * dims['stDim:w'], 0)
+                    elif key in ('Iptc4xmpExt:rbY', 'Iptc4xmpExt:rbH'):
+                        result[key] = round(result[key] * dims['stDim:h'], 0)
+        return RegionBoundary(result)
 
     def to_Qt(self, image):
         # convert the boundary to a Qt polygon defining the shape in
@@ -1895,6 +1943,9 @@ class ImageRegionItem(MD_Structure):
         'mwg-rs:Name': MD_String,
         'dc:description': MD_LangAlt,
         }
+
+    def __bool__(self):
+        return bool(self['Iptc4xmpExt:RegionBoundary'])
 
     def merge(self, info, tag, other):
         result = super(ImageRegionItem, self).merge(info, tag, other)
@@ -2069,38 +2120,6 @@ class ImageRegionItem(MD_Structure):
             return None
         return cls(region)
 
-    @classmethod
-    def from_Exif(cls, file_value):
-        # Convert Exif.Photo.SubjectArea to an image region. See
-        # https://www.iptc.org/std/photometadata/documentation/userguide/#_mapping_exif_subjectarea_iptc_image_region
-        # Later the above was deprecated. See
-        # https://www.iptc.org/std/photometadata/documentation/userguide/#_note_about_the_exif_subjectarea_and_the_iptc_image_region
-        # I'm leaving this in for now as it's a one way mapping so should be
-        # mostly harmless.
-        if len(file_value) == 2:
-            region = {'Iptc4xmpExt:rbShape': 'polygon',
-                      'Iptc4xmpExt:rbVertices': [{
-                          'Iptc4xmpExt:rbX': file_value[0],
-                          'Iptc4xmpExt:rbY': file_value[1]}]}
-        elif len(file_value) == 3:
-            region = {'Iptc4xmpExt:rbShape': 'circle',
-                      'Iptc4xmpExt:rbX': file_value[0],
-                      'Iptc4xmpExt:rbY': file_value[1],
-                      'Iptc4xmpExt:rbRx': file_value[2] // 2}
-        elif len(file_value) == 4:
-            region = {'Iptc4xmpExt:rbShape': 'rectangle',
-                      'Iptc4xmpExt:rbX': file_value[0] - (file_value[2] // 2),
-                      'Iptc4xmpExt:rbY': file_value[1] - (file_value[3] // 2),
-                      'Iptc4xmpExt:rbW': file_value[2],
-                      'Iptc4xmpExt:rbH': file_value[3]}
-        else:
-            return None
-        region['Iptc4xmpExt:rbUnit'] = 'pixel'
-        return cls({
-            'Iptc4xmpExt:RegionBoundary': region,
-            'Iptc4xmpExt:rRole': [IPTCRoleCV.data_for_name('mainSubjectArea')],
-            })
-
     def has_type(self, label):
         if label in MWGTypeCV.vocab:
             data = MWGTypeCV.vocab[label]['data']
@@ -2185,8 +2204,6 @@ class MD_ImageRegion(MD_Structure):
         elif tag == 'Xmp.MP.RegionInfo':
             value = {'RegionList': [ImageRegionItem.from_MP(x)
                                     for x in file_value['MPRI:Regions']]}
-        elif tag == 'Exif.Photo.SubjectArea':
-            value = {'RegionList': [ImageRegionItem.from_Exif(file_value)]}
         else:
             return cls()
         return cls(value)
@@ -2238,18 +2255,10 @@ class MD_ImageRegion(MD_Structure):
         return MD_ImageRegion({
             'AppliedToDimensions': dimensions, 'RegionList': regions})
 
-    def new_region(self, region, idx=None):
-        if idx is None:
-            idx = len(self)
+    def set_regions(self, regions):
         dimensions = dict(self['AppliedToDimensions'])
-        regions = list(self)
-        if region:
-            if idx < len(regions):
-                regions[idx] = region
-            else:
-                regions.append(region)
-        elif idx < len(regions):
-            regions.pop(idx)
+        regions = [ImageRegionItem(x) for x in regions]
+        regions = [x for x in regions if x]
         return MD_ImageRegion({
             'AppliedToDimensions': dimensions, 'RegionList': regions})
 
