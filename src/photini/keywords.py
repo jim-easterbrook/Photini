@@ -584,11 +584,11 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
-        choice_dict = defaultdict(list)
-        for idx, option in enumerate(choices):
+        histogram = defaultdict(int)
+        for option in choices:
             for tag in option:
-                choice_dict[tag].append(idx)
-        tag_list = list(choice_dict.keys())
+                histogram[tag] += 1
+        tag_list = list(histogram.keys())
         tag_list.sort(key=str.casefold)
         self._value = tag_list
         self.set_rows(len(tag_list) + 1)
@@ -597,7 +597,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
             widget = layout.itemAt(idx).widget()
             if idx < len(tag_list):
                 tag = tag_list[idx]
-                if len(choice_dict[tag]) == len(choices):
+                if histogram[tag] == len(choices):
                     widget.set_value(
                         self.data_model.formatted_name(tag))
                 else:
