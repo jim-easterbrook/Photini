@@ -184,8 +184,6 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets['rating'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Rating'),
                       self.widgets['rating'])
-        # disable until an image is selected
-        self.setEnabled(False)
 
     def sub_widgets(self):
         return self.widgets.values()

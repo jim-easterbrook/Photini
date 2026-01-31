@@ -58,7 +58,8 @@ class WidgetMixin(object):
         if len(choices) > 1:
             self.set_multiple(choices=[x for x in choices if x])
         else:
-            self.set_value(choices and choices[0])
+            choices = choices or [None]
+            self.set_value(choices[0])
         self.setEnabled(True)
 
     def _save_data(self, metadata, value):
@@ -157,12 +158,12 @@ class TopLevelWidgetMixin(WidgetMixin):
         if not images:
             for widget in self.sub_widgets():
                 widget.set_value(None)
-            self.setEnabled(False)
-            return
-        metadata = [im.metadata for im in images]
-        for widget in self.sub_widgets():
-            widget._load_data(metadata)
-        self.setEnabled(True)
+                widget.setEnabled(False)
+        else:
+            metadata = [im.metadata for im in images]
+            for widget in self.sub_widgets():
+                widget._load_data(metadata)
+                widget.setEnabled(True)
 
     @QtSlot(dict)
     @catch_all
@@ -171,6 +172,10 @@ class TopLevelWidgetMixin(WidgetMixin):
         for image in images:
             for widget in self.sub_widgets():
                 widget._save_data(image.metadata, value)
+        self.save_finished(images)
+
+    def save_finished(self, images):
+        pass
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -1069,8 +1074,9 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         value = value or {}
         self.set_value(self.dict_to_value(value))
 
-    def dict_to_value(self, value):
-        return (value.get(self.lat_key), value.get(self.lng_key))
+    @classmethod
+    def dict_to_value(cls, value):
+        return (value.get(cls.lat_key), value.get(cls.lng_key))
 
     def _load_data(self, md_list):
         md_list = [self.dict_to_value(md) for md in md_list]
@@ -1089,22 +1095,6 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         if self.lat_key in value and self.lng_key in value:
             metadata[self.lat_key] = value[self.lat_key]
             metadata[self.lng_key] = value[self.lng_key]
-
-
-class GPSInfoWidget(QtCore.QObject, CompoundWidgetMixin):
-    _key = 'gps_info'
-
-    def __init__(self, *arg, **kw):
-        super(GPSInfoWidget, self).__init__(*arg, **kw)
-        # child widgets
-        self.widget = LatLongDisplay()
-        self.label = self.widget.label
-        self.widget.new_value.connect(self.sw_new_value)
-        # adopt child methods and signals
-        self.setReadOnly = self.widget.setReadOnly
-
-    def sub_widgets(self):
-        return [self.widget]
 
 
 class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):
@@ -1158,6 +1148,27 @@ class AltitudeDisplay(DoubleSpinBox):
             'AltitudeDisplay', 'Altitude of the location in metres.')))
         self.label = Label(translate('AltitudeDisplay', 'Altitude'))
         self.set_value(None)
+
+
+class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
+    _key = 'gps_info'
+
+    def __init__(self, *arg, **kw):
+        super(GPSInfoWidgets, self).__init__(*arg, **kw)
+        # child widgets
+        self.latlon = LatLongDisplay()
+        self.latlon_label = self.latlon.label
+        self.alt = AltitudeDisplay()
+        self.alt_label = self.alt.label
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
+
+    def setEnabled(self, enabled):
+        for widget in self.sub_widgets():
+            widget.setEnabled(enabled)
+
+    def sub_widgets(self):
+        return (self.latlon, self.alt)
 
 
 class ContextMenuMixin(object):

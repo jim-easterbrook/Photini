@@ -36,8 +36,8 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
                           QtWebEngineWidgets, qt_version_info)
-from photini.widgets import (AltitudeDisplay, ComboBox, CompoundWidgetMixin,
-                             ContextMenuMixin, GPSInfoWidget, Label)
+from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
+                             GPSInfoWidgets, Label, TopLevelWidgetMixin)
 
 
 logger = logging.getLogger(__name__)
@@ -282,7 +282,8 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
             event.acceptProposedAction()
 
 
-class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
+class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
+                 ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'PhotiniMap'
     use_layout_direction = True
 
@@ -297,7 +298,6 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.reset_map()
         self.map_status = {}
         self.widgets = {}
-        self.controls = {}
         # timer to count marker clicks
         self.click_info = {'id': None}
         self.click_timer = QtCore.QTimer(self)
@@ -307,36 +307,36 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
         left_side = QtWidgets.QGridLayout()
+        self.widgets['gpsinfo'] = GPSInfoWidgets()
+        self.widgets['gpsinfo'].new_value.connect(self.save_data)
         # latitude & longitude
-        self.widgets['latlon'] = GPSInfoWidget()
+        self.widgets['latlon'] = self.widgets['gpsinfo'].latlon
         left_side.addWidget(self.widgets['latlon'].label, 0, 0)
-        self.widgets['latlon'].new_value.connect(self.new_latlon)
-        left_side.addWidget(self.widgets['latlon'].widget, 0, 1)
+        left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
-        self.widgets['alt'] = AltitudeDisplay()
+        self.widgets['alt'] = self.widgets['gpsinfo'].alt
         left_side.addWidget(self.widgets['alt'].label, 1, 0)
-        self.widgets['alt'].new_value.connect(self.sw_new_value)
         left_side.addWidget(self.widgets['alt'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
-            self.controls['get_altitude'] = QtWidgets.QPushButton(
+            self.widgets['get_altitude'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Get altitude from map'))
-            self.controls['get_altitude'].clicked.connect(self.get_altitude)
-            left_side.addWidget(self.controls['get_altitude'], 2, 1)
+            self.widgets['get_altitude'].clicked.connect(self.get_altitude)
+            left_side.addWidget(self.widgets['get_altitude'], 2, 1)
         else:
-            self.controls['get_altitude'] = None
+            self.widgets['get_altitude'] = None
         # search
         label = Label(translate('PhotiniMap', 'Search'))
         left_side.addWidget(label, 3, 0)
-        self.controls['search'] = ComboBox()
-        self.controls['search'].setEditable(True)
-        self.controls['search'].setInsertPolicy(ComboBox.InsertPolicy.NoInsert)
-        self.controls['search'].lineEdit().setPlaceholderText(
+        self.widgets['search'] = ComboBox()
+        self.widgets['search'].setEditable(True)
+        self.widgets['search'].setInsertPolicy(ComboBox.InsertPolicy.NoInsert)
+        self.widgets['search'].lineEdit().setPlaceholderText(
             translate('PhotiniMap', '<new search>'))
-        self.controls['search'].lineEdit().returnPressed.connect(self.search)
-        self.controls['search'].activated.connect(self.goto_search_result)
+        self.widgets['search'].lineEdit().returnPressed.connect(self.search)
+        self.widgets['search'].activated.connect(self.goto_search_result)
         self.clear_search()
-        self.controls['search'].setEnabled(False)
-        left_side.addWidget(self.controls['search'], 3, 1)
+        self.widgets['search'].setEnabled(False)
+        left_side.addWidget(self.widgets['search'], 3, 1)
         # search terms and conditions
         for n, widget in enumerate(self.geocoder.search_terms()):
             left_side.addWidget(widget, n+4, 0, 1, 2)
@@ -344,42 +344,41 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         left_side.setRowStretch(7, 1)
         # GPX importer
         if self.app.gpx_importer:
-            self.controls['load_gpx'] = QtWidgets.QPushButton(
+            self.widgets['load_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Load GPX file'))
-            self.controls['load_gpx'].setEnabled(False)
-            self.controls['load_gpx'].clicked.connect(self.load_gpx)
-            self.controls['set_from_gpx'] = QtWidgets.QPushButton(
+            self.widgets['load_gpx'].setEnabled(False)
+            self.widgets['load_gpx'].clicked.connect(self.load_gpx)
+            self.widgets['set_from_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Set coords from GPX'))
-            self.controls['set_from_gpx'].setEnabled(False)
-            self.controls['set_from_gpx'].clicked.connect(self.set_from_gpx)
-            self.controls['clear_gpx'] = QtWidgets.QPushButton(
+            self.widgets['set_from_gpx'].setEnabled(False)
+            self.widgets['set_from_gpx'].clicked.connect(self.set_from_gpx)
+            self.widgets['clear_gpx'] = QtWidgets.QPushButton(
                 translate('PhotiniMap', 'Remove GPX data'))
-            self.controls['clear_gpx'].setEnabled(False)
-            self.controls['clear_gpx'].clicked.connect(self.clear_gpx)
-            width = max(self.controls['load_gpx'].sizeHint().width(),
-                        self.controls['set_from_gpx'].sizeHint().width(),
-                        self.controls['clear_gpx'].sizeHint().width())
-            if width > self.widgets['latlon'].widget.size().width():
+            self.widgets['clear_gpx'].setEnabled(False)
+            self.widgets['clear_gpx'].clicked.connect(self.clear_gpx)
+            width = max(self.widgets['load_gpx'].sizeHint().width(),
+                        self.widgets['set_from_gpx'].sizeHint().width(),
+                        self.widgets['clear_gpx'].sizeHint().width())
+            if width > self.widgets['latlon'].size().width():
                 args = 0, 1, 2
             else:
                 args = 1, 1, 1
-            left_side.addWidget(self.controls['load_gpx'], 8, *args)
-            left_side.addWidget(self.controls['set_from_gpx'], 9, *args)
-            left_side.addWidget(self.controls['clear_gpx'], 10, *args)
+            left_side.addWidget(self.widgets['load_gpx'], 8, *args)
+            left_side.addWidget(self.widgets['set_from_gpx'], 9, *args)
+            left_side.addWidget(self.widgets['clear_gpx'], 10, *args)
         self.layout().addLayout(left_side)
         # map
         # create handler for calls from JavaScript
         self.call_handler = CallHandler(parent=self)
-        self.controls['map'] = MapWebView(self.call_handler)
-        self.controls['map'].setUrl(QtCore.QUrl(''))
-        self.controls['map'].drop_text.connect(self.drop_text)
-        self.controls['map'].page().load_failed.connect(self.load_failed)
-        self.controls['map'].setAcceptDrops(False)
-        self.layout().addWidget(self.controls['map'])
+        self.widgets['map'] = MapWebView(self.call_handler)
+        self.widgets['map'].setUrl(QtCore.QUrl(''))
+        self.widgets['map'].drop_text.connect(self.drop_text)
+        self.widgets['map'].page().load_failed.connect(self.load_failed)
+        self.widgets['map'].setAcceptDrops(False)
+        self.layout().addWidget(self.widgets['map'])
         self.layout().setStretch(1, 1)
         # other init
-        self.app.image_list.image_list_changed.connect(self.image_list_changed)
-        self.app.map_icon_factory.icons_changed.connect(self.set_icon_data)
+        self.app.map_icon_factory.icons_changed.connect(self.new_icon_data)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -387,22 +386,7 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             'PhotiniMap', 'All "GPS" data'))
 
     def sub_widgets(self):
-        return self.widgets.values()
-
-    def reset_map(self):
-        self.map_loaded = 0     # not loaded
-        self.marker_info = {}
-        self.dropped_images = []
-        self.geocoder = self.get_geocoder()
-        self.gpx_ids = []
-
-    @QtSlot()
-    @catch_all
-    def image_list_changed(self):
-        if not self.isVisible():
-            return
-        # add or remove markers
-        self.redraw_markers()
+        return (self.widgets['gpsinfo'],)
 
     def get_body(self, text_dir):
         return '''  <body ondragstart="return false">
@@ -450,19 +434,19 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                   head=self.get_head(), body=self.get_body(text_dir),
                   options=self.get_options())
         QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-        self.controls['map'].setHtml(
+        self.widgets['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
 
     @catch_all
     def initialize_finished(self, OK):
         QtWidgets.QApplication.restoreOverrideCursor()
         if not OK:
-            self.controls['map'].page().set_local_links()
+            self.widgets['map'].page().set_local_links()
             link = '<a href="https://webglreport.com/">webglreport.com</a>'
             msg = translate('PhotiniMap', 'The map could not be loaded.'
                             ' This might be a WebGL problem. You can test'
                             ' this by clicking on {}.').format(link)
-            self.controls['map'].setHtml('''<!DOCTYPE html>
+            self.widgets['map'].setHtml('''<!DOCTYPE html>
 <html>
   <head><meta charset="utf-8" /></head>
   <body><h1>{}</h1><p>{}</p>
@@ -471,18 +455,21 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             return
         self.map_loaded = 2     # finished loading
         self.set_icon_data()
-        self.controls['search'].setEnabled(True)
-        if 'load_gpx' in self.controls:
-            self.controls['load_gpx'].setEnabled(True)
-        self.controls['map'].setAcceptDrops(True)
-        self.new_selection(
-            self.app.image_list.get_selected_images(), adjust_map=False)
+        self.widgets['search'].setEnabled(True)
+        if 'load_gpx' in self.widgets:
+            self.widgets['load_gpx'].setEnabled(True)
+        self.widgets['map'].setAcceptDrops(True)
+        self.refresh()
 
     @QtSlot()
     @catch_all
-    def set_icon_data(self):
+    def new_icon_data(self):
         if self.map_loaded < 2:
             return
+        self.set_icon_data()
+        self.redraw_markers(force=True)
+
+    def set_icon_data(self):
         for pin in (False, True):
             size = self.app.map_icon_factory.get_pin_size(pin)
             for active in (False, True):
@@ -490,12 +477,11 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                     pin, active,
                     self.app.map_icon_factory.get_pin_as_url(pin, active),
                     size))
-        self.redraw_markers(force=True)
 
     def refresh(self):
         self.app.image_list.set_drag_to_map(self.drag_icon)
-        selection = self.app.image_list.get_selected_images()
-        self.update_display(selection, adjust_map=False)
+        self.new_selection(self.app.image_list.get_selected_images(),
+                           adjust_map=False)
         if self.map_loaded < 1:
             self.map_loaded = 1     # started loading
             self.initialise()
@@ -505,7 +491,6 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         lat, lng = self.app.config_store.get('map', 'centre')
         zoom = float(self.app.config_store.get('map', 'zoom'))
         self.JavaScript('setView({!r},{!r},{:f})'.format(lat, lng, zoom))
-        self.new_selection(selection, adjust_map=False)
 
     def do_not_close(self):
         return False
@@ -526,68 +511,50 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             QtWidgets.QApplication.restoreOverrideCursor()
         self.reset_map()
 
+    def reset_map(self):
+        self.map_loaded = 0     # not loaded
+        self.marker_info = {}
+        self.geocoder = self.get_geocoder()
+        self.gpx_ids = []
+
     @QtSlot(int, int, str)
     @catch_all
     def drop_text(self, x, y, text):
-        self.dropped_images = eval(text)
         self.JavaScript('markerDrop({:d},{:d})'.format(x, y))
 
     @catch_all
     def marker_drop(self, lat, lng):
-        value = {'exif:GPSLatitude': lat, 'exif:GPSLongitude': lng}
-        images = [self.app.image_list.get_image(path)
-                  for path in self.dropped_images]
-        self.dropped_images = []
-        self.sw_new_value(value, images=images, adjust_map=False)
+        self.widgets['latlon'].set_value((lat, lng))
+        self.widgets['latlon'].emit_value()
 
-    @QtSlot(dict)
-    @catch_all
-    def new_latlon(self, value):
-        self.sw_new_value(value['gps_info'], adjust_map=True)
+    def new_selection(self, selection, adjust_map=True):
+        self.load_data(selection)
+        if 'set_from_gpx' in self.widgets:
+            enabled = bool(self.app.gpx_importer.display_points)
+            self.widgets['set_from_gpx'].setEnabled(enabled and bool(selection))
+            self.widgets['clear_gpx'].setEnabled(enabled)
+        self.redraw_gps_track(selection)
+        self.update_display(selection, adjust_map=adjust_map)
 
-    @QtSlot()
-    @catch_all
-    def emit_value(self):
-        self.sw_new_value(self.get_value(), adjust_map=True)
-
-    @QtSlot(dict)
-    @catch_all
-    def sw_new_value(self, value, images=[], adjust_map=False):
-        images = images or self.app.image_list.get_selected_images()
-        new_value = self.widgets['latlon'].get_value()
-        new_value.update(self.widgets['alt'].get_value_dict())
-        new_value.update(value)
-        new_value['method'] = 'MANUAL'
-        for image in images:
-            gps = dict(image.metadata.gps_info)
-            gps.update(new_value)
-            image.metadata.gps_info = gps
-        self.update_display(images, adjust_map=adjust_map)
+    def save_finished(self, images):
+        self.update_display(images)
 
     def update_display(self, images, adjust_map=True):
         self.redraw_markers()
-        values = []
-        for image in images:
-            values.append(image.metadata.gps_info)
-        self.widgets['latlon']._load_data([im.metadata for im in images])
-        self.widgets['alt'].set_value_list(values)
-        if self.controls['get_altitude']:
-            self.controls['get_altitude'].setEnabled(
+        if self.widgets['get_altitude']:
+            self.widgets['get_altitude'].setEnabled(
                 self.widgets['latlon'].has_value())
         if adjust_map:
             self.see_selection(images)
 
     def see_selection(self, selected_images):
         locations = []
-        # get locations of selected images
-        for image in selected_images:
-            gps = image.metadata.gps_info
-            if not gps['exif:GPSLatitude']:
-                continue
-            location = [float(gps['exif:GPSLatitude']),
-                        float(gps['exif:GPSLongitude'])]
-            if location not in locations:
-                locations.append(location)
+        # get locations of selected markers
+        for info in self.marker_info.values():
+            if info['selected']:
+                location = info['location']
+                if location not in locations:
+                    locations.append(location)
         if not locations:
             # get locations of GPS track points around time of selected images
             for point in self.get_nearest_gps(selected_images):
@@ -599,15 +566,6 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         if locations:
             self.JavaScript('fitPoints({!r})'.format(locations))
 
-    def new_selection(self, selection, adjust_map=True):
-        if 'set_from_gpx' in self.controls:
-            self.controls['set_from_gpx'].setEnabled(
-                bool(selection) and bool(self.app.gpx_importer.display_points))
-            self.controls['clear_gpx'].setEnabled(
-                bool(self.app.gpx_importer.display_points))
-        self.redraw_gps_track(selection)
-        self.update_display(selection, adjust_map=adjust_map)
-
     def redraw_markers(self, force=False):
         if self.map_loaded < 2:
             return
@@ -615,11 +573,11 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             info['images'] = []
         # assign images to existing markers or create new marker_info
         for image in self.app.image_list.get_images():
-            gps = image.metadata.gps_info
-            if not gps['exif:GPSLatitude']:
+            location = self.widgets['latlon'].dict_to_value(
+                image.metadata.gps_info)
+            if None in location:
                 continue
-            location = [float(gps['exif:GPSLatitude']),
-                        float(gps['exif:GPSLongitude'])]
+            location = [float(x) for x in location]
             for info in self.marker_info.values():
                 if info['location'] == location:
                     info['images'].append(image)
@@ -654,11 +612,9 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                     'enableMarker({:d},{:d})'.format(marker_id, selected))
 
     def redraw_gps_track(self, selected_images=None):
-        if self.map_loaded < 2:
+        if self.map_loaded < 2 or not self.app.gpx_importer:
             return
         # update GPX track markers
-        if not self.app.gpx_importer:
-            return
         if not self.app.gpx_importer.display_points:
             self.JavaScript('clearGPS()')
             self.gpx_ids = []
@@ -703,11 +659,10 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             time_stamp, lat, lng = p
             latlngs.append([lat, lng])
         self.JavaScript('fitPoints({!r})'.format(latlngs))
-        self.controls['set_from_gpx'].setEnabled(
-            bool(self.app.image_list.get_selected_images())
-            and bool(self.app.gpx_importer.display_points))
-        self.controls['clear_gpx'].setEnabled(
-            bool(self.app.gpx_importer.display_points))
+        enabled = bool(self.app.gpx_importer.display_points)
+        self.widgets['set_from_gpx'].setEnabled(
+            enabled and bool(self.app.image_list.get_selected_images()))
+        self.widgets['clear_gpx'].setEnabled(enabled)
 
     @QtSlot()
     @catch_all
@@ -716,9 +671,10 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         set_altitude = self.app.config_store.get('map', 'gpx_altitude', True)
         changed = False
         for image in selected_images:
-            if not image.metadata.date_taken:
+            md = image.metadata
+            if not md.date_taken:
                 continue
-            utc_time = image.metadata.date_taken.to_utc()
+            utc_time = md.date_taken.to_utc()
             utc_time = utc_time.replace(tzinfo=timezone.utc)
             candidates = self.app.gpx_importer.get_locations_at(utc_time)
             if not candidates:
@@ -727,15 +683,8 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             for c in candidates[1:]:
                 if abs(c.time - utc_time) < abs(nearest.time - utc_time):
                     nearest = c
-            gps = dict(image.metadata.gps_info)
-            gps['exif:GPSLatitude'] = nearest.latitude
-            gps['exif:GPSLongitude'] = nearest.longitude
-            if set_altitude and nearest.elevation is not None:
-                gps['exif:GPSAltitude'] = round(nearest.elevation, 1)
-            else:
-                gps['exif:GPSAltitude'] = None
-            gps['method'] = 'GPS'
-            image.metadata.gps_info = gps
+            md.gps_info = md.gps_info.from_gpx(
+                nearest, set_altitude=set_altitude)
             changed = True
         if changed:
             self.update_display(selected_images)
@@ -745,25 +694,24 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     def clear_gpx(self):
         self.app.gpx_importer.clear_data()
         self.redraw_gps_track()
-        self.controls['set_from_gpx'].setEnabled(False)
-        self.controls['clear_gpx'].setEnabled(False)
+        self.widgets['set_from_gpx'].setEnabled(False)
+        self.widgets['clear_gpx'].setEnabled(False)
 
     @QtSlot()
     @catch_all
     def get_altitude(self):
         images = self.app.image_list.get_selected_images()
         altitude = self.geocoder.get_altitude(
-            self.widgets['latlon'].widget.get_value())
-        if altitude is not None:
-            self.sw_new_value(
-                {'exif:GPSAltitude': round(altitude, 1)}, images=images)
+            self.widgets['latlon'].get_value())
+        self.widgets['alt'].set_value(round(altitude, 1))
+        self.widgets['alt'].emit_value()
 
     @QtSlot()
     @catch_all
     def search(self, search_string=None, bounded=True):
         if not search_string:
-            search_string = self.controls['search'].lineEdit().text()
-            self.controls['search'].clearEditText()
+            search_string = self.widgets['search'].lineEdit().text()
+            self.widgets['search'].clearEditText()
         if not search_string:
             return
         self.search_string = search_string
@@ -774,27 +722,27 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             bounds = None
         for result in self.geocoder.search(search_string, bounds=bounds):
             north, east, south, west, name = result
-            self.controls['search'].addItem(name, (north, east, south, west))
-        self.controls['search'].set_dropdown_width()
-        self.controls['search'].showPopup()
+            self.widgets['search'].addItem(name, (north, east, south, west))
+        self.widgets['search'].set_dropdown_width()
+        self.widgets['search'].showPopup()
 
     def clear_search(self):
-        self.controls['search'].clear()
-        self.controls['search'].addItem('')
+        self.widgets['search'].clear()
+        self.widgets['search'].addItem('')
         if self.search_string:
-            self.controls['search'].addItem(
+            self.widgets['search'].addItem(
                 translate('PhotiniMap', '<widen search>'), 'widen')
-            self.controls['search'].addItem(
+            self.widgets['search'].addItem(
                 translate('PhotiniMap', '<repeat search>'), 'repeat')
 
     @QtSlot(int)
     @catch_all
     def goto_search_result(self, idx):
-        self.controls['search'].setCurrentIndex(0)
-        self.controls['search'].clearFocus()
+        self.widgets['search'].setCurrentIndex(0)
+        self.widgets['search'].clearFocus()
         if idx == 0:
             return
-        data = self.controls['search'].itemData(idx)
+        data = self.widgets['search'].itemData(idx)
         if data is None:
             return
         if data == 'widen':
@@ -843,21 +791,15 @@ class PhotiniMap(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     @catch_all
     def marker_drag(self, lat, lng):
-        self.widgets['latlon'].widget.set_value((lat, lng))
+        self.widgets['latlon'].set_value((lat, lng))
 
     @catch_all
     def marker_drag_end(self, lat, lng, marker_id):
-        info = self.marker_info[marker_id]
-        for image in info['images']:
-            gps = dict(image.metadata.gps_info)
-            gps['exif:GPSLatitude'] = lat
-            gps['exif:GPSLongitude'] = lng
-            gps['method'] = 'MANUAL'
-            image.metadata.gps_info = gps
-        info['location'] = [float(image.metadata.gps_info['exif:GPSLatitude']),
-                            float(image.metadata.gps_info['exif:GPSLongitude'])]
-        self.widgets['latlon']._load_data([info['images'][0].metadata])
+        self.widgets['latlon'].set_value((lat, lng))
+        self.marker_info[marker_id]['location'] = list(
+            self.widgets['latlon'].get_value())
+        self.widgets['latlon'].emit_value()
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:
-            self.controls['map'].page().runJavaScript(command)
+            self.widgets['map'].page().runJavaScript(command)

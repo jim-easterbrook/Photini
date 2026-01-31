@@ -1480,10 +1480,16 @@ class GPSVersionId(MD_Value, bytes):
         return self.to_xmp()
 
 
+class GPSMethod(MD_UnmergableString):
+    def __new__(cls, value=None):
+        value = value or 'MANUAL'
+        return super(GPSMethod, cls).__new__(cls, value)
+
+
 class MD_GPSinfo(MD_Structure):
     item_type = {
         'version_id': GPSVersionId,
-        'method': MD_UnmergableString,
+        'method': GPSMethod,
         'exif:GPSAltitude': MD_Altitude,
         'exif:GPSLatitude': MD_Latitude,
         'exif:GPSLongitude': MD_Longitude,
@@ -1491,6 +1497,15 @@ class MD_GPSinfo(MD_Structure):
     legacy_keys = (
         'version_id', 'method',
         'exif:GPSAltitude', 'exif:GPSLatitude', 'exif:GPSLongitude')
+
+    @classmethod
+    def from_gpx(cls, value, set_altitude=False):
+        result = {'method': 'GPS'}
+        result['exif:GPSLatitude'] = value.latitude
+        result['exif:GPSLongitude'] = value.longitude
+        if set_altitude and value.elevation is not None:
+            result['exif:GPSAltitude'] = round(value.elevation, 1)
+        return cls(result)
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):

@@ -28,7 +28,7 @@ from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
     AltitudeDisplay, CompactButton, CompoundWidgetMixin, ContextMenuMixin,
-    GPSInfoWidget, Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
+    GPSInfoWidgets, Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
     SingleLineEdit, TopLevelWidgetMixin)
 
 logger = logging.getLogger(__name__)
@@ -277,6 +277,10 @@ class LocationList(QtCore.QObject, ListWidgetMixin):
                 count += 1
             self.tab_widget.set_tab_count(count)
 
+    def setEnabled(self, enabled):
+        for widget in self.sub_widgets():
+            widget.setEnabled(enabled)
+
     def sub_widgets(self):
         if self.is_camera:
             yield self.tab_widget.widget(0)
@@ -359,10 +363,10 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.coords_widget = GPSInfoWidget()
-        self.coords_widget.setReadOnly(True)
-        left_side.addWidget(self.coords_widget.label, 0, 0)
-        left_side.addWidget(self.coords_widget.widget, 0, 1)
+        self.coords_widget = GPSInfoWidgets()
+        self.coords_widget.latlon.setReadOnly(True)
+        left_side.addWidget(self.coords_widget.latlon_label, 0, 0)
+        left_side.addWidget(self.coords_widget.latlon, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('AddressTab', 'Get address from lat, long'))
@@ -402,12 +406,12 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def new_selection(self, selection):
         self.load_data(selection)
-        self.auto_location.setEnabled(self.coords_widget.has_value())
+        self.auto_location.setEnabled(self.coords_widget.latlon.has_value())
 
     @QtSlot()
     @catch_all
     def get_address(self):
         location = self.geocoder.get_address(
-            self.coords_widget.widget.get_value())
+            self.coords_widget.latlon.get_value())
         if location:
             self.locations_widget.paste_address(location)

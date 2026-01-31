@@ -312,7 +312,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.form = DataForm()
         self.form.tab_short_name = self.tab_short_name
         self.widgets = self.form.widgets
-        self.enableable.append(self.form.widget())
         self.layout().addWidget(self.form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
@@ -332,8 +331,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.enableable.append(apply_template)
         buttons.addWidget(apply_template)
         self.layout().addLayout(buttons)
-        # disable data entry until an image is selected
-        self.set_enabled(False)
         # update config
         for (k1, k2) in (('CiAdrExtadr', 'StreetAddress'),
                          ('CiAdrCity',   'City'),
