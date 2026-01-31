@@ -365,7 +365,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         # latitude & longitude
         self.coords_widget = GPSInfoWidgets()
         self.coords_widget.latlon.setReadOnly(True)
-        left_side.addWidget(self.coords_widget.latlon_label, 0, 0)
+        left_side.addWidget(self.coords_widget.latlon.label, 0, 0)
         left_side.addWidget(self.coords_widget.latlon, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(

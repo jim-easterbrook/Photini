@@ -1157,9 +1157,7 @@ class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
         super(GPSInfoWidgets, self).__init__(*arg, **kw)
         # child widgets
         self.latlon = LatLongDisplay()
-        self.latlon_label = self.latlon.label
         self.alt = AltitudeDisplay()
-        self.alt_label = self.alt.label
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
 
