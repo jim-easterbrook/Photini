@@ -145,12 +145,13 @@ class KeywordCompleter(QtWidgets.QCompleter):
 
 
 class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
-    def __init__(self, key, list_view, *arg, spell_check=False,
+    def __init__(self, key, list_view, data_model, *arg, spell_check=False,
                  length_check=None, multi_string=False, length_always=False,
                  length_bytes=True, min_width=None, **kw):
         super(HtmlTextEdit, self).__init__(*arg, **kw)
         self.init_mixin(key, spell_check, length_check, length_always,
                         length_bytes, multi_string, min_width)
+        self.data_model = data_model
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
         self.setLineWrapMode(self.LineWrapMode.NoWrap)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -191,7 +192,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
     def set_value(self, value):
         self.set_multiple(multiple=False)
         if value:
-            self.setHtml(value)
+            self.setHtml(self.data_model.formatted_name(value))
         else:
             self.clear()
 
@@ -544,7 +545,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         rows = max(rows, 1)
         # insert new rows if needed
         for idx in range(layout.count() - 1, rows):
-            widget = HtmlTextEdit(idx, self.list_view, spell_check=True)
+            widget = HtmlTextEdit(
+                idx, self.list_view, self.data_model, spell_check=True)
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
@@ -578,8 +580,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         self.set_rows(len(self._value) + 1)
         layout = self.widget().layout()
         for idx, row_value in enumerate(self._value):
-            layout.itemAt(idx).widget().set_value(
-                self.data_model.formatted_name(row_value))
+            layout.itemAt(idx).widget().set_value(row_value)
         layout.itemAt(len(self._value)).widget().set_value(None)
 
     def set_multiple(self, choices=[]):
@@ -598,8 +599,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
             if idx < len(tag_list):
                 tag = tag_list[idx]
                 if histogram[tag] == len(choices):
-                    widget.set_value(
-                        self.data_model.formatted_name(tag))
+                    widget.set_value(tag)
                 else:
                     widget.set_multiple(choices=[tag])
             else:
