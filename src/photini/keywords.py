@@ -145,11 +145,11 @@ class KeywordCompleter(QtWidgets.QCompleter):
 
 
 class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
-    def __init__(self, key, list_view, data_model, *arg, spell_check=False,
+    def __init__(self, list_view, data_model, *arg, spell_check=False,
                  length_check=None, multi_string=False, length_always=False,
                  length_bytes=True, min_width=None, **kw):
         super(HtmlTextEdit, self).__init__(*arg, **kw)
-        self.init_mixin(key, spell_check, length_check, length_always,
+        self.init_mixin('', spell_check, length_check, length_always,
                         length_bytes, multi_string, min_width)
         self.data_model = data_model
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
@@ -163,7 +163,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
     @catch_all
     def completer_activated(self, text):
         self.completer.popup().hide()
-        self.set_value(text)
+        self.setText(text)
         self.moveCursor(QtGui.QTextCursor.MoveOperation.EndOfBlock)
 
     @catch_all
@@ -193,8 +193,10 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
         self.set_multiple(multiple=False)
         if value:
             self.setHtml(self.data_model.formatted_name(value))
+            self._key = value
         else:
             self.clear()
+            self._key = ''
 
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):
@@ -516,8 +518,6 @@ class ListProxyModel(QtCore.QAbstractListModel):
 
 class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                              ContextMenuMixin):
-    update_value = QtSignal(str, str)
-
     def __init__(self, key, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
         self.app = QtWidgets.QApplication.instance()
@@ -546,26 +546,16 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         # insert new rows if needed
         for idx in range(layout.count() - 1, rows):
             widget = HtmlTextEdit(
-                idx, self.list_view, self.data_model, spell_check=True)
+                self.list_view, self.data_model, spell_check=True)
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
                 ' Separate them with "|" or "/" characters.')))
-            widget.new_value.connect(self._new_value)
+            widget.new_value.connect(self.new_value)
             layout.insertWidget(idx, widget)
         # hide or reveal rows
         for idx in range(layout.count() - 1):
             layout.itemAt(idx).widget().setVisible(idx < rows)
-
-    @QtSlot(dict)
-    @catch_all
-    def _new_value(self, value):
-        idx, new_value = list(value.items())[0]
-        if idx < len(self._value):
-            old_value = self._value[idx]
-        else:
-            old_value = ''
-        self.update_value.emit(old_value, new_value)
 
     def get_value(self):
         return self._value
@@ -653,8 +643,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         # hierarchical keywords
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
-        self.widgets['nested_tags'].new_value.connect(self.sw_new_value)
-        self.widgets['nested_tags'].update_value.connect(self.update_nested)
+        self.widgets['nested_tags'].new_value.connect(self.update_nested)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
                       lines=2)
         layout.addWidget(label, 1, 0)
@@ -785,11 +774,12 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.sync_nested_from_flat(images, silent=True)
         self.sync_flat_from_nested(images, silent=True)
 
-    @QtSlot(str, str)
+    @QtSlot(dict)
     @catch_all
-    def update_nested(self, old_value, new_value):
+    def update_nested(self, value):
         # Update single member of array to allow setting one keyword
         # when <multiple values> is shown for other keywords.
+        (old_value, new_value), = value.items()
         images = self.app.image_list.get_selected_images()
         # asterisks mark copyable keywords
         words = new_value.split('|')
