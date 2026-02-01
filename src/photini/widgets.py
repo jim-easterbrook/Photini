@@ -56,7 +56,7 @@ class WidgetMixin(object):
             if value not in choices:
                 choices.append(value)
         if len(choices) > 1:
-            self.set_multiple(choices=[x for x in choices if x])
+            self.set_multiple(choices=choices)
         else:
             choices = choices or [None]
             self.set_value(choices[0])
@@ -80,7 +80,7 @@ class WidgetMixin(object):
             if value not in choices:
                 choices.append(value)
         if len(choices) > 1:
-            self.set_multiple(choices=[x for x in choices if x])
+            self.set_multiple(choices=choices)
         else:
             self.set_value(choices and choices[0])
 
@@ -487,7 +487,7 @@ class TextEditMixin(WidgetMixin):
 
     def set_multiple(self, choices=[], multiple=True):
         self._is_multiple = multiple
-        self.choices = list(choices)
+        self.choices = [x for x in choices if x]
         if multiple:
             self.setPlaceholderText(self._multiple_values)
             self.clear()
@@ -849,7 +849,8 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def set_multiple(self, choices=[]):
         self.choices = {}
         for choice in choices:
-            self.choices[str(choice)] = MD_LangAlt(choice, strip=False)
+            if choice:
+                self.choices[str(choice)] = MD_LangAlt(choice, strip=False)
         self.edit.set_multiple(choices=self.choices.keys())
         self.lang.setEnabled(False)
 
@@ -929,7 +930,7 @@ class AugmentDateTime(AugmentSpinBoxBase):
             self.set_value(self.default_value)
 
     def set_multiple(self, choices=[]):
-        self.choices = list(filter(None, choices))
+        self.choices = [x for x in choices if x is not None]
         self._is_multiple = True
         self.setValue(self.minimum())
         self.setSpecialValueText(self.multiple)
@@ -950,7 +951,7 @@ class AugmentSpinBox(AugmentSpinBoxBase):
             self.lineEdit().setPlaceholderText('')
 
     def set_multiple(self, choices=[]):
-        self.choices = list(filter(None, choices))
+        self.choices = [x for x in choices if x is not None]
         self._is_multiple = True
         if self._prefix:
             self.setPrefix('')

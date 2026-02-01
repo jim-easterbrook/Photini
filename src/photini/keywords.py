@@ -847,7 +847,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.widgets[key].set_multiple(choices=[x for x in values if x])
+            self.widgets[key].set_multiple(choices=values)
         else:
             self.widgets[key].set_value(values[0])
         if key == 'nested_tags':
