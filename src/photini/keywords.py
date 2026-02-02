@@ -598,6 +598,20 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
     @QtSlot(dict)
     @catch_all
     def sw_new_value(self, value):
+        # asterisks mark copyable keywords
+        (old_value, new_value), = value.items()
+        words = new_value.split('|')
+        copyable = [x.startswith('*') for x in words]
+        if any(copyable):
+            words = [x.lstrip('*') for x in words]
+            new_value = '|'.join(words)
+            self.data_model.extend([new_value])
+            node = self.data_model.find_full_name(new_value)
+            while node:
+                if copyable.pop():
+                    node.set_checked('copyable', True)
+                node = node.parent()
+            value = {old_value: new_value}
         self.new_value.emit({self._key: value})
 
     def _save_data(self, metadata, value):
@@ -607,19 +621,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
             value = value[self._key]
             assert(len(value) == 1)
             (old_value, new_value), = value.items()
-            # asterisks mark copyable keywords
-            words = new_value.split('|')
-            copyable = [x.startswith('*') for x in words]
-            if any(copyable):
-                words = [x.lstrip('*') for x in words]
-                new_value = '|'.join(words)
-                self.data_model.extend([new_value])
-                node = self.data_model.find_full_name(new_value)
-                while node:
-                    if copyable.pop():
-                        node.set_checked('copyable', True)
-                    node = node.parent()
-            # update metadata
             value = list(metadata[self._key])
             if old_value and old_value in value:
                 value.remove(old_value)
