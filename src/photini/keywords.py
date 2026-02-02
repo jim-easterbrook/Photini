@@ -521,8 +521,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._key = key
         self.clipboard_key = key
-        self._is_multiple = False
-        self._value = []
         self.setWidget(QtWidgets.QWidget())
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
@@ -554,46 +552,48 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         for idx in range(layout.count() - 1):
             layout.itemAt(idx).widget().setVisible(idx < rows)
 
+    def sub_widgets(self):
+        layout = self.widget().layout()
+        for idx in range(layout.count() - 1):
+            widget = layout.itemAt(idx).widget()
+            if widget.isVisible():
+                yield widget
+
     def get_value(self):
-        return self._value
+        value = [w.get_value() for w in self.sub_widgets()]
+        value = [x for x in value if x]
+        return value
 
     def has_value(self):
-        return bool(self._value)
+        return any(w.has_value() for w in self.sub_widgets())
 
     def set_value(self, value):
-        if self._is_multiple:
-            self._is_multiple = False
-        self._value = list(value or [])
-        self.set_rows(len(self._value) + 1)
+        value = value or []
+        self.set_rows(len(value) + 1)
         layout = self.widget().layout()
-        for idx, row_value in enumerate(self._value):
+        for idx, row_value in enumerate(value):
             layout.itemAt(idx).widget().set_value(row_value)
-        layout.itemAt(len(self._value)).widget().set_value(None)
+        layout.itemAt(len(value)).widget().set_value(None)
 
     def set_multiple(self, choices=[]):
-        self._is_multiple = True
         histogram = defaultdict(int)
         for option in choices:
             for tag in option:
                 histogram[tag] += 1
         tag_list = list(histogram.keys())
         tag_list.sort(key=str.casefold)
-        self._value = tag_list
         self.set_rows(len(tag_list) + 1)
         layout = self.widget().layout()
-        for idx in range(layout.count() - 1):
+        for idx, tag in enumerate(tag_list):
             widget = layout.itemAt(idx).widget()
-            if idx < len(tag_list):
-                tag = tag_list[idx]
-                if histogram[tag] == len(choices):
-                    widget.set_value(tag)
-                else:
-                    widget.set_multiple(choices=[tag])
+            if histogram[tag] == len(choices):
+                widget.set_value(tag)
             else:
-                widget.set_value(None)
+                widget.set_multiple(choices=[tag])
+        layout.itemAt(len(tag_list)).widget().set_value(None)
 
     def is_multiple(self):
-        return self._is_multiple
+        return any(w.is_multiple() for w in self.sub_widgets())
 
     @QtSlot(dict)
     @catch_all
