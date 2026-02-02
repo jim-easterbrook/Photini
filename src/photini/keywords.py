@@ -616,16 +616,17 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
 
     def _save_data(self, metadata, value):
         if self._key in value:
-            # Update single member of array to allow setting one keyword
-            # when <multiple values> is shown for other keywords.
             value = value[self._key]
-            assert(len(value) == 1)
-            (old_value, new_value), = value.items()
-            value = list(metadata[self._key])
-            if old_value and old_value in value:
-                value.remove(old_value)
-            if new_value and new_value not in value:
-                value.append(new_value)
+            if isinstance(value, dict):
+                # Update single member of array to allow setting one keyword
+                # when <multiple values> is shown for other keywords.
+                assert(len(value) == 1)
+                (old_value, new_value), = value.items()
+                value = list(metadata[self._key])
+                if old_value and old_value in value:
+                    value.remove(old_value)
+                if new_value and new_value not in value:
+                    value.append(new_value)
             metadata[self._key] = value
 
     @QtSlot()
