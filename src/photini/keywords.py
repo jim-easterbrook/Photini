@@ -72,7 +72,6 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.is_multiple = self.edit.is_multiple
         self.new_value = self.edit.new_value
         self.emit_value = self.edit.emit_value
-        self._save_data = self.edit._save_data
 
     def update_favourites(self):
         self.favourites.clear()
@@ -95,18 +94,30 @@ class KeywordsEditor(QtWidgets.QWidget):
     def update_league_table(self, images):
         today = date.today().isoformat()
         for image in images:
-            keywords = image.metadata.keywords
-            value = [x for x in keywords if ':' not in x]
-            if not value:
-                continue
-            for keyword in value:
-                if keyword not in self.league_table:
-                    self.league_table[keyword] = today, 1
-                elif self.league_table[keyword][0] != today:
-                    self.league_table[keyword] = (
-                        today, self.league_table[keyword][1] + 1)
-        self.config_store.set('descriptive', 'keywords', self.league_table)
-        self.update_favourites()
+            self._update_league_table(image.metadata[self._key], today)
+
+    def _update_league_table(self, value, today=None):
+        value = [x for x in value if ':' not in x]
+        if not value:
+            return
+        today = today or date.today().isoformat()
+        changed = False
+        for keyword in value:
+            if keyword not in self.league_table:
+                self.league_table[keyword] = today, 1
+                changed = True
+            elif self.league_table[keyword][0] != today:
+                self.league_table[keyword] = (
+                    today, self.league_table[keyword][1] + 1)
+                changed = True
+        if changed:
+            self.config_store.set('descriptive', 'keywords', self.league_table)
+            self.update_favourites()
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            metadata[self._key] = value[self._key]
+            self._update_league_table(metadata[self._key])
 
     @QtSlot(int)
     @catch_all
@@ -797,13 +808,14 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     @catch_all
     def image_list_changed(self):
         images = self.app.image_list.get_images()
-        self.widgets['keywords'].update_league_table(images)
         # add all hierarchical keywords to data model
         for image in images:
             self.data_model.extend(image.metadata.nested_tags or [])
         # sync flat and hierarchical keywords
         self.sync_nested_from_flat(images, silent=True)
         self.sync_flat_from_nested(images, silent=True)
+        # update flat keyword favourites
+        self.widgets['keywords'].update_league_table(images)
 
     @QtSlot()
     @catch_all
@@ -822,12 +834,10 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 self.sync_nested_from_flat(images, remove=True)
                 self.sync_flat_from_nested(images)
                 self._update_widget('nested_tags', images)
-                self.widgets['keywords'].update_league_table(images)
             elif key == 'nested_tags':
                 self._update_widget('nested_tags', images)
                 self.sync_flat_from_nested(images, remove=True)
                 self._update_widget('keywords', images)
-                self.widgets['keywords'].update_league_table(images)
             self._update_widget(key, images)
 
     def _update_widget(self, key, images):
