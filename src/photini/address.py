@@ -250,12 +250,13 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
         return self.widgets.values()
 
 
-class LocationList(QtCore.QObject, ListWidgetMixin):
+class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
     def __init__(self, tab_widget, is_camera, *arg, **kw):
         super(LocationList, self).__init__(*arg, **kw)
         self.tab_widget = tab_widget
         self.is_camera = is_camera
         self._key = ('location_shown', 'location_taken')[is_camera]
+        self.clipboard_key = self._key
 
     def adjust_widget(self, value_list=None):
         if not self.is_camera:
@@ -310,6 +311,14 @@ class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.addTab(widget, text)
         self.setTabToolTip(0, '<p>' + tip + '</p>')
         self.set_tab_count(0)
+        # delegate context menu to subject locations
+        self.subject_locations.app = self.app
+        self.subject_locations.isEnabled = self.isEnabled
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.subject_locations.compound_context_menu(
+            event, title=translate('AddressTab', 'All "subject" addresses'))
 
     def paste_address(self, address):
         self.currentWidget().paste_value(address)
