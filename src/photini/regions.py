@@ -1015,8 +1015,8 @@ class QTabBar(QtWidgets.QTabBar):
         return size
 
 
-class RegionTabs(TabWidgetEx, WidgetMixin):
-    _key = 'iptcExt:ImageRegion'
+class RegionTabs(TabWidgetEx, ContextMenuMixin, WidgetMixin):
+    clipboard_key = 'RegionsTab'
 
     def __init__(self, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
@@ -1145,9 +1145,7 @@ class RegionTabs(TabWidgetEx, WidgetMixin):
             self.update_display(current=idx)
 
 
-class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
-    clipboard_key = 'RegionsTab'
-
+class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('RegionsTab', 'Image regions',
@@ -1163,23 +1161,16 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QHBoxLayout())
         # data display area
-        self.widgets = {'region_tabs': RegionTabs()}
-        self.layout().addWidget(self.widgets['region_tabs'])
+        self.region_tabs = RegionTabs()
+        self.layout().addWidget(self.region_tabs)
         # image display area
-        self.layout().addWidget(
-            self.widgets['region_tabs'].image_display, stretch=1)
+        self.layout().addWidget(self.region_tabs.image_display, stretch=1)
+        # delegate context menu to region tabs
+        self.region_tabs.tab_short_name = self.tab_short_name
 
     @catch_all
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
-
-    def sub_widgets(self):
-        return [self.widgets['region_tabs']]
-
-    @QtSlot()
-    @catch_all
-    def emit_value(self):
-        pass
+        self.region_tabs.compound_context_menu(event)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -1189,8 +1180,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     def new_selection(self, selection):
         if len(selection) != 1:
-            self.widgets['region_tabs'].set_image(None)
+            self.region_tabs.set_image(None)
             self.setEnabled(False)
             return
-        self.widgets['region_tabs'].set_image(selection[0])
+        self.region_tabs.set_image(selection[0])
         self.setEnabled(True)
