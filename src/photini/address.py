@@ -29,7 +29,7 @@ from photini.types import MD_Location
 from photini.widgets import (
     AltitudeDisplay, CompactButton, CompoundWidgetMixin, ContextMenuMixin,
     GPSInfoWidgets, Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
-    SingleLineEdit, TopLevelWidgetMixin)
+    SingleLineEdit, TabWidget, TopLevelWidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -173,9 +173,10 @@ class OpenCage(GeocoderBase):
 class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'LocationInfo'
 
-    def __init__(self, key, menu_title, *args, **kw):
+    def __init__(self, key, owner, menu_title, *args, **kw):
         super(LocationInfo, self).__init__(*args, **kw)
         self._key = key
+        self.owner = owner
         self.menu_title = menu_title
         self.app = QtWidgets.QApplication.instance()
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
@@ -249,6 +250,18 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
     def sub_widgets(self):
         return self.widgets.values()
 
+    def set_value(self, value):
+        super(LocationInfo, self).set_value(value)
+        self.owner.set_placeholder(self, not self.has_value())
+
+    def _load_data(self, md_list):
+        super(LocationInfo, self)._load_data(md_list)
+        self.owner.set_placeholder(self, not self.has_value())
+
+    def _save_data(self, metadata, value):
+        super(LocationInfo, self)._save_data(metadata, value)
+        self.owner.set_placeholder(self, not self.has_value())
+
 
 class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
     def __init__(self, tab_widget, is_camera, *arg, **kw):
@@ -299,7 +312,7 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
                 yield self.tab_widget.widget(idx)
 
 
-class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin, CompoundWidgetMixin):
+class AddressTabs(TabWidget, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'AddressTab'
 
     def __init__(self, *args, **kw):
@@ -315,7 +328,7 @@ class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin, CompoundWidgetMixin):
                         ' location where this image was created.')
         menu_title = translate(
             'AddressTab', 'All "{tab}" address data').format(tab=text)
-        widget = LocationInfo(0, menu_title)
+        widget = LocationInfo(0, self, menu_title)
         widget.new_value.connect(self.camera_locations.sw_new_value)
         self.addTab(widget, text)
         self.setTabToolTip(0, '<p>' + tip + '</p>')
@@ -349,7 +362,7 @@ class AddressTabs(QtWidgets.QTabWidget, ContextMenuMixin, CompoundWidgetMixin):
                             ' location which is shown in this image.')
             menu_title = translate(
                 'AddressTab', 'All "{tab}" address data').format(tab=text)
-            widget = LocationInfo(idx - 1, menu_title)
+            widget = LocationInfo(idx - 1, self, menu_title)
             widget.new_value.connect(self.subject_locations.sw_new_value)
             self.addTab(widget, text)
             self.setTabToolTip(idx, '<p>' + tip + '</p>')

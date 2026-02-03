@@ -355,6 +355,22 @@ class DropDownSelector(ComboBox, WidgetMixin):
         return idx
 
 
+class TabWidget(QtWidgets.QTabWidget):
+    def set_placeholder(self, widget, placeholder):
+        idx = self.indexOf(widget)
+        palette = self.tabBar().palette()
+        if not placeholder:
+            colour = palette.color(palette.ColorGroup.Normal,
+                                   palette.ColorRole.Text)
+        elif qt_version_info >= (5, 12):
+            colour = palette.color(palette.ColorGroup.Normal,
+                                   palette.ColorRole.PlaceholderText)
+        else:
+            colour = palette.text().color()
+            colour.setAlpha(128)
+        self.tabBar().setTabTextColor(idx, colour)
+
+
 class TextHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, spelling, length, length_always, length_bytes,
                  multi_string, parent):
