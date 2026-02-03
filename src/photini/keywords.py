@@ -72,6 +72,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.is_multiple = self.edit.is_multiple
         self.new_value = self.edit.new_value
         self.emit_value = self.edit.emit_value
+        self._load_data = self.edit._load_data
 
     def update_favourites(self):
         self.favourites.clear()
@@ -669,13 +670,27 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
             value = {old_value: new_value}
         self.new_value.emit({self._key: value})
 
+    def _load_data(self, md_list):
+        choices = []
+        for md in md_list:
+            value = None
+            if self._key in md:
+                value = md[self._key]
+            if value not in choices:
+                choices.append(value)
+        if len(choices) > 1:
+            self.set_multiple(choices=choices)
+        else:
+            choices = choices or [None]
+            self.set_value(choices[0])
+        self.setEnabled(True)
+
     def _save_data(self, metadata, value):
         if self._key in value:
             value = value[self._key]
             if isinstance(value, dict):
                 # Update single member of array to allow setting one keyword
                 # when <multiple values> is shown for other keywords.
-                assert(len(value) == 1)
                 (old_value, new_value), = value.items()
                 value = list(metadata[self._key])
                 if old_value and old_value in value:
@@ -743,8 +758,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.buttons['open_tree'].clicked.connect(
             self.widgets['nested_tags'].open_tree_view)
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
-        # disable until an image is selected
-        self.setEnabled(False)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -837,42 +850,30 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         for image in images:
             for widget in self.sub_widgets():
                 widget._save_data(image.metadata, value)
-        for key, value in value.items():
+        for key in value:
             if key == 'keywords':
                 self.sync_nested_from_flat(images, remove=True)
                 self.sync_flat_from_nested(images)
-                self._update_widget('nested_tags', images)
             elif key == 'nested_tags':
-                self._update_widget('nested_tags', images)
                 self.sync_flat_from_nested(images, remove=True)
-                self._update_widget('keywords', images)
-            self._update_widget(key, images)
+        self.load_data(images)
 
-    def _update_widget(self, key, images):
+    def load_data(self, images):
         if not images:
-            return
-        values = []
-        for image in images:
-            value = getattr(image.metadata, key)
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets[key].set_multiple(choices=values)
+            for widget in self.sub_widgets():
+                widget.set_value(None)
+                widget.setEnabled(False)
         else:
-            self.widgets[key].set_value(values[0])
-        if key == 'nested_tags':
-            self.buttons['open_tree'].setEnabled(
-                not self.widgets[key].is_multiple())
+            metadata = [im.metadata for im in images]
+            for widget in self.sub_widgets():
+                widget._load_data(metadata)
+                widget.setEnabled(True)
+        self.buttons['open_tree'].setEnabled(
+            not self.widgets['nested_tags'].is_multiple())
 
     def new_selection(self, selection):
-        if not selection:
-            for key in self.widgets:
-                self.widgets[key].set_value(None)
-            self.setEnabled(False)
-            return
         # sync flat and hierarchical keywords
         self.sync_nested_from_flat(selection, silent=True)
         self.sync_flat_from_nested(selection, silent=True)
-        for key in self.widgets:
-            self._update_widget(key, selection)
-        self.setEnabled(True)
+        # update widgets
+        self.load_data(selection)
