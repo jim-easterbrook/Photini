@@ -1027,6 +1027,15 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, WidgetMixin):
         # image display area
         self.image_display = ImageDisplayWidget(self)
 
+    def append_value(self, value):
+        values = list(self.get_value().values())
+        while values and not any(values[-1].values()):
+            values.pop()
+        for value in value.values():
+            if value not in values:
+                values.append(value)
+        self.set_value(dict(enumerate(values)))
+
     def emit_value(self):
         pass
 
