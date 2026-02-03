@@ -172,9 +172,9 @@ class TopLevelWidgetMixin(WidgetMixin):
         for image in images:
             for widget in self.sub_widgets():
                 widget._save_data(image.metadata, value)
-        self.save_finished(images)
+        self.save_finished(value, images)
 
-    def save_finished(self, images):
+    def save_finished(self, value, images):
         pass
 
 

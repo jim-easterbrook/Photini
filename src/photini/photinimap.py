@@ -536,7 +536,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.redraw_gps_track(selection)
         self.update_display(selection, adjust_map=adjust_map)
 
-    def save_finished(self, images):
+    def save_finished(self, value, images):
         self.update_display(images)
 
     def update_display(self, images, adjust_map=True):
