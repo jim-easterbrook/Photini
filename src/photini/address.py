@@ -278,6 +278,15 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
                 count += 1
             self.tab_widget.set_tab_count(count)
 
+    def append_value(self, value):
+        values = list(self.get_value().values())
+        while values and not any(values[-1].values()):
+            values.pop()
+        for value in value.values():
+            if value not in values:
+                values.append(value)
+        self.set_value(dict(enumerate(values)))
+
     def setEnabled(self, enabled):
         for widget in self.sub_widgets():
             widget.setEnabled(enabled)
