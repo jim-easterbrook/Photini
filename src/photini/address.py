@@ -29,7 +29,7 @@ from photini.types import MD_Location
 from photini.widgets import (
     AltitudeDisplay, CompactButton, CompoundWidgetMixin, ContextMenuMixin,
     GPSInfoWidgets, Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
-    SingleLineEdit, TabWidget, TopLevelWidgetMixin)
+    SingleLineEdit, TabWidgetEx, TopLevelWidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -312,7 +312,7 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
                 yield self.tab_widget.widget(idx)
 
 
-class AddressTabs(TabWidget, ContextMenuMixin, CompoundWidgetMixin):
+class AddressTabs(TabWidgetEx, ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'AddressTab'
 
     def __init__(self, *args, **kw):
@@ -366,6 +366,7 @@ class AddressTabs(TabWidget, ContextMenuMixin, CompoundWidgetMixin):
             widget.new_value.connect(self.subject_locations.sw_new_value)
             self.addTab(widget, text)
             self.setTabToolTip(idx, '<p>' + tip + '</p>')
+            self.set_placeholder(widget, True)
             idx += 1
         while idx > data_len:
             idx -= 1

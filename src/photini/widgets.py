@@ -355,7 +355,7 @@ class DropDownSelector(ComboBox, WidgetMixin):
         return idx
 
 
-class TabWidget(QtWidgets.QTabWidget):
+class TabWidgetEx(QtWidgets.QTabWidget):
     def set_placeholder(self, widget, placeholder):
         idx = self.indexOf(widget)
         palette = self.tabBar().palette()
