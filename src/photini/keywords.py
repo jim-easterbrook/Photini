@@ -738,13 +738,13 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.')))
-        self.widgets['keywords'].new_value.connect(self.sw_new_value)
+        self.widgets['keywords'].new_value.connect(self.save_data)
         layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
         layout.addWidget(self.widgets['keywords'], 0, 1)
         # hierarchical keywords
         self.widgets['nested_tags'] = HierarchicalTagsEditor(
             'nested_tags', self.data_model)
-        self.widgets['nested_tags'].new_value.connect(self.sw_new_value)
+        self.widgets['nested_tags'].new_value.connect(self.save_data)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
                       lines=2)
         layout.addWidget(label, 1, 0)
@@ -841,12 +841,12 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     @QtSlot()
     @catch_all
     def emit_value(self):
-        self.sw_new_value(self.get_value())
+        self.save_data(self.get_value())
 
     @QtSlot(dict)
     @catch_all
-    def sw_new_value(self, value):
-        images = self.app.image_list.get_selected_images()
+    def save_data(self, value, images=None):
+        images = images or self.app.image_list.get_selected_images()
         for image in images:
             for widget in self.sub_widgets():
                 widget._save_data(image.metadata, value)
@@ -857,6 +857,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             elif key == 'nested_tags':
                 self.sync_flat_from_nested(images, remove=True)
         self.load_data(images)
+        self.buttons['open_tree'].setEnabled(
+            not self.widgets['nested_tags'].is_multiple())
 
     def load_data(self, images):
         if not images:
@@ -868,8 +870,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             for widget in self.sub_widgets():
                 widget._load_data(metadata)
                 widget.setEnabled(True)
-        self.buttons['open_tree'].setEnabled(
-            not self.widgets['nested_tags'].is_multiple())
 
     def new_selection(self, selection):
         # sync flat and hierarchical keywords
@@ -877,3 +877,5 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.sync_flat_from_nested(selection, silent=True)
         # update widgets
         self.load_data(selection)
+        self.buttons['open_tree'].setEnabled(
+            not self.widgets['nested_tags'].is_multiple())
