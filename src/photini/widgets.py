@@ -30,6 +30,9 @@ translate = QtCore.QCoreApplication.translate
 class WidgetMixin(object):
     new_value = QtSignal(dict)
 
+    def append_value(self, value):
+        self.set_value(value)
+
     @QtSlot()
     @catch_all
     def emit_value(self):
@@ -1225,8 +1228,9 @@ class ContextMenuMixin(object):
     @QtSlot()
     @catch_all
     def do_delete(self):
-        self.paste_value({})
+        self.set_value({})
+        self.emit_value()
 
     def paste_value(self, value):
-        self.set_value(value)
+        self.append_value(value)
         self.emit_value()
