@@ -383,6 +383,50 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         json.dump(children, fp, ensure_ascii=True,
                   default=HierarchicalTagDataItem.json_default, indent=2)
 
+    def nested_from_flat(self, keywords):
+        new_tags = []
+        cf_keywords = [x.casefold() for x in keywords]
+        for keyword in keywords:
+            votes = {}
+            for match in self.find_name(keyword):
+                if match.checked('copyable'):
+                    nested_tag = match.full_name()
+                    # count matching parent keywords
+                    votes[nested_tag] = 0
+                    while match:
+                        if match.text() in keywords:
+                            # exact match worth a lot
+                            votes[nested_tag] += 10
+                        elif (match.data(HierarchicalTagDataItem.sort_role)
+                                  in cf_keywords):
+                            # case-folded match worth less
+                            votes[nested_tag] += 1
+                        match = match.parent()
+            if len(votes) == 1:
+                # only one match
+                new_tags.append(list(votes.keys())[0])
+            elif len(votes) > 1:
+                max_votes = max(votes.values())
+                chosen = [x for x in votes if votes[x] == max_votes]
+                if len(chosen) == 1:
+                    # one match is stronger than the others
+                    new_tags.append(chosen[0])
+                else:
+                    # can't choose a match
+                    logger.warning('ambiguous keyword: %s', keyword)
+        return new_tags
+
+    def flat_from_nested(self, nested_tags):
+        new_keywords = set()
+        for nested_tag in nested_tags:
+            match = self.find_full_name(nested_tag)
+            # ascend hierarchy, copying all copyable words
+            while match:
+                if match.checked('copyable'):
+                    new_keywords.add(match.text())
+                match = match.parent()
+        return new_keywords
+
 
 class HierarchicalTagsDialog(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
@@ -711,39 +755,9 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     def sync_nested_from_flat(self, images, remove=False, silent=False):
         for image in images:
-            new_tags = []
-            keywords = image.metadata.keywords or []
-            cf_keywords = [x.casefold() for x in keywords]
-            for keyword in keywords:
-                votes = {}
-                for match in self.data_model.find_name(keyword):
-                    if match.checked('copyable'):
-                        nested_tag = match.full_name()
-                        # count matching parent keywords
-                        votes[nested_tag] = 0
-                        while match:
-                            if match.text() in keywords:
-                                # exact match worth a lot
-                                votes[nested_tag] += 10
-                            elif (match.data(HierarchicalTagDataItem.sort_role)
-                                      in cf_keywords):
-                                # case-folded match worth less
-                                votes[nested_tag] += 1
-                            match = match.parent()
-                if len(votes) == 1:
-                    # only one match
-                    new_tags.append(list(votes.keys())[0])
-                elif len(votes) > 1:
-                    max_votes = max(votes.values())
-                    chosen = [x for x in votes if votes[x] == max_votes]
-                    if len(chosen) == 1:
-                        # one match is stronger than the others
-                        new_tags.append(chosen[0])
-                    else:
-                        # can't choose a match
-                        logger.warning(
-                            '%s: ambiguous keyword: %s', image.name, keyword)
-            nested_tags = list(image.metadata.nested_tags or [])
+            md = image.metadata
+            new_tags = self.data_model.nested_from_flat(md.keywords)
+            nested_tags = list(md.nested_tags)
             if remove:
                 for nested_tag in list(nested_tags):
                     if nested_tag in new_tags:
@@ -759,22 +773,16 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                     continue
                 nested_tags.append(new_tag)
             # set new values
-            changed = image.metadata.changed()
-            image.metadata.nested_tags = nested_tags
+            changed = md.changed()
+            md.nested_tags = nested_tags
             if silent:
-                image.metadata.set_changed(changed)
+                md.set_changed(changed)
 
     def sync_flat_from_nested(self, images, remove=False, silent=False):
         for image in images:
-            new_keywords = set()
-            for nested_tag in image.metadata.nested_tags or []:
-                match = self.data_model.find_full_name(nested_tag)
-                # ascend hierarchy, copying all copyable words
-                while match:
-                    if match.checked('copyable'):
-                        new_keywords.add(match.text())
-                    match = match.parent()
-            keywords = list(image.metadata.keywords or [])
+            md = image.metadata
+            new_keywords = self.data_model.flat_from_nested(md.nested_tags)
+            keywords = list(md.keywords)
             cf_keywords = [x.casefold() for x in keywords]
             for keyword in new_keywords:
                 try:
@@ -793,10 +801,10 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                                 and match.checked('copyable')):
                             keywords.remove(keyword)
             # set new values
-            changed = image.metadata.changed()
-            image.metadata.keywords = keywords
+            changed = md.changed()
+            md.keywords = keywords
             if silent:
-                image.metadata.set_changed(changed)
+                md.set_changed(changed)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
