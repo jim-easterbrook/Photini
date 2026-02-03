@@ -26,7 +26,7 @@ from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, LangAltWidget, MultiStringEdit,
-    SingleLineEdit, WidgetMixin)
+    SingleLineEdit, TabWidgetEx, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -863,11 +863,12 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     select_region = QtSignal(int)
     clipboard_key = 'RegionForm'
 
-    def __init__(self, idx, image_display, *arg, **kw):
+    def __init__(self, idx, owner, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
         self._key = idx
+        self.owner = owner
         self.app = QtWidgets.QApplication.instance()
-        self.image_display = image_display
+        self.image_display = owner.image_display
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self.setWidget(QtWidgets.QWidget())
         self.setWidgetResizable(True)
@@ -1001,6 +1002,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         for widget in self.sub_widgets():
             widget.setEnabled(bool(region))
             widget.set_value_dict(region)
+        self.owner.set_placeholder(self, not bool(region))
         # set region constraints
         self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(region)
 
@@ -1013,7 +1015,7 @@ class QTabBar(QtWidgets.QTabBar):
         return size
 
 
-class RegionTabs(QtWidgets.QTabWidget, WidgetMixin):
+class RegionTabs(TabWidgetEx, WidgetMixin):
     _key = 'iptcExt:ImageRegion'
 
     def __init__(self, *arg, **kw):
@@ -1059,7 +1061,7 @@ class RegionTabs(QtWidgets.QTabWidget, WidgetMixin):
         # add tabs if needed
         idx = self.count()
         while idx < count:
-            region_form = RegionForm(idx, self.image_display)
+            region_form = RegionForm(idx, self)
             region_form.new_value.connect(self.update_value)
             region_form.select_region.connect(self.setCurrentIndex)
             idx += 1
