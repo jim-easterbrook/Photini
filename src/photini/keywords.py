@@ -27,8 +27,9 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
-from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
-                             Label, MultiLineEdit, TextEditMixin, WidgetMixin)
+from photini.widgets import (
+    ComboBox, CompoundWidgetMixin, ContextMenuMixin, Label, MultiLineEdit,
+    TextEditMixin, TopLevelWidgetMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -707,7 +708,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         execute(dialog)
 
 
-class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
+class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
+                ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'KeywordsTab'
 
     @staticmethod
@@ -838,18 +840,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         # update flat keyword favourites
         self.widgets['keywords'].update_league_table(images)
 
-    @QtSlot()
-    @catch_all
-    def emit_value(self):
-        self.save_data(self.get_value())
-
-    @QtSlot(dict)
-    @catch_all
-    def save_data(self, value, images=None):
-        images = images or self.app.image_list.get_selected_images()
-        for image in images:
-            for widget in self.sub_widgets():
-                widget._save_data(image.metadata, value)
+    def save_finished(self, value, images):
         for key in value:
             if key == 'keywords':
                 self.sync_nested_from_flat(images, remove=True)
@@ -859,17 +850,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.load_data(images)
         self.buttons['open_tree'].setEnabled(
             not self.widgets['nested_tags'].is_multiple())
-
-    def load_data(self, images):
-        if not images:
-            for widget in self.sub_widgets():
-                widget.set_value(None)
-                widget.setEnabled(False)
-        else:
-            metadata = [im.metadata for im in images]
-            for widget in self.sub_widgets():
-                widget._load_data(metadata)
-                widget.setEnabled(True)
 
     def new_selection(self, selection):
         # sync flat and hierarchical keywords
