@@ -591,6 +591,10 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         self.compound_context_menu(event, title=translate(
             'KeywordsTab', 'All hierarchical keywords'))
 
+    def append_value(self, value):
+        value += self.get_value()
+        self.set_value(set(value))
+
     def set_rows(self, rows=1):
         # layout includes a spacer, which is always the last row
         layout = self.widget().layout()
