@@ -300,6 +300,8 @@ class HierarchicalTagDataItem(QtGui.QStandardItem):
 
 
 class HierarchicalTagDataModel(QtGui.QStandardItemModel):
+    new_value = QtSignal(dict)
+
     def __init__(self, *args, **kwds):
         super(HierarchicalTagDataModel, self).__init__(*args, **kwds)
         self.setSortRole(HierarchicalTagDataItem.sort_role)
@@ -382,6 +384,46 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         children = [root.child(row) for row in range(root.rowCount())]
         json.dump(children, fp, ensure_ascii=True,
                   default=HierarchicalTagDataItem.json_default, indent=2)
+
+    @QtSlot(dict)
+    @catch_all
+    def sync_nested_from_flat(self, value):
+        (key, value), = value.items()
+        if key == 'keywords':
+            keywords = [x.strip() for x in value.split(';')]
+            for tag in self.flat_to_nested(keywords):
+                self.new_value.emit({'nested_tags': {'': tag}})
+
+    def flat_to_nested(self, keywords):
+        cf_keywords = [x.casefold() for x in keywords]
+        for keyword in keywords:
+            votes = {}
+            for match in self.find_name(keyword):
+                if match.checked('copyable'):
+                    nested_tag = match.full_name()
+                    # count matching parent keywords
+                    votes[nested_tag] = 0
+                    while match:
+                        if match.text() in keywords:
+                            # exact match worth a lot
+                            votes[nested_tag] += 10
+                        elif (match.data(HierarchicalTagDataItem.sort_role)
+                                  in cf_keywords):
+                            # case-folded match worth less
+                            votes[nested_tag] += 1
+                        match = match.parent()
+            if len(votes) == 1:
+                # only one match
+                tag, = votes.keys()
+            elif len(votes) > 1:
+                max_votes = max(votes.values())
+                chosen = [x for x in votes if votes[x] == max_votes]
+                if len(chosen) > 1:
+                    # can't choose a match
+                    logger.warning('ambiguous keyword: %s', keyword)
+                    continue
+                tag = chosen[0]
+            yield tag
 
 
 class HierarchicalTagsDialog(QtWidgets.QDialog):
@@ -668,6 +710,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.setLayout(layout)
         # hierarchical tags data model
         self.data_model = HierarchicalTagDataModel()
+        self.data_model.new_value.connect(self.sw_new_value)
         # construct widgets
         self.widgets = {}
         self.buttons = {}
@@ -680,6 +723,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.')))
         self.widgets['keywords'].new_value.connect(self.sw_new_value)
+        self.widgets['keywords'].new_value.connect(
+            self.data_model.sync_nested_from_flat)
         layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
         layout.addWidget(self.widgets['keywords'], 0, 1)
         # hierarchical keywords
@@ -713,36 +758,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         for image in images:
             new_tags = []
             keywords = image.metadata.keywords or []
-            cf_keywords = [x.casefold() for x in keywords]
-            for keyword in keywords:
-                votes = {}
-                for match in self.data_model.find_name(keyword):
-                    if match.checked('copyable'):
-                        nested_tag = match.full_name()
-                        # count matching parent keywords
-                        votes[nested_tag] = 0
-                        while match:
-                            if match.text() in keywords:
-                                # exact match worth a lot
-                                votes[nested_tag] += 10
-                            elif (match.data(HierarchicalTagDataItem.sort_role)
-                                      in cf_keywords):
-                                # case-folded match worth less
-                                votes[nested_tag] += 1
-                            match = match.parent()
-                if len(votes) == 1:
-                    # only one match
-                    new_tags.append(list(votes.keys())[0])
-                elif len(votes) > 1:
-                    max_votes = max(votes.values())
-                    chosen = [x for x in votes if votes[x] == max_votes]
-                    if len(chosen) == 1:
-                        # one match is stronger than the others
-                        new_tags.append(chosen[0])
-                    else:
-                        # can't choose a match
-                        logger.warning(
-                            '%s: ambiguous keyword: %s', image.name, keyword)
+            for tag in self.data_model.flat_to_nested(keywords):
+                new_tags.append(tag)
             nested_tags = list(image.metadata.nested_tags or [])
             if remove:
                 for nested_tag in list(nested_tags):
@@ -831,7 +848,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 widget._save_data(image.metadata, value)
         for key, value in value.items():
             if key == 'keywords':
-                self.sync_nested_from_flat(images, remove=True)
                 self.sync_flat_from_nested(images)
                 self._update_widget('nested_tags', images)
             elif key == 'nested_tags':
