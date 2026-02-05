@@ -864,11 +864,6 @@ class MD_StructArray(MD_Value, tuple):
             return self.index(other)
         return len(self)
 
-    def get(self, idx, default=None):
-        if idx < len(self):
-            return self[idx]
-        return default
-
     def merge(self, info, tag, other):
         result = self
         for item in other:

@@ -934,9 +934,6 @@ class Metadata(object):
                 self._sc.clear_gps()
         self.set_changed(True)
 
-    def get(self, key, default=None):
-        return self[key]
-
     def set_changed(self, changed):
         if changed != self.dirty:
             self.dirty = changed
