@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -933,6 +933,9 @@ class Metadata(object):
             if self._sc:
                 self._sc.clear_gps()
         self.set_changed(True)
+
+    def get(self, key, default=None):
+        return self[key]
 
     def set_changed(self, changed):
         if changed != self.dirty:
