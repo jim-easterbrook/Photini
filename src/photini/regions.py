@@ -25,8 +25,9 @@ from photini.pyqt import *
 from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
-    CompoundWidgetMixin, ContextMenuMixin, LangAltWidget, MultiStringEdit,
-    SingleLineEdit, TabWidgetEx, WidgetMixin)
+    CompoundWidgetMixin, ContextMenuMixin, LangAltWidget, ListWidgetMixin,
+    MultiStringEdit, SingleLineEdit, TabWidgetEx, TopLevelWidgetMixin,
+    WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -101,6 +102,8 @@ class RegionMixin(object):
         self.set_style()
         for handle in self.handles:
             handle.setVisible(active)
+        if self.active:
+            self.image_display.show_boundary(self)
 
     def set_role(self, value):
         pass
@@ -193,13 +196,10 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         return super(RectangleRegion, self).itemChange(change, value)
 
     @catch_all
-    def mousePressEvent(self, event):
-        super(RectangleRegion, self).mousePressEvent(event)
-        self.owner.region_clicked()
-
-    @catch_all
     def mouseReleaseEvent(self, event):
         super(RectangleRegion, self).mouseReleaseEvent(event)
+        if not self.active:
+            self.owner.region_clicked()
         self.new_boundary()
 
     @classmethod
@@ -317,13 +317,10 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.set_scale()
 
     @catch_all
-    def mousePressEvent(self, event):
-        super(CircleRegion, self).mousePressEvent(event)
-        self.owner.region_clicked()
-
-    @catch_all
     def mouseReleaseEvent(self, event):
         super(CircleRegion, self).mouseReleaseEvent(event)
+        if not self.active:
+            self.owner.region_clicked()
         self.new_boundary()
 
     def handle_drag(self, handle, pos):
@@ -406,13 +403,10 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
         return super(PointRegion, self).itemChange(change, value)
 
     @catch_all
-    def mousePressEvent(self, event):
-        super(PointRegion, self).mousePressEvent(event)
-        self.owner.region_clicked()
-
-    @catch_all
     def mouseReleaseEvent(self, event):
         super(PointRegion, self).mouseReleaseEvent(event)
+        if not self.active:
+            self.owner.region_clicked()
         self.new_boundary()
 
     def get_value(self):
@@ -482,13 +476,10 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.new_boundary()
 
     @catch_all
-    def mousePressEvent(self, event):
-        super(PolygonRegion, self).mousePressEvent(event)
-        self.owner.region_clicked()
-
-    @catch_all
     def mouseReleaseEvent(self, event):
         super(PolygonRegion, self).mouseReleaseEvent(event)
+        if not self.active:
+            self.owner.region_clicked()
         self.new_boundary()
 
     def handle_drag(self, handle, pos):
@@ -565,7 +556,9 @@ class ImageGraphic(QtWidgets.QGraphicsPixmapItem):
             view.region_tabs.add_region(region)
 
 
-class ImageDisplayWidget(QtWidgets.QGraphicsView):
+class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
+    _key = 'AppliedToDimensions'
+
     def __init__(self, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
         self.setRenderHint(
@@ -574,7 +567,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
             QtGui.QPainter.RenderHint.SmoothPixmapTransform, True)
         self.setScene(QtWidgets.QGraphicsScene())
         self.setDragMode(self.DragMode.ScrollHandDrag)
-        self.image = None
+        self.graphic = None
 
     def set_region_tabs(self, region_tabs):
         self.region_tabs = region_tabs
@@ -607,16 +600,17 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         for boundary in self.boundaries():
             boundary.set_scale()
 
-    def set_image(self, image):
-        self.image = image
+    def load_image(self, image):
         scene = self.scene()
-        scene.clear()
+        if self.graphic:
+            scene.removeItem(self.graphic)
+            self.graphic = None
         self.resetTransform()
         if image:
             with Busy():
                 pixmap = image.metadata.get_image_pixmap()
             if not pixmap:
-                item = scene.addText(
+                self.graphic = scene.addText(
                     translate('RegionsTab', 'Unreadable image format'))
             else:
                 rect = self.contentsRect()
@@ -637,13 +631,46 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                     scale = h_sc / h_im
                 transform = transform.scale(scale, scale)
                 self.setTransform(transform)
-                item = ImageGraphic(pixmap)
-                scene.addItem(item)
-            scene.setSceneRect(item.boundingRect())
+                self.graphic = ImageGraphic(pixmap)
+                scene.addItem(self.graphic)
+            scene.setSceneRect(self.graphic.boundingRect())
         # transforms between scene and normalised/relative coordinates
         rect = scene.sceneRect()
         self.to_scene = QtGui.QTransform().scale(rect.width(), rect.height())
         self.from_scene = self.to_scene.inverted()[0]
+
+    def get_value(self):
+        if not self.graphic:
+            return {}
+        rect = self.graphic.boundingRect()
+        return {'stDim:w': int(rect.width()),
+                'stDim:h': int(rect.height()), 'stDim:unit': 'pixel'}
+
+    def is_multiple(self):
+        return False
+
+    def set_value(self, value):
+        if not self.region_tabs.has_value():
+            return
+        dims = self.get_value()
+        if value == dims:
+            return
+        if value:
+            dialog = QtWidgets.QMessageBox(parent=self)
+            dialog.setWindowTitle(
+                translate('RegionsTab', 'Photini: image size'))
+            dialog.setText('<h3>{}</h3>'.format(
+                translate('RegionsTab', 'Image has been resized.')))
+            dialog.setInformativeText(translate(
+                'RegionsTab', 'Image dimensions {w_im}x{h_im} do not match'
+                ' region definition {w_reg}x{h_reg}. The image regions may'
+                ' be incorrect.').format(
+                    w_im=dims['stDim:w'], h_im=dims['stDim:h'],
+                    w_reg=value['stDim:w'], h_reg=value['stDim:h']))
+            dialog.setStandardButtons(dialog.StandardButton.Ok)
+            dialog.setIcon(dialog.Icon.Warning)
+            execute(dialog)
+        self.emit_value()
 
     def boundaries(self):
         return [x for x in self.items() if isinstance(
@@ -657,7 +684,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         items = self.boundaries()
         # put active item at the front by default
         for item in items:
-            item.setZValue((0, len(items) * 2)[item.active])
+            item.setZValue((1, len(items) * 2)[item.active])
         # ensure big regions don't hide small regions
         mode = Qt.ItemSelectionMode.ContainsItemBoundingRect
         for item_m in items:
@@ -815,9 +842,9 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
             self.buttons[key].setChecked(key == value.get('Iptc4xmpExt:rbUnit'))
         if not value:
             return
-        rect = scene.sceneRect()
-        self.image_dims = {'stDim:w': rect.width(), 'stDim:h': rect.height()}
-        value = value.to_relative(self.image_dims)
+        self.image_dims = self.image_display.get_value()
+        if value['Iptc4xmpExt:rbUnit'] != 'relative':
+            value = value.to_relative(self.image_dims)
         if value['Iptc4xmpExt:rbShape'] == 'rectangle':
             self.graphic = RectangleRegion(value, self)
         elif value['Iptc4xmpExt:rbShape'] == 'circle':
@@ -826,9 +853,9 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
             self.graphic = PointRegion(value, self)
         else:
             self.graphic = PolygonRegion(value, self)
+        scene.addItem(self.graphic)
         if active:
             self.graphic.set_active(active)
-        scene.addItem(self.graphic)
 
     def new_boundary(self, boundary):
         if self.buttons['pixel'].isChecked():
@@ -852,7 +879,7 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
 
 
 class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
-    select_region = QtSignal(int)
+    new_person = QtSignal(dict)
     clipboard_key = 'RegionForm'
 
     def __init__(self, idx, owner, *arg, **kw):
@@ -922,6 +949,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
+        self.widgets[key].new_value.connect(self.new_person)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
         # description
@@ -949,52 +977,53 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         return False
 
     def region_clicked(self):
-        self.select_region.emit(self._key)
+        self.owner.setCurrentIndex(self._key)
 
-    def get_boundary(self):
-        return self.widgets['Iptc4xmpExt:RegionBoundary'].graphic
-
-    def set_value(self, region):
-        region = region or {}
-        # shrink or extend form if needed
-        layout = self.widget().layout()
-        for key in self.extra_keys:
-            if key not in region or not region[key]:
-                layout.removeRow(self.widgets[key])
-                self.extra_keys.remove(key)
-                del self.widgets[key]
-        for key, value in region.items():
-            if not value or key in self.widgets:
-                continue
-            self.extra_keys.append(key)
-            label = key.split(':')[-1]
-            label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
-            label = label.capitalize()
-            if isinstance(value, dict):
-                self.widgets[key] = LangAltWidget(
-                    key, multi_line=False, min_width=15, label=label)
-                label = None
-            elif isinstance(value, list):
-                self.widgets[key] = MultiStringEdit(key, min_width=15)
-            else:
-                self.widgets[key] = SingleLineEdit(key, min_width=15)
-            self.widgets[key].setToolTip('<p>{}<br/>{}</p>'.format(
-                key, translate(
-                    'RegionsTab', 'The Image Region Structure includes'
-                    ' optionally any metadata property which is related to the'
-                    ' region.')))
-            self.widgets[key].new_value.connect(self.update_value)
-            if label:
-                layout.addRow(label, self.widgets[key])
-            else:
-                layout.addRow(self.widgets[key])
-        # set values and enable or disable widgets
-        for widget in self.sub_widgets():
-            widget.setEnabled(bool(region))
-            widget.set_value_dict(region)
-        self.owner.set_placeholder(self, not bool(region))
-        # set region constraints
-        self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(region)
+    def adjust_widget(self, value_list, loading, pre_adjust):
+        if not loading:
+            return
+        region = value_list[0]
+        if pre_adjust:
+            # shrink or extend form if needed
+            layout = self.widget().layout()
+            for key in self.extra_keys:
+                if key not in region or not region[key]:
+                    layout.removeRow(self.widgets[key])
+                    self.extra_keys.remove(key)
+                    del self.widgets[key]
+            for key, value in region.items():
+                if not value or key in self.widgets:
+                    continue
+                self.extra_keys.append(key)
+                label = key.split(':')[-1]
+                label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
+                label = label.capitalize()
+                if isinstance(value, dict):
+                    self.widgets[key] = LangAltWidget(
+                        key, multi_line=False, min_width=15, label=label)
+                    label = None
+                elif isinstance(value, list):
+                    self.widgets[key] = MultiStringEdit(key, min_width=15)
+                else:
+                    self.widgets[key] = SingleLineEdit(key, min_width=15)
+                self.widgets[key].setToolTip('<p>{}<br/>{}</p>'.format(
+                    key, translate(
+                        'RegionsTab', 'The Image Region Structure includes'
+                        ' optionally any metadata property which is related to'
+                        ' the region.')))
+                self.widgets[key].new_value.connect(self.sw_new_value)
+                if label:
+                    layout.addRow(label, self.widgets[key])
+                else:
+                    layout.addRow(self.widgets[key])
+        else:
+            # enable sub widgets
+            enabled = 'Iptc4xmpExt:RegionBoundary' in region
+            for widget in self.sub_widgets():
+                widget.setEnabled(enabled)
+            self.owner.set_placeholder(self, not enabled)
+            # set region constraints
+            self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(region)
 
 
 class QTabBar(QtWidgets.QTabBar):
@@ -1005,8 +1034,10 @@ class QTabBar(QtWidgets.QTabBar):
         return size
 
 
-class RegionTabs(TabWidgetEx, ContextMenuMixin, WidgetMixin):
+class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
+    new_person = QtSignal(dict)
     clipboard_key = 'RegionsTab'
+    _key = 'RegionList'
 
     def __init__(self, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
@@ -1024,132 +1055,81 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, WidgetMixin):
 
     def append_value(self, value):
         values = list(self.get_value().values())
-        while values and not any(values[-1].values()):
-            values.pop()
         for value in value.values():
             if value not in values:
                 values.append(value)
         self.set_value(dict(enumerate(values)))
 
-    def emit_value(self):
-        pass
+    def add_region(self, region):
+        idx = self.count() - 1
+        self.setCurrentIndex(idx)
+        widget = self.widget(idx)
+        widget.paste_value(region)
+        widget.set_active(True)
+        self.adjust_widget([self.get_value()], True, True)
+
+    def adjust_widget(self, value_list, loading, pre_adjust):
+        if not loading:
+            return
+        if pre_adjust:
+            if value_list:
+                data_len = len(value_list[0])
+            else:
+                data_len = 0
+            # always have one extra tab to paste into
+            count = data_len + 1
+            # add tabs if needed
+            idx = self.count()
+            while idx < count:
+                region_form = RegionForm(idx, self)
+                region_form.new_value.connect(self.sw_new_value)
+                region_form.new_person.connect(self.new_person)
+                idx += 1
+                self.addTab(region_form, str(idx))
+            self.widget(data_len).set_value(None)
+            # remove tabs if not needed
+            idx = self.count()
+            while idx > count:
+                idx -= 1
+                self.widget(idx).set_value({})
+                self.removeTab(idx)
+        else:
+            # make current region selected and visible
+            self.tab_changed(self.currentIndex())
 
     def get_value(self):
-        result = {}
-        for widget in self.sub_widgets():
-            result.update(widget.get_value_dict())
+        result = super(RegionTabs, self).get_value()
+        # strip off value from last tab, when it's empty
+        idx = len(result) - 1
+        if not any(result[idx].values()):
+            del result[idx]
         return result
-
-    def is_multiple(self):
-        return any(w.is_multiple() for w in self.sub_widgets())
-
-    def set_value(self, value):
-        value = value or {}
-        md = self.image.metadata
-        md.image_region = md.image_region.set_regions(value.values())
-        self.update_display()
-
-    def add_region(self, region):
-        self.update_value({self.count() - 1: region})
-
-    def update_display(self, current=None):
-        if current is None:
-            current = self.currentIndex()
-        if self.image:
-            regions = self.image.metadata.image_region
-        else:
-            regions = []
-        data_len = len(regions)
-        # always have one extra tab to paste into
-        count = data_len + 1
-        # add tabs if needed
-        idx = self.count()
-        while idx < count:
-            region_form = RegionForm(idx, self)
-            region_form.new_value.connect(self.update_value)
-            region_form.select_region.connect(self.setCurrentIndex)
-            idx += 1
-            self.addTab(region_form, str(idx))
-        self.widget(data_len).set_value(None)
-        # remove surplus tabs
-        idx = self.count()
-        while idx > count:
-            idx -= 1
-            self.widget(idx).set_value(None)
-            self.removeTab(idx)
-        # set data
-        for idx, region in enumerate(regions):
-            self.widget(idx).set_value(region)
-        # make current region selected and visible
-        current = max(0, min(current, data_len - 1))
-        self.setCurrentIndex(current)
-        self.tab_changed(current)
-
-    def set_image(self, image):
-        current = self.currentIndex()
-        blocked = self.blockSignals(True)
-        self.clear()
-        self.blockSignals(blocked)
-        self.image = image
-        if image:
-            md = image.metadata
-            image_dims = md.dimensions
-            image_dims = {'w': image_dims['width'], 'h': image_dims['height']}
-            region_dims = md.image_region.get_dimensions()
-            if region_dims and region_dims != image_dims:
-                dialog = QtWidgets.QMessageBox(parent=self)
-                dialog.setWindowTitle(
-                    translate('RegionsTab', 'Photini: image size'))
-                dialog.setText('<h3>{}</h3>'.format(
-                    translate('RegionsTab', 'Image has been resized.')))
-                dialog.setInformativeText(translate(
-                    'RegionsTab', 'Image dimensions {w_im}x{h_im} do not match'
-                    ' region definition {w_reg}x{h_reg}. The image regions may'
-                    ' be incorrect.').format(
-                        w_im=image_dims['w'], h_im=image_dims['h'],
-                        w_reg=region_dims['w'], h_reg=region_dims['h']))
-                dialog.setStandardButtons(dialog.StandardButton.Ok)
-                dialog.setIcon(dialog.Icon.Warning)
-                execute(dialog)
-            # set region image dimensions without flagging as changed
-            changed = md.changed()
-            md.image_region = md.image_region.set_dimensions(image_dims)
-            md.set_changed(changed)
-        self.update_display(current=current)
 
     @QtSlot(int)
     @catch_all
     def tab_changed(self, idx):
         for n in range(self.count()):
             self.widget(n).set_active(n == idx)
-        boundary = self.widget(idx).get_boundary()
-        if boundary:
-            self.image_display.show_boundary(boundary)
-
-    @QtSlot(dict)
-    @catch_all
-    def update_value(self, value):
-        (idx, value), = value.items()
-        simple_update = len(value) == 1
-        md = self.image.metadata
-        regions = list(md.image_region)
-        while len(regions) <= idx:
-            regions.append({})
-            simple_update = False
-        regions[idx] = dict(regions[idx])
-        regions[idx].update(value)
-        md.image_region = md.image_region.set_regions(regions)
-        if 'Iptc4xmpExt:PersonInImage' in value:
-            people = list(md.people)
-            for name in value['Iptc4xmpExt:PersonInImage']:
-                if name not in people:
-                    people.append(name)
-            md.people = people
-        if not simple_update:
-            self.update_display(current=idx)
 
 
-class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
+class ImageRegionCompound(QtCore.QObject, CompoundWidgetMixin):
+    _key = 'image_region'
+
+    def __init__(self, widgets, *arg, **kw):
+        super(ImageRegionCompound, self).__init__(*arg, **kw)
+        self.widgets = widgets
+        for widget in self.widgets:
+            widget.new_value.connect(self.sw_new_value)
+
+    def setEnabled(self, enabled):
+        for widget in self.sub_widgets():
+            widget.setEnabled(enabled)
+
+    def sub_widgets(self):
+        return self.widgets
+
+
+class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin, TopLevelWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('RegionsTab', 'Image regions',
@@ -1166,6 +1146,7 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
         self.setLayout(QtWidgets.QHBoxLayout())
         # data display area
         self.region_tabs = RegionTabs()
+        self.region_tabs.new_person.connect(self.new_person)
         self.layout().addWidget(self.region_tabs)
         # image display area
         self.image_display = ImageDisplayWidget()
@@ -1173,12 +1154,36 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
         # each widget needs to know about the other
         self.region_tabs.set_image_display(self.image_display)
         self.image_display.set_region_tabs(self.region_tabs)
+        # compound non-widget to combine regions and dimensions
+        self.compound = ImageRegionCompound(
+            (self.region_tabs, self.image_display))
+        self.compound.new_value.connect(self.save_data)
         # delegate context menu to region tabs
         self.region_tabs.tab_short_name = self.tab_short_name
 
     @catch_all
     def contextMenuEvent(self, event):
         self.region_tabs.compound_context_menu(event)
+
+    def sub_widgets(self):
+        return [self.compound]
+
+    def save_finished(self, value, images):
+        # ensure image dimensions are saved
+        if 'AppliedToDimensions' not in value['image_region']:
+            self.image_display.emit_value()
+
+    @QtSlot(dict)
+    @catch_all
+    def new_person(self, value):
+        value, = value.values()
+        images = self.app.image_list.get_selected_images()
+        for image in images:
+            people = list(image.metadata.people)
+            for name in value:
+                if name not in people:
+                    people.append(name)
+            image.metadata.people = people
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -1188,10 +1193,8 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin):
 
     def new_selection(self, selection):
         if len(selection) != 1:
-            self.image_display.set_image(None)
-            self.region_tabs.set_image(None)
-            self.setEnabled(False)
-            return
-        self.image_display.set_image(selection[0])
-        self.region_tabs.set_image(selection[0])
-        self.setEnabled(True)
+            selection = []
+            self.image_display.load_image(None)
+        else:
+            self.image_display.load_image(selection[0])
+        self.load_data(selection)

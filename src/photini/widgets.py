@@ -89,7 +89,7 @@ class WidgetMixin(object):
 
 
 class CompoundWidgetMixin(WidgetMixin):
-    def adjust_widget(self, value_list=None):
+    def adjust_widget(self, value_list, loading, pre_adjust):
         pass
 
     def get_value(self):
@@ -106,23 +106,26 @@ class CompoundWidgetMixin(WidgetMixin):
 
     def set_value(self, value):
         value = value or {}
-        self.adjust_widget([value])
+        self.adjust_widget([value], True, True)
         for widget in self.sub_widgets():
             widget.set_value_dict(value)
+        self.adjust_widget([value], True, False)
 
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
-        self.adjust_widget(md_list)
+        self.adjust_widget(md_list, True, True)
         for widget in self.sub_widgets():
             widget._load_data(md_list)
+        self.adjust_widget(md_list, True, False)
 
     def _save_data(self, metadata, value):
         if self._key in value:
             md = dict(metadata[self._key])
+            self.adjust_widget([md], False, True)
             for widget in self.sub_widgets():
                 widget._save_data(md, value[self._key])
             metadata[self._key] = md
-            self.adjust_widget()
+            self.adjust_widget([md], False, False)
 
     @QtSlot(dict)
     @catch_all
@@ -133,22 +136,24 @@ class CompoundWidgetMixin(WidgetMixin):
 class ListWidgetMixin(CompoundWidgetMixin):
     def _load_data(self, md_list):
         md_list = [list(md[self._key]) for md in md_list]
-        self.adjust_widget(md_list)
+        self.adjust_widget(md_list, True, True)
         for widget in self.sub_widgets():
             for md in md_list:
                 while len(md) <= widget._key:
                     md.append({})
             widget._load_data(md_list)
+        self.adjust_widget(md_list, True, False)
 
     def _save_data(self, metadata, value):
         if self._key in value:
             md = list(metadata[self._key])
+            self.adjust_widget([md], False, True)
             for widget in self.sub_widgets():
                 while len(md) <= widget._key:
                     md.append({})
                 widget._save_data(md, value[self._key])
             metadata[self._key] = md
-            self.adjust_widget()
+            self.adjust_widget([md], False, False)
 
 
 class TopLevelWidgetMixin(WidgetMixin):
