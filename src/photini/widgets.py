@@ -131,7 +131,7 @@ class CompoundWidgetMixin(WidgetMixin):
             for widget in self.sub_widgets():
                 widget._save_data(md, value)
             metadata[self._key] = md
-            self.adjust_widget([md], False, False)
+            self.adjust_widget([metadata[self._key]], False, False)
 
     @QtSlot(dict)
     @catch_all
@@ -156,13 +156,14 @@ class ListWidgetMixin(CompoundWidgetMixin):
         return result
 
     def _load_data(self, md_list):
-        md_list = [list(md[self._key]) for md in md_list]
+        md_list = [md[self._key] for md in md_list]
         self.adjust_widget(md_list, True, True)
+        copy_list = [list(md) for md in md_list]
         for widget in self.sub_widgets():
-            for md in md_list:
+            for md in copy_list:
                 while len(md) <= widget._key:
                     md.append({})
-            widget._load_data(md_list)
+            widget._load_data(copy_list)
         self.adjust_widget(md_list, True, False)
 
     def _save_data(self, metadata, value):

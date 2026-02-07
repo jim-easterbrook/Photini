@@ -1059,16 +1059,13 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
         widget = self.widget(idx)
         widget.paste_value(region)
         widget.set_active(True)
-        self.adjust_widget([self.get_value()], True, True)
 
     def adjust_widget(self, value_list, loading, pre_adjust):
-        if not loading:
-            return
-        if pre_adjust:
-            if value_list:
-                data_len = len(value_list[0])
-            else:
-                data_len = 0
+        if value_list:
+            data_len = len(value_list[0])
+        else:
+            data_len = 0
+        if loading == pre_adjust:
             # always have one extra tab to paste into
             count = data_len + 1
             # add tabs if needed
@@ -1086,9 +1083,14 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
                 idx -= 1
                 self.widget(idx).set_value({})
                 self.removeTab(idx)
-        else:
+        elif loading:
             # make current region selected and visible
-            self.tab_changed(self.currentIndex())
+            idx = self.currentIndex()
+            if data_len and idx >= data_len:
+                idx = data_len - 1
+                self.setCurrentIndex(idx)
+            else:
+                self.tab_changed(idx)
 
     @QtSlot(int)
     @catch_all
