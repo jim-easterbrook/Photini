@@ -21,6 +21,8 @@ import math
 import os
 import re
 
+import exiv2
+
 from photini.pyqt import *
 from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
@@ -995,27 +997,39 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
                 if not value or key in self.widgets:
                     continue
                 self.extra_keys.append(key)
-                label = key.split(':')[-1]
-                label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
-                label = label.capitalize()
-                if isinstance(value, dict):
-                    self.widgets[key] = LangAltWidget(
-                        key, multi_line=False, min_width=15, label=label)
-                    label = None
-                elif isinstance(value, list):
-                    self.widgets[key] = MultiStringEdit(key, min_width=15)
+                info = exiv2.XmpProperties.propertyInfo(
+                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+                if info:
+                    label = info.title
+                    desc = info.desc
+                    type_id = info.typeId
                 else:
-                    self.widgets[key] = SingleLineEdit(key, min_width=15)
-                self.widgets[key].setToolTip('<p>{}<br/>{}</p>'.format(
-                    key, translate(
+                    label = key.split(':')[-1]
+                    label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
+                    label = label.capitalize()
+                    desc = '{}<br/>{}'.format(key, translate(
                         'RegionsTab', 'The Image Region Structure includes'
                         ' optionally any metadata property which is related to'
-                        ' the region.')))
-                self.widgets[key].new_value.connect(self.sw_new_value)
-                if label:
-                    layout.addRow(label, self.widgets[key])
+                        ' the region.'))
+                    if isinstance(value, dict):
+                        type_id = exiv2.TypeId.langAlt
+                    elif isinstance(value, list):
+                        type_id = exiv2.TypeId.xmpBag
+                    else:
+                        type_id = exiv2.TypeId.xmpText
+                if type_id == exiv2.TypeId.langAlt:
+                    self.widgets[key] = LangAltWidget(
+                        key, multi_line=False, min_width=15, label=label)
+                elif type_id == exiv2.TypeId.xmpText:
+                    self.widgets[key] = SingleLineEdit(key, min_width=15)
                 else:
+                    self.widgets[key] = MultiStringEdit(key, min_width=15)
+                self.widgets[key].setToolTip('<p>{}</p>'.format(desc))
+                self.widgets[key].new_value.connect(self.sw_new_value)
+                if type_id == exiv2.TypeId.langAlt:
                     layout.addRow(self.widgets[key])
+                else:
+                    layout.addRow(label, self.widgets[key])
         else:
             # enable sub widgets
             enabled = 'Iptc4xmpExt:RegionBoundary' in region
