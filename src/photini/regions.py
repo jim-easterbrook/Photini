@@ -1053,13 +1053,6 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
         for idx in range(self.count()):
             yield self.widget(idx)
 
-    def append_value(self, value):
-        values = list(self.get_value().values())
-        for value in value.values():
-            if value not in values:
-                values.append(value)
-        self.set_value(dict(enumerate(values)))
-
     def add_region(self, region):
         idx = self.count() - 1
         self.setCurrentIndex(idx)
@@ -1096,14 +1089,6 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
         else:
             # make current region selected and visible
             self.tab_changed(self.currentIndex())
-
-    def get_value(self):
-        result = super(RegionTabs, self).get_value()
-        # strip off value from last tab, when it's empty
-        idx = len(result) - 1
-        if not any(result[idx].values()):
-            del result[idx]
-        return result
 
     @QtSlot(int)
     @catch_all

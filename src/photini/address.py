@@ -267,32 +267,10 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
         if loading != pre_adjust:
             return
         if not self.is_camera:
-            if value_list is None:
-                count = self.tab_widget.count()
-                while count > 1:
-                    if self.tab_widget.widget(count - 1).has_value():
-                        break
-                    count -= 1
-            else:
-                count = 0
-                for value in value_list:
-                    idx = len(value)
-                    while idx > count:
-                        idx -= 1
-                        if any(bool(x) for x in value[idx].values()):
-                            count = max(count, 1 + idx)
-                            break
-                count += 1
-            self.tab_widget.set_tab_count(count)
-
-    def append_value(self, value):
-        values = list(self.get_value().values())
-        while values and not any(values[-1].values()):
-            values.pop()
-        for value in value.values():
-            if value not in values:
-                values.append(value)
-        self.set_value(dict(enumerate(values)))
+            count = 0
+            for value in value_list:
+                count = max(count, len(value))
+            self.tab_widget.set_tab_count(1 + count)
 
     def setEnabled(self, enabled):
         for widget in self.sub_widgets():
@@ -338,10 +316,6 @@ class AddressTabs(TabWidgetEx, ContextMenuMixin, CompoundWidgetMixin):
 
     def paste_address(self, address):
         self.currentWidget().paste_value(address)
-
-    def emit_value(self):
-        for widget in self.sub_widgets():
-            widget.emit_value()
 
     def set_tab_count(self, data_len):
         # minimum is camera location plus one empty subject location
