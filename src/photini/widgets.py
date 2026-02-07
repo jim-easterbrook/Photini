@@ -45,7 +45,7 @@ class WidgetMixin(object):
         return {self._key: self.get_value()}
 
     def has_value(self):
-        return bool(self.get_value())
+        return bool(self.get_value()) or self.is_multiple()
 
     def set_value_dict(self, value):
         self.set_value(value.get(self._key))
@@ -1113,7 +1113,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         return {self.lat_key: value[0], self.lng_key: value[1]}
 
     def has_value(self):
-        return bool(self.text().strip())
+        return bool(self.text().strip()) or self.is_multiple()
 
     def set_value(self, value):
         self.set_not_multiple()
