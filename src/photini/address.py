@@ -272,10 +272,6 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
                 count = max(count, len(value))
             self.tab_widget.set_tab_count(1 + count)
 
-    def setEnabled(self, enabled):
-        for widget in self.sub_widgets():
-            widget.setEnabled(enabled)
-
     def sub_widgets(self):
         if self.is_camera:
             yield self.tab_widget.widget(0)

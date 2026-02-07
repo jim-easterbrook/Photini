@@ -60,6 +60,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.get_value_dict = self.slider.get_value_dict
         self.is_multiple = self.slider.is_multiple
         self.new_value = self.slider.new_value
+        self.set_enabled = self.slider.set_enabled
         self.set_value_dict = self.slider.set_value_dict
         self._load_data = self.slider._load_data
         self._save_data = self.slider._save_data

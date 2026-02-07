@@ -362,10 +362,6 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
     def contextMenuEvent(self, event):
         self.form.compound_context_menu(event)
 
-    def set_enabled(self, enabled):
-        for widget in self.enableable:
-            widget.setEnabled(enabled)
-
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
 
@@ -494,4 +490,5 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     def new_selection(self, selection):
         self.form.load_data(selection)
-        self.set_enabled(bool(selection))
+        for widget in self.enableable:
+            widget.setEnabled(bool(selection))

@@ -1034,7 +1034,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
             # enable sub widgets
             enabled = 'Iptc4xmpExt:RegionBoundary' in region
             for widget in self.sub_widgets():
-                widget.setEnabled(enabled)
+                widget.set_enabled(enabled)
             self.owner.set_placeholder(self, not enabled)
             # set region constraints
             self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(region)
@@ -1121,10 +1121,6 @@ class ImageRegionCompound(QtCore.QObject, CompoundWidgetMixin):
         self.widgets = widgets
         for widget in self.widgets:
             widget.new_value.connect(self.sw_new_value)
-
-    def setEnabled(self, enabled):
-        for widget in self.sub_widgets():
-            widget.setEnabled(enabled)
 
     def sub_widgets(self):
         return self.widgets

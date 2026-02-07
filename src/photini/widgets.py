@@ -47,6 +47,9 @@ class WidgetMixin(object):
     def has_value(self):
         return bool(self.get_value()) or self.is_multiple()
 
+    def set_enabled(self, enabled):
+        self.setEnabled(enabled)
+
     def set_value_dict(self, value):
         self.set_value(value.get(self._key))
 
@@ -63,7 +66,7 @@ class WidgetMixin(object):
         else:
             choices = choices or [None]
             self.set_value(choices[0])
-        self.setEnabled(True)
+        self.set_enabled(True)
 
     def _save_data(self, metadata, value):
         if self._key in value:
@@ -71,10 +74,10 @@ class WidgetMixin(object):
 
     def set_value_list(self, values):
         if not values:
-            self.setEnabled(False)
+            self.set_enabled(False)
             self.set_value(None)
             return
-        self.setEnabled(True)
+        self.set_enabled(True)
         choices = []
         for value_dict in values:
             value = None
@@ -103,6 +106,10 @@ class CompoundWidgetMixin(WidgetMixin):
 
     def is_multiple(self):
         return any(w.is_multiple() for w in self.sub_widgets())
+
+    def set_enabled(self, enabled):
+        for widget in self.sub_widgets():
+            widget.set_enabled(enabled)
 
     def set_value(self, value):
         value = value or {}
@@ -194,12 +201,12 @@ class TopLevelWidgetMixin(WidgetMixin):
         if not images:
             for widget in self.sub_widgets():
                 widget.set_value(None)
-                widget.setEnabled(False)
+                widget.set_enabled(False)
         else:
             metadata = [im.metadata for im in images]
             for widget in self.sub_widgets():
                 widget._load_data(metadata)
-                widget.setEnabled(True)
+                widget.set_enabled(True)
 
     @QtSlot(dict)
     @catch_all
@@ -755,7 +762,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.lang.define_new_value = self._define_new_lang
 
     @catch_all
-    def setEnabled(self, enabled):
+    def set_enabled(self, enabled):
         self.edit.setEnabled(enabled)
         self.lang.setEnabled(enabled)
 
@@ -1142,7 +1149,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
                 x for x in choices if x != (None, None)])
         else:
             self.set_value(choices and choices[0])
-        self.setEnabled(True)
+        self.set_enabled(True)
 
     def _save_data(self, metadata, value):
         if self.lat_key in value and self.lng_key in value:
@@ -1213,10 +1220,6 @@ class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
         self.alt = AltitudeDisplay()
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
-
-    def setEnabled(self, enabled):
-        for widget in self.sub_widgets():
-            widget.setEnabled(enabled)
 
     def sub_widgets(self):
         return (self.latlon, self.alt)
