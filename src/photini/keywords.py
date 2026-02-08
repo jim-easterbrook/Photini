@@ -121,6 +121,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         if self._key in value:
             metadata[self._key] = value[self._key]
             self._update_league_table(metadata[self._key])
+        return False
 
     @QtSlot(int)
     @catch_all
@@ -704,6 +705,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                 if new_value and new_value not in value:
                     value.append(new_value)
             metadata[self._key] = value
+        return False
 
     @QtSlot()
     @catch_all

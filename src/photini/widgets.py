@@ -71,6 +71,7 @@ class WidgetMixin(object):
     def _save_data(self, metadata, value):
         if self._key in value:
             metadata[self._key] = value[self._key]
+        return False
 
     def set_value_list(self, values):
         if not values:
@@ -126,6 +127,7 @@ class CompoundWidgetMixin(WidgetMixin):
         self.adjust_widget(md_list, True, False)
 
     def _save_data(self, metadata, value):
+        reload = False
         if self._key in value:
             value = value[self._key]
             if value:
@@ -136,9 +138,11 @@ class CompoundWidgetMixin(WidgetMixin):
                 md = {}
             self.adjust_widget([md], False, True)
             for widget in self.sub_widgets():
-                widget._save_data(md, value)
+                if widget._save_data(md, value):
+                    reload = True
             metadata[self._key] = md
             self.adjust_widget([metadata[self._key]], False, False)
+        return reload
 
     @QtSlot(dict)
     @catch_all
@@ -174,6 +178,7 @@ class ListWidgetMixin(CompoundWidgetMixin):
         self.adjust_widget(md_list, True, False)
 
     def _save_data(self, metadata, value):
+        reload = False
         if self._key in value:
             value = value[self._key]
             if value:
@@ -186,9 +191,11 @@ class ListWidgetMixin(CompoundWidgetMixin):
             for widget in self.sub_widgets():
                 while len(md) <= widget._key:
                     md.append({})
-                widget._save_data(md, value)
+                if widget._save_data(md, value):
+                    reload = True
             metadata[self._key] = md
             self.adjust_widget([metadata[self._key]], False, False)
+        return reload
 
 
 class TopLevelWidgetMixin(WidgetMixin):
@@ -211,11 +218,15 @@ class TopLevelWidgetMixin(WidgetMixin):
     @QtSlot(dict)
     @catch_all
     def save_data(self, value, images=None):
+        reload = False
         images = images or self.app.image_list.get_selected_images()
         for image in images:
             for widget in self.sub_widgets():
-                widget._save_data(image.metadata, value)
+                if widget._save_data(image.metadata, value):
+                    reload = True
         self.save_finished(value, images)
+        if reload:
+            self.load_data(images)
 
     def save_finished(self, value, images):
         pass
@@ -1155,6 +1166,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         if self.lat_key in value and self.lng_key in value:
             metadata[self.lat_key] = value[self.lat_key]
             metadata[self.lng_key] = value[self.lng_key]
+        return False
 
 
 class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):

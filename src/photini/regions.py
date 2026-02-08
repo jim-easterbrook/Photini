@@ -879,6 +879,13 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
         if self.graphic:
             self.graphic.set_role(ImageRegionItem(value))
 
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            reload = bool(metadata.get(self._key)) != bool(value[self._key])
+            metadata[self._key] = value[self._key]
+            return reload
+        return False
+
 
 class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     new_person = QtSignal(dict)
@@ -1075,6 +1082,8 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
         widget.set_active(True)
 
     def adjust_widget(self, value_list, loading, pre_adjust):
+        if not loading:
+            return
         if value_list:
             data_len = len(value_list[0])
         else:

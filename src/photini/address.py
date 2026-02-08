@@ -254,6 +254,15 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
         if not pre_adjust:
             self.owner.set_placeholder(self, not self.has_value())
 
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            old_has_value = any(metadata[self._key].values())
+            reload = super(LocationInfo, self)._save_data(metadata, value)
+            new_has_value = any(metadata[self._key].values())
+            if reload or new_has_value != old_has_value:
+                return True
+        return False
+
 
 class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
     def __init__(self, tab_widget, is_camera, *arg, **kw):
@@ -264,6 +273,8 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
         self.clipboard_key = self._key
 
     def adjust_widget(self, value_list, loading, pre_adjust):
+        if not loading:
+            return
         if loading != pre_adjust:
             return
         if not self.is_camera:
