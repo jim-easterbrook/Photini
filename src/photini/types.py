@@ -835,8 +835,8 @@ class MD_StructArray(MD_Value, tuple):
         temp = []
         for item in value:
             temp.append(cls.item_type(item))
-        while temp and not temp[-1]:
-            temp = temp[:-1]
+        # remove empty values
+        temp = [x for x in temp if x]
         return super(MD_StructArray, cls).__new__(cls, temp)
 
     @classmethod
