@@ -205,10 +205,8 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
         self.set_multiple(multiple=False)
         if value:
             self.setHtml(self.data_model.formatted_name(value))
-            self._key = value
         else:
             self.clear()
-            self._key = ''
 
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):
@@ -572,21 +570,22 @@ class ListProxyModel(QtCore.QAbstractListModel):
         return item.data(role)
 
 
-class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
+class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
                              ContextMenuMixin):
-    def __init__(self, key, data_model, *args, **kwds):
+    _key = 'nested_tags'
+    dynamic = True
+
+    def __init__(self, data_model, *args, **kwds):
         super(HierarchicalTagsEditor, self).__init__(*args, **kwds)
         self.app = QtWidgets.QApplication.instance()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self._key = key
-        self.clipboard_key = key
+        self.clipboard_key = self._key
         self.setWidget(QtWidgets.QWidget())
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         self.widget().layout().addStretch(1)
         self.setWidgetResizable(True)
         self.data_model = data_model
         self.list_view = ListProxyModel(self.data_model)
-        self.set_rows()
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -597,12 +596,12 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         value += self.get_value()
         self.set_value(set(value))
 
-    def set_rows(self, rows=1):
-        # layout includes a spacer, which is always the last row
+    def set_subwidgets(self, keys):
+        keys = list(keys)
+        keys.sort(key=str.casefold)
         layout = self.widget().layout()
-        rows = max(rows, 1)
         # insert new rows if needed
-        for idx in range(layout.count() - 1, rows):
+        for idx in range(layout.count() - 1, len(keys) + 1):
             widget = HtmlTextEdit(
                 self.list_view, self.data_model, spell_check=True)
             widget.setToolTip('<p>{}</p>'.format(translate(
@@ -611,9 +610,14 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                 ' Separate them with "|" or "/" characters.')))
             widget.new_value.connect(self.sw_new_value)
             layout.insertWidget(idx, widget)
-        # hide or reveal rows
+        # hide or reveal rows and set subwidget keys
         for idx in range(layout.count() - 1):
-            layout.itemAt(idx).widget().setVisible(idx < rows)
+            widget = layout.itemAt(idx).widget()
+            widget.setVisible(idx <= len(keys))
+            if idx < len(keys):
+                widget._key = keys[idx]
+            else:
+                widget._key = ''
 
     def sub_widgets(self):
         layout = self.widget().layout()
@@ -627,36 +631,10 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
         value = [x for x in value if x]
         return value
 
-    def has_value(self):
-        return any(w.has_value() for w in self.sub_widgets())
-
     def set_value(self, value):
         value = value or []
-        self.set_rows(len(value) + 1)
-        layout = self.widget().layout()
-        for idx, row_value in enumerate(value):
-            layout.itemAt(idx).widget().set_value(row_value)
-        layout.itemAt(len(value)).widget().set_value(None)
-
-    def set_multiple(self, choices=[]):
-        histogram = defaultdict(int)
-        for option in choices:
-            for tag in option:
-                histogram[tag] += 1
-        tag_list = list(histogram.keys())
-        tag_list.sort(key=str.casefold)
-        self.set_rows(len(tag_list) + 1)
-        layout = self.widget().layout()
-        for idx, tag in enumerate(tag_list):
-            widget = layout.itemAt(idx).widget()
-            if histogram[tag] == len(choices):
-                widget.set_value(tag)
-            else:
-                widget.set_multiple(choices=[tag])
-        layout.itemAt(len(tag_list)).widget().set_value(None)
-
-    def is_multiple(self):
-        return any(w.is_multiple() for w in self.sub_widgets())
+        value = dict((k, k) for k in value)
+        super(HierarchicalTagsEditor, self).set_value(value)
 
     @QtSlot(dict)
     @catch_all
@@ -675,22 +653,12 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, WidgetMixin,
                     node.set_checked('copyable', True)
                 node = node.parent()
             value = {old_value: new_value}
-        self.new_value.emit({self._key: value})
+        super(HierarchicalTagsEditor, self).sw_new_value(value)
 
     def _load_data(self, md_list):
-        choices = []
-        for md in md_list:
-            value = None
-            if self._key in md:
-                value = md[self._key]
-            if value not in choices:
-                choices.append(value)
-        if len(choices) > 1:
-            self.set_multiple(choices=choices)
-        else:
-            choices = choices or [None]
-            self.set_value(choices[0])
-        self.set_enabled(True)
+        md_list = [
+            {self._key: dict((k, k) for k in md[self._key])} for md in md_list]
+        super(HierarchicalTagsEditor, self)._load_data(md_list)
 
     def _save_data(self, metadata, value):
         if self._key in value:
@@ -751,8 +719,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
         layout.addWidget(self.widgets['keywords'], 0, 1)
         # hierarchical keywords
-        self.widgets['nested_tags'] = HierarchicalTagsEditor(
-            'nested_tags', self.data_model)
+        self.widgets['nested_tags'] = HierarchicalTagsEditor(self.data_model)
         self.widgets['nested_tags'].new_value.connect(self.save_data)
         label = Label(translate('KeywordsTab', 'Hierarchical keywords'),
                       lines=2)
