@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -24,8 +24,9 @@ import re
 from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
-from photini.widgets import (AugmentDateTime, AugmentSpinBox, DoubleSpinBox,
-                             DropDownSelector, Slider, WidgetMixin)
+from photini.widgets import (
+    AugmentDateTime, AugmentSpinBox, DoubleSpinBox, DropDownSelector, Slider,
+    TopLevelWidgetMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -150,6 +151,27 @@ class LensList(DropdownEdit):
 
     def data_to_text(self, lens_model):
         return lens_model.get_name()
+
+    def set_value(self, value):
+        super(LensList, self).set_value(value)
+        if not (value and value['spec'] and value['spec']['min_fl']):
+            self.setToolTip('')
+            return
+        spec = dict((k, float(v) or '') for k, v in value['spec'].items())
+        tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
+                    '<th width="70">{th_max}</th></tr>'
+                    '<tr><th align="right">{th_fl}</th>'
+                    '<td align="center">{min_fl}</td>'
+                    '<td align="center">{max_fl}</td></tr>'
+                    '<tr><th align="right">{th_ap}</th>'
+                    '<td align="center">{min_fl_fn}</td>'
+                    '<td align="center">{max_fl_fn}</td></tr></table>')
+        tool_tip = tool_tip.format(
+            th_min=translate('TechnicalTab', 'min'),
+            th_max=translate('TechnicalTab', 'max'),
+            th_fl=translate('TechnicalTab', 'Focal length'),
+            th_ap=translate('TechnicalTab', 'Max aperture'), **spec)
+        self.setToolTip(tool_tip)
 
 
 class IntSpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
@@ -647,7 +669,7 @@ class DateLink(QtWidgets.QCheckBox):
         self.new_link.emit(self._primary, self._replica)
 
 
-class TabWidget(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('TechnicalTab', 'Technical metadata',
@@ -717,7 +739,6 @@ class TabWidget(QtWidgets.QWidget):
                            'orientation dropdown, diagonal reflection'), 5),
                 (translate('TechnicalTab', 'reflect top left to bottom right',
                            'orientation dropdown, diagonal reflection'), 7)))
-        self.widgets['orientation'].new_value.connect(self._new_value)
         self.widgets['orientation'].setFocusPolicy(Qt.FocusPolicy.NoFocus)
         other_group.layout().addRow(translate('TechnicalTab', 'Orientation'),
                                     self.widgets['orientation'])
@@ -725,7 +746,6 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['camera_model'] = CameraList('camera_model')
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
-        self.widgets['camera_model'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Camera'),
                                     self.widgets['camera_model'])
         # lens model
@@ -756,12 +776,16 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['aperture'].setMinimum(0.0)
         self.widgets['aperture'].set_prefix(translate(
             'TechnicalTab', 'ƒ/', 'lens aperture'))
-        self.widgets['aperture'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Aperture'),
                                     self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
-        # disable until an image is selected
-        self.setEnabled(False)
+        # connect signals
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.save_data)
+
+    def sub_widgets(self):
+        return (self.widgets['aperture'], self.widgets['camera_model'],
+                self.widgets['orientation'])
 
     _linked_date = {
         'date_taken'    : 'date_digitised',
@@ -803,6 +827,17 @@ class TabWidget(QtWidgets.QWidget):
         else:
             self.widgets[replica].set_enabled(True)
 
+    def save_finished(self, value, images):
+        for key, value in value.items():
+            if key == 'camera_model':
+                delete_makernote = 'ask'
+                for image in images:
+                    delete_makernote = self.ask_delete_makernote(
+                        delete_makernote, image, value)
+            elif key == 'orientation':
+                for image in images:
+                    image.load_thumbnail()
+
     @QtSlot(dict)
     @catch_all
     def _new_value(self, value):
@@ -810,10 +845,7 @@ class TabWidget(QtWidgets.QWidget):
         images = self.app.image_list.get_selected_images()
         delete_makernote = 'ask'
         for image in images:
-            if key == 'camera_model':
-                delete_makernote = self.ask_delete_makernote(
-                    delete_makernote, image, value)
-            elif (key == 'focal_length_35' and self.calc_35(
+            if (key == 'focal_length_35' and self.calc_35(
                     image.metadata, image.metadata.focal_length) == value):
                 continue
             elif key == 'focal_length' and image.metadata.focal_length_35:
@@ -821,9 +853,7 @@ class TabWidget(QtWidgets.QWidget):
                 image.metadata.focal_length_35 = self.calc_35(
                     image.metadata, value)
             image.metadata[key] = value
-            if key == 'orientation':
-                image.load_thumbnail()
-            elif key == 'focal_length_35':
+            if key == 'focal_length_35':
                 self.set_crop_factor(image.metadata)
         if key == 'focal_length':
             self._update_widget(
@@ -903,27 +933,11 @@ class TabWidget(QtWidgets.QWidget):
 
     def _update_lens_model(self, images):
         value = self.widgets['lens_model'].get_value_dict()
-        self.widgets['lens_model'].setToolTip('')
         if not (value and value['lens_model']):
             return
         spec = value['lens_model']['spec']
-        if not spec['min_fl']:
+        if not (spec and spec['min_fl']):
             return
-        tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
-                    '<th width="70">{th_max}</th></tr>'
-                    '<tr><th align="right">{th_fl}</th>'
-                    '<td align="center">{min_fl}</td>'
-                    '<td align="center">{max_fl}</td></tr>'
-                    '<tr><th align="right">{th_ap}</th>'
-                    '<td align="center">{min_fl_fn}</td>'
-                    '<td align="center">{max_fl_fn}</td></tr></table>')
-        tool_tip = tool_tip.format(
-            th_min=translate('TechnicalTab', 'min'),
-            th_max=translate('TechnicalTab', 'max'),
-            th_fl=translate('TechnicalTab', 'Focal length'),
-            th_ap=translate('TechnicalTab', 'Max aperture'),
-            **dict([(x, float(y) or '') for (x, y) in spec.items()]))
-        self.widgets['lens_model'].setToolTip(tool_tip)
         make_changes = False
         for image in images:
             new_aperture = image.metadata.aperture or 0
@@ -965,7 +979,7 @@ class TabWidget(QtWidgets.QWidget):
                 image.metadata.focal_length = new_fl
         if make_changes:
             self._update_widget(
-                ('aperture', 'focal_length', 'focal_length_35'), images=images)
+                ('focal_length', 'focal_length_35'), images=images)
 
     def _update_focal_length_35(self, images):
         self.widgets['focal_length_35'].set_faint(False)
@@ -1022,7 +1036,6 @@ class TabWidget(QtWidgets.QWidget):
 
     def new_selection(self, selection):
         self._update_widget(
-            ('date_taken', 'date_digitised', 'date_modified',
-             'orientation', 'camera_model', 'lens_model', 'aperture',
+            ('date_taken', 'date_digitised', 'date_modified', 'lens_model',
              'focal_length', 'focal_length_35'), images=selection)
-        self.setEnabled(bool(selection))
+        self.load_data(selection)
