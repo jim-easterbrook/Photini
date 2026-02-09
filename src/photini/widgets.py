@@ -66,7 +66,6 @@ class WidgetMixin(object):
         else:
             choices = choices or [None]
             self.set_value(choices[0])
-        self.set_enabled(True)
 
     def _save_data(self, metadata, value):
         if self._key in value:
@@ -93,7 +92,9 @@ class WidgetMixin(object):
 
 
 class CompoundWidgetMixin(WidgetMixin):
-    def adjust_widget(self, value_list, loading, pre_adjust):
+    dynamic = False
+
+    def after_load(self):
         pass
 
     def get_value(self):
@@ -114,17 +115,23 @@ class CompoundWidgetMixin(WidgetMixin):
 
     def set_value(self, value):
         value = value or {}
-        self.adjust_widget([value], True, True)
+        if self.dynamic:
+            keys = [k for k in value if value[k]]
+            self.set_subwidgets(keys)
         for widget in self.sub_widgets():
             widget.set_value_dict(value)
-        self.adjust_widget([value], True, False)
+        self.after_load()
 
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
-        self.adjust_widget(md_list, True, True)
+        if self.dynamic:
+            keys = set()
+            for md in md_list:
+                keys |= {k for k in md if md[k]}
+            self.set_subwidgets(keys)
         for widget in self.sub_widgets():
             widget._load_data(md_list)
-        self.adjust_widget(md_list, True, False)
+        self.after_load()
 
     def _save_data(self, metadata, value):
         reload = False
@@ -136,12 +143,10 @@ class CompoundWidgetMixin(WidgetMixin):
             else:
                 # clear metadata
                 md = {}
-            self.adjust_widget([md], False, True)
             for widget in self.sub_widgets():
                 if widget._save_data(md, value):
                     reload = True
             metadata[self._key] = md
-            self.adjust_widget([metadata[self._key]], False, False)
         return reload
 
     @QtSlot(dict)
@@ -168,14 +173,16 @@ class ListWidgetMixin(CompoundWidgetMixin):
 
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
-        self.adjust_widget(md_list, True, True)
+        if self.dynamic:
+            count = max(len(x) for x in md_list)
+            self.set_subwidgets(list(range(count)))
         copy_list = [list(md) for md in md_list]
         for widget in self.sub_widgets():
             for md in copy_list:
                 while len(md) <= widget._key:
                     md.append({})
             widget._load_data(copy_list)
-        self.adjust_widget(md_list, True, False)
+        self.after_load()
 
     def _save_data(self, metadata, value):
         reload = False
@@ -187,14 +194,12 @@ class ListWidgetMixin(CompoundWidgetMixin):
             else:
                 # clear metadata
                 md = []
-            self.adjust_widget([md], False, True)
             for widget in self.sub_widgets():
                 while len(md) <= widget._key:
                     md.append({})
                 if widget._save_data(md, value):
                     reload = True
             metadata[self._key] = md
-            self.adjust_widget([metadata[self._key]], False, False)
         return reload
 
 
@@ -212,8 +217,8 @@ class TopLevelWidgetMixin(WidgetMixin):
         else:
             metadata = [im.metadata for im in images]
             for widget in self.sub_widgets():
-                widget._load_data(metadata)
                 widget.set_enabled(True)
+                widget._load_data(metadata)
 
     @QtSlot(dict)
     @catch_all
@@ -1160,7 +1165,6 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
                 x for x in choices if x != (None, None)])
         else:
             self.set_value(choices and choices[0])
-        self.set_enabled(True)
 
     def _save_data(self, metadata, value):
         if self.lat_key in value and self.lng_key in value:

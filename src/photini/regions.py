@@ -890,6 +890,7 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
 class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     new_person = QtSignal(dict)
     clipboard_key = 'RegionForm'
+    dynamic = True
 
     def __init__(self, idx, owner, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
@@ -988,63 +989,60 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     def region_clicked(self):
         self.owner.setCurrentIndex(self._key)
 
-    def adjust_widget(self, value_list, loading, pre_adjust):
-        if not loading:
-            return
-        region = value_list[0]
-        if pre_adjust:
-            # shrink or extend form if needed
-            layout = self.widget().layout()
-            for key in self.extra_keys:
-                if key not in region or not region[key]:
-                    layout.removeRow(self.widgets[key])
-                    self.extra_keys.remove(key)
-                    del self.widgets[key]
-            for key, value in region.items():
-                if not value or key in self.widgets:
-                    continue
-                self.extra_keys.append(key)
-                info = exiv2.XmpProperties.propertyInfo(
-                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
-                if info:
-                    label = info.title
-                    desc = info.desc
-                    type_id = info.typeId
+    def set_subwidgets(self, keys):
+        # shrink or extend form if needed
+        layout = self.widget().layout()
+        for key in self.extra_keys:
+            if key not in keys:
+                layout.removeRow(self.widgets[key])
+                self.extra_keys.remove(key)
+                del self.widgets[key]
+        for key in keys:
+            if key in self.widgets:
+                continue
+            self.extra_keys.append(key)
+            info = exiv2.XmpProperties.propertyInfo(
+                exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+            if info:
+                label = info.title
+                desc = info.desc
+                type_id = info.typeId
+            else:
+                label = key.split(':')[-1]
+                label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
+                label = label.capitalize()
+                desc = '{}<br/>{}'.format(key, translate(
+                    'RegionsTab', 'The Image Region Structure includes'
+                    ' optionally any metadata property which is related to'
+                    ' the region.'))
+                if isinstance(value, dict):
+                    type_id = exiv2.TypeId.langAlt
+                elif isinstance(value, list):
+                    type_id = exiv2.TypeId.xmpBag
                 else:
-                    label = key.split(':')[-1]
-                    label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
-                    label = label.capitalize()
-                    desc = '{}<br/>{}'.format(key, translate(
-                        'RegionsTab', 'The Image Region Structure includes'
-                        ' optionally any metadata property which is related to'
-                        ' the region.'))
-                    if isinstance(value, dict):
-                        type_id = exiv2.TypeId.langAlt
-                    elif isinstance(value, list):
-                        type_id = exiv2.TypeId.xmpBag
-                    else:
-                        type_id = exiv2.TypeId.xmpText
-                if type_id == exiv2.TypeId.langAlt:
-                    self.widgets[key] = LangAltWidget(
-                        key, multi_line=False, min_width=15, label=label)
-                elif type_id == exiv2.TypeId.xmpText:
-                    self.widgets[key] = SingleLineEdit(key, min_width=15)
-                else:
-                    self.widgets[key] = MultiStringEdit(key, min_width=15)
-                self.widgets[key].setToolTip('<p>{}</p>'.format(desc))
-                self.widgets[key].new_value.connect(self.sw_new_value)
-                if type_id == exiv2.TypeId.langAlt:
-                    layout.addRow(self.widgets[key])
-                else:
-                    layout.addRow(label, self.widgets[key])
-        else:
-            # enable sub widgets
-            enabled = 'Iptc4xmpExt:RegionBoundary' in region
-            for widget in self.sub_widgets():
-                widget.set_enabled(enabled)
-            self.owner.set_placeholder(self, not enabled)
-            # set region constraints
-            self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(region)
+                    type_id = exiv2.TypeId.xmpText
+            if type_id == exiv2.TypeId.langAlt:
+                self.widgets[key] = LangAltWidget(
+                    key, multi_line=False, min_width=15, label=label)
+            elif type_id == exiv2.TypeId.xmpText:
+                self.widgets[key] = SingleLineEdit(key, min_width=15)
+            else:
+                self.widgets[key] = MultiStringEdit(key, min_width=15)
+            self.widgets[key].setToolTip('<p>{}</p>'.format(desc))
+            self.widgets[key].new_value.connect(self.sw_new_value)
+            if type_id == exiv2.TypeId.langAlt:
+                layout.addRow(self.widgets[key])
+            else:
+                layout.addRow(label, self.widgets[key])
+
+    def after_load(self):
+        # enable sub widgets
+        enabled = self.widgets['Iptc4xmpExt:RegionBoundary'].has_value()
+        self.set_enabled(enabled)
+        self.owner.set_placeholder(self, not enabled)
+        # set region constraints
+        self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(
+            self.widgets['Iptc4xmpExt:rRole'].get_value_dict())
 
 
 class QTabBar(QtWidgets.QTabBar):
@@ -1058,6 +1056,7 @@ class QTabBar(QtWidgets.QTabBar):
 class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
     new_person = QtSignal(dict)
     clipboard_key = 'RegionsTab'
+    dynamic = True
     _key = 'RegionList'
 
     def __init__(self, *arg, **kw):
@@ -1081,39 +1080,36 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
         widget.paste_value(region)
         widget.set_active(True)
 
-    def adjust_widget(self, value_list, loading, pre_adjust):
-        if not loading:
-            return
-        if value_list:
-            data_len = len(value_list[0])
+    def set_subwidgets(self, keys):
+        data_len = 0
+        if keys:
+            data_len = max(keys) + 1
+        # always have one extra tab to paste into
+        count = data_len + 1
+        # add tabs if needed
+        idx = self.count()
+        while idx < count:
+            region_form = RegionForm(idx, self)
+            region_form.new_value.connect(self.sw_new_value)
+            region_form.new_person.connect(self.new_person)
+            idx += 1
+            self.addTab(region_form, str(idx))
+        # remove tabs if not needed
+        idx = self.count()
+        while idx > count:
+            idx -= 1
+            self.widget(idx).set_value({})
+            self.removeTab(idx)
+
+    def after_load(self):
+        # make current region selected and visible
+        idx = self.currentIndex()
+        data_len = self.count() - 1
+        if data_len and idx >= data_len:
+            idx = data_len - 1
+            self.setCurrentIndex(idx)
         else:
-            data_len = 0
-        if loading == pre_adjust:
-            # always have one extra tab to paste into
-            count = data_len + 1
-            # add tabs if needed
-            idx = self.count()
-            while idx < count:
-                region_form = RegionForm(idx, self)
-                region_form.new_value.connect(self.sw_new_value)
-                region_form.new_person.connect(self.new_person)
-                idx += 1
-                self.addTab(region_form, str(idx))
-            self.widget(data_len).set_value(None)
-            # remove tabs if not needed
-            idx = self.count()
-            while idx > count:
-                idx -= 1
-                self.widget(idx).set_value({})
-                self.removeTab(idx)
-        elif loading:
-            # make current region selected and visible
-            idx = self.currentIndex()
-            if data_len and idx >= data_len:
-                idx = data_len - 1
-                self.setCurrentIndex(idx)
-            else:
-                self.tab_changed(idx)
+            self.tab_changed(idx)
 
     @QtSlot(int)
     @catch_all

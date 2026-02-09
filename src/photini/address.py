@@ -250,9 +250,8 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
     def sub_widgets(self):
         return self.widgets.values()
 
-    def adjust_widget(self, value_list, loading, pre_adjust):
-        if not pre_adjust:
-            self.owner.set_placeholder(self, not self.has_value())
+    def after_load(self):
+        self.owner.set_placeholder(self, not self.has_value())
 
     def _save_data(self, metadata, value):
         if self._key in value:
@@ -269,19 +268,15 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
         super(LocationList, self).__init__(*arg, **kw)
         self.tab_widget = tab_widget
         self.is_camera = is_camera
+        self.dynamic = not is_camera
         self._key = ('location_shown', 'location_taken')[is_camera]
         self.clipboard_key = self._key
 
-    def adjust_widget(self, value_list, loading, pre_adjust):
-        if not loading:
-            return
-        if loading != pre_adjust:
-            return
-        if not self.is_camera:
-            count = 0
-            for value in value_list:
-                count = max(count, len(value))
-            self.tab_widget.set_tab_count(1 + count)
+    def set_subwidgets(self, keys):
+        data_len = 0
+        if keys:
+            data_len = max(keys) + 1
+        self.tab_widget.set_tab_count(1 + data_len)
 
     def sub_widgets(self):
         if self.is_camera:
