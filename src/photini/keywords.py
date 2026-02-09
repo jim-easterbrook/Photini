@@ -593,8 +593,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
             'KeywordsTab', 'All hierarchical keywords'))
 
     def append_value(self, value):
-        value += self.get_value()
-        self.set_value(set(value))
+        value.update(self.get_value())
+        self.set_value(value)
 
     def set_subwidgets(self, keys):
         keys = list(keys)
@@ -626,16 +626,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
             if widget.isVisible():
                 yield widget
 
-    def get_value(self):
-        value = [w.get_value() for w in self.sub_widgets()]
-        value = [x for x in value if x]
-        return value
-
-    def set_value(self, value):
-        value = value or []
-        value = dict((k, k) for k in value)
-        super(HierarchicalTagsEditor, self).set_value(value)
-
     @QtSlot(dict)
     @catch_all
     def sw_new_value(self, value):
@@ -655,25 +645,18 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
             value = {old_value: new_value}
         super(HierarchicalTagsEditor, self).sw_new_value(value)
 
+    def list_to_dict(self, value):
+        return {self._key: dict((k, k) for k in value[self._key])}
+
     def _load_data(self, md_list):
-        md_list = [
-            {self._key: dict((k, k) for k in md[self._key])} for md in md_list]
+        md_list = [self.list_to_dict(md) for md in md_list]
         super(HierarchicalTagsEditor, self)._load_data(md_list)
 
     def _save_data(self, metadata, value):
-        if self._key in value:
-            value = value[self._key]
-            if isinstance(value, dict):
-                # Update single member of array to allow setting one keyword
-                # when <multiple values> is shown for other keywords.
-                (old_value, new_value), = value.items()
-                value = list(metadata[self._key])
-                if old_value and old_value in value:
-                    value.remove(old_value)
-                if new_value and new_value not in value:
-                    value.append(new_value)
-            metadata[self._key] = value
-        return False
+        md = self.list_to_dict(metadata)
+        reload = super(HierarchicalTagsEditor, self)._save_data(md, value)
+        metadata[self._key] = md[self._key].values()
+        return reload
 
     @QtSlot()
     @catch_all
