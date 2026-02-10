@@ -303,6 +303,14 @@ class DateTimeEdit(AugmentDateTime, QtWidgets.QDateTimeEdit):
             return self.dateTime()
         return super(DateTimeEdit, self).dateTimeFromText(text)
 
+    def get_value(self):
+        result = super(DateTimeEdit, self).get_value()
+        if not result:
+            return result
+        if using_pyside:
+            return result.toPython()
+        return result.toPyDateTime()
+
     @catch_all
     def validate(self, text, pos):
         if not text:
@@ -426,7 +434,7 @@ class PrecisionSlider(Slider):
         super(PrecisionSlider, self).set_value(value)
 
 
-class DateAndTimeWidget(QtWidgets.QGridLayout, WidgetMixin):
+class DateAndTimeWidget(QtWidgets.QGridLayout, CompoundWidgetMixin):
     def __init__(self, key, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
         self._key = key
@@ -447,39 +455,16 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, WidgetMixin):
         # connections
         self.members['precision'].value_changed.connect(
             self.members['datetime'].set_precision)
-        self.members['datetime'].new_value.connect(self.editing_finished)
-        self.members['tz_offset'].new_value.connect(self.editing_finished)
-        self.members['precision'].new_value.connect(self.editing_finished)
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
 
-    def set_enabled(self, enabled):
-        for widget in self.members.values():
-            widget.setEnabled(enabled)
+    def sub_widgets(self):
+        return self.members.values()
 
-    def get_value(self):
-        new_value = {}
-        for key in self.members:
-            if self.members[key].is_multiple():
-                continue
-            new_value[key] = self.members[key].get_value()
-            if key == 'datetime' and new_value[key]:
-                if using_pyside:
-                    new_value[key] = new_value[key].toPython()
-                else:
-                    new_value[key] = new_value[key].toPyDateTime()
-        return new_value
-
-    @QtSlot(dict)
-    @catch_all
-    def editing_finished(self, value):
-        self.emit_value()
-
-    def is_multiple(self):
-        return False
-
-    def set_value_list(self, values):
-        values = [v[self._key] for v in values]
-        for key in self.members:
-            self.members[key].set_value_list(values)
+    def paste_value(self, value):
+        for key, value in value.items():
+            self.members[key].set_value(value)
+            self.members[key].emit_value()
 
 
 class OffsetWidget(QtWidgets.QWidget):
@@ -690,18 +675,26 @@ class NewLensDialog(NewItemDialog):
 
 
 class DateLink(QtWidgets.QCheckBox):
-    new_link = QtSignal(str, str)
-
-    def __init__(self, primary, replica, *arg, **kw):
+    def __init__(self, src, dst, *arg, **kw):
         super(DateLink, self).__init__(*arg, **kw)
-        self._primary = primary
-        self._replica = replica
+        self.src = src
+        self.dst = dst
         self.clicked.connect(self._clicked)
+        self.src.new_value.connect(self.link_input)
+
+    @QtSlot(dict)
+    @catch_all
+    def link_input(self, value):
+        if self.isChecked():
+            self.dst.paste_value(value[self.src._key])
 
     @QtSlot()
     @catch_all
     def _clicked(self):
-        self.new_link.emit(self._primary, self._replica)
+        checked = self.isChecked()
+        self.dst.set_enabled(not checked)
+        if checked:
+            self.src.emit_value()
 
 
 class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
@@ -803,10 +796,9 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         # create date and link widgets
         for key in ('date_taken', 'date_digitised', 'date_modified'):
             self.widgets[key] = DateAndTimeWidget(key)
-            self.widgets[key].new_value.connect(self.new_date_value)
-        for key in self._linked_date:
-            self.link_widget[key] = DateLink(key, self._linked_date[key])
-            self.link_widget[key].new_link.connect(self.new_link)
+        for src, dst in self._linked_date.items():
+            self.link_widget[src] = DateLink(
+                self.widgets[src], self.widgets[dst])
         self.link_widget['date_taken'].setText(
             translate('TechnicalTab', "Link 'taken' and 'digitised'"))
         self.link_widget['date_digitised'].setText(
@@ -884,8 +876,9 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def sub_widgets(self):
         return (self.widgets['aperture'], self.widgets['camera_model'],
-                self.widgets['focal_length'], self.widgets['lens_model'],
-                self.widgets['orientation'])
+                self.widgets['date_taken'], self.widgets['date_digitised'],
+                self.widgets['date_modified'], self.widgets['focal_length'],
+                self.widgets['lens_model'], self.widgets['orientation'])
 
     _linked_date = {
         'date_taken'    : 'date_digitised',
@@ -912,20 +905,12 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                 tz = min(max(tz, -14 * 60), 15 * 60)
                 date_taken['tz_offset'] = tz
             self._set_date_value(image, 'date_taken', date_taken)
-        self._update_widget((
-            'date_taken', 'date_digitised', 'date_modified'), images)
+        self.load_data(images)
 
-    @QtSlot(str, str)
-    @catch_all
-    def new_link(self, primary, replica):
-        images = self.app.image_list.get_selected_images()
-        if self.link_widget[primary].isChecked():
-            for image in images:
-                temp = dict(getattr(image.metadata, primary))
-                self._set_date_value(image, replica, temp)
-            self._update_widget(replica, images)
-        else:
-            self.widgets[replica].set_enabled(True)
+    def _set_date_value(self, image, key, new_value):
+        setattr(image.metadata, key, new_value)
+        if key in self.link_widget and self.link_widget[key].isChecked():
+            self._set_date_value(image, self._linked_date[key], new_value)
 
     def save_finished(self, value, images):
         for key, value in value.items():
@@ -939,15 +924,6 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                     image.load_thumbnail()
             elif key == 'lens_model':
                 self._update_lens_model(images)
-
-    @QtSlot(dict)
-    @catch_all
-    def _new_value(self, value):
-        key, value = list(value.items())[0]
-        images = self.app.image_list.get_selected_images()
-        for image in images:
-            image.metadata[key] = value
-        self._update_widget(key, images=images)
 
     def ask_delete_makernote(self, delete_makernote, image, value):
         if not image.metadata.camera_change_ok(value):
@@ -970,50 +946,6 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
             if delete_makernote:
                 image.metadata.set_delete_makernote()
         return delete_makernote
-
-    @QtSlot(dict)
-    @catch_all
-    def new_date_value(self, value):
-        images = self.app.image_list.get_selected_images()
-        key, new_value = list(value.items())[0]
-        for image in images:
-            temp = dict(getattr(image.metadata, key))
-            temp.update(new_value)
-            if 'datetime' not in temp:
-                continue
-            if temp['datetime'] is None:
-                temp = None
-            self._set_date_value(image, key, temp)
-        self._update_widget(
-            ('date_taken', 'date_digitised', 'date_modified'), images)
-
-    def _set_date_value(self, image, key, new_value):
-        setattr(image.metadata, key, new_value)
-        if key in self.link_widget and self.link_widget[key].isChecked():
-            self._set_date_value(image, self._linked_date[key], new_value)
-
-    def _update_links(self, values):
-        for primary in self.link_widget:
-            replica = self._linked_date[primary]
-            for value in values:
-                if value[primary] != value[replica]:
-                    self.link_widget[primary].setChecked(False)
-                    self.widgets[replica].set_enabled(True)
-                    break
-            else:
-                self.link_widget[primary].setChecked(True)
-                self.widgets[replica].set_enabled(False)
-
-    def _update_widget(self, keys=[], images=[]):
-        images = images or self.app.image_list.get_selected_images()
-        values = [image.metadata for image in images]
-        if isinstance(keys, str):
-            keys = [keys]
-        for key in keys:
-            self.widgets[key].set_value_list(values)
-        if any(k in ('date_taken', 'date_digitised', 'date_modified')
-               for k in keys):
-            self._update_links(values)
 
     def _update_lens_model(self, images):
         value = self.widgets['lens_model'].get_value()
@@ -1060,12 +992,22 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
             self.load_data(images)
 
     def new_selection(self, selection):
-        self._update_widget(
-            ('date_taken', 'date_digitised', 'date_modified'),
-            images=selection)
         self.load_data(selection)
 
     def load_finished(self, images):
-        if images and not (self.widgets['focal_length'].is_multiple() or
-                           self.widgets['camera_model'].is_multiple()):
+        if not images:
+            return
+        if not (self.widgets['focal_length'].is_multiple() or
+                self.widgets['camera_model'].is_multiple()):
             self.widgets['focal_length'].set_crop_factor(images[0].metadata)
+        md_list = [im.metadata for im in images]
+        for primary in self.link_widget:
+            replica = self._linked_date[primary]
+            for md in md_list:
+                if md[primary] != md[replica]:
+                    self.link_widget[primary].setChecked(False)
+                    self.widgets[replica].set_enabled(True)
+                    break
+            else:
+                self.link_widget[primary].setChecked(True)
+                self.widgets[replica].set_enabled(False)
