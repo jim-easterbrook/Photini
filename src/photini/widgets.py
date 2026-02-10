@@ -219,6 +219,10 @@ class TopLevelWidgetMixin(WidgetMixin):
             for widget in self.sub_widgets():
                 widget.set_enabled(True)
                 widget._load_data(metadata)
+        self.load_finished(images)
+
+    def load_finished(self, images):
+        pass
 
     @QtSlot(dict)
     @catch_all

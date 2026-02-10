@@ -408,6 +408,8 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def new_selection(self, selection):
         self.load_data(selection)
+
+    def load_finished(self, images):
         self.auto_location.setEnabled(
             self.coords_widget.latlon.has_value() and not
             self.coords_widget.latlon.is_multiple())

@@ -805,8 +805,6 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
             elif key == 'nested_tags':
                 self.sync_flat_from_nested(images, remove=True)
         self.load_data(images)
-        self.buttons['open_tree'].setEnabled(
-            not self.widgets['nested_tags'].is_multiple())
 
     def new_selection(self, selection):
         # sync flat and hierarchical keywords
@@ -814,5 +812,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.sync_flat_from_nested(selection, silent=True)
         # update widgets
         self.load_data(selection)
+
+    def load_finished(self, images):
         self.buttons['open_tree'].setEnabled(
             not self.widgets['nested_tags'].is_multiple())
