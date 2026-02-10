@@ -847,10 +847,10 @@ class Metadata(object):
         md = self._if or self._sc
         if not md:
             return None
-        # get relevant metadata
         image_size = self.dimensions
         if not image_size:
             return None
+        # resolution data can be in Exif.Image, Exif.Photo, Exif.SubImageN ...
         for key in md.get_all_tags():
             family, group, tag = key.split('.', 2)
             if tag == 'FocalPlaneXResolution':
@@ -867,7 +867,7 @@ class Metadata(object):
         if not (resolution['x'] and resolution['y']):
             return None
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
-        # find largest image dimensions
+        # get sensor diagonal in mm
         w = image_size['width'] / resolution['x']
         h = image_size['height'] / resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))
@@ -887,11 +887,7 @@ class Metadata(object):
             logger.error('Unknown resolution unit %d', resolution['unit'])
             return None
         # 35 mm film diagonal is 43.27 mm
-        crop_factor = 43.27 / d
-        # round to 2 digits
-        scale = 10 ** int(math.log10(crop_factor))
-        crop_factor = round(crop_factor / scale, 1) * scale
-        return crop_factor
+        return 43.27 / d
 
     def get_mime_type(self):
         result = None
