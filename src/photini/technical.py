@@ -19,14 +19,15 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 import logging
+import math
 import re
 
 from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
 from photini.widgets import (
-    AugmentDateTime, AugmentSpinBox, DoubleSpinBox, DropDownSelector, Slider,
-    TopLevelWidgetMixin, WidgetMixin)
+    AugmentDateTime, AugmentSpinBox, CompoundWidgetMixin, DoubleSpinBox,
+    DropDownSelector, Slider, TopLevelWidgetMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -174,12 +175,14 @@ class LensList(DropdownEdit):
         self.setToolTip(tool_tip)
 
 
-class IntSpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
-    def __init__(self, key, *arg, **kw):
+class Fl35SpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
+    def __init__(self, key, owner, *arg, **kw):
         self.default_value = 0
         self.multiple = multiple_values()
         self._key = key
-        super(IntSpinBox, self).__init__(*arg, **kw)
+        self.owner = owner
+        self.faint = False
+        super(Fl35SpinBox, self).__init__(*arg, **kw)
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
@@ -187,30 +190,63 @@ class IntSpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
 
     @catch_all
     def contextMenuEvent(self, event):
+        if self.faint:
+            self.owner.context_menu_event(event)
+            return
         self.context_menu_event()
-        return super(IntSpinBox, self).contextMenuEvent(event)
+        return super(Fl35SpinBox, self).contextMenuEvent(event)
 
     @catch_all
     def keyPressEvent(self, event):
         self.set_not_multiple()
-        return super(IntSpinBox, self).keyPressEvent(event)
+        self.set_faint(False)
+        return super(Fl35SpinBox, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
         self.set_not_multiple()
+        self.set_faint(False)
         self.init_stepping()
-        return super(IntSpinBox, self).stepBy(steps)
+        return super(Fl35SpinBox, self).stepBy(steps)
 
     @catch_all
     def fixup(self, text):
+        if self.faint:
+            return
         if not self.fix_up():
-            super(IntSpinBox, self).fixup(text)
+            super(Fl35SpinBox, self).fixup(text)
+
+    def get_value(self):
+        if self.faint:
+            return None
+        return super(Fl35SpinBox, self).get_value()
+
+    def has_value(self):
+        if self.faint:
+            return False
+        return super(Fl35SpinBox, self).has_value()
+
+    def set_value(self, value):
+        self.set_faint(False)
+        super(Fl35SpinBox, self).set_value(value)
 
     def set_faint(self, faint):
+        if self.faint == faint:
+            return
+        self.faint = faint
         if faint:
-            self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
+            self.lineEdit().setPlaceholderText(self.lineEdit().text())
+            if self._prefix:
+                self.setPrefix('')
+            if self._suffix:
+                self.setSuffix('')
+            self.clear()
         else:
-            self.setStyleSheet('QAbstractSpinBox {font-weight:normal}')
+            if self._prefix:
+                self.setPrefix(self._prefix)
+            if self._suffix:
+                self.setSuffix(self._suffix)
+            self.lineEdit().setPlaceholderText('')
 
 
 class CalendarWidget(QtWidgets.QCalendarWidget):
@@ -669,6 +705,80 @@ class DateLink(QtWidgets.QCheckBox):
         self.new_link.emit(self._primary, self._replica)
 
 
+class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
+    _key = 'focal_length'
+
+    def __init__(self, *arg, **kw):
+        super(FocalLengthCompound, self).__init__(*arg, **kw)
+        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.crop_factor = None
+        self.camera_name = None
+        # actual focal length
+        self.fl = DoubleSpinBox('fl')
+        self.fl.setMinimum(0.0)
+        suffix = translate('TechnicalTab', ' mm', 'millimetres focal length')
+        self.fl.set_suffix(suffix)
+        # 35mm equivalent focal length
+        self.fl35 = Fl35SpinBox('fl35', self)
+        self.fl35.setMinimum(0)
+        self.fl35.set_suffix(suffix)
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
+
+    def sub_widgets(self):
+        return (self.fl, self.fl35)
+
+    def after_load(self):
+        if self.is_multiple() or self.fl35.has_value() or not (
+                self.fl.has_value() and self.crop_factor):
+            return
+        self.fl35.set_value(
+            int((float(self.fl.get_value()) * self.crop_factor) + 0.5))
+        self.fl35.set_faint(True)
+
+    def context_menu_event(self, event):
+        if not self.camera_name:
+            return
+        menu = QtWidgets.QMenu()
+        action = menu.addAction(
+            translate('TechnicalTab', 'Set "crop factor"'),
+            self.define_crop_factor)
+        execute(menu, event.globalPos())
+
+    @QtSlot()
+    @catch_all
+    def define_crop_factor(self):
+        crop_factor, OK = QtWidgets.QInputDialog.getDouble(
+            self.parent(), translate('TechnicalTab', 'Set "crop factor"'),
+            translate('TechnicalTab', 'Crop factor'), self.crop_factor,
+            0, 10000, 2)
+        if not OK:
+            return
+        if crop_factor:
+            self.crop_factor = crop_factor
+            self.config_store.set('crop factor', self.camera_name, crop_factor)
+        else:
+            self.crop_factor = None
+            self.config_store.delete('crop factor', self.camera_name)
+        self.after_load()
+
+    def set_crop_factor(self, md):
+        if md.camera_model:
+            self.camera_name = md.camera_model.get_name(inc_serial=False)
+        self.crop_factor = None
+        if self.fl.has_value() and self.fl35.has_value():
+            self.crop_factor = self.fl35.get_value() / self.fl.get_value()
+            # round to 2 digits
+            scale = 10 ** int(math.log10(self.crop_factor))
+            self.crop_factor = round(self.crop_factor / scale, 1) * scale
+        if not self.crop_factor and self.camera_name:
+            self.crop_factor = self.config_store.get(
+                'crop factor', self.camera_name)
+        if not self.crop_factor:
+            self.crop_factor = md.get_crop_factor()
+        self.after_load()
+
+
 class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
     @staticmethod
     def tab_name():
@@ -752,25 +862,14 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         self.widgets['lens_model'] = LensList('lens_model')
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
-        self.widgets['lens_model'].new_value.connect(self._new_value)
         other_group.layout().addRow(translate('TechnicalTab', 'Lens model'),
                                     self.widgets['lens_model'])
-        # focal length
-        self.widgets['focal_length'] = DoubleSpinBox('focal_length')
-        self.widgets['focal_length'].setMinimum(0.0)
-        self.widgets['focal_length'].set_suffix(translate(
-            'TechnicalTab', ' mm', 'millimetres focal length'))
-        self.widgets['focal_length'].new_value.connect(self._new_value)
+        # focal lengths
+        self.widgets['focal_length'] = FocalLengthCompound(parent=self)
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
-                                    self.widgets['focal_length'])
-        # 35mm equivalent focal length
-        self.widgets['focal_length_35'] = IntSpinBox('focal_length_35')
-        self.widgets['focal_length_35'].setMinimum(0)
-        self.widgets['focal_length_35'].set_suffix(translate(
-            'TechnicalTab', ' mm', 'millimetres focal length'))
-        self.widgets['focal_length_35'].new_value.connect(self._new_value)
+                                    self.widgets['focal_length'].fl)
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
-                                    self.widgets['focal_length_35'])
+                                    self.widgets['focal_length'].fl35)
         # aperture
         self.widgets['aperture'] = DoubleSpinBox('aperture')
         self.widgets['aperture'].setMinimum(0.0)
@@ -785,6 +884,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def sub_widgets(self):
         return (self.widgets['aperture'], self.widgets['camera_model'],
+                self.widgets['focal_length'], self.widgets['lens_model'],
                 self.widgets['orientation'])
 
     _linked_date = {
@@ -837,29 +937,17 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
             elif key == 'orientation':
                 for image in images:
                     image.load_thumbnail()
+            elif key == 'lens_model':
+                self._update_lens_model(images)
 
     @QtSlot(dict)
     @catch_all
     def _new_value(self, value):
         key, value = list(value.items())[0]
         images = self.app.image_list.get_selected_images()
-        delete_makernote = 'ask'
         for image in images:
-            if (key == 'focal_length_35' and self.calc_35(
-                    image.metadata, image.metadata.focal_length) == value):
-                continue
-            elif key == 'focal_length' and image.metadata.focal_length_35:
-                # update 35mm equiv if already set
-                image.metadata.focal_length_35 = self.calc_35(
-                    image.metadata, value)
             image.metadata[key] = value
-            if key == 'focal_length_35':
-                self.set_crop_factor(image.metadata)
-        if key == 'focal_length':
-            self._update_widget(
-                ('focal_length', 'focal_length_35'), images=images)
-        else:
-            self._update_widget(key, images=images)
+        self._update_widget(key, images=images)
 
     def ask_delete_makernote(self, delete_makernote, image, value):
         if not image.metadata.camera_change_ok(value):
@@ -923,25 +1011,20 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
             keys = [keys]
         for key in keys:
             self.widgets[key].set_value_list(values)
-            if key == 'lens_model':
-                self._update_lens_model(images)
-            elif key == 'focal_length_35':
-                self._update_focal_length_35(images)
         if any(k in ('date_taken', 'date_digitised', 'date_modified')
                for k in keys):
             self._update_links(values)
 
     def _update_lens_model(self, images):
-        value = self.widgets['lens_model'].get_value_dict()
-        if not (value and value['lens_model']):
-            return
-        spec = value['lens_model']['spec']
+        value = self.widgets['lens_model'].get_value()
+        spec = value['spec']
         if not (spec and spec['min_fl']):
             return
         make_changes = False
         for image in images:
-            new_aperture = image.metadata.aperture or 0
-            new_fl = image.metadata.focal_length or 0
+            md = image.metadata
+            new_aperture = md.aperture or 0
+            new_fl = md.focal_length['fl'] or 0
             if not (new_aperture or new_fl):
                 continue
             if new_fl <= spec['min_fl']:
@@ -953,8 +1036,8 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
             else:
                 new_aperture = max(new_aperture,
                                    min(spec['min_fl_fn'], spec['max_fl_fn']))
-            if (new_aperture == image.metadata.aperture and
-                      new_fl == image.metadata.focal_length):
+            if (new_aperture == md.aperture and
+                      new_fl == md.focal_length['fl']):
                 continue
             if make_changes:
                 pass
@@ -970,72 +1053,19 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                 return
             make_changes = True
             if new_aperture:
-                image.metadata.aperture = new_aperture
+                md.aperture = new_aperture
             if new_fl:
-                # only update 35mm equiv if already set
-                if image.metadata.focal_length_35:
-                    image.metadata.focal_length_35 = self.calc_35(
-                        image.metadata, new_fl)
-                image.metadata.focal_length = new_fl
+                md.focal_length = md.focal_length.reset_focal_length(new_fl)
         if make_changes:
-            self._update_widget(
-                ('focal_length', 'focal_length_35'), images=images)
-
-    def _update_focal_length_35(self, images):
-        self.widgets['focal_length_35'].set_faint(False)
-        if not images:
-            self.widgets['focal_length_35'].setEnabled(False)
-            self.widgets['focal_length_35'].set_value(None)
-            return
-        value = self.widgets['focal_length_35'].get_value_dict()
-        if (not value) or value['focal_length_35']:
-            return
-        # display calculated value
-        values = []
-        for image in images:
-            value = self.calc_35(image.metadata)
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['focal_length_35'].set_multiple(choices=values)
-        elif values[0]:
-            self.widgets['focal_length_35'].set_faint(True)
-            self.widgets['focal_length_35'].set_value(values[0])
-
-    def set_crop_factor(self, md):
-        if not md.camera_model:
-            return
-        if not md.focal_length_35:
-            self.app.config_store.delete(
-                'crop factor', md.camera_model.get_name(inc_serial=False))
-        elif md.focal_length:
-            crop_factor = float(md.focal_length_35) / md.focal_length
-            self.app.config_store.set(
-                'crop factor', md.camera_model.get_name(inc_serial=False),
-                crop_factor)
-
-    def get_crop_factor(self, md):
-        if md.camera_model:
-            crop_factor = self.app.config_store.get(
-                'crop factor', md.camera_model.get_name(inc_serial=False))
-            if crop_factor:
-                return crop_factor
-        crop_factor = md.get_crop_factor()
-        if crop_factor and md.camera_model:
-            self.app.config_store.set(
-                'crop factor', md.camera_model.get_name(inc_serial=False),
-                crop_factor)
-        return crop_factor
-
-    def calc_35(self, md, value=None):
-        crop_factor = self.get_crop_factor(md)
-        value = value or md.focal_length
-        if crop_factor and value:
-            return int((float(value) * crop_factor) + 0.5)
-        return md.focal_length_35
+            self.load_data(images)
 
     def new_selection(self, selection):
         self._update_widget(
-            ('date_taken', 'date_digitised', 'date_modified', 'lens_model',
-             'focal_length', 'focal_length_35'), images=selection)
+            ('date_taken', 'date_digitised', 'date_modified'),
+            images=selection)
         self.load_data(selection)
+
+    def load_finished(self, images):
+        if images and not (self.widgets['focal_length'].is_multiple() or
+                           self.widgets['camera_model'].is_multiple()):
+            self.widgets['focal_length'].set_crop_factor(images[0].metadata)

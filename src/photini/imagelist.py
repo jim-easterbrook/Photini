@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -805,9 +805,9 @@ class ImageList(QtWidgets.QWidget):
                         'credit_line', 'copyright', 'rights', 'instructions',
                         'contact_info', 'date_taken', 'date_digitised',
                         'date_modified', 'orientation', 'camera_model',
-                        'lens_model', 'focal_length', 'focal_length_35',
-                        'aperture', 'gps_info', 'location_taken',
-                        'location_shown', 'image_region', 'thumbnail'):
+                        'lens_model', 'focal_length', 'aperture', 'gps_info',
+                        'location_taken', 'location_shown', 'image_region',
+                        'thumbnail'):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
                     continue

@@ -36,11 +36,11 @@ logger = logging.getLogger(__name__)
 # photini.metadata imports these classes
 __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_GPSinfo', 'MD_HierarchicalTags', 'MD_ImageRegion',
-    'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation',
-    'MD_MultiString', 'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
-    'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
-    'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
+    'MD_Dimensions', 'MD_FocalLength', 'MD_GPSinfo', 'MD_HierarchicalTags',
+    'MD_ImageRegion', 'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel',
+    'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation', 'MD_Rating',
+    'MD_Rational', 'MD_Rights', 'MD_SingleLocation', 'MD_Software', 'MD_String',
+    'MD_Thumbnail', 'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -1646,6 +1646,19 @@ class MD_Dimensions(MD_Collection):
         if w > h:
             return target_size, int((float(target_size) * h / w) + 0.5)
         return int((float(target_size) * w / h) + 0.5), target_size
+
+
+class MD_FocalLength(MD_Collection):
+    _keys = ('fl', 'fl35')
+    _default_type = MD_Int
+    _type = {'fl': MD_Rational}
+
+    def reset_focal_length(self, new_fl):
+        if self['fl35'] and self['fl']:
+            new_fl35 = new_fl * self['fl35'] / self['fl']
+        else:
+            new_fl35 = None
+        return MD_FocalLength({'fl': new_fl, 'fl35': new_fl35})
 
 
 class CountryCode(MD_UnmergableString):
