@@ -72,24 +72,6 @@ class WidgetMixin(object):
             metadata[self._key] = value[self._key]
         return False
 
-    def set_value_list(self, values):
-        if not values:
-            self.set_enabled(False)
-            self.set_value(None)
-            return
-        self.set_enabled(True)
-        choices = []
-        for value_dict in values:
-            value = None
-            if self._key in value_dict:
-                value = value_dict[self._key] or None
-            if value not in choices:
-                choices.append(value)
-        if len(choices) > 1:
-            self.set_multiple(choices=choices)
-        else:
-            self.set_value(choices and choices[0])
-
 
 class CompoundWidgetMixin(WidgetMixin):
     dynamic = False
