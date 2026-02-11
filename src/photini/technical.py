@@ -869,10 +869,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
             widget.new_value.connect(self.save_data)
 
     def sub_widgets(self):
-        return (self.widgets['aperture'], self.widgets['camera_model'],
-                self.widgets['date_taken'], self.widgets['date_digitised'],
-                self.widgets['date_modified'], self.widgets['focal_length'],
-                self.widgets['lens_model'], self.widgets['orientation'])
+        return self.widgets.values()
 
     _linked_date = {
         'date_taken'    : 'date_digitised',
@@ -917,7 +914,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                 for image in images:
                     image.load_thumbnail()
             elif key == 'lens_model':
-                self._update_lens_model(images)
+                self.update_focal_length_aperture(images)
 
     def ask_delete_makernote(self, delete_makernote, image, value):
         if not image.metadata.camera_change_ok(value):
@@ -941,7 +938,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                 image.metadata.set_delete_makernote()
         return delete_makernote
 
-    def _update_lens_model(self, images):
+    def update_focal_length_aperture(self, images):
         value = self.widgets['lens_model'].get_value()
         spec = value['spec']
         if not (spec and spec['min_fl']):
@@ -995,13 +992,12 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                 self.widgets['camera_model'].is_multiple()):
             self.widgets['focal_length'].set_crop_factor(images[0].metadata)
         md_list = [im.metadata for im in images]
-        for primary in self.link_widget:
-            replica = self._linked_date[primary]
+        for src, dst in self._linked_date.items():
             for md in md_list:
-                if md[primary] != md[replica]:
-                    self.link_widget[primary].setChecked(False)
-                    self.widgets[replica].set_enabled(True)
+                if md[src] != md[dst]:
+                    self.link_widget[src].setChecked(False)
+                    self.widgets[dst].set_enabled(True)
                     break
             else:
-                self.link_widget[primary].setChecked(True)
-                self.widgets[replica].set_enabled(False)
+                self.link_widget[src].setChecked(True)
+                self.widgets[dst].set_enabled(False)
