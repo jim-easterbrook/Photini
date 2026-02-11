@@ -58,7 +58,7 @@ class WidgetMixin(object):
         for md in md_list:
             value = None
             if self._key in md:
-                value = md[self._key] or None
+                value = md[self._key]
             if value not in choices:
                 choices.append(value)
         if len(choices) > 1:
