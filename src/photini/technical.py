@@ -235,16 +235,10 @@ class Fl35SpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
         self.faint = faint
         if faint:
             self.lineEdit().setPlaceholderText(self.lineEdit().text())
-            if self._prefix:
-                self.setPrefix('')
-            if self._suffix:
-                self.setSuffix('')
+            self.enable_affix(False)
             self.clear()
         else:
-            if self._prefix:
-                self.setPrefix(self._prefix)
-            if self._suffix:
-                self.setSuffix(self._suffix)
+            self.enable_affix(True)
             self.lineEdit().setPlaceholderText('')
 
 

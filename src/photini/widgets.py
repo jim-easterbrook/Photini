@@ -993,23 +993,23 @@ class AugmentDateTime(AugmentSpinBoxBase):
 
 
 class AugmentSpinBox(AugmentSpinBoxBase):
+    def enable_affix(self, enabled):
+        if self._prefix:
+            self.setPrefix(('', self._prefix)[enabled])
+        if self._suffix:
+            self.setSuffix(('', self._suffix)[enabled])
+
     def set_not_multiple(self):
         if self._is_multiple:
             self._is_multiple = False
             self.set_value(self.default_value)
-            if self._prefix:
-                self.setPrefix(self._prefix)
-            if self._suffix:
-                self.setSuffix(self._suffix)
+            self.enable_affix(True)
             self.lineEdit().setPlaceholderText('')
 
     def set_multiple(self, choices=[]):
         self.choices = [x for x in choices if x is not None]
         self._is_multiple = True
-        if self._prefix:
-            self.setPrefix('')
-        if self._suffix:
-            self.setSuffix('')
+        self.enable_affix(False)
         self.lineEdit().setPlaceholderText(self.multiple)
         self.clear()
 
