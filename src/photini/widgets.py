@@ -145,14 +145,6 @@ class ListWidgetMixin(CompoundWidgetMixin):
                 values.append(value)
         self.set_value(dict(enumerate(values)))
 
-    def get_value(self):
-        result = super(ListWidgetMixin, self).get_value()
-        # strip off value from last tab, when it's empty
-        idx = len(result) - 1
-        if not any(result[idx].values()):
-            del result[idx]
-        return result
-
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
         if self.dynamic:
