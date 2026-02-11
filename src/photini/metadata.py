@@ -282,6 +282,7 @@ class ImageMetadata(MetadataHandler):
         'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
         'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
+        'Exif.Image.FocalLength*': ('Exif.Image.FocalLength',),
         'Exif.Image.Lens*': ('', '', '', 'Exif.Image.LensInfo'),
         'Exif.Image.Make*': (
             'Exif.Image.Make', 'Exif.Image.Model',
@@ -446,7 +447,7 @@ class ImageMetadata(MetadataHandler):
         'dimensions'     : (('W0', 'Xmp.video.Dims*'),
                             ('WN', 'Exif.Photo.Pixel*Dimension')),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength*'),
-                            ('W0', 'Exif.Image.FocalLength'),
+                            ('W0', 'Exif.Image.FocalLength*'),
                             ('WX', 'Xmp.exif.FocalLength*')),
         'gps_info'       : (('WA', 'Exif.GPSInfo.GPS*'),
                             ('WX', 'Xmp.exif.GPS*'),
