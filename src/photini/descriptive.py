@@ -33,7 +33,6 @@ class RatingWidget(QtWidgets.QWidget):
         super(RatingWidget, self).__init__(*arg, **kw)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
         self.multiple_values = multiple_values()
-        self._key = key
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # slider
@@ -42,7 +41,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.slider.setFixedWidth(width_for_text(self.slider, 'x' * 25))
         self.slider.setRange(-2, 5)
         self.slider.setPageStep(1)
-        self.slider.valueChanged.connect(self.set_display)
+        self.slider.valueChanged.connect(self._slider_value_changed)
         self.layout().addWidget(self.slider)
         # display
         self.display = QtWidgets.QLineEdit()
@@ -55,49 +54,26 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.display.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.layout().addWidget(self.display)
-        # adopt child methods/signals
-        self.emit_value = self.slider.emit_value
-        self.get_value_dict = self.slider.get_value_dict
-        self.is_multiple = self.slider.is_multiple
-        self.is_valid = self.slider.is_valid
-        self.new_value = self.slider.new_value
-        self.set_enabled = self.slider.set_enabled
-        self.set_value_dict = self.slider.set_value_dict
-        self._load_data = self.slider._load_data
-        self._save_data = self.slider._save_data
-        # over-ride child methods
-        self.slider.get_value = self.get_value
-        self.slider.set_value = self.set_value
+
+    # delegate most methods and other attributes to slider
+    def __getattr__(self, name):
+        return getattr(self.slider, name)
 
     @QtSlot(int)
     @catch_all
-    def set_display(self, value):
-        self.display.setPlaceholderText('')
-        if value == -2:
+    def _slider_value_changed(self, value):
+        if self.slider.is_multiple():
+            self.display.setPlaceholderText(self.multiple_values)
+            self.display.clear()
+        elif value == -2:
+            self.slider._flags |= self.Flags.is_none
+            self.display.setPlaceholderText('')
             self.display.clear()
         elif value == -1:
             self.display.setText(translate('DescriptiveTab', 'reject'))
         else:
             self.display.setText((chr(0x2605) * value) +
                                  (chr(0x2606) * (5 - value)))
-
-    def set_value(self, value):
-        if not value:
-            self.slider.setValue(-2)
-        else:
-            self.slider.setValue(int(value + 1.5) - 1)
-        self.set_display(self.slider.value())
-
-    def get_value(self):
-        value = self.slider.value()
-        if value == -2:
-            return None
-        return value
-
-    def set_multiple(self, choices=[]):
-        self.slider.set_multiple()
-        self.slider.setValue(-2)
-        self.display.setPlaceholderText(self.multiple_values)
 
 
 class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,

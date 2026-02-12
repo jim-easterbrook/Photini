@@ -418,7 +418,7 @@ class PrecisionSlider(Slider):
 
     def get_value(self):
         value = super(PrecisionSlider, self).get_value()
-        if value >= 4:
+        if value is not None and value >= 4:
             value += 1
         return value
 

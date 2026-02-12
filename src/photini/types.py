@@ -1287,8 +1287,11 @@ class MD_Rating(MD_Float):
             value = min(max(float(file_value), -1.0), 5.0)
         return cls(value)
 
+    def __int__(self):
+        return int(self + 1.5) - 1
+
     def to_exif(self):
-        return str(int(self + 1.5) - 1)
+        return str(int(self))
 
 
 class MD_Rational(MD_Value, Fraction):

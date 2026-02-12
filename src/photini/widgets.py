@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import enum
 import logging
 import re
 
@@ -28,6 +29,11 @@ translate = QtCore.QCoreApplication.translate
 
 
 class WidgetMixin(object):
+    class Flags(enum.Flag):
+        multiple = enum.auto()
+        is_none = enum.auto()
+        invalid_mask = multiple
+
     new_value = QtSignal(dict)
 
     def append_value(self, value):
@@ -636,8 +642,8 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
     def __init__(self, key, *arg, **kw):
         super(Slider, self).__init__(*arg, **kw)
         self._key = key
-        self._is_multiple = False
-        self.sliderPressed.connect(self.slider_pressed)
+        self._flags = self.Flags(0)
+        self.sliderPressed.connect(self._set_normal)
 
     @catch_all
     def focusOutEvent(self, event):
@@ -646,30 +652,42 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
 
     @QtSlot()
     @catch_all
-    def slider_pressed(self):
-        self._is_multiple = False
+    def _set_normal(self):
+        self._flags &= ~(self.Flags.multiple | self.Flags.is_none)
 
     def get_value(self):
+        if self._flags & self.Flags.is_none:
+            return None
         return self.value()
 
     def set_value(self, value):
-        self._is_multiple = False
-        if value is not None:
+        self._set_normal()
+        if value is None:
+            self._flags |= self.Flags.is_none
+            value = self.minimum()
+        if not isinstance(value, int):
+            value = int(value)
+        if self.value() == value:
+            self.valueChanged.emit(value)
+        else:
             self.setValue(value)
 
     def set_multiple(self, choices=[]):
-        self._is_multiple = True
+        self._flags |= self.Flags.multiple
         value = self.value()
         for choice in choices:
             if choice is not None:
                 value = max(value, choice)
-        self.setValue(value)
+        if self.value() == value:
+            self.valueChanged.emit(value)
+        else:
+            self.setValue(value)
 
     def is_multiple(self):
-        return self._is_multiple
+        return bool(self._flags & self.Flags.multiple)
 
     def is_valid(self):
-        return not self._is_multiple
+        return not bool(self._flags & self.Flags.invalid_mask)
 
 
 class StartStopButton(QtWidgets.QPushButton):
