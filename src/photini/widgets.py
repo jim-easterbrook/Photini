@@ -31,8 +31,9 @@ translate = QtCore.QCoreApplication.translate
 class WidgetMixin(object):
     class Flags(enum.Flag):
         multiple = enum.auto()
+        faint = enum.auto()
         is_none = enum.auto()
-        invalid_mask = multiple
+        invalid_mask = multiple | faint
 
     new_value = QtSignal(dict)
 
@@ -643,7 +644,7 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
         super(Slider, self).__init__(*arg, **kw)
         self._key = key
         self._flags = self.Flags(0)
-        self.sliderPressed.connect(self._set_normal)
+        self.sliderPressed.connect(self._clear_flags)
 
     @catch_all
     def focusOutEvent(self, event):
@@ -652,8 +653,8 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
 
     @QtSlot()
     @catch_all
-    def _set_normal(self):
-        self._flags &= ~(self.Flags.multiple | self.Flags.is_none)
+    def _clear_flags(self):
+        self._flags = self.Flags(0)
 
     def get_value(self):
         if self._flags & self.Flags.is_none:
@@ -661,7 +662,7 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
         return self.value()
 
     def set_value(self, value):
-        self._set_normal()
+        self._clear_flags()
         if value is None:
             self._flags |= self.Flags.is_none
             value = self.minimum()
@@ -673,6 +674,7 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
             self.setValue(value)
 
     def set_multiple(self, choices=[]):
+        self._clear_flags()
         self._flags |= self.Flags.multiple
         value = self.value()
         for choice in choices:
@@ -998,7 +1000,7 @@ class AugmentSpinBoxBase(WidgetMixin):
         return value
 
     def set_value(self, value):
-        self.set_not_multiple()
+        self._set_valid()
         if value is None:
             self.setValue(self.minimum())
             self.setSpecialValueText(' ')
@@ -1008,9 +1010,9 @@ class AugmentSpinBoxBase(WidgetMixin):
 
 
 class AugmentDateTime(AugmentSpinBoxBase):
-    def set_not_multiple(self):
-        if self._flags & self.Flags.multiple:
-            self._flags &= ~self.Flags.multiple
+    def _set_valid(self):
+        if self._flags & self.Flags.invalid_mask:
+            self._flags &= ~self.Flags.invalid_mask
             self.set_value(self.default_value)
 
     def set_multiple(self, choices=[]):
@@ -1034,15 +1036,16 @@ class AugmentSpinBox(AugmentSpinBoxBase):
         if self._suffix:
             self.setSuffix(('', self._suffix)[enabled])
 
-    def set_not_multiple(self):
-        if self._flags & self.Flags.multiple:
-            self._flags &= ~self.Flags.multiple
+    def _set_valid(self):
+        if self._flags & self.Flags.invalid_mask:
+            self._flags &= ~self.Flags.invalid_mask
             self.set_value(self.default_value)
             self.enable_affix(True)
             self.lineEdit().setPlaceholderText('')
 
     def set_multiple(self, choices=[]):
         self.choices = [x for x in choices if x is not None]
+        self._flags &= ~self.Flags.invalid_mask
         self._flags |= self.Flags.multiple
         self.enable_affix(False)
         self.lineEdit().setPlaceholderText(self.multiple)
@@ -1087,7 +1090,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.set_not_multiple()
+        self._set_valid()
         super(LatLongDisplay, self).keyPressEvent(event)
 
     @catch_all
@@ -1157,7 +1160,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         return bool(self.text().strip()) or self.is_multiple()
 
     def set_value(self, value):
-        self.set_not_multiple()
+        self._set_valid()
         if value in (None, (None, None)):
             self.clear()
         else:
@@ -1209,12 +1212,12 @@ class DoubleSpinBox(AugmentSpinBox, QtWidgets.QDoubleSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.set_not_multiple()
+        self._set_valid()
         return super(DoubleSpinBox, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.set_not_multiple()
+        self._set_valid()
         self.init_stepping()
         return super(DoubleSpinBox, self).stepBy(steps)
 

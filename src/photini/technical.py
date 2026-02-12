@@ -180,7 +180,6 @@ class Fl35SpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
         self.multiple = multiple_values()
         self._key = key
         self.owner = owner
-        self.faint = False
         super(Fl35SpinBox, self).__init__(*arg, **kw)
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
@@ -189,7 +188,7 @@ class Fl35SpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
 
     @catch_all
     def contextMenuEvent(self, event):
-        if self.faint:
+        if self._flags & self.Flags.faint:
             self.owner.context_menu_event(event)
             return
         self.context_menu_event()
@@ -197,31 +196,31 @@ class Fl35SpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.set_not_multiple()
+        self._set_valid()
         self.set_faint(False)
         return super(Fl35SpinBox, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.set_not_multiple()
+        self._set_valid()
         self.set_faint(False)
         self.init_stepping()
         return super(Fl35SpinBox, self).stepBy(steps)
 
     @catch_all
     def fixup(self, text):
-        if self.faint:
+        if self._flags & self.Flags.faint:
             return
         if not self.fix_up():
             super(Fl35SpinBox, self).fixup(text)
 
     def get_value(self):
-        if self.faint:
+        if self._flags & self.Flags.faint:
             return None
         return super(Fl35SpinBox, self).get_value()
 
     def has_value(self):
-        if self.faint:
+        if self._flags & self.Flags.faint:
             return False
         return super(Fl35SpinBox, self).has_value()
 
@@ -230,14 +229,16 @@ class Fl35SpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
         super(Fl35SpinBox, self).set_value(value)
 
     def set_faint(self, faint):
-        if self.faint == faint:
+        if bool(self._flags & self.Flags.faint) == faint:
             return
-        self.faint = faint
         if faint:
+            self._flags &= ~self.Flags.invalid_mask
+            self._flags |= self.Flags.faint
             self.lineEdit().setPlaceholderText(self.lineEdit().text())
             self.enable_affix(False)
             self.clear()
         else:
+            self._flags &= ~self.Flags.faint
             self.enable_affix(True)
             self.lineEdit().setPlaceholderText('')
 
@@ -274,12 +275,12 @@ class DateTimeEdit(AugmentDateTime, QtWidgets.QDateTimeEdit):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.set_not_multiple()
+        self._set_valid()
         return super(DateTimeEdit, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.set_not_multiple()
+        self._set_valid()
         self.init_stepping()
         return super(DateTimeEdit, self).stepBy(steps)
 
@@ -338,12 +339,12 @@ class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
 
     @catch_all
     def keyPressEvent(self, event):
-        self.set_not_multiple()
+        self._set_valid()
         return super(TimeZoneWidget, self).keyPressEvent(event)
 
     @catch_all
     def stepBy(self, steps):
-        self.set_not_multiple()
+        self._set_valid()
         self.init_stepping()
         return super(TimeZoneWidget, self).stepBy(steps)
 
