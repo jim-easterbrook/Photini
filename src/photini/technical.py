@@ -286,7 +286,7 @@ class DateTimeEdit(AugmentDateTime, QtWidgets.QDateTimeEdit):
     @catch_all
     def sizeHint(self):
         size = super(DateTimeEdit, self).sizeHint()
-        if self.precision == 7 and not self.is_multiple():
+        if self.precision == 7 and self.is_valid():
             self.setFixedSize(size)
         return size
 
@@ -355,7 +355,7 @@ class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
     @catch_all
     def sizeHint(self):
         size = super(TimeZoneWidget, self).sizeHint()
-        if not self.is_multiple():
+        if self.is_valid():
             self.setFixedSize(size)
         return size
 

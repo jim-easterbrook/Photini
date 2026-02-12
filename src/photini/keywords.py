@@ -72,6 +72,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.set_enabled = self.edit.set_enabled
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
+        self.is_valid = self.edit.is_valid
         self.new_value = self.edit.new_value
         self.emit_value = self.edit.emit_value
         self._load_data = self.edit._load_data
@@ -815,4 +816,4 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
 
     def load_finished(self, images):
         self.buttons['open_tree'].setEnabled(
-            not self.widgets['nested_tags'].is_multiple())
+            self.widgets['nested_tags'].is_valid())

@@ -59,6 +59,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.emit_value = self.slider.emit_value
         self.get_value_dict = self.slider.get_value_dict
         self.is_multiple = self.slider.is_multiple
+        self.is_valid = self.slider.is_valid
         self.new_value = self.slider.new_value
         self.set_enabled = self.slider.set_enabled
         self.set_value_dict = self.slider.set_value_dict

@@ -411,8 +411,8 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def load_finished(self, images):
         self.auto_location.setEnabled(
-            self.coords_widget.latlon.has_value() and not
-            self.coords_widget.latlon.is_multiple())
+            self.coords_widget.latlon.has_value() and
+            self.coords_widget.latlon.is_valid())
 
     @QtSlot()
     @catch_all

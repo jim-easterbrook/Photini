@@ -36,13 +36,13 @@ class WidgetMixin(object):
     @QtSlot()
     @catch_all
     def emit_value(self):
-        if not self.is_multiple():
+        if self.is_valid():
             self.new_value.emit(self.get_value_dict())
 
     def get_value_dict(self):
-        if self.is_multiple():
-            return {}
-        return {self._key: self.get_value()}
+        if self.is_valid():
+            return {self._key: self.get_value()}
+        return {}
 
     def has_value(self):
         return bool(self.get_value()) or self.is_multiple()
@@ -763,6 +763,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
             self.setFixedHeight(self.sizeHint().height())
         # adopt some child methods ...
         self.is_multiple = self.edit.is_multiple
+        self.is_valid = self.edit.is_valid
         self.set_height = self.edit.set_height
         # ... and vice versa
         self.lang.define_new_value = self._define_new_lang
@@ -1127,10 +1128,10 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
         return self.text_to_value(self.text())
 
     def get_value_dict(self):
-        if self.is_multiple():
-            return {}
-        value = self.get_value()
-        return {self.lat_key: value[0], self.lng_key: value[1]}
+        if self.is_valid():
+            value = self.get_value()
+            return {self.lat_key: value[0], self.lng_key: value[1]}
+        return {}
 
     def has_value(self):
         return bool(self.text().strip()) or self.is_multiple()
@@ -1270,7 +1271,7 @@ class ContextMenuMixin(object):
             elif key == 'Delete':
                 action.setEnabled(self.has_value())
             else:
-                action.setEnabled(self.has_value() and not self.is_multiple())
+                action.setEnabled(self.has_value() and self.is_valid())
         execute(menu, event.globalPos())
 
     @QtSlot()
