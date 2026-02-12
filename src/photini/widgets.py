@@ -941,7 +941,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
 
 class AugmentSpinBoxBase(WidgetMixin):
     def __init__(self, *arg, **kw):
-        self._is_multiple = False
+        self._flags = self.Flags(0)
         self._prefix = ''
         self._suffix = ''
         super(AugmentSpinBoxBase, self).__init__(*arg, **kw)
@@ -1009,18 +1009,19 @@ class AugmentSpinBoxBase(WidgetMixin):
 
 class AugmentDateTime(AugmentSpinBoxBase):
     def set_not_multiple(self):
-        if self._is_multiple:
-            self._is_multiple = False
+        if self._flags & self.Flags.multiple:
+            self._flags &= ~self.Flags.multiple
             self.set_value(self.default_value)
 
     def set_multiple(self, choices=[]):
         self.choices = [x for x in choices if x is not None]
-        self._is_multiple = True
+        self._flags |= self.Flags.multiple
         self.setValue(self.minimum())
         self.setSpecialValueText(self.multiple)
 
     def is_multiple(self):
-        return self._is_multiple and self.value() == self.minimum()
+        return (bool(self._flags & self.Flags.multiple)
+                and self.value() == self.minimum())
 
     def is_valid(self):
         return not self.is_multiple()
@@ -1034,21 +1035,22 @@ class AugmentSpinBox(AugmentSpinBoxBase):
             self.setSuffix(('', self._suffix)[enabled])
 
     def set_not_multiple(self):
-        if self._is_multiple:
-            self._is_multiple = False
+        if self._flags & self.Flags.multiple:
+            self._flags &= ~self.Flags.multiple
             self.set_value(self.default_value)
             self.enable_affix(True)
             self.lineEdit().setPlaceholderText('')
 
     def set_multiple(self, choices=[]):
         self.choices = [x for x in choices if x is not None]
-        self._is_multiple = True
+        self._flags |= self.Flags.multiple
         self.enable_affix(False)
         self.lineEdit().setPlaceholderText(self.multiple)
         self.clear()
 
     def is_multiple(self):
-        return self._is_multiple and bool(self.lineEdit().placeholderText())
+        return (bool(self._flags & self.Flags.multiple)
+                and bool(self.lineEdit().placeholderText()))
 
     def is_valid(self):
         return not bool(self.lineEdit().placeholderText())
@@ -1094,7 +1096,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
             return
         menu = self.lineEdit().createStandardContextMenu()
         suggestion_group = QtGui2.QActionGroup(menu)
-        if self._is_multiple and self.choices:
+        if bool(self._flags & self.Flags.multiple) and self.choices:
             sep = menu.insertSeparator(menu.actions()[0])
             for suggestion in self.choices:
                 label = self.value_to_text(suggestion)
@@ -1103,7 +1105,7 @@ class LatLongDisplay(AugmentSpinBox, QtWidgets.QAbstractSpinBox):
                 menu.insertAction(sep, action)
         action = execute(menu, event.globalPos())
         if action and action.actionGroup() == suggestion_group:
-            if self._is_multiple:
+            if self._flags & self.Flags.multiple:
                 self.set_value(action.data())
                 self.emit_value()
 
