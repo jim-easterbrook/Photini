@@ -91,6 +91,9 @@ class CompoundWidgetMixin(WidgetMixin):
     def is_multiple(self):
         return any(w.is_multiple() for w in self.sub_widgets())
 
+    def is_valid(self):
+        return all(w.is_valid() for w in self.sub_widgets())
+
     def set_enabled(self, enabled):
         for widget in self.sub_widgets():
             widget.set_enabled(enabled)
@@ -338,6 +341,9 @@ class DropDownSelector(ComboBox, WidgetMixin):
     def is_multiple(self):
         return self._with_multiple and self.currentIndex() == self.count() - 1
 
+    def is_valid(self):
+        return self.currentIndex() < self._last_idx()
+
     def set_multiple(self, choices=[]):
         if self._with_multiple:
             blocked = self.blockSignals(True)
@@ -550,6 +556,9 @@ class TextEditMixin(WidgetMixin):
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())
 
+    def is_valid(self):
+        return not bool(self.placeholderText())
+
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin):
     def __init__(self, key, *arg, spell_check=False, length_check=None,
@@ -658,6 +667,9 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
 
     def is_multiple(self):
         return self._is_multiple
+
+    def is_valid(self):
+        return not self._is_multiple
 
 
 class StartStopButton(QtWidgets.QPushButton):
@@ -991,6 +1003,9 @@ class AugmentDateTime(AugmentSpinBoxBase):
     def is_multiple(self):
         return self._is_multiple and self.value() == self.minimum()
 
+    def is_valid(self):
+        return not self.is_multiple()
+
 
 class AugmentSpinBox(AugmentSpinBoxBase):
     def enable_affix(self, enabled):
@@ -1015,6 +1030,9 @@ class AugmentSpinBox(AugmentSpinBoxBase):
 
     def is_multiple(self):
         return self._is_multiple and bool(self.lineEdit().placeholderText())
+
+    def is_valid(self):
+        return not bool(self.lineEdit().placeholderText())
 
     def set_prefix(self, prefix):
         self._prefix = prefix

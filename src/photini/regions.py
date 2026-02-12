@@ -651,6 +651,9 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
     def is_multiple(self):
         return False
 
+    def is_valid(self):
+        return True
+
     def set_value(self, value):
         if not self.region_tabs.has_value():
             return
@@ -832,6 +835,9 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
     def is_multiple(self):
         return False
 
+    def is_valid(self):
+        return True
+
     def set_value(self, value):
         scene = self.image_display.scene()
         active = False
@@ -982,9 +988,6 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
 
     def sub_widgets(self):
         return self.widgets.values()
-
-    def is_multiple(self):
-        return False
 
     def region_clicked(self):
         self.owner.setCurrentIndex(self._key)
