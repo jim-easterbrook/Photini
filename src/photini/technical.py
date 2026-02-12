@@ -25,7 +25,7 @@ from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
 from photini.widgets import (
-    AugmentDateTime, AugmentSpinBox, CompoundWidgetMixin, DoubleSpinBox,
+    AugmentDateTime, AugmentSpinBox, CompoundWidgetMixin,
     DropDownSelector, Slider, TopLevelWidgetMixin, WidgetMixin)
 
 logger = logging.getLogger(__name__)
@@ -174,73 +174,155 @@ class LensList(DropdownEdit):
         self.setToolTip(tool_tip)
 
 
-class Fl35SpinBox(AugmentSpinBox, QtWidgets.QSpinBox):
-    def __init__(self, key, owner, *arg, **kw):
-        self.default_value = 0
-        self.multiple = multiple_values()
+class DecoratorMixin(object):
+    def init_decorator(self, prefix, suffix):
+        self._prefix = prefix
+        self._suffix = suffix
+
+    def decorate(self, text, pos):
+        if not text:
+            return text, pos
+        return self._prefix + text + self._suffix, len(self._prefix) + pos
+
+    def undecorate(self, text, pos):
+        if self._prefix and text.startswith(self._prefix):
+            count = len(self._prefix)
+            pos -= count
+            text = text[count:]
+        if self._suffix and text.endswith(self._suffix):
+            count = len(self._suffix)
+            text = text[:-count]
+            pos = min(pos, len(text))
+        return text, pos
+
+
+class IntValidator(QtGui.QIntValidator, DecoratorMixin):
+    def __init__(self, *arg, minimum=None, maximum=None,
+                 prefix='', suffix='', **kw):
+        super(IntValidator, self).__init__(*arg, **kw)
+        if minimum is not None:
+            self.setBottom(minimum)
+        if maximum is not None:
+            self.setTop(maximum)
+        self.init_decorator(prefix, suffix)
+
+    @catch_all
+    def validate(self, text, pos):
+        text, pos = self.undecorate(text, pos)
+        state, text, pos = super(IntValidator, self).validate(text, pos)
+        text, pos = self.decorate(text, pos)
+        return state, text, pos
+
+    def text_to_value(self, text):
+        value, OK = self.locale().toInt(text)
+        if OK:
+            return value
+        return None
+
+    def value_to_text(self, value):
+        return self.locale().toString(value)
+
+
+class DoubleValidator(QtGui.QDoubleValidator, DecoratorMixin):
+    def __init__(self, *arg, minimum=None, maximum=None,
+                 prefix='', suffix='', **kw):
+        super(DoubleValidator, self).__init__(*arg, **kw)
+        self.setNotation(self.Notation.StandardNotation)
+        if minimum is not None:
+            self.setBottom(minimum)
+        if maximum is not None:
+            self.setTop(maximum)
+        self.init_decorator(prefix, suffix)
+
+    @catch_all
+    def validate(self, text, pos):
+        text, pos = self.undecorate(text, pos)
+        state, text, pos = super(DoubleValidator, self).validate(text, pos)
+        text, pos = self.decorate(text, pos)
+        return state, text, pos
+
+    def text_to_value(self, text):
+        value, OK = self.locale().toDouble(text)
+        if OK:
+            return value
+        return None
+
+    def value_to_text(self, value):
+        return self.locale().toString(float(value))
+
+
+class NumericalWidget(QtWidgets.QLineEdit, WidgetMixin):
+    def __init__(self, key, validator, *arg, **kw):
+        super(NumericalWidget, self).__init__(*arg, **kw)
         self._key = key
-        self.owner = owner
-        super(Fl35SpinBox, self).__init__(*arg, **kw)
-        self.setSingleStep(1)
-        lim = (2 ** 31) - 1
-        self.setRange(-lim, lim)
-        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
+        self.setValidator(validator)
+        self._multiple_values = multiple_values()
+        self.textEdited.connect(self._text_edited)
+
+    @QtSlot(str)
+    @catch_all
+    def _text_edited(self, text):
+        self.setPlaceholderText('')
 
     @catch_all
     def contextMenuEvent(self, event):
-        if self._flags & self.Flags.faint:
-            self.owner.context_menu_event(event)
-            return
-        self.context_menu_event()
-        return super(Fl35SpinBox, self).contextMenuEvent(event)
+        menu = self.createStandardContextMenu()
+        suggestion_group = QtGui2.QActionGroup(menu)
+        if self.is_multiple() and self.choices:
+            sep = menu.insertSeparator(menu.actions()[0])
+            validator = self.validator()
+            for suggestion in self.choices:
+                text = validator.value_to_text(suggestion)
+                text, pos = validator.decorate(text, 0)
+                action = QtGui2.QAction(text, suggestion_group)
+                action.setData(suggestion)
+                menu.insertAction(sep, action)
+        action = execute(menu, event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            self.set_value(action.data())
+            self.emit_value()
 
     @catch_all
-    def keyPressEvent(self, event):
-        self._set_valid()
-        self.set_faint(False)
-        return super(Fl35SpinBox, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self._set_valid()
-        self.set_faint(False)
-        self.init_stepping()
-        return super(Fl35SpinBox, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        if self._flags & self.Flags.faint:
-            return
-        if not self.fix_up():
-            super(Fl35SpinBox, self).fixup(text)
-
-    def get_value(self):
-        if self._flags & self.Flags.faint:
-            return None
-        return super(Fl35SpinBox, self).get_value()
+    def focusOutEvent(self, event):
+        self.emit_value()
+        super(NumericalWidget, self).focusOutEvent(event)
 
     def has_value(self):
-        if self._flags & self.Flags.faint:
-            return False
-        return super(Fl35SpinBox, self).has_value()
+        return bool(self.text()) or bool(self.placeholderText())
 
-    def set_value(self, value):
-        self.set_faint(False)
-        super(Fl35SpinBox, self).set_value(value)
+    def is_multiple(self):
+        return self.placeholderText() == self._multiple_values
 
-    def set_faint(self, faint):
-        if bool(self._flags & self.Flags.faint) == faint:
+    def is_valid(self):
+        return self.placeholderText() == ''
+
+    def set_multiple(self, choices=[]):
+        self.choices = [x for x in choices if x is not None]
+        self.setPlaceholderText(self._multiple_values)
+        self.clear()
+
+    def get_value(self):
+        text = self.text()
+        if text:
+            validator = self.validator()
+            text, pos = validator.undecorate(text, 0)
+            return validator.text_to_value(text)
+        return None
+
+    def set_value(self, value, faint=False):
+        if value is None:
+            self.setPlaceholderText('')
+            self.clear()
             return
+        validator = self.validator()
+        text = validator.value_to_text(value)
+        text, pos = validator.decorate(text, 0)
         if faint:
-            self._flags &= ~self.Flags.invalid_mask
-            self._flags |= self.Flags.faint
-            self.lineEdit().setPlaceholderText(self.lineEdit().text())
-            self.enable_affix(False)
+            self.setPlaceholderText(text)
             self.clear()
         else:
-            self._flags &= ~self.Flags.faint
-            self.enable_affix(True)
-            self.lineEdit().setPlaceholderText('')
+            self.setText(text)
+            self.setPlaceholderText('')
 
 
 class CalendarWidget(QtWidgets.QCalendarWidget):
@@ -648,15 +730,14 @@ class NewLensDialog(NewItemDialog):
                 ('max_fl_fn',
                  translate('TechnicalTab', 'Aperture at max. focal length')),
                 ):
-            self.lens_spec[key] = DoubleSpinBox(key)
-            self.lens_spec[key].setMinimum(0.0)
             if key.endswith('_fn'):
-                self.lens_spec[key].set_prefix(translate(
-                    'TechnicalTab', 'ƒ/', 'lens aperture'))
+                self.lens_spec[key] = NumericalWidget(
+                    key, DoubleValidator(minimum=0.0, prefix=translate(
+                        'TechnicalTab', 'ƒ/', 'lens aperture')))
             else:
-                self.lens_spec[key].setSingleStep(1.0)
-                self.lens_spec[key].set_suffix(translate(
-                    'TechnicalTab', ' mm', 'millimetres focal length'))
+                self.lens_spec[key] = NumericalWidget(
+                    key, IntValidator(minimum=0.0, suffix=translate(
+                        'TechnicalTab', ' mm', 'millimetres focal length')))
             self.panel.layout().addRow(label, self.lens_spec[key])
 
     def get_value(self):
@@ -701,15 +782,13 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         self.crop_factor = None
         self.image_crop_factor = None
         self.camera_name = None
-        # actual focal length
-        self.fl = DoubleSpinBox('fl')
-        self.fl.setMinimum(0.0)
         suffix = translate('TechnicalTab', ' mm', 'millimetres focal length')
-        self.fl.set_suffix(suffix)
+        # actual focal length
+        self.fl = NumericalWidget(
+            'fl', DoubleValidator(minimum=0.0, suffix=suffix))
         # 35mm equivalent focal length
-        self.fl35 = Fl35SpinBox('fl35', self)
-        self.fl35.setMinimum(0)
-        self.fl35.set_suffix(suffix)
+        self.fl35 = NumericalWidget(
+            'fl35', IntValidator(minimum=0, suffix=suffix))
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
 
@@ -717,12 +796,12 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         return (self.fl, self.fl35)
 
     def after_load(self):
-        if self.is_multiple() or self.fl35.has_value() or not (
+        if self.is_multiple() or bool(self.fl35.get_value()) or not (
                 self.fl.has_value() and self.crop_factor):
             return
         self.fl35.set_value(
-            int((float(self.fl.get_value()) * self.crop_factor) + 0.5))
-        self.fl35.set_faint(True)
+            int((float(self.fl.get_value()) * self.crop_factor) + 0.5),
+            faint=True)
 
     def context_menu_event(self, event):
         if not self.camera_name:
@@ -754,7 +833,7 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         if md.camera_model:
             self.camera_name = md.camera_model.get_name(inc_serial=False)
         self.crop_factor = None
-        if self.fl.has_value() and self.fl35.has_value():
+        if self.fl.has_value() and bool(self.fl35.get_value()):
             self.crop_factor = self.fl35.get_value() / self.fl.get_value()
             self.image_crop_factor = self.crop_factor
         if not self.image_crop_factor:
@@ -858,10 +937,9 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),
                                     self.widgets['focal_length'].fl35)
         # aperture
-        self.widgets['aperture'] = DoubleSpinBox('aperture')
-        self.widgets['aperture'].setMinimum(0.0)
-        self.widgets['aperture'].set_prefix(translate(
-            'TechnicalTab', 'ƒ/', 'lens aperture'))
+        self.widgets['aperture'] = NumericalWidget(
+            'aperture', DoubleValidator(minimum=0.0, prefix=translate(
+                'TechnicalTab', 'ƒ/', 'lens aperture')))
         other_group.layout().addRow(translate('TechnicalTab', 'Aperture'),
                                     self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
