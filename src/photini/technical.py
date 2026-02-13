@@ -24,10 +24,9 @@ import re
 from photini.pyqt import *
 from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
-from photini.widgets import (
-    AugmentDateTime, AugmentSpinBox, CompoundWidgetMixin,
-    DropDownSelector, Slider, TopLevelWidgetMixin, WidgetMixin)
-from photini.widgets.datetime import TimeZoneWidget
+from photini.widgets import (CompoundWidgetMixin, DropDownSelector, Slider,
+                             TopLevelWidgetMixin)
+from photini.widgets.datetime import DateTimeEdit, TimeZoneWidget
 from photini.widgets.number import *
 
 logger = logging.getLogger(__name__)
@@ -174,85 +173,6 @@ class LensList(DropdownEdit):
             th_fl=translate('TechnicalTab', 'Focal length'),
             th_ap=translate('TechnicalTab', 'Max aperture'), **spec)
         self.setToolTip(tool_tip)
-
-
-class CalendarWidget(QtWidgets.QCalendarWidget):
-    @catch_all
-    def showEvent(self, event):
-        if self.selectedDate() == self.minimumDate():
-            self.setSelectedDate(QtCore.QDate.currentDate())
-        return super(CalendarWidget, self).showEvent(event)
-
-
-class DateTimeEdit(AugmentDateTime, QtWidgets.QDateTimeEdit):
-    def __init__(self, key, *arg, **kw):
-        self.default_value = QtCore.QDateTime(
-            QtCore.QDate.currentDate(), QtCore.QTime())
-        self.multiple = multiple_values()
-        self._key = key
-        # rename some methods for compatibility with AugmentSpinBox
-        self.minimum = self.minimumDateTime
-        self.setValue = self.setDateTime
-        self.textFromValue = self.textFromDateTime
-        self.value = self.dateTime
-        super(DateTimeEdit, self).__init__(*arg, **kw)
-        self.setCalendarPopup(True)
-        self.setCalendarWidget(CalendarWidget())
-        self.precision = 1
-        self.set_precision(7)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(DateTimeEdit, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self._set_valid()
-        return super(DateTimeEdit, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self._set_valid()
-        self.init_stepping()
-        return super(DateTimeEdit, self).stepBy(steps)
-
-    @catch_all
-    def sizeHint(self):
-        size = super(DateTimeEdit, self).sizeHint()
-        if self.precision == 7 and self.is_valid():
-            self.setFixedSize(size)
-        return size
-
-    @catch_all
-    def dateTimeFromText(self, text):
-        if not text:
-            self.set_value(None)
-            return self.dateTime()
-        return super(DateTimeEdit, self).dateTimeFromText(text)
-
-    def get_value(self):
-        result = super(DateTimeEdit, self).get_value()
-        if not result:
-            return result
-        if using_pyside:
-            return result.toPython()
-        return result.toPyDateTime()
-
-    @catch_all
-    def validate(self, text, pos):
-        if not text:
-            return QtGui.QValidator.State.Acceptable, text, pos
-        return super(DateTimeEdit, self).validate(text, pos)
-
-    @QtSlot(int)
-    @catch_all
-    def set_precision(self, value):
-        if value != self.precision:
-            self.precision = value
-            self.setDisplayFormat(
-                ''.join(('yyyy', '-MM', '-dd',
-                         ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
 
 
 class PrecisionSlider(Slider):

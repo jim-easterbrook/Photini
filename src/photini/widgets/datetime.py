@@ -20,10 +20,129 @@
 import logging
 
 from photini.pyqt import *
+from photini.pyqt import using_pyside
 from photini.widgets import WidgetMixin
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+class CalendarWidget(QtWidgets.QCalendarWidget):
+    last_date = None
+
+    @catch_all
+    def showEvent(self, event):
+        if self.selectedDate() == self.minimumDate():
+            if self.last_date:
+                self.setSelectedDate(self.last_date)
+            else:
+                self.showToday()
+        return super(CalendarWidget, self).showEvent(event)
+
+
+class DateTimeEdit(QtWidgets.QDateTimeEdit, WidgetMixin):
+    def __init__(self, key, *arg, **kw):
+        super(DateTimeEdit, self).__init__(*arg, **kw)
+        self.setCalendarPopup(True)
+        self.setCalendarWidget(CalendarWidget())
+        self._key = key
+        self._multiple = multiple_values()
+        self.precision = 1
+        self.set_precision(7)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        menu = self.lineEdit().createStandardContextMenu()
+        suggestion_group = QtGui2.QActionGroup(menu)
+        if self.is_multiple() and self.choices:
+            sep = menu.insertSeparator(menu.actions()[0])
+            for suggestion in self.choices:
+                text = str(suggestion)
+                action = QtGui2.QAction(text, suggestion_group)
+                action.setData(suggestion)
+                menu.insertAction(sep, action)
+        action = execute(menu, event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            self.set_value(action.data())
+            self.emit_value()
+
+    @catch_all
+    def dateTimeFromText(self, text):
+        if not text:
+            self.set_value(None)
+            return self.dateTime()
+        return super(DateTimeEdit, self).dateTimeFromText(text)
+
+    @catch_all
+    def focusOutEvent(self, event):
+        self.emit_value()
+        super(DateTimeEdit, self).focusOutEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        if self.is_multiple() and event.key() in (
+                Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
+            self.set_value(None)
+        super(DateTimeEdit, self).keyPressEvent(event)
+
+    @catch_all
+    def sizeHint(self):
+        size = super(DateTimeEdit, self).sizeHint()
+        if self.precision == 7:
+            self.setFixedSize(size)
+        return size
+
+    @catch_all
+    def stepBy(self, steps):
+        if self.dateTime() == self.minimumDateTime():
+            date = (self.calendarWidget().last_date
+                    or QtCore.QDateTime.currentDateTime())
+            self.setDateTime(date)
+        super(DateTimeEdit, self).stepBy(steps)
+
+    @catch_all
+    def validate(self, text, pos):
+        if not text:
+            return QtGui.QValidator.State.Acceptable, text, pos
+        return super(DateTimeEdit, self).validate(text, pos)
+
+    def get_value(self):
+        value = self.dateTime()
+        if value == self.minimumDateTime():
+            return None
+        if using_pyside:
+            return value.toPython()
+        return value.toPyDateTime()
+
+    def is_multiple(self):
+        return (self.dateTime() == self.minimumDateTime()
+                and self.specialValueText() == self._multiple)
+
+    def is_valid(self):
+        return not self.is_multiple()
+
+    def set_multiple(self, choices=[]):
+        self.choices = [x for x in choices if x is not None]
+        self.setDateTime(self.minimumDateTime())
+        self.setSpecialValueText(self._multiple)
+
+    @QtSlot(int)
+    @catch_all
+    def set_precision(self, value):
+        if value != self.precision:
+            self.precision = value
+            self.setDisplayFormat(
+                ''.join(('yyyy', '-MM', '-dd',
+                         ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
+
+    def set_value(self, value):
+        if value is None:
+            self.setSpecialValueText(' ')
+            self.setDateTime(self.minimumDateTime())
+        else:
+            self.calendarWidget().last_date = value
+            self.setDateTime(value)
+            self.setSpecialValueText('')
 
 
 class TimeZoneWidget(QtWidgets.QSpinBox, WidgetMixin):
