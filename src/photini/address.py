@@ -28,8 +28,9 @@ from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
     AltitudeDisplay, CompactButton, CompoundWidgetMixin, ContextMenuMixin,
-    GPSInfoWidgets, Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
+    Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
     SingleLineEdit, TabWidgetEx, TopLevelWidgetMixin)
+from photini.widgets.number import GPSInfoWidgets
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

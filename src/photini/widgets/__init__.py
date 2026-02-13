@@ -1246,21 +1246,6 @@ class AltitudeDisplay(DoubleSpinBox):
         self.set_value(None)
 
 
-class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
-    _key = 'gps_info'
-
-    def __init__(self, *arg, **kw):
-        super(GPSInfoWidgets, self).__init__(*arg, **kw)
-        # child widgets
-        self.latlon = LatLongDisplay()
-        self.alt = AltitudeDisplay()
-        for widget in self.sub_widgets():
-            widget.new_value.connect(self.sw_new_value)
-
-    def sub_widgets(self):
-        return (self.latlon, self.alt)
-
-
 class ContextMenuMixin(object):
     # adds a cut/copy/paste/delete context menu to any widget
     # requires self.app and self.clipboard_key to be set

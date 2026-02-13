@@ -20,7 +20,8 @@
 import logging
 
 from photini.pyqt import *
-from photini.widgets import WidgetMixin
+from photini.widgets import (
+    CompoundWidgetMixin, Label, LatLongDisplay, WidgetMixin)
 
 __all__ = ('DoubleValidator', 'IntValidator', 'NumericalWidget')
 
@@ -177,3 +178,29 @@ class NumericalWidget(QtWidgets.QLineEdit, WidgetMixin):
         else:
             self.setText(text)
             self.setPlaceholderText('')
+
+
+class AltitudeDisplay(NumericalWidget):
+    def __init__(self, *args, **kwds):
+        validator = DoubleValidator(
+            suffix=translate('AltitudeDisplay', ' m', 'metres altitude'))
+        super(AltitudeDisplay, self).__init__(
+            'exif:GPSAltitude', validator, *args, **kwds)
+        self.setToolTip('<p>{}</p>'.format(translate(
+            'AltitudeDisplay', 'Altitude of the location in metres.')))
+        self.label = Label(translate('AltitudeDisplay', 'Altitude'))
+
+
+class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
+    _key = 'gps_info'
+
+    def __init__(self, *arg, **kw):
+        super(GPSInfoWidgets, self).__init__(*arg, **kw)
+        # child widgets
+        self.latlon = LatLongDisplay()
+        self.alt = AltitudeDisplay()
+        for widget in self.sub_widgets():
+            widget.new_value.connect(self.sw_new_value)
+
+    def sub_widgets(self):
+        return (self.latlon, self.alt)

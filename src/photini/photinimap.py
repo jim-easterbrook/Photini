@@ -37,7 +37,8 @@ from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
                           QtWebEngineWidgets, qt_version_info)
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
-                             GPSInfoWidgets, Label, TopLevelWidgetMixin)
+                             Label, TopLevelWidgetMixin)
+from photini.widgets.number import GPSInfoWidgets
 
 
 logger = logging.getLogger(__name__)
