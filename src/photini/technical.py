@@ -27,6 +27,7 @@ from photini.types import MD_CameraModel, MD_LensModel
 from photini.widgets import (
     AugmentDateTime, AugmentSpinBox, CompoundWidgetMixin,
     DropDownSelector, Slider, TopLevelWidgetMixin, WidgetMixin)
+from photini.widgets.datetime import TimeZoneWidget
 from photini.widgets.number import *
 
 logger = logging.getLogger(__name__)
@@ -254,83 +255,6 @@ class DateTimeEdit(AugmentDateTime, QtWidgets.QDateTimeEdit):
                          ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
 
 
-class TimeZoneWidget(AugmentSpinBox, QtWidgets.QSpinBox):
-    def __init__(self, key, *arg, **kw):
-        self.default_value = 0
-        self.multiple = multiple()
-        self._key = key
-        super(TimeZoneWidget, self).__init__(*arg, **kw)
-        self.setRange(-14 * 60, 15 * 60)
-        self.setSingleStep(15)
-        self.setWrapping(True)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(TimeZoneWidget, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self._set_valid()
-        return super(TimeZoneWidget, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self._set_valid()
-        self.init_stepping()
-        return super(TimeZoneWidget, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        if not self.fix_up():
-            super(TimeZoneWidget, self).fixup(text)
-
-    @catch_all
-    def sizeHint(self):
-        size = super(TimeZoneWidget, self).sizeHint()
-        if self.is_valid():
-            self.setFixedSize(size)
-        return size
-
-    @catch_all
-    def validate(self, text, pos):
-        if re.match(r'[+-]?\d{1,2}(:\d{0,2})?$', text):
-            return QtGui.QValidator.State.Acceptable, text, pos
-        if re.match(r'[+-]?$', text):
-            return QtGui.QValidator.State.Intermediate, text, pos
-        return QtGui.QValidator.State.Invalid, text, pos
-
-    @catch_all
-    def valueFromText(self, text):
-        if not text.strip():
-            return 0
-        hours, sep, minutes = text.partition(':')
-        hours, OK = self.locale().toInt(hours)
-        if not OK:
-            return 0
-        if minutes:
-            minutes, OK = self.locale().toInt(minutes)
-            if not OK:
-                minutes = 0
-            minutes = int(15.0 * round(float(minutes) / 15.0))
-            if hours < 0:
-                minutes = -minutes
-        else:
-            minutes = 0
-        return (hours * 60) + minutes
-
-    @catch_all
-    def textFromValue(self, value):
-        if value is None:
-            return ''
-        if value < 0:
-            sign = self.locale().negativeSign()
-            value = -value
-        else:
-            sign = self.locale().positiveSign()
-        return sign + QtCore.QTime(value // 60, value % 60).toString('hh:mm')
-
-
 class PrecisionSlider(Slider):
     value_changed = QtSignal(int)
 
@@ -456,7 +380,7 @@ class OffsetWidget(QtWidgets.QWidget):
         # better result. Calling setSpecialValueText is also required.
         self.offset.setSpecialValueText('')
         self.offset.updateGeometry()
-        self.time_zone.setSpecialValueText(' ')
+        self.time_zone.setSpecialValueText('')
         self.time_zone.updateGeometry()
 
     @QtSlot()

@@ -1,0 +1,138 @@
+#  Photini - a simple photo metadata editor.
+#  http://github.com/jim-easterbrook/Photini
+#  Copyright (C) 2026  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#
+#  This file is part of Photini.
+#
+#  Photini is free software: you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation, either version 3 of the License, or (at
+#  your option) any later version.
+#
+#  Photini is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Photini.  If not, see <http://www.gnu.org/licenses/>.
+
+import logging
+
+from photini.pyqt import *
+from photini.widgets import WidgetMixin
+
+logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
+
+
+class TimeZoneWidget(QtWidgets.QSpinBox, WidgetMixin):
+    def __init__(self, key, *arg, **kw):
+        super(TimeZoneWidget, self).__init__(*arg, **kw)
+        self.hour_validator = QtGui.QIntValidator(-14, 15, parent=self)
+        self.minute_validator = QtGui.QIntValidator(0, 59, parent=self)
+        self._key = key
+        self.setRange(self.hour_validator.bottom() * 60,
+                      self.hour_validator.top() * 60)
+        self.setSingleStep(15)
+        self.setWrapping(True)
+        self._multiple = multiple()
+        self.lineEdit().textEdited.connect(self._text_edited)
+
+    @QtSlot(str)
+    @catch_all
+    def _text_edited(self, text):
+        self.lineEdit().setPlaceholderText('')
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        menu = self.lineEdit().createStandardContextMenu()
+        suggestion_group = QtGui2.QActionGroup(menu)
+        if self.is_multiple() and self.choices:
+            sep = menu.insertSeparator(menu.actions()[0])
+            for suggestion in self.choices:
+                text = self.textFromValue(suggestion)
+                action = QtGui2.QAction(text, suggestion_group)
+                action.setData(suggestion)
+                menu.insertAction(sep, action)
+        action = execute(menu, event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            self.set_value(action.data())
+            self.emit_value()
+
+    @catch_all
+    def focusOutEvent(self, event):
+        self.emit_value()
+        super(TimeZoneWidget, self).focusOutEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
+            self.lineEdit().setPlaceholderText('')
+        super(TimeZoneWidget, self).keyPressEvent(event)
+
+    @catch_all
+    def textFromValue(self, value):
+        if value < 0:
+            sign = self.locale().negativeSign()
+            value = -value
+        else:
+            sign = self.locale().positiveSign()
+        return sign + QtCore.QTime(value // 60, value % 60).toString('hh:mm')
+
+    @catch_all
+    def validate(self, text, pos):
+        if not text:
+            return QtGui.QValidator.State.Acceptable, text, pos
+        parts = text.split(':')
+        if len(parts) > 2:
+            return QtGui.QValidator.State.Invalid, text, pos
+        offset = [text.index(x) for x in parts]
+        state, parts[0], new_pos = self.hour_validator.validate(
+            parts[0], pos - offset[0])
+        if len(parts) < 2 or state != QtGui.QValidator.State.Acceptable:
+            return state, text, new_pos + offset[0]
+        state, parts[1], new_pos = self.minute_validator.validate(
+            parts[1], pos - offset[1])
+        return state, text, new_pos + offset[1]
+
+    @catch_all
+    def valueFromText(self, text):
+        if not text.strip():
+            return 0
+        value = [self.locale().toInt(x) for x in text.split(':')]
+        if len(value) > 2 or not all(x[1] for x in value):
+            return 0
+        hours = value[0][0]
+        if len(value) > 1:
+            minutes = value[1][0]
+            minutes = int(15.0 * round(float(minutes) / 15.0))
+            if hours < 0:
+                minutes = -minutes
+        else:
+            minutes = 0
+        return (hours * 60) + minutes
+
+    def get_value(self):
+        if not self.text():
+            return None
+        value = self.value()
+        return value
+
+    def is_multiple(self):
+        return self.lineEdit().placeholderText() == self._multiple
+
+    def is_valid(self):
+        return self.lineEdit().placeholderText() == ''
+
+    def set_multiple(self, choices=[]):
+        self.choices = [x for x in choices if x is not None]
+        self.lineEdit().setPlaceholderText(self._multiple)
+        self.clear()
+
+    def set_value(self, value):
+        self.lineEdit().setPlaceholderText('')
+        if value is None:
+            self.clear()
+        else:
+            self.setValue(value)
