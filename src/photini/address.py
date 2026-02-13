@@ -27,10 +27,10 @@ from photini.photinimap import fetch_key, GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
-    AltitudeDisplay, CompactButton, CompoundWidgetMixin, ContextMenuMixin,
-    Label, LatLongDisplay, LangAltWidget, ListWidgetMixin,
+    CompactButton, CompoundWidgetMixin, ContextMenuMixin,
+    Label, LangAltWidget, ListWidgetMixin,
     SingleLineEdit, TabWidgetEx, TopLevelWidgetMixin)
-from photini.widgets.number import GPSInfoWidgets
+from photini.widgets.number import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

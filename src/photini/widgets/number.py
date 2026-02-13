@@ -21,9 +21,10 @@ import logging
 
 from photini.pyqt import *
 from photini.widgets import (
-    CompoundWidgetMixin, Label, LatLongDisplay, WidgetMixin)
+    CompoundWidgetMixin, Label, WidgetMixin)
 
-__all__ = ('DoubleValidator', 'IntValidator', 'NumericalWidget')
+__all__ = ('AltitudeDisplay', 'DoubleValidator', 'GPSInfoWidgets',
+           'IntValidator', 'LatLongDisplay', 'NumericalWidget')
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -121,6 +122,8 @@ class NumericalWidget(QtWidgets.QLineEdit, WidgetMixin):
 
     @catch_all
     def contextMenuEvent(self, event):
+        if self.isReadOnly():
+            return
         menu = self.createStandardContextMenu()
         suggestion_group = QtGui2.QActionGroup(menu)
         if self.is_multiple() and self.choices:
@@ -178,6 +181,107 @@ class NumericalWidget(QtWidgets.QLineEdit, WidgetMixin):
         else:
             self.setText(text)
             self.setPlaceholderText('')
+
+
+class LatLongValidator(QtGui.QValidator):
+    def __init__(self, *arg, **kw):
+        super(LatLongValidator, self).__init__(*arg, **kw)
+        self.lat_validator = QtGui.QDoubleValidator(
+            -90.0, 90.0, 20, parent=self)
+        self.lng_validator = QtGui.QDoubleValidator(
+            -180.0, 180.0, 20, parent=self)
+
+    @catch_all
+    def validate(self, text, pos):
+        if not text:
+            return QtGui.QValidator.State.Acceptable, text, pos
+        parts = text.split(' ')
+        if any(x == '' for x in parts[:-1]):
+            return QtGui.QValidator.State.Invalid, text, pos
+        if len(parts) > 2:
+            return QtGui.QValidator.State.Invalid, text, pos
+        offset = [text.index(x) for x in parts]
+        state, parts[0], new_pos = self.lat_validator.validate(
+            parts[0], pos - offset[0])
+        if len(parts) < 2 or state != self.State.Acceptable:
+            return state, text, new_pos + offset[0]
+        state, parts[1], new_pos = self.lng_validator.validate(
+            parts[1], pos - offset[1])
+        return state, text, new_pos + offset[1]
+
+    @catch_all
+    def fixup(self, text):
+        value = self.text_to_value(text)
+        if value == (None, None):
+            return ''
+        value = (min(max(value[0], -90.0), 90.0),
+                 ((value[1] + 180.0) % 360.0) - 180.0)
+        return self.value_to_text(value)
+
+    def decorate(self, text, pos):
+        return text, pos
+
+    def undecorate(self, text, pos):
+        return text, pos
+
+    def text_to_value(self, text):
+        value = [self.locale().toDouble(x) for x in text.split()]
+        if len(value) != 2 or not all(x[1] for x in value):
+            # float conversion failed
+            return (None, None)
+        return tuple(x[0] for x in value)
+
+    def value_to_text(self, value):
+        return ' '.join(self.locale().toString(float(x), 'f', 6)
+                        for x in value if x is not None)
+
+
+class LatLongDisplay(NumericalWidget):
+    lat_key = 'exif:GPSLatitude'
+    lng_key = 'exif:GPSLongitude'
+
+    def __init__(self, *arg, **kw):
+        validator = LatLongValidator()
+        super(LatLongDisplay, self).__init__('', validator, *arg, **kw)
+        self.label = Label(translate(
+            'LatLongDisplay', 'Lat, long',
+            'Short abbreviation of "Latitude, longitude"'))
+        self.setFixedWidth(width_for_text(self, '8' * 22))
+        self.setToolTip('<p>{}</p>'.format(translate(
+            'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
+            ' decimal numbers separated by a space.')))
+
+    def get_value_dict(self):
+        if self.is_valid():
+            value = self.get_value()
+            return {self.lat_key: value[0], self.lng_key: value[1]}
+        return {}
+
+    def set_value_dict(self, value):
+        value = value or {}
+        self.set_value(self.dict_to_value(value))
+
+    @classmethod
+    def dict_to_value(cls, value):
+        return (value.get(cls.lat_key), value.get(cls.lng_key))
+
+    def _load_data(self, md_list):
+        md_list = [self.dict_to_value(md) for md in md_list]
+        choices = []
+        for value in md_list:
+            if value not in choices:
+                choices.append(value)
+        if len(choices) > 1:
+            self.set_multiple(choices=[
+                x for x in choices if x != None])
+        else:
+            self.set_value(choices and choices[0])
+
+    def _save_data(self, metadata, value):
+        if self.lat_key in value and self.lng_key in value:
+            metadata[self.lat_key] = value[self.lat_key]
+            metadata[self.lng_key] = value[self.lng_key]
+        return False
 
 
 class AltitudeDisplay(NumericalWidget):
