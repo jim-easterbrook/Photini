@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -31,7 +31,8 @@ from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.types import MD_Location
-from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
+from photini.widgets import DropDownSelector
+from photini.widgets.text import MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

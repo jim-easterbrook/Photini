@@ -27,9 +27,9 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
-from photini.widgets import (
-    ComboBox, CompoundWidgetMixin, ContextMenuMixin, Label, MultiLineEdit,
-    TextEditMixin, TopLevelWidgetMixin, WidgetMixin)
+from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
+                             Label, TopLevelWidgetMixin, WidgetMixin)
+from photini.widgets.text import MultiLineEdit, TextEditMixin
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

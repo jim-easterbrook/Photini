@@ -23,8 +23,8 @@ from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
-    LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit,
-    TopLevelWidgetMixin)
+    PushButton, TopLevelWidgetMixin)
+from photini.widgets.text import LangAltWidget, MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

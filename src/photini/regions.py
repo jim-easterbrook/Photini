@@ -27,9 +27,9 @@ from photini.pyqt import *
 from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
-    CompoundWidgetMixin, ContextMenuMixin, LangAltWidget, ListWidgetMixin,
-    MultiStringEdit, SingleLineEdit, TabWidgetEx, TopLevelWidgetMixin,
-    WidgetMixin)
+    CompoundWidgetMixin, ContextMenuMixin, ListWidgetMixin,
+    TabWidgetEx, TopLevelWidgetMixin, WidgetMixin)
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

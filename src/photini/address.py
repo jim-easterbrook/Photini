@@ -28,8 +28,8 @@ from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import (
     CompactButton, CompoundWidgetMixin, ContextMenuMixin,
-    Label, LangAltWidget, ListWidgetMixin,
-    SingleLineEdit, TabWidgetEx, TopLevelWidgetMixin)
+    Label, ListWidgetMixin, TabWidgetEx, TopLevelWidgetMixin)
+from photini.widgets.text import *
 from photini.widgets.number import *
 
 logger = logging.getLogger(__name__)

@@ -21,8 +21,8 @@ import logging
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
-    CompoundWidgetMixin, ContextMenuMixin, Label, LangAltWidget, MultiLineEdit,
-    SingleLineEdit, Slider, TopLevelWidgetMixin)
+    CompoundWidgetMixin, ContextMenuMixin, Label, Slider, TopLevelWidgetMixin)
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
