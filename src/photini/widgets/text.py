@@ -31,69 +31,94 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
-class TextHighlighter(QtGui.QSyntaxHighlighter):
-    def __init__(self, spelling, length, length_always, length_bytes,
-                 multi_string, parent):
-        super(TextHighlighter, self).__init__(parent)
+class SpellCheckFormatter(QtGui.QTextCharFormat):
+    def __init__(self, spell_check):
+        super(SpellCheckFormatter, self).__init__()
+        self.spell_check = spell_check
+        self.setUnderlineColor(Qt.GlobalColor.red)
+        self.setUnderlineStyle(self.UnderlineStyle.SpellCheckUnderline)
+
+    def add_spelling_context_menu(self, menu, cursor, callback):
+        block_pos = cursor.block().position()
+        for word, start, end in self.spell_check.find_words(
+                                                    cursor.block().text()):
+            if start > cursor.positionInBlock():
+                break
+            if end <= cursor.positionInBlock():
+                continue
+            cursor.setPosition(block_pos + start)
+            cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
+            break
+        suggestions = self.spell_check.suggest(cursor.selectedText())
+        if not suggestions:
+            return
+        group = QtGui2.QActionGroup(menu)
+        sep = menu.insertSeparator(menu.actions()[0])
+        for suggestion in suggestions:
+            action = QtGui2.QAction(suggestion, parent=group)
+            action.setData(cursor)
+            menu.insertAction(sep, action)
+        group.triggered.connect(callback)
+
+    def highlight_block(self, text, highlighter):
+        for word, start, end in self.spell_check.find_words(text):
+            if not self.spell_check.check(word):
+                highlighter.setFormat(start, end - start, self)
+
+
+class LengthFormatter(QtGui.QTextCharFormat):
+    def __init__(self, length, length_always, length_bytes, multi_string):
+        super(LengthFormatter, self).__init__()
+        self.setUnderlineColor(Qt.GlobalColor.blue)
+        self.setUnderlineStyle(self.UnderlineStyle.SingleUnderline)
         self.config_store = QtWidgets.QApplication.instance().config_store
-        if spelling:
-            self.spell_check = QtWidgets.QApplication.instance().spell_check
-            self.spell_check.new_dict.connect(self.rehighlight)
-            self.spell_formatter = QtGui.QTextCharFormat()
-            self.spell_formatter.setUnderlineColor(Qt.GlobalColor.red)
-            self.spell_formatter.setUnderlineStyle(
-                QtGui.QTextCharFormat.UnderlineStyle.SpellCheckUnderline)
-            self.find_words = self.spell_check.find_words
-            self.suggest = self.spell_check.suggest
+        self.length = length
+        self.length_always = length_always
+        self.length_bytes = length_bytes
+        if multi_string:
+            # treat each keyword separately
+            self.regex = re.compile(r'\s*(.+?)(;|$)')
         else:
-            self.spell_check = None
-        if length:
-            self._length = {
-                'length': length, 'always': length_always,
-                'bytes': length_bytes, 'formatter': QtGui.QTextCharFormat()}
-            self._length['formatter'].setUnderlineColor(Qt.GlobalColor.blue)
-            self._length['formatter'].setUnderlineStyle(
-                QtGui.QTextCharFormat.UnderlineStyle.SingleUnderline)
-            if multi_string:
-                # treat each keyword separately
-                self._length['regex'] = re.compile(r'\s*(.+?)(;|$)')
-            else:
-                # treat the entire block as one
-                self._length['regex'] = re.compile(r'(.+)')
-        else:
-            self._length = None
+            # treat the entire block as one
+            self.regex = re.compile(r'(.+)')
+
+    def highlight_block(self, text, highlighter):
+        if not text:
+            highlighter.setCurrentBlockState(highlighter.previousBlockState())
+            return
+        length_warning = self.length_always or self.config_store.get(
+            'files', 'length_warning', True)
+        if length_warning:
+            consumed = max(highlighter.previousBlockState(), 0)
+            max_len = max(self.length - consumed, 0)
+            for match in self.regex.finditer(text):
+                start = match.start(1)
+                end = match.end(1)
+                truncated = text[start:end]
+                if self.length_bytes:
+                    truncated = truncated.encode('utf-8')
+                consumed += len(truncated)
+                truncated = truncated[:max_len]
+                if self.length_bytes:
+                    truncated = truncated.decode('utf-8', errors='ignore')
+                start += len(truncated)
+                if start < end:
+                    highlighter.setFormat(start, end - start, self)
+            highlighter.setCurrentBlockState(max(consumed, 0))
+
+    def set_length(self, length):
+        self.length = length
+
+
+class TextHighlighter(QtGui.QSyntaxHighlighter):
+    def __init__(self, formatters, parent):
+        super(TextHighlighter, self).__init__(parent)
+        self.formatters = formatters
 
     @catch_all
     def highlightBlock(self, text):
-        if not text:
-            if self._length:
-                self.setCurrentBlockState(self.previousBlockState())
-            return
-        if self._length:
-            length_warning = self._length['always'] or self.config_store.get(
-                'files', 'length_warning', True)
-            if length_warning:
-                consumed = max(self.previousBlockState(), 0)
-                max_len = max(self._length['length'] - consumed, 0)
-                for match in self._length['regex'].finditer(text):
-                    start = match.start(1)
-                    end = match.end(1)
-                    truncated = text[start:end]
-                    if self._length['bytes']:
-                        truncated = truncated.encode('utf-8')
-                    consumed += len(truncated)
-                    truncated = truncated[:max_len]
-                    if self._length['bytes']:
-                        truncated = truncated.decode('utf-8', errors='ignore')
-                    start += len(truncated)
-                    if start < end:
-                        self.setFormat(
-                            start, end - start, self._length['formatter'])
-                self.setCurrentBlockState(max(consumed, 0))
-        if self.spell_check:
-            for word, start, end in self.find_words(text):
-                if not self.spell_check.check(word):
-                    self.setFormat(start, end - start, self.spell_formatter)
+        for formatter in self.formatters.values():
+            formatter.highlight_block(text, self)
 
 
 class TextEditMixin(ChoicesContextMenu, WidgetMixin):
@@ -102,10 +127,17 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin):
         self._key = key
         self._multiple_values = multiple_values()
         self._is_multiple = False
-        self.spell_check = spell_check
-        self.highlighter = TextHighlighter(
-            spell_check, length_check, length_always, length_bytes,
-            multi_string, self.document())
+        self.formatters = {}
+        if spell_check:
+            spell_check = QtWidgets.QApplication.instance().spell_check
+            self.formatters['spelling'] = SpellCheckFormatter(spell_check)
+        if length_check:
+            self.formatters['length'] = LengthFormatter(
+                length_check, length_always, length_bytes, multi_string)
+        if self.formatters:
+            self.highlighter = TextHighlighter(self.formatters, self.document())
+            if spell_check:
+                spell_check.new_dict.connect(self.highlighter.rehighlight)
         if min_width:
             self.setMinimumWidth(width_for_text(self, 'x' * min_width))
         if self.isRightToLeft():
@@ -114,35 +146,23 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin):
 
     def context_menu_event(self, event):
         menu = self.createStandardContextMenu()
-        suggestion_group = QtGui2.QActionGroup(menu)
         if self._is_multiple:
             self.add_choices_context_menu(menu)
-        elif self.spell_check:
-            cursor = self.cursorForPosition(event.pos())
-            block_pos = cursor.block().position()
-            for word, start, end in self.highlighter.find_words(
-                                                        cursor.block().text()):
-                if start > cursor.positionInBlock():
-                    break
-                if end <= cursor.positionInBlock():
-                    continue
-                cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
-                break
-            suggestions = self.highlighter.suggest(cursor.selectedText())
-            if suggestions:
-                sep = menu.insertSeparator(menu.actions()[0])
-                for suggestion in suggestions:
-                    action = QtGui2.QAction(suggestion, suggestion_group)
-                    menu.insertAction(sep, action)
-        action = execute(menu, event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            cursor.setPosition(block_pos + start)
-            cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
-            cursor.insertText(action.iconText())
+        elif 'spelling' in self.formatters:
+            self.formatters['spelling'].add_spelling_context_menu(
+                menu, self.cursorForPosition(event.pos()),
+                self._spelling_triggered)
+        execute(menu, event.globalPos())
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all
+    def _spelling_triggered(self, action):
+        cursor = action.data()
+        cursor.insertText(action.iconText())
 
     def set_length(self, length):
-        self.highlighter._length['length'] = length
+        if 'length' in self.formatters:
+            self.formatters['length'].set_length(length)
 
     def set_value(self, value):
         self.set_multiple(multiple=False)
