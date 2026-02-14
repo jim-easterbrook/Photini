@@ -21,7 +21,7 @@ import logging
 
 from photini.pyqt import *
 from photini.pyqt import using_pyside
-from photini.widgets import WidgetMixin
+from photini.widgets import ChoicesContextMenu, WidgetMixin
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -40,7 +40,7 @@ class CalendarWidget(QtWidgets.QCalendarWidget):
         return super(CalendarWidget, self).showEvent(event)
 
 
-class DateTimeEdit(QtWidgets.QDateTimeEdit, WidgetMixin):
+class DateTimeEdit(QtWidgets.QDateTimeEdit, ChoicesContextMenu, WidgetMixin):
     def __init__(self, key, *arg, **kw):
         super(DateTimeEdit, self).__init__(*arg, **kw)
         self.setCalendarPopup(True)
@@ -49,22 +49,14 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, WidgetMixin):
         self._multiple = multiple_values()
         self.precision = 1
         self.set_precision(7)
+        # ChoicesContextMenu needs these methods
+        self.value_to_text = str
 
     @catch_all
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
-        suggestion_group = QtGui2.QActionGroup(menu)
-        if self.is_multiple() and self.choices:
-            sep = menu.insertSeparator(menu.actions()[0])
-            for suggestion in self.choices:
-                text = str(suggestion)
-                action = QtGui2.QAction(text, suggestion_group)
-                action.setData(suggestion)
-                menu.insertAction(sep, action)
-        action = execute(menu, event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            self.set_value(action.data())
-            self.emit_value()
+        self.add_choices_context_menu(menu)
+        execute(menu, event.globalPos())
 
     @catch_all
     def dateTimeFromText(self, text):
@@ -145,7 +137,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, WidgetMixin):
             self.setSpecialValueText('')
 
 
-class TimeZoneWidget(QtWidgets.QSpinBox, WidgetMixin):
+class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
     def __init__(self, key, *arg, **kw):
         super(TimeZoneWidget, self).__init__(*arg, **kw)
         self.hour_validator = QtGui.QIntValidator(-14, 15, parent=self)
@@ -157,6 +149,8 @@ class TimeZoneWidget(QtWidgets.QSpinBox, WidgetMixin):
         self.setWrapping(True)
         self._multiple = multiple()
         self.lineEdit().textEdited.connect(self._text_edited)
+        # ChoicesContextMenu needs these methods
+        self.value_to_text = self.textFromValue
 
     @QtSlot(str)
     @catch_all
@@ -166,18 +160,8 @@ class TimeZoneWidget(QtWidgets.QSpinBox, WidgetMixin):
     @catch_all
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
-        suggestion_group = QtGui2.QActionGroup(menu)
-        if self.is_multiple() and self.choices:
-            sep = menu.insertSeparator(menu.actions()[0])
-            for suggestion in self.choices:
-                text = self.textFromValue(suggestion)
-                action = QtGui2.QAction(text, suggestion_group)
-                action.setData(suggestion)
-                menu.insertAction(sep, action)
-        action = execute(menu, event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            self.set_value(action.data())
-            self.emit_value()
+        self.add_choices_context_menu(menu)
+        execute(menu, event.globalPos())
 
     @catch_all
     def focusOutEvent(self, event):

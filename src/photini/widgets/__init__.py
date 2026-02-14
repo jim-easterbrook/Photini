@@ -225,6 +225,28 @@ class TopLevelWidgetMixin(WidgetMixin):
         pass
 
 
+class ChoicesContextMenu(object):
+    # mixin for <multiple values> to allow choosing one
+    def add_choices_context_menu(self, menu):
+        if not (self.is_multiple() and self.choices):
+            return
+        sep = menu.insertSeparator(menu.actions()[0])
+        group = QtGui2.QActionGroup(menu)
+        for suggestion in self.choices:
+            text = self.value_to_text(suggestion)
+            action = QtGui2.QAction(text, parent=menu)
+            action.setData(suggestion)
+            group.addAction(action)
+            menu.insertAction(sep, action)
+        group.triggered.connect(self._choice_triggered)
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all
+    def _choice_triggered(self, action):
+        self.set_value(action.data())
+        self.emit_value()
+
+
 class ComboBox(QtWidgets.QComboBox):
     def __init__(self, *args, **kwds):
         super(ComboBox, self).__init__(*args, **kwds)

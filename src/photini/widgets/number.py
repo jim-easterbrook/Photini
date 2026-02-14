@@ -21,7 +21,7 @@ import logging
 
 from photini.pyqt import *
 from photini.widgets import (
-    CompoundWidgetMixin, Label, WidgetMixin)
+    ChoicesContextMenu, CompoundWidgetMixin, Label, WidgetMixin)
 
 __all__ = ('AltitudeDisplay', 'DoubleValidator', 'GPSInfoWidgets',
            'IntValidator', 'LatLongDisplay', 'NumericalWidget')
@@ -107,7 +107,7 @@ class DoubleValidator(QtGui.QDoubleValidator, DecoratorMixin):
         return self.locale().toString(float(value))
 
 
-class NumericalWidget(QtWidgets.QLineEdit, WidgetMixin):
+class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
     def __init__(self, key, validator, *arg, **kw):
         super(NumericalWidget, self).__init__(*arg, **kw)
         self._key = key
@@ -125,20 +125,8 @@ class NumericalWidget(QtWidgets.QLineEdit, WidgetMixin):
         if self.isReadOnly():
             return
         menu = self.createStandardContextMenu()
-        suggestion_group = QtGui2.QActionGroup(menu)
-        if self.is_multiple() and self.choices:
-            sep = menu.insertSeparator(menu.actions()[0])
-            validator = self.validator()
-            for suggestion in self.choices:
-                text = validator.value_to_text(suggestion)
-                text, pos = validator.decorate(text, 0)
-                action = QtGui2.QAction(text, suggestion_group)
-                action.setData(suggestion)
-                menu.insertAction(sep, action)
-        action = execute(menu, event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            self.set_value(action.data())
-            self.emit_value()
+        self.add_choices_context_menu(menu)
+        execute(menu, event.globalPos())
 
     @catch_all
     def focusOutEvent(self, event):
@@ -172,15 +160,19 @@ class NumericalWidget(QtWidgets.QLineEdit, WidgetMixin):
             self.setPlaceholderText('')
             self.clear()
             return
-        validator = self.validator()
-        text = validator.value_to_text(value)
-        text, pos = validator.decorate(text, 0)
+        text = self.value_to_text(value)
         if faint:
             self.setPlaceholderText(text)
             self.clear()
         else:
             self.setText(text)
             self.setPlaceholderText('')
+
+    def value_to_text(self, value):
+        validator = self.validator()
+        text = validator.value_to_text(value)
+        text, pos = validator.decorate(text, 0)
+        return text
 
 
 class LatLongValidator(QtGui.QValidator):
