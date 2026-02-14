@@ -232,11 +232,13 @@ class ChoicesContextMenu(object):
             return
         sep = menu.insertSeparator(menu.actions()[0])
         group = QtGui2.QActionGroup(menu)
+        fm = menu.fontMetrics()
         for suggestion in self.choices:
             text = self.value_to_text(suggestion)
-            action = QtGui2.QAction(text, parent=menu)
+            text = fm.elidedText(
+                text, Qt.TextElideMode.ElideMiddle, self.width())
+            action = QtGui2.QAction(text, parent=group)
             action.setData(suggestion)
-            group.addAction(action)
             menu.insertAction(sep, action)
         group.triggered.connect(self._choice_triggered)
 
@@ -505,7 +507,7 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
                     self.setFormat(start, end - start, self.spell_formatter)
 
 
-class TextEditMixin(WidgetMixin):
+class TextEditMixin(ChoicesContextMenu, WidgetMixin):
     def init_mixin(self, key, spell_check, length_check, length_always,
                    length_bytes, multi_string, min_width):
         self._key = key
@@ -525,16 +527,7 @@ class TextEditMixin(WidgetMixin):
         menu = self.createStandardContextMenu()
         suggestion_group = QtGui2.QActionGroup(menu)
         if self._is_multiple:
-            if self.choices:
-                sep = menu.insertSeparator(menu.actions()[0])
-                fm = menu.fontMetrics()
-                for suggestion in self.choices:
-                    label = str(suggestion).replace('\n', ' ')
-                    label = fm.elidedText(
-                        label, Qt.TextElideMode.ElideMiddle, self.width())
-                    action = QtGui2.QAction(label, suggestion_group)
-                    action.setData(suggestion)
-                    menu.insertAction(sep, action)
+            self.add_choices_context_menu(menu)
         elif self.spell_check:
             cursor = self.cursorForPosition(event.pos())
             block_pos = cursor.block().position()
@@ -555,13 +548,9 @@ class TextEditMixin(WidgetMixin):
                     menu.insertAction(sep, action)
         action = execute(menu, event.globalPos())
         if action and action.actionGroup() == suggestion_group:
-            if self._is_multiple:
-                self.set_value(action.data())
-                self.emit_value()
-            else:
-                cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
-                cursor.insertText(action.iconText())
+            cursor.setPosition(block_pos + start)
+            cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
+            cursor.insertText(action.iconText())
 
     def set_length(self, length):
         self.highlighter._length['length'] = length
@@ -587,6 +576,9 @@ class TextEditMixin(WidgetMixin):
 
     def is_valid(self):
         return not bool(self.placeholderText())
+
+    def value_to_text(self, value):
+        return str(value).replace('\n', ' ')
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin):
@@ -838,7 +830,8 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
     def _new_value(self, value):
         value = value[self.edit._key]
         if value in self.choices:
-            self.value = self.choices[value]
+            # value pasted in by <multiple values> context menu
+            self.set_value(self.choices[value])
         else:
             default_lang = self.value.default_lang
             new_value = dict(self.value)
