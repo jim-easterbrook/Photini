@@ -65,6 +65,8 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.addWidget(self.favourites, 0, Qt.AlignmentFlag.AlignTop)
         self.setFixedHeight(self.sizeHint().height())
         # adopt child widget methods and signals
+        self.add_length_check = self.edit.add_length_check
+        self.add_spell_check = self.edit.add_spell_check
         self.get_value = self.edit.get_value
         self.get_value_dict = self.edit.get_value_dict
         self.set_value = self.edit.set_value
@@ -603,8 +605,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
         layout = self.widget().layout()
         # insert new rows if needed
         for idx in range(layout.count() - 1, len(keys) + 1):
-            widget = HtmlTextEdit(
-                self.list_view, self.data_model, spell_check=True)
+            widget = HtmlTextEdit(self.list_view, self.data_model)
+            widget.add_spell_check()
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
@@ -692,9 +694,10 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets = {}
         self.buttons = {}
         # keywords
-        self.widgets['keywords'] = KeywordsEditor(
-            'keywords', spell_check=True, multi_string=True,
-            length_check=ImageMetadata.max_bytes('keywords'))
+        self.widgets['keywords'] = KeywordsEditor('keywords')
+        self.widgets['keywords'].add_length_check(
+            ImageMetadata.max_bytes('keywords'), multi_string=True)
+        self.widgets['keywords'].add_spell_check()
         self.widgets['keywords'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'

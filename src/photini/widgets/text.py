@@ -113,8 +113,8 @@ class SpellCheckMixin(TextHighlighterMixin):
 
 
 class LengthFormatter(QtGui.QTextCharFormat):
-    def __init__(self, highlighter, length, length_always, length_bytes,
-                 multi_string):
+    def __init__(self, highlighter, length,
+                 length_always=True, length_bytes=True, multi_string=False):
         super(LengthFormatter, self).__init__()
         self.setUnderlineColor(Qt.GlobalColor.blue)
         self.setUnderlineStyle(self.UnderlineStyle.SingleUnderline)
@@ -161,8 +161,13 @@ class LengthFormatter(QtGui.QTextCharFormat):
 class LengthCheckMixin(TextHighlighterMixin):
     _length_check = None
 
-    def add_length_check(self, *arg):
-        self._length_check = LengthFormatter(self.highlighter(), *arg)
+    def add_length_check(self, length, length_always=True, length_bytes=True,
+                         multi_string=False):
+        if not length:
+            return
+        self._length_check = LengthFormatter(
+            self.highlighter(), length, length_always=length_always,
+            length_bytes=length_bytes, multi_string=multi_string)
 
     def set_length(self, length):
         if self._length_check:
@@ -177,11 +182,6 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin, SpellCheckMixin,
         self._multiple_values = multiple_values()
         self._is_multiple = False
         self.context_menus = [self.add_choices_context_menu]
-        if spell_check:
-            self.add_spell_check()
-        if length_check:
-            self.add_length_check(
-                length_check, length_always, length_bytes, multi_string)
         if min_width:
             self.setMinimumWidth(width_for_text(self, 'x' * min_width))
         if self.isRightToLeft():
@@ -340,6 +340,8 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         if not multi_line:
             self.setFixedHeight(self.sizeHint().height())
         # adopt some child methods ...
+        self.add_length_check = self.edit.add_length_check
+        self.add_spell_check = self.edit.add_spell_check
         self.is_multiple = self.edit.is_multiple
         self.is_valid = self.edit.is_valid
         self.set_height = self.edit.set_height

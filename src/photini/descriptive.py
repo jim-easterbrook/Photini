@@ -88,9 +88,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = LangAltWidget(
-            'title', multi_line=False, spell_check=True,
-            length_check=ImageMetadata.max_bytes('title'))
+        self.widgets['title'] = LangAltWidget('title', multi_line=False)
+        self.widgets['title'].add_length_check(
+            ImageMetadata.max_bytes('title'))
+        self.widgets['title'].add_spell_check()
         self.widgets['title'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.')))
@@ -98,9 +99,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
-        self.widgets['headline'] = MultiLineEdit(
-            'headline', spell_check=True,
-            length_check=ImageMetadata.max_bytes('headline'))
+        self.widgets['headline'] = MultiLineEdit('headline')
+        self.widgets['headline'].add_length_check(
+            ImageMetadata.max_bytes('headline'))
+        self.widgets['headline'].add_spell_check()
         self.widgets['headline'].set_height(3)
         self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
@@ -109,9 +111,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Headline'),
                       self.widgets['headline'])
         # description
-        self.widgets['description'] = LangAltWidget(
-            'description', spell_check=True,
-            length_check=ImageMetadata.max_bytes('description'))
+        self.widgets['description'] = LangAltWidget('description')
+        self.widgets['description'].add_length_check(
+            ImageMetadata.max_bytes('description'))
+        self.widgets['description'].add_spell_check()
         self.widgets['description'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a "caption" describing the who, what,'
             ' and why of what is happening in this image, this might include'
@@ -121,9 +124,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Description / Caption'),
                       self.widgets['description'])
         # alt text
-        self.widgets['alt_text'] = LangAltWidget(
-            'alt_text', spell_check=True, length_check=250,
-            length_always=True, length_bytes=False)
+        self.widgets['alt_text'] = LangAltWidget('alt_text')
+        self.widgets['alt_text'].add_length_check(
+            250, length_always=True, length_bytes=False)
+        self.widgets['alt_text'].add_spell_check()
         self.widgets['alt_text'].set_height(3)
         self.widgets['alt_text'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter text describing the appearance of the'
@@ -134,8 +138,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
             Label(translate('DescriptiveTab', 'Alt Text (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text'])
         # extended alt text
-        self.widgets['alt_text_ext'] = LangAltWidget(
-            'alt_text_ext', spell_check=True)
+        self.widgets['alt_text_ext'] = LangAltWidget('alt_text_ext')
+        self.widgets['alt_text_ext'].add_spell_check()
         self.widgets['alt_text_ext'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'A more detailed textual description of the'
             ' purpose and meaning of an image that elaborates on the'
@@ -149,8 +153,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
         # people
-        self.widgets['people'] = SingleLineEdit(
-            'people', spell_check=True, multi_string=True)
+        self.widgets['people'] = SingleLineEdit('people', multi_string=True)
+        self.widgets['people'].add_spell_check()
         self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
             ' image. Separate them with ";" characters.')))

@@ -719,9 +719,11 @@ class TabWidget(PhotiniUploader):
     @catch_all
     def new_album(self):
         dialog = self.new_album_dialog()
-        title = SingleLineEdit('title', spell_check=True)
+        title = SingleLineEdit('title')
+        title.add_spell_check()
         dialog.layout().addRow(translate('FlickrTab', 'Title'), title)
-        description = MultiLineEdit('description', spell_check=True)
+        description = MultiLineEdit('description')
+        description.add_spell_check()
         dialog.layout().addRow(translate(
             'FlickrTab', 'Description'), description)
         dialog.layout().addRow(QtWidgets.QLabel(translate(

@@ -609,9 +609,11 @@ class TabWidget(PhotiniUploader):
     @catch_all
     def new_album(self):
         dialog = self.new_album_dialog()
-        title = SingleLineEdit('title', spell_check=True)
+        title = SingleLineEdit('title')
+        title.add_spell_check()
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
-        description = MultiLineEdit('description', spell_check=True)
+        description = MultiLineEdit('description')
+        description.add_spell_check()
         dialog.layout().addRow(
             translate('IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget('comment')
