@@ -31,12 +31,37 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
+class TextHighlighter(QtGui.QSyntaxHighlighter):
+    def __init__(self, parent):
+        super(TextHighlighter, self).__init__(parent)
+        self.formatters = []
+
+    @catch_all
+    def highlightBlock(self, text):
+        for formatter in self.formatters:
+            formatter.highlight_block(text, self)
+
+    def add_formatter(self, formatter):
+        self.formatters.append(formatter)
+
+
+class TextHighlighterMixin(object):
+    _highlighter = None
+
+    def highlighter(self):
+        if not self._highlighter:
+            self._highlighter = TextHighlighter(self.document())
+        return self._highlighter
+
+
 class SpellCheckFormatter(QtGui.QTextCharFormat):
-    def __init__(self, spell_check):
+    def __init__(self, highlighter):
         super(SpellCheckFormatter, self).__init__()
-        self.spell_check = spell_check
         self.setUnderlineColor(Qt.GlobalColor.red)
         self.setUnderlineStyle(self.UnderlineStyle.SpellCheckUnderline)
+        self.spell_check = QtWidgets.QApplication.instance().spell_check
+        self.spell_check.new_dict.connect(highlighter.rehighlight)
+        highlighter.add_formatter(self)
 
     def add_spelling_context_menu(self, menu, cursor, callback):
         block_pos = cursor.block().position()
@@ -66,8 +91,30 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
                 highlighter.setFormat(start, end - start, self)
 
 
+class SpellCheckMixin(TextHighlighterMixin):
+    _spell_check = None
+
+    def add_spell_check(self):
+        self._spell_check = SpellCheckFormatter(self.highlighter())
+        self.context_menus.append(self.add_spelling_context_menu)
+
+    def add_spelling_context_menu(self, menu, event):
+        if self.is_multiple() or not self._spell_check:
+            return
+        self._spell_check.add_spelling_context_menu(
+            menu, self.cursorForPosition(event.pos()),
+            self._spelling_triggered)
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all
+    def _spelling_triggered(self, action):
+        cursor = action.data()
+        cursor.insertText(action.iconText())
+
+
 class LengthFormatter(QtGui.QTextCharFormat):
-    def __init__(self, length, length_always, length_bytes, multi_string):
+    def __init__(self, highlighter, length, length_always, length_bytes,
+                 multi_string):
         super(LengthFormatter, self).__init__()
         self.setUnderlineColor(Qt.GlobalColor.blue)
         self.setUnderlineStyle(self.UnderlineStyle.SingleUnderline)
@@ -81,6 +128,7 @@ class LengthFormatter(QtGui.QTextCharFormat):
         else:
             # treat the entire block as one
             self.regex = re.compile(r'(.+)')
+        highlighter.add_formatter(self)
 
     def highlight_block(self, text, highlighter):
         if not text:
@@ -110,34 +158,30 @@ class LengthFormatter(QtGui.QTextCharFormat):
         self.length = length
 
 
-class TextHighlighter(QtGui.QSyntaxHighlighter):
-    def __init__(self, formatters, parent):
-        super(TextHighlighter, self).__init__(parent)
-        self.formatters = formatters
+class LengthCheckMixin(TextHighlighterMixin):
+    _length_check = None
 
-    @catch_all
-    def highlightBlock(self, text):
-        for formatter in self.formatters.values():
-            formatter.highlight_block(text, self)
+    def add_length_check(self, *arg):
+        self._length_check = LengthFormatter(self.highlighter(), *arg)
+
+    def set_length(self, length):
+        if self._length_check:
+            self._length_check.set_length(length)
 
 
-class TextEditMixin(ChoicesContextMenu, WidgetMixin):
+class TextEditMixin(ChoicesContextMenu, WidgetMixin, SpellCheckMixin,
+                    LengthCheckMixin):
     def init_mixin(self, key, spell_check, length_check, length_always,
                    length_bytes, multi_string, min_width):
         self._key = key
         self._multiple_values = multiple_values()
         self._is_multiple = False
-        self.formatters = {}
+        self.context_menus = [self.add_choices_context_menu]
         if spell_check:
-            spell_check = QtWidgets.QApplication.instance().spell_check
-            self.formatters['spelling'] = SpellCheckFormatter(spell_check)
+            self.add_spell_check()
         if length_check:
-            self.formatters['length'] = LengthFormatter(
+            self.add_length_check(
                 length_check, length_always, length_bytes, multi_string)
-        if self.formatters:
-            self.highlighter = TextHighlighter(self.formatters, self.document())
-            if spell_check:
-                spell_check.new_dict.connect(self.highlighter.rehighlight)
         if min_width:
             self.setMinimumWidth(width_for_text(self, 'x' * min_width))
         if self.isRightToLeft():
@@ -146,23 +190,9 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin):
 
     def context_menu_event(self, event):
         menu = self.createStandardContextMenu()
-        if self._is_multiple:
-            self.add_choices_context_menu(menu)
-        elif 'spelling' in self.formatters:
-            self.formatters['spelling'].add_spelling_context_menu(
-                menu, self.cursorForPosition(event.pos()),
-                self._spelling_triggered)
+        for add_context_menu in self.context_menus:
+            add_context_menu(menu, event)
         execute(menu, event.globalPos())
-
-    @QtSlot(QtGui2.QAction)
-    @catch_all
-    def _spelling_triggered(self, action):
-        cursor = action.data()
-        cursor.insertText(action.iconText())
-
-    def set_length(self, length):
-        if 'length' in self.formatters:
-            self.formatters['length'].set_length(length)
 
     def set_value(self, value):
         self.set_multiple(multiple=False)

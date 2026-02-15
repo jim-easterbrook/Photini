@@ -55,7 +55,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, ChoicesContextMenu, WidgetMixin):
     @catch_all
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
-        self.add_choices_context_menu(menu)
+        self.add_choices_context_menu(menu, event)
         execute(menu, event.globalPos())
 
     @catch_all
@@ -160,7 +160,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
     @catch_all
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
-        self.add_choices_context_menu(menu)
+        self.add_choices_context_menu(menu, event)
         execute(menu, event.globalPos())
 
     @catch_all

@@ -125,7 +125,7 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         if self.isReadOnly():
             return
         menu = self.createStandardContextMenu()
-        self.add_choices_context_menu(menu)
+        self.add_choices_context_menu(menu, event)
         execute(menu, event.globalPos())
 
     @catch_all

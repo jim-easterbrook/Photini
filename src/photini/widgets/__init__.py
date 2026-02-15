@@ -225,7 +225,7 @@ class TopLevelWidgetMixin(WidgetMixin):
 
 class ChoicesContextMenu(object):
     # mixin for <multiple values> to allow choosing one
-    def add_choices_context_menu(self, menu):
+    def add_choices_context_menu(self, menu, event):
         if not (self.is_multiple() and self.choices):
             return
         sep = menu.insertSeparator(menu.actions()[0])
