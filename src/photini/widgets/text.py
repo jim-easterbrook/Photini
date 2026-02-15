@@ -176,8 +176,7 @@ class LengthCheckMixin(TextHighlighterMixin):
 
 class TextEditMixin(ChoicesContextMenu, WidgetMixin, SpellCheckMixin,
                     LengthCheckMixin):
-    def init_mixin(self, key, spell_check, length_check, length_always,
-                   length_bytes, multi_string, min_width):
+    def init_mixin(self, key, min_width):
         self._key = key
         self._multiple_values = multiple_values()
         self._is_multiple = False
@@ -221,12 +220,9 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin, SpellCheckMixin,
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin):
-    def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, length_always=False, length_bytes=True,
-                 min_width=None, **kw):
+    def __init__(self, key, *arg, min_width=None, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
-        self.init_mixin(key,spell_check, length_check, length_always,
-                        length_bytes, multi_string, min_width)
+        self.init_mixin(key, min_width)
 
     @catch_all
     def focusOutEvent(self, event):

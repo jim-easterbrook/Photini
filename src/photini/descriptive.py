@@ -153,7 +153,7 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
         # people
-        self.widgets['people'] = SingleLineEdit('people', multi_string=True)
+        self.widgets['people'] = SingleLineEdit('people')
         self.widgets['people'].add_spell_check()
         self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
