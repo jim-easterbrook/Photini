@@ -160,6 +160,8 @@ class KeywordCompleter(QtWidgets.QCompleter):
 
 
 class HtmlTextEdit(PlainTextEdit, SpellCheckMixin):
+    _single_line = True
+
     def __init__(self, list_view, data_model, *arg, **kw):
         super(HtmlTextEdit, self).__init__('', *arg, **kw)
         self.data_model = data_model
@@ -179,23 +181,18 @@ class HtmlTextEdit(PlainTextEdit, SpellCheckMixin):
 
     @catch_all()
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Return:
-            event.ignore()
-            return
-        self.set_multiple(multiple=False)
         super(HtmlTextEdit, self).keyPressEvent(event)
-        self.completer.set_text(self.toPlainText())
+        self.completer.set_text(self.get_value())
 
     def get_value(self):
-        value = self.toPlainText()
+        value = super(HtmlTextEdit, self).get_value()
         value = [x.strip() for x in value.replace('/', '|').split('|')]
         return '|'.join([x for x in value if x])
 
     def set_value(self, value):
-        self.set_multiple(multiple=False)
-        self.clear()
         if value:
-            self.appendHtml(self.data_model.formatted_name(value))
+            value = self.data_model.formatted_name(value)
+        super(HtmlTextEdit, self).set_value(value, html=True)
 
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):

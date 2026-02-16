@@ -179,11 +179,17 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
         super(PlainTextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
-        self._is_multiple = False
         self.context_menus = [self.add_choices_context_menu]
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
+        if self._single_line:
+            self.set_height(1)
+            self.setLineWrapMode(self.LineWrapMode.NoWrap)
+            self.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     @catch_all()
     def contextMenuEvent(self, event):
@@ -197,45 +203,22 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
         self.emit_value()
         super(PlainTextEdit, self).focusOutEvent(event)
 
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
-
-    def is_valid(self):
-        return not bool(self.placeholderText())
-
-    def set_multiple(self, choices=[], multiple=True):
-        self._is_multiple = multiple
-        self.choices = [x for x in choices if x]
-        if multiple:
-            self.setPlaceholderText(self._multiple_values)
-            self.clear()
-        else:
-            self.setPlaceholderText('')
-
-    def set_value(self, value):
-        self.set_multiple(multiple=False)
-        if value:
-            self.setPlainText(str(value))
-        else:
-            self.clear()
-
-    def value_to_text(self, value):
-        return str(value).replace('\n', ' ')
-
-
-class MultiLineEdit(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
-    def __init__(self, key, *arg, **kw):
-        super(MultiLineEdit, self).__init__(key, *arg, **kw)
+    @catch_all()
+    def insertFromMimeData(self, source):
+        text = source.text()
+        if self._single_line:
+            text = text.replace('\n', ' ')
+        self.insertPlainText(text)
 
     @catch_all()
     def keyPressEvent(self, event):
-        self.set_multiple(multiple=False)
-        super(MultiLineEdit, self).keyPressEvent(event)
-
-    def set_height(self, rows):
-        height = QtWidgets.QLineEdit().sizeHint().height()
-        height += (rows - 1) * self.fontMetrics().lineSpacing()
-        self.setMaximumHeight(height)
+        if self._single_line and event.key() in (
+                Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            return
+        super(PlainTextEdit, self).keyPressEvent(event)
+        if self.placeholderText() and self.toPlainText():
+            # user has typed something over <multiple values>
+            self.setPlaceholderText('')
 
     def get_value(self):
         if qt_version_info < (5, 9):
@@ -244,30 +227,56 @@ class MultiLineEdit(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
         value = value.replace('\u2029', '\n')
         return value
 
-    def set_text_alignment(self, alignment):
+    def is_multiple(self):
+        return self.placeholderText() == self._multiple_values
+
+    def is_valid(self):
+        return not bool(self.placeholderText())
+
+    def set_height(self, rows):
+        height = QtWidgets.QLineEdit().sizeHint().height()
+        height += (rows - 1) * self.fontMetrics().lineSpacing()
+        if rows == 1:
+            self.setFixedHeight(height)
+        else:
+            self.setMaximumHeight(height)
+
+    def set_multiple(self, choices=[]):
+        self.choices = [x for x in choices if x]
+        self.setPlaceholderText(self._multiple_values)
+        self.clear()
+
+    def set_text_alignment(self, h_alignment):
         options = self.document().defaultTextOption()
-        options.setAlignment(alignment)
+        v_alignment = options.alignment() & ~(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignRight |
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignJustify)
+        options.setAlignment(h_alignment | v_alignment)
         self.document().setDefaultTextOption(options)
 
+    def set_value(self, value, html=False):
+        self.setPlaceholderText('')
+        if value:
+            if html:
+                self.clear()
+                self.appendHtml(value)
+            else:
+                self.setPlainText(str(value))
+        else:
+            self.clear()
 
-class SingleLineEdit(MultiLineEdit):
-    def __init__(self, *arg, **kw):
-        super(SingleLineEdit, self).__init__(*arg, **kw)
-        self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
-        self.setLineWrapMode(QtWidgets.QPlainTextEdit.LineWrapMode.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    def value_to_text(self, value):
+        if self._single_line:
+            return str(value).replace('\n', ' ')
+        return str(value)
 
-    @catch_all()
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Return:
-            event.ignore()
-            return
-        super(SingleLineEdit, self).keyPressEvent(event)
 
-    @catch_all()
-    def insertFromMimeData(self, source):
-        self.insertPlainText(source.text().replace('\n', ' '))
+class MultiLineEdit(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
+    _single_line = False
+
+
+class SingleLineEdit(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
+    _single_line = True
 
 
 class MultiStringEdit(SingleLineEdit):
