@@ -89,7 +89,7 @@ class LoggerFilter(object):
 
 
 class LoggerWindow(QtWidgets.QWidget):
-    def __init__(self, verbose, *arg, **kw):
+    def __init__(self, options, *arg, **kw):
         super(LoggerWindow, self).__init__(*arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.setWindowTitle(translate('LoggerWindow', "Photini error logging"))
@@ -113,7 +113,7 @@ class LoggerWindow(QtWidgets.QWidget):
         self.logger = logging.getLogger('')
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
-        threshold = logging.ERROR - (verbose * 10)
+        threshold = logging.ERROR - (options.verbose * 10)
         self.logger.setLevel(max(threshold, 1))
         self.stream_proxy = StreamProxy(self)
         self.stream_proxy.write_text.connect(self.write)
@@ -124,6 +124,14 @@ class LoggerWindow(QtWidgets.QWidget):
             datefmt='%H:%M:%S'))
         handler.addFilter(LoggerFilter(threshold))
         self.logger.addHandler(handler)
+        if options.test:
+            # also log to stderr
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter(
+                '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
+                datefmt='%H:%M:%S'))
+            handler.addFilter(LoggerFilter(threshold))
+            self.logger.addHandler(handler)
 
     def hide_word(self, word):
         if word not in self.hidden_words:

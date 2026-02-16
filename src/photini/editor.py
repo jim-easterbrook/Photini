@@ -410,7 +410,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.selection = list()
         # create shared global objects
         self.app = QtWidgets.QApplication.instance()
-        self.app.loggerwindow = LoggerWindow(options.verbose)
+        self.app.loggerwindow = LoggerWindow(options)
         self.app.loggerwindow.setWindowIcon(icon)
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
