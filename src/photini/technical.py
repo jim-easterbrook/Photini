@@ -41,7 +41,7 @@ class DropdownEdit(DropDownSelector):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     @QtSlot(QtGui.QContextMenuEvent)
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu()
         for n in range(self._last_idx()):
@@ -187,7 +187,7 @@ class PrecisionSlider(Slider):
         self.valueChanged.connect(self._value_changed)
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def _value_changed(self, value):
         if value >= 4:
             value += 1
@@ -292,7 +292,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.offset.editingFinished.connect(self.new_value)
         self.time_zone.editingFinished.connect(self.new_value)
 
-    @catch_all
+    @catch_all()
     def showEvent(self, event):
         super(OffsetWidget, self).showEvent(event)
         # On some Windows versions the initial sizeHint calculation is
@@ -304,7 +304,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.time_zone.updateGeometry()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_value(self):
         value = self.offset.time()
         value = (value.hour(), value.minute(), value.second(),
@@ -312,12 +312,12 @@ class OffsetWidget(QtWidgets.QWidget):
         self.app.config_store.set('technical', 'offset', value)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def add(self):
         self.do_inc(False)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def sub(self):
         self.do_inc(True)
 
@@ -453,13 +453,13 @@ class DateLink(QtWidgets.QCheckBox):
         self.src.new_value.connect(self.link_input)
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def link_input(self, value):
         if self.isChecked():
             self.dst.paste_value(value[self.src._key])
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def _clicked(self):
         checked = self.isChecked()
         self.dst.set_enabled(not checked)
@@ -507,7 +507,7 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         execute(menu, event.globalPos())
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def define_crop_factor(self):
         crop_factor, OK = QtWidgets.QInputDialog.getDouble(
             self.parent(), translate('TechnicalTab', 'Set "crop factor"'),
@@ -656,7 +656,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         return False
 
     @QtSlot(timedelta, object)
-    @catch_all
+    @catch_all()
     def apply_offset(self, offset, tz_offset):
         images = self.app.image_list.get_selected_images()
         for image in images:

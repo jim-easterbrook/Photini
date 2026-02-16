@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -234,7 +234,7 @@ class GooglePhotosUser(UploaderUser):
         self.connection_changed.emit(True)
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_token(self, token):
         self.user_data['token'] = token
         self.set_password(self.user_data['token']['refresh_token'])
@@ -335,7 +335,7 @@ class TabWidget(PhotiniUploader):
         return params
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_set(self):
         title, OK = QtWidgets.QInputDialog.getText(
             self, translate('GooglePhotosTab', 'Album title'),

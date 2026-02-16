@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -130,7 +130,7 @@ class LoggerWindow(QtWidgets.QWidget):
             self.hidden_words.append(word)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def shutdown(self):
         self.stream_proxy.write_text.disconnect()
         self.stream_proxy.flush_text.disconnect()
@@ -138,7 +138,7 @@ class LoggerWindow(QtWidgets.QWidget):
             self.logger.removeHandler(handler)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, translate('LoggerWindow', 'Save log file'),
@@ -153,14 +153,14 @@ class LoggerWindow(QtWidgets.QWidget):
                 of.write('\n==== end ====\n')
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def write(self, msg):
         for word in self.hidden_words:
             msg = msg.replace(word, 'XXXX')
         self.text.append(msg)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def flush(self):
         if self.isHidden():
             self.show()

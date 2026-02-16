@@ -203,22 +203,22 @@ class EditSettings(QtWidgets.QDialog):
         details['button'].setIcon(QtGui.QIcon(icon))
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def _get_map_pin_true(self):
         self.do_colour_dialog(self.map_pin[True])
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def _get_map_pin_false(self):
         self.do_colour_dialog(self.map_pin[False])
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def _get_map_gps_true(self):
         self.do_colour_dialog(self.map_gps[True])
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def _get_map_gps_false(self):
         self.do_colour_dialog(self.map_gps[False])
 
@@ -231,7 +231,7 @@ class EditSettings(QtWidgets.QDialog):
         self._set_map_pin_button_colour(details)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_write_if(self):
         if_mode = self.write_if.isChecked()
         self.sc_auto.setEnabled(if_mode)
@@ -240,7 +240,7 @@ class EditSettings(QtWidgets.QDialog):
             self.sc_always.setChecked(True)
 
     @QtSlot(QtWidgets.QAbstractButton)
-    @catch_all
+    @catch_all()
     def button_clicked(self, button):
         if button != self.button_box.button(
                 QtWidgets.QDialogButtonBox.StandardButton.Apply):
@@ -341,7 +341,7 @@ class EditMapKeys(QtWidgets.QDialog):
         scroll_area.setWidget(panel)
 
     @QtSlot(QtWidgets.QAbstractButton)
-    @catch_all
+    @catch_all()
     def button_clicked(self, button):
         if button != self.button_box.button(
                 QtWidgets.QDialogButtonBox.StandardButton.Apply):

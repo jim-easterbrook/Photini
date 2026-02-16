@@ -505,7 +505,7 @@ class TabWidget(PhotiniUploader):
                     self.app.config_store.get('ipernity', key))
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_value(self, value):
         (key, value), = value.items()
         self.app.config_store.set('ipernity', key, value)
@@ -606,7 +606,7 @@ class TabWidget(PhotiniUploader):
         self.merge_metadata_items(image, data)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_album(self):
         dialog = self.new_album_dialog()
         title = SingleLineEdit('title')

@@ -127,7 +127,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         return False
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def add_favourite(self, idx):
         if idx <= 0:
             return
@@ -151,7 +151,7 @@ class KeywordCompleter(QtWidgets.QCompleter):
         self.setWidget(widget)
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def set_text(self, text):
         if len(text) < 2:
             return
@@ -172,18 +172,18 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
         self.completer.activated.connect(self.completer_activated)
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def completer_activated(self, text):
         self.completer.popup().hide()
         self.setText(text)
         self.moveCursor(QtGui.QTextCursor.MoveOperation.EndOfBlock)
 
-    @catch_all
+    @catch_all()
     def focusOutEvent(self, event):
         self.emit_value()
         super(HtmlTextEdit, self).focusOutEvent(event)
 
-    @catch_all
+    @catch_all()
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
             event.ignore()
@@ -192,7 +192,7 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
         super(HtmlTextEdit, self).keyPressEvent(event)
         self.completer.set_text(self.toPlainText())
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.context_menu_event(event)
 
@@ -355,7 +355,7 @@ class HierarchicalTagDataModel(QtGui.QStandardItemModel):
         return '|'.join(words)
 
     @QtSlot("QStandardItem*")
-    @catch_all
+    @catch_all()
     def item_changed(self, item):
         if item.text() or not isinstance(item, HierarchicalTagDataItem):
             return
@@ -498,7 +498,7 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         layout.addWidget(button_box)
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def completer_activated(self, text):
         index = self.data_model.find_full_name(text).index()
         self.tree_view.scrollTo(index)
@@ -507,13 +507,13 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
                                 selection.SelectionFlag.Rows)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def clicked_ok(self):
         self.clicked_apply()
         self.accept()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def clicked_apply(self):
         # construct new value
         new_value = []
@@ -524,7 +524,7 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
         self.parent().emit_value()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def clicked_cancel(self):
         self.data_model.load_file()
         self.parent().set_value(self.initial_value)
@@ -542,12 +542,12 @@ class ListProxyModel(QtCore.QAbstractListModel):
         self.data_model.rowsRemoved.connect(self.model_rows_changed)
 
     @QtSlot("QModelIndex", int, int)
-    @catch_all
+    @catch_all()
     def model_rows_changed(self, parent, first, last):
         self.reset_row_map()
 
     @QtSlot("QModelIndex", int, int)
-    @catch_all
+    @catch_all()
     def model_rows_moved(self, parent, start, end, destination, row):
         self.reset_row_map()
 
@@ -558,11 +558,11 @@ class ListProxyModel(QtCore.QAbstractListModel):
             self.row_map.append(child)
         self.endResetModel()
 
-    @catch_all
+    @catch_all()
     def rowCount(self, parent=None):
         return len(self.row_map)
 
-    @catch_all
+    @catch_all()
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         item = self.row_map[index.row()]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
@@ -587,7 +587,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
         self.data_model = data_model
         self.list_view = ListProxyModel(self.data_model)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=translate(
             'KeywordsTab', 'All hierarchical keywords'))
@@ -627,7 +627,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
                 yield widget
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def sw_new_value(self, value):
         # asterisks mark copyable keywords
         (old_value, new_value), = value.items()
@@ -659,7 +659,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
         return reload
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def open_tree_view(self):
         # do dialog
         dialog = HierarchicalTagsDialog(parent=self)
@@ -719,7 +719,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
             self.widgets['nested_tags'].open_tree_view)
         self.app.image_list.image_list_changed.connect(self.image_list_changed)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.compound_context_menu(event)
 
@@ -786,7 +786,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         return False
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def image_list_changed(self):
         images = self.app.image_list.get_images()
         # add all hierarchical keywords to data model

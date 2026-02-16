@@ -199,13 +199,13 @@ class ChooseInstance(QtWidgets.QDialog):
         self.button_toggled()
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def text_changed(self, value):
         self.buttons[-1].setChecked(bool(value))
         self.buttons[-1].setEnabled(bool(value))
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def button_toggled(self, value=None):
         for button in self.buttons:
             if button.isChecked():
@@ -457,7 +457,7 @@ class PixelfedUser(UploaderUser):
             self.client_data['api_base_url'] + '/oauth/revoke', data=data))
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_token(self, token):
         self.user_data['token'] = token
         self.set_password(repr(token))
@@ -474,7 +474,7 @@ class ThumbList(QtWidgets.QWidget):
         self.max_media_attachments = 4
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_instance_config(self, config):
         self.max_media_attachments = config[
             'configuration']['statuses']['max_media_attachments']
@@ -512,14 +512,14 @@ class ThumbList(QtWidgets.QWidget):
             QtCore.QTimer.singleShot(1, self.scroll_to_last_widget)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def scroll_to_last_widget(self):
         scroll_bar = self.scroll_area.verticalScrollBar()
         scroll_bar.setValue(scroll_bar.maximum())
 
 
 class ScrollArea(QtWidgets.QScrollArea):
-    @catch_all
+    @catch_all()
     def resizeEvent(self, event):
         super(ScrollArea, self).resizeEvent(event)
         self.widget().setFixedWidth(self.viewport().contentsRect().width())
@@ -652,7 +652,7 @@ class TabWidget(PhotiniUploader):
             max_selected=3), 0
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_spoiler_text(self):
         if self.widget['spoiler_text'].get_value():
             self.widget['sensitive'].setChecked(True)
@@ -686,7 +686,7 @@ class TabWidget(PhotiniUploader):
         return self.widget['thumb_list'].get_selected_images()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def sync_remote(self):
         image_list = {}
         for image in self.app.image_list.get_selected_images():
@@ -821,7 +821,7 @@ class TabWidget(PhotiniUploader):
                          self.widget['thumb_list'].max_media_attachments))
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def auto_status(self):
         result = {
             'title': [], 'headline': [], 'description': [], 'keywords': [],
@@ -867,7 +867,7 @@ class TabWidget(PhotiniUploader):
         self.widget['status'].set_value('\n\n'.join(strings))
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_album(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('PixelfedTab', 'Create new collection'))

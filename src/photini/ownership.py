@@ -91,7 +91,7 @@ class RightsDropDown(DropDownSelector):
         return name, url
 
     @QtSlot(QtGui.QContextMenuEvent)
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu()
         for n in range(1, self._last_idx()):
@@ -367,7 +367,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                     'ownership', 'contact_info/LicensorURL', value)
             self.config_store.delete('ownership', 'rights/licensorurl')
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.form.compound_context_menu(event)
 
@@ -378,7 +378,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         return False
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def init_template(self):
         template = {}
         for image in self.app.image_list.get_selected_images():
@@ -426,7 +426,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         return template
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def edit_template(self):
         self._edit_template(self.read_template())
 
@@ -470,7 +470,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 self.config_store.set('ownership', key, value)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def apply_template(self):
         template = self.read_template()
         images = self.app.image_list.get_selected_images()

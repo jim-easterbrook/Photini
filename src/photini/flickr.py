@@ -716,7 +716,7 @@ class TabWidget(PhotiniUploader):
         self.merge_metadata_items(image, data)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_album(self):
         dialog = self.new_album_dialog()
         title = SingleLineEdit('title')

@@ -159,13 +159,13 @@ class OpenCage(GeocoderBase):
         return [tou_opencage, tou_osm]
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def load_tou_opencage(self):
         QtGui.QDesktopServices.openUrl(
             QtCore.QUrl('https://geocoder.opencagedata.com/'))
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def load_tou_osm(self):
         QtGui.QDesktopServices.openUrl(
             QtCore.QUrl('http://www.openstreetmap.org/copyright'))
@@ -244,7 +244,7 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=self.menu_title)
 
@@ -312,7 +312,7 @@ class AddressTabs(TabWidgetEx, ContextMenuMixin, CompoundWidgetMixin):
         self.subject_locations.app = self.app
         self.subject_locations.isEnabled = self.isEnabled
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.subject_locations.compound_context_menu(
             event, title=translate('AddressTab', 'All "subject" addresses'))
@@ -392,7 +392,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         # delegate context menu to locations widget
         self.locations_widget.tab_short_name = self.tab_short_name
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.locations_widget.compound_context_menu(event)
 
@@ -416,7 +416,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
             self.coords_widget.latlon.is_valid())
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def get_address(self):
         location = self.geocoder.get_address(
             self.coords_widget.latlon.get_value())

@@ -39,7 +39,7 @@ class WidgetMixin(object):
         self.set_value(value)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def emit_value(self):
         if self.is_valid():
             self.new_value.emit(self.get_value_dict())
@@ -140,7 +140,7 @@ class CompoundWidgetMixin(WidgetMixin):
         return reload
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def sw_new_value(self, value):
         self.new_value.emit({self._key: value})
 
@@ -187,7 +187,7 @@ class ListWidgetMixin(CompoundWidgetMixin):
 
 class TopLevelWidgetMixin(WidgetMixin):
     @QtSlot()
-    @catch_all
+    @catch_all()
     def emit_value(self):
         self.save_data(self.get_value())
 
@@ -207,7 +207,7 @@ class TopLevelWidgetMixin(WidgetMixin):
         pass
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def save_data(self, value, images=None):
         reload = False
         images = images or self.app.image_list.get_selected_images()
@@ -241,7 +241,7 @@ class ChoicesContextMenu(object):
         group.triggered.connect(self._choice_triggered)
 
     @QtSlot(QtGui2.QAction)
-    @catch_all
+    @catch_all()
     def _choice_triggered(self, action):
         self.set_value(action.data())
         self.emit_value()
@@ -252,7 +252,7 @@ class ComboBox(QtWidgets.QComboBox):
         super(ComboBox, self).__init__(*args, **kwds)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
-    @catch_all
+    @catch_all()
     def wheelEvent(self, event):
         if self.hasFocus():
             return super(ComboBox, self).wheelEvent(event)
@@ -380,7 +380,7 @@ class DropDownSelector(ComboBox, WidgetMixin):
             self.setCurrentIndex(self._old_idx)
             self.blockSignals(blocked)
 
-    @catch_all
+    @catch_all(exc_return=-1)
     def findData(self, data):
         # Qt's findData only works with simple types
         for n in range(self._last_idx()):
@@ -389,7 +389,7 @@ class DropDownSelector(ComboBox, WidgetMixin):
         return -1
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def _index_changed(self, idx):
         if idx < self._last_idx():
             # normal item selection
@@ -447,13 +447,13 @@ class Slider(QtWidgets.QSlider, WidgetMixin):
         self._flags = self.Flags(0)
         self.sliderPressed.connect(self._clear_flags)
 
-    @catch_all
+    @catch_all()
     def focusOutEvent(self, event):
         self.emit_value()
         super(Slider, self).focusOutEvent(event)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def _clear_flags(self):
         self._flags = self.Flags(0)
 
@@ -513,7 +513,6 @@ class StartStopButton(QtWidgets.QPushButton):
         start_size = super(StartStopButton, self).sizeHint()
         self.minimum_size = stop_size.expandedTo(start_size)
 
-    @catch_all
     def sizeHint(self):
         return self.minimum_size
 
@@ -572,23 +571,23 @@ class ContextMenuMixin(object):
         execute(menu, event.globalPos())
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def do_cut(self):
         self.do_copy()
         self.do_delete()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def do_copy(self):
         self.app.clipboard[self.clipboard_key] = self.get_value()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def do_paste(self):
         self.paste_value(self.app.clipboard[self.clipboard_key])
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def do_delete(self):
         self.set_value({})
         self.emit_value()

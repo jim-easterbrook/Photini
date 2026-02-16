@@ -36,7 +36,7 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
         super(TextHighlighter, self).__init__(parent)
         self.formatters = []
 
-    @catch_all
+    @catch_all()
     def highlightBlock(self, text):
         for formatter in self.formatters:
             formatter.highlight_block(text, self)
@@ -106,7 +106,7 @@ class SpellCheckMixin(TextHighlighterMixin):
             self._spelling_triggered)
 
     @QtSlot(QtGui2.QAction)
-    @catch_all
+    @catch_all()
     def _spelling_triggered(self, action):
         cursor = action.data()
         cursor.insertText(action.iconText())
@@ -222,17 +222,17 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin, SpellCheckMixin,
         super(MultiLineEdit, self).__init__(*arg, **kw)
         self.init_mixin(key)
 
-    @catch_all
+    @catch_all()
     def focusOutEvent(self, event):
         self.emit_value()
         super(MultiLineEdit, self).focusOutEvent(event)
 
-    @catch_all
+    @catch_all()
     def keyPressEvent(self, event):
         self.set_multiple(multiple=False)
         super(MultiLineEdit, self).keyPressEvent(event)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.context_menu_event(event)
 
@@ -262,14 +262,14 @@ class SingleLineEdit(MultiLineEdit):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-    @catch_all
+    @catch_all()
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
             event.ignore()
             return
         super(SingleLineEdit, self).keyPressEvent(event)
 
-    @catch_all
+    @catch_all()
     def insertFromMimeData(self, source):
         self.insertPlainText(source.text().replace('\n', ' '))
 
@@ -342,17 +342,17 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         # ... and vice versa
         self.lang.define_new_value = self._define_new_lang
 
-    @catch_all
+    @catch_all()
     def set_enabled(self, enabled):
         self.edit.setEnabled(enabled)
         self.lang.setEnabled(enabled)
 
-    @catch_all
+    @catch_all()
     def setToolTip(self, text):
         self.edit.setToolTip(text)
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def _change_lang(self, value):
         lang = value['lang']
         if lang == MD_LangAlt.DEFAULT:
@@ -366,7 +366,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         self.edit.set_value(self.value[lang])
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def _new_value(self, value):
         value = value[self.edit._key]
         if value in self.choices:
@@ -420,7 +420,7 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         return self.labeled_lang(lang)
 
     @QtSlot(QtCore.QPoint)
-    @catch_all
+    @catch_all()
     def _context_menu(self, pos):
         langs = []
         for n in range(self.lang.count()):

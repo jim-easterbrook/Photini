@@ -30,7 +30,7 @@ translate = QtCore.QCoreApplication.translate
 class CalendarWidget(QtWidgets.QCalendarWidget):
     last_date = None
 
-    @catch_all
+    @catch_all()
     def showEvent(self, event):
         if self.selectedDate() == self.minimumDate():
             if self.last_date:
@@ -52,39 +52,39 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, ChoicesContextMenu, WidgetMixin):
         # ChoicesContextMenu needs these methods
         self.value_to_text = str
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
         self.add_choices_context_menu(menu, event)
         execute(menu, event.globalPos())
 
-    @catch_all
+    @catch_all()
     def dateTimeFromText(self, text):
         if not text:
             self.set_value(None)
             return self.dateTime()
         return super(DateTimeEdit, self).dateTimeFromText(text)
 
-    @catch_all
+    @catch_all()
     def focusOutEvent(self, event):
         self.emit_value()
         super(DateTimeEdit, self).focusOutEvent(event)
 
-    @catch_all
+    @catch_all()
     def keyPressEvent(self, event):
         if self.is_multiple() and event.key() in (
                 Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
             self.set_value(None)
         super(DateTimeEdit, self).keyPressEvent(event)
 
-    @catch_all
+    @catch_all()
     def sizeHint(self):
         size = super(DateTimeEdit, self).sizeHint()
         if self.precision == 7:
             self.setFixedSize(size)
         return size
 
-    @catch_all
+    @catch_all()
     def stepBy(self, steps):
         if self.dateTime() == self.minimumDateTime():
             date = (self.calendarWidget().last_date
@@ -92,7 +92,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, ChoicesContextMenu, WidgetMixin):
             self.setDateTime(date)
         super(DateTimeEdit, self).stepBy(steps)
 
-    @catch_all
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
     def validate(self, text, pos):
         if not text:
             return QtGui.QValidator.State.Acceptable, text, pos
@@ -119,7 +119,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, ChoicesContextMenu, WidgetMixin):
         self.setSpecialValueText(self._multiple)
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def set_precision(self, value):
         if value != self.precision:
             self.precision = value
@@ -153,28 +153,28 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
         self.value_to_text = self.textFromValue
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def _text_edited(self, text):
         self.lineEdit().setPlaceholderText('')
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
         self.add_choices_context_menu(menu, event)
         execute(menu, event.globalPos())
 
-    @catch_all
+    @catch_all()
     def focusOutEvent(self, event):
         self.emit_value()
         super(TimeZoneWidget, self).focusOutEvent(event)
 
-    @catch_all
+    @catch_all()
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
             self.lineEdit().setPlaceholderText('')
         super(TimeZoneWidget, self).keyPressEvent(event)
 
-    @catch_all
+    @catch_all(exc_return='')
     def textFromValue(self, value):
         if value < 0:
             sign = self.locale().negativeSign()
@@ -183,7 +183,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
             sign = self.locale().positiveSign()
         return sign + QtCore.QTime(value // 60, value % 60).toString('hh:mm')
 
-    @catch_all
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
     def validate(self, text, pos):
         if not text:
             return QtGui.QValidator.State.Acceptable, text, pos
@@ -199,7 +199,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
             parts[1], pos - offset[1])
         return state, text, new_pos + offset[1]
 
-    @catch_all
+    @catch_all(exc_return=0)
     def valueFromText(self, text):
         if not text.strip():
             return 0

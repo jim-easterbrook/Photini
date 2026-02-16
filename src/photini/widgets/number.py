@@ -62,7 +62,7 @@ class IntValidator(QtGui.QIntValidator, DecoratorMixin):
             self.setTop(maximum)
         self.init_decorator(prefix, suffix)
 
-    @catch_all
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
     def validate(self, text, pos):
         text, pos = self.undecorate(text, pos)
         state, text, pos = super(IntValidator, self).validate(text, pos)
@@ -90,7 +90,7 @@ class DoubleValidator(QtGui.QDoubleValidator, DecoratorMixin):
             self.setTop(maximum)
         self.init_decorator(prefix, suffix)
 
-    @catch_all
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
     def validate(self, text, pos):
         text, pos = self.undecorate(text, pos)
         state, text, pos = super(DoubleValidator, self).validate(text, pos)
@@ -116,11 +116,11 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         self.textEdited.connect(self._text_edited)
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def _text_edited(self, text):
         self.setPlaceholderText('')
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         if self.isReadOnly():
             return
@@ -128,7 +128,7 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         self.add_choices_context_menu(menu, event)
         execute(menu, event.globalPos())
 
-    @catch_all
+    @catch_all()
     def focusOutEvent(self, event):
         self.emit_value()
         super(NumericalWidget, self).focusOutEvent(event)
@@ -183,7 +183,7 @@ class LatLongValidator(QtGui.QValidator):
         self.lng_validator = QtGui.QDoubleValidator(
             -180.0, 180.0, 20, parent=self)
 
-    @catch_all
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
     def validate(self, text, pos):
         if not text:
             return QtGui.QValidator.State.Acceptable, text, pos
@@ -201,7 +201,7 @@ class LatLongValidator(QtGui.QValidator):
             parts[1], pos - offset[1])
         return state, text, new_pos + offset[1]
 
-    @catch_all
+    @catch_all(exc_return='')
     def fixup(self, text):
         value = self.text_to_value(text)
         if value == (None, None):

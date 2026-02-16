@@ -54,12 +54,12 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.setVisible(False)
 
-    @catch_all
+    @catch_all()
     def mouseMoveEvent(self, event):
         super(ResizeHandle, self).mouseMoveEvent(event)
         self.parentItem().handle_drag(self, self.pos())
 
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(ResizeHandle, self).mouseReleaseEvent(event)
         self.parentItem().new_boundary()
@@ -68,7 +68,7 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
 class PolygonHandle(ResizeHandle):
     deletable = True
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu()
         delete_action = self.deletable and menu.addAction(
@@ -177,7 +177,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
         else:
             self.constraint = None
 
-    @catch_all
+    @catch_all()
     def itemChange(self, change, value):
         scene = self.scene()
         if scene and change == self.GraphicsItemChange.ItemSceneHasChanged:
@@ -197,7 +197,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
                     min(max(value.y(), bounds.y()), bounds.bottom()))
         return super(RectangleRegion, self).itemChange(change, value)
 
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(RectangleRegion, self).mouseReleaseEvent(event)
         if not self.active:
@@ -318,7 +318,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.set_style()
         self.set_scale()
 
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(CircleRegion, self).mouseReleaseEvent(event)
         if not self.active:
@@ -393,7 +393,7 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
         scale = 1.0 / max(abs(transform.m11()), abs(transform.m21()))
         self.setScale(scale)
 
-    @catch_all
+    @catch_all()
     def itemChange(self, change, value):
         scene = self.scene()
         if scene and change == self.GraphicsItemChange.ItemPositionChange:
@@ -404,7 +404,7 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
                     min(max(value.y(), bounds.y()), bounds.bottom()))
         return super(PointRegion, self).itemChange(change, value)
 
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(PointRegion, self).mouseReleaseEvent(event)
         if not self.active:
@@ -440,7 +440,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.set_style()
         self.set_scale()
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         if not self.active:
             return super(PolygonRegion, self).contextMenuEvent(event)
@@ -477,7 +477,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.handles.insert(insert, handle)
         self.new_boundary()
 
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(PolygonRegion, self).mouseReleaseEvent(event)
         if not self.active:
@@ -519,7 +519,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class ImageGraphic(QtWidgets.QGraphicsPixmapItem):
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         view = self.scene().views()[0]
         pos = view.from_scene.map(event.pos())
@@ -574,7 +574,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
     def set_region_tabs(self, region_tabs):
         self.region_tabs = region_tabs
 
-    @catch_all
+    @catch_all()
     def keyPressEvent(self, event):
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if event.key() == Qt.Key.Key_Plus:
@@ -585,7 +585,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
                 return
         super(ImageDisplayWidget, self).keyPressEvent(event)
 
-    @catch_all
+    @catch_all()
     def wheelEvent(self, event):
         if not event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             return super(ImageDisplayWidget, self).wheelEvent(event)
@@ -749,7 +749,7 @@ class EntityConceptWidget(SingleLineEdit):
             self.actions.append(action)
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def update_display(self, checked=None):
         if self._updating:
             return
@@ -760,7 +760,7 @@ class EntityConceptWidget(SingleLineEdit):
         self.setPlainText(', '.join(selection))
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def action_triggered(self, checked=None):
         self.emit_value()
 
@@ -880,7 +880,7 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
             self.graphic.set_active(active)
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def set_role(self, value):
         if self.graphic:
             self.graphic.set_role(ImageRegionItem(value))
@@ -988,7 +988,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         # disable widgets until value is set
         self.set_value_dict({})
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=translate(
             'RegionsTab', 'All "region {}" data').format(self._key + 1))
@@ -1058,7 +1058,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
 
 
 class QTabBar(QtWidgets.QTabBar):
-    @catch_all
+    @catch_all()
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
         size.setWidth(size.height() * 140 // 100)
@@ -1124,7 +1124,7 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
             self.tab_changed(idx)
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def tab_changed(self, idx):
         for n in range(self.count()):
             self.widget(n).set_active(n == idx)
@@ -1175,7 +1175,7 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin, TopLevelWidgetMixin):
         # delegate context menu to region tabs
         self.region_tabs.tab_short_name = self.tab_short_name
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.region_tabs.compound_context_menu(event)
 
@@ -1188,7 +1188,7 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin, TopLevelWidgetMixin):
             self.image_display.emit_value()
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_person(self, value):
         value, = value.values()
         images = self.app.image_list.get_selected_images()

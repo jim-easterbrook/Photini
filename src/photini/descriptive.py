@@ -60,7 +60,7 @@ class RatingWidget(QtWidgets.QWidget):
         return getattr(self.slider, name)
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def _slider_value_changed(self, value):
         if self.slider.is_multiple():
             self.display.setPlaceholderText(self.multiple_values)
@@ -192,7 +192,7 @@ class TabWidget(QtWidgets.QScrollArea):
         form.tab_short_name = self.tab_short_name
         self.setWidget(form)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.widget().compound_context_menu(event)
 
