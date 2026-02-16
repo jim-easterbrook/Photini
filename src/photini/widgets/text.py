@@ -215,6 +215,7 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
         if self._single_line and event.key() in (
                 Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
+        self.handle_delete_key(event)
         super(PlainTextEdit, self).keyPressEvent(event)
         if self.placeholderText() and self.toPlainText():
             # user has typed something over <multiple values>

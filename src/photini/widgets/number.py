@@ -133,6 +133,11 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         self.emit_value()
         super(NumericalWidget, self).focusOutEvent(event)
 
+    @catch_all()
+    def keyPressEvent(self, event):
+        self.handle_delete_key(event)
+        super(NumericalWidget, self).keyPressEvent(event)
+
     def has_value(self):
         return bool(self.text()) or bool(self.placeholderText())
 

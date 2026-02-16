@@ -72,9 +72,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, ChoicesContextMenu, WidgetMixin):
 
     @catch_all()
     def keyPressEvent(self, event):
-        if self.is_multiple() and event.key() in (
-                Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
-            self.set_value(None)
+        self.handle_delete_key(event)
         super(DateTimeEdit, self).keyPressEvent(event)
 
     @catch_all()
@@ -170,8 +168,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
 
     @catch_all()
     def keyPressEvent(self, event):
-        if event.key() in (Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
-            self.lineEdit().setPlaceholderText('')
+        self.handle_delete_key(event)
         super(TimeZoneWidget, self).keyPressEvent(event)
 
     @catch_all(exc_return='')

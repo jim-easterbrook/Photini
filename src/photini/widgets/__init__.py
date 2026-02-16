@@ -38,6 +38,11 @@ class WidgetMixin(object):
     def append_value(self, value):
         self.set_value(value)
 
+    def handle_delete_key(self, event):
+        if self.is_multiple() and event.key() in (
+                Qt.Key.Key_Backspace, Qt.Key.Key_Delete):
+            self.set_value(None)
+
     @QtSlot()
     @catch_all()
     def emit_value(self):
