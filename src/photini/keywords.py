@@ -29,7 +29,7 @@ from photini.pyqt import *
 from photini.pyqt import qt_version_info
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
                              Label, TopLevelWidgetMixin, WidgetMixin)
-from photini.widgets.text import MultiLineEdit, SpellCheckMixin, TextEditMixin
+from photini.widgets.text import MultiLineEdit, PlainTextEdit, SpellCheckMixin
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -159,10 +159,9 @@ class KeywordCompleter(QtWidgets.QCompleter):
         self.complete()
 
 
-class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
+class HtmlTextEdit(PlainTextEdit, SpellCheckMixin):
     def __init__(self, list_view, data_model, *arg, **kw):
-        super(HtmlTextEdit, self).__init__(*arg, **kw)
-        self.init_mixin('')
+        super(HtmlTextEdit, self).__init__('', *arg, **kw)
         self.data_model = data_model
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
         self.setLineWrapMode(self.LineWrapMode.NoWrap)
@@ -175,13 +174,8 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
     @catch_all()
     def completer_activated(self, text):
         self.completer.popup().hide()
-        self.setText(text)
+        self.set_value(text)
         self.moveCursor(QtGui.QTextCursor.MoveOperation.EndOfBlock)
-
-    @catch_all()
-    def focusOutEvent(self, event):
-        self.emit_value()
-        super(HtmlTextEdit, self).focusOutEvent(event)
 
     @catch_all()
     def keyPressEvent(self, event):
@@ -192,10 +186,6 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
         super(HtmlTextEdit, self).keyPressEvent(event)
         self.completer.set_text(self.toPlainText())
 
-    @catch_all()
-    def contextMenuEvent(self, event):
-        self.context_menu_event(event)
-
     def get_value(self):
         value = self.toPlainText()
         value = [x.strip() for x in value.replace('/', '|').split('|')]
@@ -203,10 +193,9 @@ class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
 
     def set_value(self, value):
         self.set_multiple(multiple=False)
+        self.clear()
         if value:
-            self.setHtml(self.data_model.formatted_name(value))
-        else:
-            self.clear()
+            self.appendHtml(self.data_model.formatted_name(value))
 
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):

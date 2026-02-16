@@ -174,8 +174,9 @@ class LengthCheckMixin(TextHighlighterMixin):
             self._length_check.set_length(length)
 
 
-class TextEditMixin(ChoicesContextMenu, WidgetMixin):
-    def init_mixin(self, key):
+class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
+    def __init__(self, key, *arg, **kw):
+        super(PlainTextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
         self._is_multiple = False
@@ -184,18 +185,23 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin):
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
 
-    def context_menu_event(self, event):
+    @catch_all()
+    def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
         for add_context_menu in self.context_menus:
             add_context_menu(menu, event)
         execute(menu, event.globalPos())
 
-    def set_value(self, value):
-        self.set_multiple(multiple=False)
-        if value:
-            self.setPlainText(str(value))
-        else:
-            self.clear()
+    @catch_all()
+    def focusOutEvent(self, event):
+        self.emit_value()
+        super(PlainTextEdit, self).focusOutEvent(event)
+
+    def is_multiple(self):
+        return self._is_multiple and not bool(self.get_value())
+
+    def is_valid(self):
+        return not bool(self.placeholderText())
 
     def set_multiple(self, choices=[], multiple=True):
         self._is_multiple = multiple
@@ -206,35 +212,25 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin):
         else:
             self.setPlaceholderText('')
 
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
-
-    def is_valid(self):
-        return not bool(self.placeholderText())
+    def set_value(self, value):
+        self.set_multiple(multiple=False)
+        if value:
+            self.setPlainText(str(value))
+        else:
+            self.clear()
 
     def value_to_text(self, value):
         return str(value).replace('\n', ' ')
 
 
-class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin, SpellCheckMixin,
-                    LengthCheckMixin):
+class MultiLineEdit(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
     def __init__(self, key, *arg, **kw):
-        super(MultiLineEdit, self).__init__(*arg, **kw)
-        self.init_mixin(key)
-
-    @catch_all()
-    def focusOutEvent(self, event):
-        self.emit_value()
-        super(MultiLineEdit, self).focusOutEvent(event)
+        super(MultiLineEdit, self).__init__(key, *arg, **kw)
 
     @catch_all()
     def keyPressEvent(self, event):
         self.set_multiple(multiple=False)
         super(MultiLineEdit, self).keyPressEvent(event)
-
-    @catch_all()
-    def contextMenuEvent(self, event):
-        self.context_menu_event(event)
 
     def set_height(self, rows):
         height = QtWidgets.QLineEdit().sizeHint().height()
