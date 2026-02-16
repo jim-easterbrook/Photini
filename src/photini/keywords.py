@@ -29,7 +29,7 @@ from photini.pyqt import *
 from photini.pyqt import qt_version_info
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
                              Label, TopLevelWidgetMixin, WidgetMixin)
-from photini.widgets.text import MultiLineEdit, TextEditMixin
+from photini.widgets.text import MultiLineEdit, SpellCheckMixin, TextEditMixin
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -159,7 +159,7 @@ class KeywordCompleter(QtWidgets.QCompleter):
         self.complete()
 
 
-class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin):
+class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
     def __init__(self, list_view, data_model, *arg, min_width=None, **kw):
         super(HtmlTextEdit, self).__init__(*arg, **kw)
         self.init_mixin('', min_width)

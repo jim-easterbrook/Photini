@@ -174,8 +174,7 @@ class LengthCheckMixin(TextHighlighterMixin):
             self._length_check.set_length(length)
 
 
-class TextEditMixin(ChoicesContextMenu, WidgetMixin, SpellCheckMixin,
-                    LengthCheckMixin):
+class TextEditMixin(ChoicesContextMenu, WidgetMixin):
     def init_mixin(self, key, min_width):
         self._key = key
         self._multiple_values = multiple_values()
@@ -219,7 +218,8 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin, SpellCheckMixin,
         return str(value).replace('\n', ' ')
 
 
-class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin):
+class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin, SpellCheckMixin,
+                    LengthCheckMixin):
     def __init__(self, key, *arg, min_width=None, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
         self.init_mixin(key, min_width)
