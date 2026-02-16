@@ -160,9 +160,9 @@ class KeywordCompleter(QtWidgets.QCompleter):
 
 
 class HtmlTextEdit(QtWidgets.QTextEdit, TextEditMixin, SpellCheckMixin):
-    def __init__(self, list_view, data_model, *arg, min_width=None, **kw):
+    def __init__(self, list_view, data_model, *arg, **kw):
         super(HtmlTextEdit, self).__init__(*arg, **kw)
-        self.init_mixin('', min_width)
+        self.init_mixin('')
         self.data_model = data_model
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
         self.setLineWrapMode(self.LineWrapMode.NoWrap)

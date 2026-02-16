@@ -322,7 +322,9 @@ class EditMapKeys(QtWidgets.QDialog):
                 ('mapboxmap', translate('EditSettings', 'Mapbox map'), 1),
                 ('opencage', translate('EditSettings',
                                        'Address lookup (OpenCage)'), 2)):
-            self.widgets[section] = MultiLineEdit(section, min_width=60)
+            self.widgets[section] = MultiLineEdit(section)
+            self.widgets[section].setMinimumWidth(
+                width_for_text(self.widgets[section], 'x' * 60))
             self.widgets[section].set_height(3)
             self.widgets[section].set_value(
                 keyring.get_password('photini', section))

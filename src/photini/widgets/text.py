@@ -175,13 +175,11 @@ class LengthCheckMixin(TextHighlighterMixin):
 
 
 class TextEditMixin(ChoicesContextMenu, WidgetMixin):
-    def init_mixin(self, key, min_width):
+    def init_mixin(self, key):
         self._key = key
         self._multiple_values = multiple_values()
         self._is_multiple = False
         self.context_menus = [self.add_choices_context_menu]
-        if min_width:
-            self.setMinimumWidth(width_for_text(self, 'x' * min_width))
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
@@ -220,9 +218,9 @@ class TextEditMixin(ChoicesContextMenu, WidgetMixin):
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit, TextEditMixin, SpellCheckMixin,
                     LengthCheckMixin):
-    def __init__(self, key, *arg, min_width=None, **kw):
+    def __init__(self, key, *arg, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
-        self.init_mixin(key, min_width)
+        self.init_mixin(key)
 
     @catch_all
     def focusOutEvent(self, event):
