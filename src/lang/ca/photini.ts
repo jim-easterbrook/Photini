@@ -133,8 +133,17 @@
 <context>
     <name>AltitudeDisplay</name>
     <message>
+        <source> m</source>
+        <comment>metres altitude</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Altitude of the location in metres.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Altitude</source>
-        <translation type="vanished">Alçada</translation>
+        <translation>Alçada</translation>
     </message>
 </context>
 <context>
@@ -1068,6 +1077,42 @@
     </message>
 </context>
 <context>
+    <name>LangAltWidget</name>
+    <message>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lang: </source>
+        <comment>Short abbreviation of &quot;Language: &quot;</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Make &quot;{language}&quot; the default language.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change language to &quot;{language}&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change language to other.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
@@ -1076,7 +1121,11 @@
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation type="vanished">Lat, long</translation>
+        <translation>Lat, long</translation>
+    </message>
+    <message>
+        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2278,6 +2327,14 @@
     <message>
         <source>&lt;multiple values&gt;</source>
         <translation>&lt;multiple values&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;new&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All &quot;{tab_name}&quot; data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
