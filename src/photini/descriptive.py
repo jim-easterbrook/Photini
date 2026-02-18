@@ -21,8 +21,8 @@ import logging
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
-    CompoundWidgetMixin, ContextMenuMixin, Label, LangAltWidget, MultiLineEdit,
-    SingleLineEdit, Slider, TopLevelWidgetMixin)
+    CompoundWidgetMixin, ContextMenuMixin, Label, Slider, TopLevelWidgetMixin)
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -33,7 +33,6 @@ class RatingWidget(QtWidgets.QWidget):
         super(RatingWidget, self).__init__(*arg, **kw)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
         self.multiple_values = multiple_values()
-        self._key = key
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # slider
@@ -42,7 +41,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.slider.setFixedWidth(width_for_text(self.slider, 'x' * 25))
         self.slider.setRange(-2, 5)
         self.slider.setPageStep(1)
-        self.slider.valueChanged.connect(self.set_display)
+        self.slider.valueChanged.connect(self._slider_value_changed)
         self.layout().addWidget(self.slider)
         # display
         self.display = QtWidgets.QLineEdit()
@@ -55,47 +54,26 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.display.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.layout().addWidget(self.display)
-        # adopt child methods/signals
-        self.emit_value = self.slider.emit_value
-        self.get_value_dict = self.slider.get_value_dict
-        self.is_multiple = self.slider.is_multiple
-        self.new_value = self.slider.new_value
-        self.set_value_dict = self.slider.set_value_dict
-        self._load_data = self.slider._load_data
-        self._save_data = self.slider._save_data
-        # over-ride child methods
-        self.slider.get_value = self.get_value
-        self.slider.set_value = self.set_value
+
+    # delegate most methods and other attributes to slider
+    def __getattr__(self, name):
+        return getattr(self.slider, name)
 
     @QtSlot(int)
-    @catch_all
-    def set_display(self, value):
-        self.display.setPlaceholderText('')
-        if value == -2:
+    @catch_all()
+    def _slider_value_changed(self, value):
+        if self.slider.is_multiple():
+            self.display.setPlaceholderText(self.multiple_values)
+            self.display.clear()
+        elif value == -2:
+            self.slider._flags |= self.Flags.is_none
+            self.display.setPlaceholderText('')
             self.display.clear()
         elif value == -1:
             self.display.setText(translate('DescriptiveTab', 'reject'))
         else:
             self.display.setText((chr(0x2605) * value) +
                                  (chr(0x2606) * (5 - value)))
-
-    def set_value(self, value):
-        if not value:
-            self.slider.setValue(-2)
-        else:
-            self.slider.setValue(int(value + 1.5) - 1)
-        self.set_display(self.slider.value())
-
-    def get_value(self):
-        value = self.slider.value()
-        if value == -2:
-            return None
-        return value
-
-    def set_multiple(self, choices=[]):
-        self.slider.set_multiple()
-        self.slider.setValue(-2)
-        self.display.setPlaceholderText(self.multiple_values)
 
 
 class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
@@ -110,9 +88,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = LangAltWidget(
-            'title', multi_line=False, spell_check=True,
-            length_check=ImageMetadata.max_bytes('title'))
+        self.widgets['title'] = LangAltWidget('title', multi_line=False)
+        self.widgets['title'].add_length_check(
+            ImageMetadata.max_bytes('title'))
+        self.widgets['title'].add_spell_check()
         self.widgets['title'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.')))
@@ -120,9 +99,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
-        self.widgets['headline'] = MultiLineEdit(
-            'headline', spell_check=True,
-            length_check=ImageMetadata.max_bytes('headline'))
+        self.widgets['headline'] = MultiLineEdit('headline')
+        self.widgets['headline'].add_length_check(
+            ImageMetadata.max_bytes('headline'))
+        self.widgets['headline'].add_spell_check()
         self.widgets['headline'].set_height(3)
         self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
@@ -131,9 +111,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Headline'),
                       self.widgets['headline'])
         # description
-        self.widgets['description'] = LangAltWidget(
-            'description', spell_check=True,
-            length_check=ImageMetadata.max_bytes('description'))
+        self.widgets['description'] = LangAltWidget('description')
+        self.widgets['description'].add_length_check(
+            ImageMetadata.max_bytes('description'))
+        self.widgets['description'].add_spell_check()
         self.widgets['description'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a "caption" describing the who, what,'
             ' and why of what is happening in this image, this might include'
@@ -143,9 +124,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Description / Caption'),
                       self.widgets['description'])
         # alt text
-        self.widgets['alt_text'] = LangAltWidget(
-            'alt_text', spell_check=True, length_check=250,
-            length_always=True, length_bytes=False)
+        self.widgets['alt_text'] = LangAltWidget('alt_text')
+        self.widgets['alt_text'].add_length_check(
+            250, length_always=True, length_bytes=False)
+        self.widgets['alt_text'].add_spell_check()
         self.widgets['alt_text'].set_height(3)
         self.widgets['alt_text'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter text describing the appearance of the'
@@ -156,8 +138,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
             Label(translate('DescriptiveTab', 'Alt Text (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text'])
         # extended alt text
-        self.widgets['alt_text_ext'] = LangAltWidget(
-            'alt_text_ext', spell_check=True)
+        self.widgets['alt_text_ext'] = LangAltWidget('alt_text_ext')
+        self.widgets['alt_text_ext'].add_spell_check()
         self.widgets['alt_text_ext'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'A more detailed textual description of the'
             ' purpose and meaning of an image that elaborates on the'
@@ -171,8 +153,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
         # people
-        self.widgets['people'] = SingleLineEdit(
-            'people', spell_check=True, multi_string=True)
+        self.widgets['people'] = SingleLineEdit('people')
+        self.widgets['people'].add_spell_check()
         self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
             ' image. Separate them with ";" characters.')))
@@ -210,7 +192,7 @@ class TabWidget(QtWidgets.QScrollArea):
         form.tab_short_name = self.tab_short_name
         self.setWidget(form)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.widget().compound_context_menu(event)
 

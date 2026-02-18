@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>Duplicar ubicación</translation>
+        <translation type="vanished">Duplicar ubicación</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>Eliminar ubicación</translation>
+        <translation type="vanished">Eliminar ubicación</translation>
     </message>
     <message>
         <source>camera</source>
@@ -104,6 +104,14 @@
         <translation>ID de ubicación</translation>
     </message>
     <message>
+        <source>All &quot;{tab}&quot; address data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All &quot;subject&quot; addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation>Direcciones</translation>
@@ -119,15 +127,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation> m</translation>
+        <translation type="vanished"> m</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation>Altitud de la ubicación en metros.</translation>
+        <translation type="vanished">Altitud de la ubicación en metros.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation>Altitud</translation>
+        <translation type="vanished">Altitud</translation>
     </message>
 </context>
 <context>
@@ -974,6 +982,10 @@
         <translation>Buscar</translation>
     </message>
     <message>
+        <source>All hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
         <translation>Introduce una jerarquía de palabras clave, términos o frases usadas para expresar el asunto en la imagen. Sepáralos con los caracteres &quot;|&quot; o &quot;/&quot;.</translation>
     </message>
@@ -1008,28 +1020,28 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation>Nuevo idioma</translation>
+        <translation type="vanished">Nuevo idioma</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Idioma</translation>
+        <translation type="vanished">Idioma</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation>Idioma: </translation>
+        <translation type="vanished">Idioma: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation>¿En qué idioma está el texto actual? Por favor, introduzca una etiqueta de idioma RFC3066.</translation>
+        <translation type="vanished">¿En qué idioma está el texto actual? Por favor, introduzca una etiqueta de idioma RFC3066.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation>¿Qué idioma te gustaría añadir? Introduce una etiqueta de idioma RFC3066.</translation>
+        <translation type="vanished">¿Qué idioma te gustaría añadir? Introduce una etiqueta de idioma RFC3066.</translation>
     </message>
     <message>
         <source>Set default language</source>
-        <translation>Establecer idioma por defecto</translation>
+        <translation type="vanished">Establecer idioma por defecto</translation>
     </message>
 </context>
 <context>
@@ -1040,12 +1052,12 @@
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation>Latitud y longitud (en grados) con dos números decimales separados por un espacio.</translation>
+        <translation type="vanished">Latitud y longitud (en grados) con dos números decimales separados por un espacio.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation>Lat.,Long.</translation>
+        <translation type="vanished">Lat.,Long.</translation>
     </message>
 </context>
 <context>
@@ -1495,6 +1507,10 @@
         <translation>Eliminar los datos GPX</translation>
     </message>
     <message>
+        <source>All &quot;GPS&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;widen search&gt;</source>
         <translation>&lt;widen search&gt;</translation>
     </message>
@@ -1767,6 +1783,10 @@
         <translation>Introduce una &quot;leyenda&quot; describiendo el quién, qué y por qué de lo que describing the who, what, and why of what is happening in this region.</translation>
     </message>
     <message>
+        <source>All &quot;region {}&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
         <translation>La estructura de la región de imagen incluye opcionalmente cualquier propiedad de metadatos relacionada con la región.</translation>
     </message>
@@ -1788,7 +1808,7 @@
     </message>
     <message>
         <source>Delete region</source>
-        <translation>Eliminar región</translation>
+        <translation type="vanished">Eliminar región</translation>
     </message>
     <message>
         <source>Image regions</source>
@@ -1942,6 +1962,14 @@
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation>El cambio del nombre del creador invalidará la información Exif de la nota de fabricante.</translation>
+    </message>
+    <message>
+        <source>Set &quot;crop factor&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crop factor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Technical metadata</source>
@@ -2190,7 +2218,7 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;nuevo&gt;</translation>
+        <translation type="vanished">&lt;nuevo&gt;</translation>
     </message>
 </context>
 </TS>

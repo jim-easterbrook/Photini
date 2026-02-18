@@ -23,8 +23,8 @@ from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
-    LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit,
-    TopLevelWidgetMixin)
+    PushButton, TopLevelWidgetMixin)
+from photini.widgets.text import LangAltWidget, MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -68,7 +68,8 @@ class RightsDropDown(DropDownSelector):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
         dialog.setLayout(FormLayout())
-        name = SingleLineEdit('name', spell_check=True)
+        name = SingleLineEdit('name')
+        name.add_spell_check()
         dialog.layout().addRow(translate('OwnerTab', 'Name'), name)
         url = SingleLineEdit('url')
         dialog.layout().addRow(translate('OwnerTab', 'URL'), url)
@@ -90,7 +91,7 @@ class RightsDropDown(DropDownSelector):
         return name, url
 
     @QtSlot(QtGui.QContextMenuEvent)
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu()
         for n in range(1, self._last_idx()):
@@ -114,7 +115,8 @@ class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.widgets = {}
         # usage terms
         self.widgets['UsageTerms'] = LangAltWidget(
-            'UsageTerms', multi_line=False, spell_check=True)
+            'UsageTerms', multi_line=False)
+        self.widgets['UsageTerms'].add_spell_check()
         self.widgets['UsageTerms'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter instructions on how this image can legally'
             ' be used.')))
@@ -164,7 +166,8 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
                              self.widgets['Telephone1'])
         # extended address
         self.widgets['ExtendedAddress'] = SingleLineEdit(
-            'plus:LicensorExtendedAddress', spell_check=True)
+            'plus:LicensorExtendedAddress')
+        self.widgets['ExtendedAddress'].add_spell_check()
         self.widgets['ExtendedAddress'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter address detail (e.g. flat number or'
                       ' room number) for the person that created this image.')))
@@ -172,15 +175,16 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
                              self.widgets['ExtendedAddress'])
         # address
         self.widgets['StreetAddress'] = MultiLineEdit(
-            'plus:LicensorStreetAddress', spell_check=True)
+            'plus:LicensorStreetAddress')
+        self.widgets['StreetAddress'].add_spell_check()
         self.widgets['StreetAddress'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter street address for the person that'
                       ' created this image.')))
         self.layout().addRow(translate('OwnerTab', 'Street Address'),
                              self.widgets['StreetAddress'])
         # city
-        self.widgets['City'] = SingleLineEdit('plus:LicensorCity',
-                                              spell_check=True)
+        self.widgets['City'] = SingleLineEdit('plus:LicensorCity')
+        self.widgets['City'].add_spell_check()
         self.widgets['City'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter the city for the address of the person'
                       ' that created this image.')))
@@ -194,16 +198,16 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.layout().addRow(translate('OwnerTab', 'Postal Code'),
                              self.widgets['PostalCode'])
         # region
-        self.widgets['Region'] = SingleLineEdit('plus:LicensorRegion',
-                                                spell_check=True)
+        self.widgets['Region'] = SingleLineEdit('plus:LicensorRegion')
+        self.widgets['Region'].add_spell_check()
         self.widgets['Region'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter the state for the address of the'
                       ' person that created this image.')))
         self.layout().addRow(translate('OwnerTab', 'State/Province'),
                              self.widgets['Region'])
         # country
-        self.widgets['Country'] = SingleLineEdit('plus:LicensorCountry',
-                                                 spell_check=True)
+        self.widgets['Country'] = SingleLineEdit('plus:LicensorCountry')
+        self.widgets['Country'].add_spell_check()
         self.widgets['Country'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter the country name for the address of'
                       ' the person that created this image.')))
@@ -231,35 +235,39 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form = FormLayout()
         self.widget().setLayout(form)
         # creator
-        self.widgets['creator'] = SingleLineEdit(
-            'creator', spell_check=True, multi_string=True,
-            length_check=ImageMetadata.max_bytes('creator'))
+        self.widgets['creator'] = SingleLineEdit('creator')
+        self.widgets['creator'].add_length_check(
+            ImageMetadata.max_bytes('creator'), multi_string=True)
+        self.widgets['creator'].add_spell_check()
         self.widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the name of the person that created this'
             ' image.')))
         form.addRow(translate('OwnerTab', 'Creator'), self.widgets['creator'])
         # creator title
-        self.widgets['creator_title'] = SingleLineEdit(
-            'creator_title', spell_check=True, multi_string=True,
-            length_check=ImageMetadata.max_bytes('creator_title'))
+        self.widgets['creator_title'] = SingleLineEdit('creator_title')
+        self.widgets['creator_title'].add_length_check(
+            ImageMetadata.max_bytes('creator_title'), multi_string=True)
+        self.widgets['creator_title'].add_spell_check()
         self.widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the job title of the person listed in the'
             ' Creator field.')))
         form.addRow(translate('OwnerTab', "Creator's Jobtitle"),
                     self.widgets['creator_title'])
         # credit line
-        self.widgets['credit_line'] = SingleLineEdit(
-            'credit_line', spell_check=True,
-            length_check=ImageMetadata.max_bytes('credit_line'))
+        self.widgets['credit_line'] = SingleLineEdit('credit_line')
+        self.widgets['credit_line'].add_length_check(
+            ImageMetadata.max_bytes('credit_line'))
+        self.widgets['credit_line'].add_spell_check()
         self.widgets['credit_line'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter who should be credited when this image is'
             ' published.')))
         form.addRow(translate('OwnerTab', 'Credit Line'),
                     self.widgets['credit_line'])
         # copyright
-        self.widgets['copyright'] = LangAltWidget(
-            'copyright', multi_line=False, spell_check=True,
-            length_check=ImageMetadata.max_bytes('copyright'))
+        self.widgets['copyright'] = LangAltWidget('copyright', multi_line=False)
+        self.widgets['copyright'].add_length_check(
+            ImageMetadata.max_bytes('copyright'))
+        self.widgets['copyright'].add_spell_check()
         self.widgets['copyright'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
             ' copyright for this image, such as "©2008 Jane Doe".')))
@@ -269,9 +277,10 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         self.widgets['rights'] = RightsGroup('rights')
         form.addRow(translate('OwnerTab', 'Rights'), self.widgets['rights'])
         # special instructions
-        self.widgets['instructions'] = SingleLineEdit(
-            'instructions', spell_check=True,
-            length_check=ImageMetadata.max_bytes('instructions'))
+        self.widgets['instructions'] = SingleLineEdit('instructions')
+        self.widgets['instructions'].add_length_check(
+            ImageMetadata.max_bytes('instructions'))
+        self.widgets['instructions'].add_spell_check()
         self.widgets['instructions'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter information about embargoes, or other'
             ' restrictions not covered by the Rights Usage Terms field.')))
@@ -358,13 +367,9 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                     'ownership', 'contact_info/LicensorURL', value)
             self.config_store.delete('ownership', 'rights/licensorurl')
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.form.compound_context_menu(event)
-
-    def set_enabled(self, enabled):
-        for widget in self.enableable:
-            widget.setEnabled(enabled)
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -373,7 +378,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         return False
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def init_template(self):
         template = {}
         for image in self.app.image_list.get_selected_images():
@@ -421,7 +426,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         return template
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def edit_template(self):
         self._edit_template(self.read_template())
 
@@ -465,7 +470,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                 self.config_store.set('ownership', key, value)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def apply_template(self):
         template = self.read_template()
         images = self.app.image_list.get_selected_images()
@@ -494,4 +499,5 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     def new_selection(self, selection):
         self.form.load_data(selection)
-        self.set_enabled(bool(selection))
+        for widget in self.enableable:
+            widget.setEnabled(bool(selection))

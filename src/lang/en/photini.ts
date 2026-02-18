@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>Duplicate location</translation>
+        <translation type="vanished">Duplicate location</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>Delete location</translation>
+        <translation type="vanished">Delete location</translation>
     </message>
     <message>
         <source>camera</source>
@@ -104,6 +104,14 @@
         <translation>Location ID</translation>
     </message>
     <message>
+        <source>All &quot;{tab}&quot; address data</source>
+        <translation>All &quot;{tab}&quot; address data</translation>
+    </message>
+    <message>
+        <source>All &quot;subject&quot; addresses</source>
+        <translation>All &quot;subject&quot; addresses</translation>
+    </message>
+    <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation>Location addresses</translation>
@@ -119,15 +127,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation> m</translation>
+        <translation type="vanished"> m</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation>Altitude of the location in metres.</translation>
+        <translation type="vanished">Altitude of the location in metres.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation>Altitude</translation>
+        <translation type="vanished">Altitude</translation>
     </message>
 </context>
 <context>
@@ -966,6 +974,10 @@
         <translation>Search</translation>
     </message>
     <message>
+        <source>All hierarchical keywords</source>
+        <translation>All hierarchical keywords</translation>
+    </message>
+    <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
         <translation>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</translation>
     </message>
@@ -1000,40 +1012,40 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation>New language</translation>
+        <translation type="vanished">New language</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Language</translation>
+        <translation type="vanished">Language</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation>Lang: </translation>
+        <translation type="vanished">Lang: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation>What language is the current text in? Please enter an RFC3066 language tag.</translation>
+        <translation type="vanished">What language is the current text in? Please enter an RFC3066 language tag.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation>What language would you like to add? Please enter an RFC3066 language tag.</translation>
+        <translation type="vanished">What language would you like to add? Please enter an RFC3066 language tag.</translation>
     </message>
     <message>
         <source>Set default language</source>
-        <translation>Set default language</translation>
+        <translation type="vanished">Set default language</translation>
     </message>
 </context>
 <context>
     <name>LatLongDisplay</name>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</translation>
+        <translation type="vanished">Latitude and longitude (in degrees) as two decimal numbers separated by a space.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation>Lat, long</translation>
+        <translation type="vanished">Lat, long</translation>
     </message>
 </context>
 <context>
@@ -1479,6 +1491,10 @@
         <translation>Remove GPX data</translation>
     </message>
     <message>
+        <source>All &quot;GPS&quot; data</source>
+        <translation>All &quot;GPS&quot; data</translation>
+    </message>
+    <message>
         <source>&lt;widen search&gt;</source>
         <translation>&lt;widen search&gt;</translation>
     </message>
@@ -1751,6 +1767,10 @@
         <translation>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</translation>
     </message>
     <message>
+        <source>All &quot;region {}&quot; data</source>
+        <translation>All &quot;region {}&quot; data</translation>
+    </message>
+    <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
         <translation>The Image Region Structure includes optionally any metadata property which is related to the region.</translation>
     </message>
@@ -1772,7 +1792,7 @@
     </message>
     <message>
         <source>Delete region</source>
-        <translation>Delete region</translation>
+        <translation type="vanished">Delete region</translation>
     </message>
     <message>
         <source>Image regions</source>
@@ -1930,6 +1950,14 @@
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation>Changing maker name will invalidate Exif makernote information.</translation>
+    </message>
+    <message>
+        <source>Set &quot;crop factor&quot;</source>
+        <translation>Set &quot;crop factor&quot;</translation>
+    </message>
+    <message>
+        <source>Crop factor</source>
+        <translation>Crop factor</translation>
     </message>
     <message>
         <source>Technical metadata</source>
@@ -2178,7 +2206,7 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;new&gt;</translation>
+        <translation type="vanished">&lt;new&gt;</translation>
     </message>
 </context>
 </TS>

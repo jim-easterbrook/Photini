@@ -8,14 +8,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duplicate location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>camera</source>
         <translation type="unfinished"></translation>
     </message>
@@ -100,6 +92,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All &quot;{tab}&quot; address data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All &quot;subject&quot; addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation type="unfinished"></translation>
@@ -117,17 +117,8 @@
 <context>
     <name>AltitudeDisplay</name>
     <message>
-        <source> m</source>
-        <comment>metres altitude</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Altitude</source>
-        <translation>고도</translation>
+        <translation type="vanished">고도</translation>
     </message>
 </context>
 <context>
@@ -942,6 +933,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -961,46 +956,6 @@
     </message>
     <message>
         <source>Open tree view</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>LangAltWidget</name>
-    <message>
-        <source>New language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lang: </source>
-        <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set default language</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>LatLongDisplay</name>
-    <message>
-        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lat, long</source>
-        <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1410,6 +1365,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All &quot;GPS&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;widen search&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1674,6 +1633,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All &quot;region {}&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1691,10 +1654,6 @@
     </message>
     <message>
         <source>New polygon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete region</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1748,6 +1707,14 @@
     </message>
     <message>
         <source>Serial number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set &quot;crop factor&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crop factor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2085,10 +2052,6 @@
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;new&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

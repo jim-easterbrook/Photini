@@ -37,7 +37,8 @@ from photini.pyqt import *
 from photini.pyqt import (QtNetwork, QtWebChannel, QtWebEngineCore,
                           QtWebEngineWidgets, qt_version_info)
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
-                             GPSInfoWidgets, Label, TopLevelWidgetMixin)
+                             Label, TopLevelWidgetMixin)
+from photini.widgets.number import GPSInfoWidgets
 
 
 logger = logging.getLogger(__name__)
@@ -150,7 +151,7 @@ class GeocoderBase(QtCore.QObject):
             self.query_cache = None
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def save_cache(self):
         if self.query_cache:
             os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
@@ -219,7 +220,7 @@ class MapWebPage(QtWebEngineCore.QWebEnginePage):
     def set_local_links(self):
         self.local_links = True
 
-    @catch_all
+    @catch_all(exc_return=False)
     def acceptNavigationRequest(self, url, type_, isMainFrame):
         if self.local_links or (
                 type_ != self.NavigationType.NavigationTypeLinkClicked):
@@ -233,11 +234,11 @@ class MapWebPage(QtWebEngineCore.QWebEnginePage):
             self.deleteLater()
         return False
 
-    @catch_all
+    @catch_all()
     def createWindow(self, type_):
         return MapWebPage(transient=True, parent=self)
 
-    @catch_all
+    @catch_all()
     def javaScriptConsoleMessage(self, level, msg, line, source):
         if level == self.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
             self.load_failed.emit()
@@ -256,19 +257,19 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
         super(MapWebView, self).__init__(*args, **kwds)
         self.setPage(MapWebPage(call_handler=call_handler, parent=self))
 
-    @catch_all
+    @catch_all()
     def dragEnterEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(MapWebView, self).dragEnterEvent(event)
         event.acceptProposedAction()
 
-    @catch_all
+    @catch_all()
     def dragMoveEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(MapWebView, self).dragMoveEvent(event)
         event.acceptProposedAction()
 
-    @catch_all
+    @catch_all()
     def dropEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(MapWebView, self).dropEvent(event)
@@ -380,7 +381,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         # other init
         self.app.map_icon_factory.icons_changed.connect(self.new_icon_data)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=translate(
             'PhotiniMap', 'All "GPS" data'))
@@ -397,7 +398,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         return {}
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def initialise(self):
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
         zoom = float(self.app.config_store.get('map', 'zoom', 11))
@@ -437,7 +438,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir + '/'))
 
-    @catch_all
+    @catch_all()
     def initialize_finished(self, OK):
         QtWidgets.QApplication.restoreOverrideCursor()
         if not OK:
@@ -462,7 +463,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.refresh()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_icon_data(self):
         if self.map_loaded < 2:
             return
@@ -495,7 +496,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
     def do_not_close(self):
         return False
 
-    @catch_all
+    @catch_all()
     def new_status(self, status):
         self.map_status.update(status)
         for key in ('centre', 'zoom'):
@@ -503,7 +504,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
                 self.app.config_store.set('map', key, self.map_status[key])
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def load_failed(self):
         if self.map_loaded < 1:
             return
@@ -518,11 +519,11 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.gpx_ids = []
 
     @QtSlot(int, int, str)
-    @catch_all
+    @catch_all()
     def drop_text(self, x, y, text):
         self.JavaScript('markerDrop({:d},{:d})'.format(x, y))
 
-    @catch_all
+    @catch_all()
     def marker_drop(self, lat, lng):
         self.widgets['latlon'].set_value((lat, lng))
         self.widgets['latlon'].emit_value()
@@ -536,7 +537,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.redraw_gps_track(selection)
         self.update_display(selection, adjust_map=adjust_map)
 
-    def save_finished(self, images):
+    def save_finished(self, value, images):
         self.update_display(images)
 
     def update_display(self, images, adjust_map=True):
@@ -578,6 +579,8 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
             if None in location:
                 continue
             location = [float(x) for x in location]
+            if location[0] < -85.0 or location[0] > 85.0:
+                continue
             for info in self.marker_info.values():
                 if info['location'] == location:
                     info['images'].append(image)
@@ -647,7 +650,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         return self.app.gpx_importer.nearest(date_taken.to_utc())
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def load_gpx(self):
         new_points = self.app.gpx_importer.import_file()
         if not new_points:
@@ -665,7 +668,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets['clear_gpx'].setEnabled(enabled)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def set_from_gpx(self):
         selected_images = self.app.image_list.get_selected_images()
         set_altitude = self.app.config_store.get('map', 'gpx_altitude', True)
@@ -690,7 +693,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
             self.update_display(selected_images)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def clear_gpx(self):
         self.app.gpx_importer.clear_data()
         self.redraw_gps_track()
@@ -698,7 +701,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets['clear_gpx'].setEnabled(False)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def get_altitude(self):
         images = self.app.image_list.get_selected_images()
         altitude = self.geocoder.get_altitude(
@@ -707,7 +710,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets['alt'].emit_value()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def search(self, search_string=None, bounded=True):
         if not search_string:
             search_string = self.widgets['search'].lineEdit().text()
@@ -736,7 +739,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
                 translate('PhotiniMap', '<repeat search>'), 'repeat')
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def goto_search_result(self, idx):
         self.widgets['search'].setCurrentIndex(0)
         self.widgets['search'].clearFocus()
@@ -757,7 +760,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         else:
             self.JavaScript('adjustBounds({},{},{},{})'.format(*data))
 
-    @catch_all
+    @catch_all()
     def marker_click(self, marker_id):
         self.click_timer.start()
         if self.click_info['id'] != marker_id:
@@ -780,7 +783,7 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.app.image_list.select_images(images)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def click_timer_expired(self):
         self.click_info = {'id': None}
 
@@ -789,11 +792,11 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
         lat_b, lng_b = self.marker_info[id_b]['location']
         return (lat_a - lat_b)**2 + (lng_a - lng_b)**2
 
-    @catch_all
+    @catch_all()
     def marker_drag(self, lat, lng):
         self.widgets['latlon'].set_value((lat, lng))
 
-    @catch_all
+    @catch_all()
     def marker_drag_end(self, lat, lng, marker_id):
         self.widgets['latlon'].set_value((lat, lng))
         self.marker_info[marker_id]['location'] = list(

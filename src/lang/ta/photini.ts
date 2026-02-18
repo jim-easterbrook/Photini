@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>நகல் இருப்பிடம்</translation>
+        <translation type="vanished">நகல் இருப்பிடம்</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>இருப்பிடத்தை நீக்கு</translation>
+        <translation type="vanished">இருப்பிடத்தை நீக்கு</translation>
     </message>
     <message>
         <source>camera</source>
@@ -96,6 +96,14 @@
         <translation>இருப்பிட ஐடி</translation>
     </message>
     <message>
+        <source>All &quot;{tab}&quot; address data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All &quot;subject&quot; addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation>இருப்பிட முகவரிகள்</translation>
@@ -115,15 +123,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation> மீ</translation>
+        <translation type="vanished"> மீ</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation>மீட்டரில் இருப்பிடத்தின் உயரம்.</translation>
+        <translation type="vanished">மீட்டரில் இருப்பிடத்தின் உயரம்.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation>குத்துயரம்</translation>
+        <translation type="vanished">குத்துயரம்</translation>
     </message>
 </context>
 <context>
@@ -942,6 +950,10 @@
         <translation>தேடல்</translation>
     </message>
     <message>
+        <source>All hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
         <translation>படத்தில் உள்ள விசயத்தை வெளிப்படுத்தப் பயன்படுத்தப்படும் முக்கிய வார்த்தைகள், விதிமுறைகள் அல்லது சொற்றொடர்களின் படிநிலையை உள்ளிடவும். அவற்றை &quot;|&quot; உடன் பிரிக்கவும் அல்லது &quot;/&quot; எழுத்துக்கள்.</translation>
     </message>
@@ -968,40 +980,40 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation>புதிய மொழி</translation>
+        <translation type="vanished">புதிய மொழி</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>மொழி</translation>
+        <translation type="vanished">மொழி</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation>லாங்: </translation>
+        <translation type="vanished">லாங்: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation>தற்போதைய உரை என்ன மொழியில் உள்ளது? தயவுசெய்து ஒரு RFC3066 மொழி குறிச்சொல்லை உள்ளிடவும்.</translation>
+        <translation type="vanished">தற்போதைய உரை என்ன மொழியில் உள்ளது? தயவுசெய்து ஒரு RFC3066 மொழி குறிச்சொல்லை உள்ளிடவும்.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation>நீங்கள் எந்த மொழியைச் சேர்க்க விரும்புகிறீர்கள்? தயவுசெய்து ஒரு RFC3066 மொழி குறிச்சொல்லை உள்ளிடவும்.</translation>
+        <translation type="vanished">நீங்கள் எந்த மொழியைச் சேர்க்க விரும்புகிறீர்கள்? தயவுசெய்து ஒரு RFC3066 மொழி குறிச்சொல்லை உள்ளிடவும்.</translation>
     </message>
     <message>
         <source>Set default language</source>
-        <translation>இயல்புநிலை மொழியை அமைக்கவும்</translation>
+        <translation type="vanished">இயல்புநிலை மொழியை அமைக்கவும்</translation>
     </message>
 </context>
 <context>
     <name>LatLongDisplay</name>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation>அட்சரேகை மற்றும் தீர்க்கரேகை (டிகிரிகளில்) ஒரு இடத்தால் பிரிக்கப்பட்ட இரண்டு தசம எண்களாக.</translation>
+        <translation type="vanished">அட்சரேகை மற்றும் தீர்க்கரேகை (டிகிரிகளில்) ஒரு இடத்தால் பிரிக்கப்பட்ட இரண்டு தசம எண்களாக.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation>Lat, பெறுநர்</translation>
+        <translation type="vanished">Lat, பெறுநர்</translation>
     </message>
 </context>
 <context>
@@ -1427,6 +1439,10 @@
         <translation>சிபிஎக்ச் தரவை அகற்று</translation>
     </message>
     <message>
+        <source>All &quot;GPS&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;widen search&gt;</source>
         <translation>&lt;தேடலை அகலப்படுத்துங்கள்&gt;</translation>
     </message>
@@ -1691,6 +1707,10 @@
         <translation>இந்த பிராந்தியத்தில் என்ன நடக்கிறது, என்ன, ஏன், ஏன் என்பதை விவரிக்கும் ஒரு &quot;தலைப்பு&quot; உள்ளிடவும்.</translation>
     </message>
     <message>
+        <source>All &quot;region {}&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
         <translation>பட பிராந்திய கட்டமைப்பில் பிராந்தியத்துடன் தொடர்புடைய எந்த மேனிலை தரவு சொத்தையும் விருப்பமாக உள்ளடக்கியது.</translation>
     </message>
@@ -1712,7 +1732,7 @@
     </message>
     <message>
         <source>Delete region</source>
-        <translation>பகுதியை நீக்கு</translation>
+        <translation type="vanished">பகுதியை நீக்கு</translation>
     </message>
     <message>
         <source>Image regions</source>
@@ -1766,6 +1786,14 @@
     <message>
         <source>Aperture at max. focal length</source>
         <translation>அதிகபட்சம் துளை. குவிய நீளம்</translation>
+    </message>
+    <message>
+        <source>Set &quot;crop factor&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crop factor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Technical metadata</source>
@@ -2106,7 +2134,7 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;புதிய&gt;</translation>
+        <translation type="vanished">&lt;புதிய&gt;</translation>
     </message>
 </context>
 </TS>

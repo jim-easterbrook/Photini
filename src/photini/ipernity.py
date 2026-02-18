@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -30,8 +30,8 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from photini.pyqt import *
 from photini.types import MD_ImageRegion
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
-from photini.widgets import (
-    DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
+from photini.widgets import DropDownSelector, Label
+from photini.widgets.text import MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -505,7 +505,7 @@ class TabWidget(PhotiniUploader):
                     self.app.config_store.get('ipernity', key))
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_value(self, value):
         (key, value), = value.items()
         self.app.config_store.set('ipernity', key, value)
@@ -606,12 +606,14 @@ class TabWidget(PhotiniUploader):
         self.merge_metadata_items(image, data)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_album(self):
         dialog = self.new_album_dialog()
-        title = SingleLineEdit('title', spell_check=True)
+        title = SingleLineEdit('title')
+        title.add_spell_check()
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
-        description = MultiLineEdit('description', spell_check=True)
+        description = MultiLineEdit('description')
+        description.add_spell_check()
         dialog.layout().addRow(
             translate('IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget('comment')

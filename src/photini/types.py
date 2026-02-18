@@ -36,11 +36,11 @@ logger = logging.getLogger(__name__)
 # photini.metadata imports these classes
 __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_GPSinfo', 'MD_HierarchicalTags', 'MD_ImageRegion',
-    'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation',
-    'MD_MultiString', 'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
-    'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
-    'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
+    'MD_Dimensions', 'MD_FocalLength', 'MD_GPSinfo', 'MD_HierarchicalTags',
+    'MD_ImageRegion', 'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel',
+    'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation', 'MD_Rating',
+    'MD_Rational', 'MD_Rights', 'MD_SingleLocation', 'MD_Software', 'MD_String',
+    'MD_Thumbnail', 'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -835,8 +835,8 @@ class MD_StructArray(MD_Value, tuple):
         temp = []
         for item in value:
             temp.append(cls.item_type(item))
-        while temp and not temp[-1]:
-            temp = temp[:-1]
+        # remove empty values
+        temp = [x for x in temp if x]
         return super(MD_StructArray, cls).__new__(cls, temp)
 
     @classmethod
@@ -895,23 +895,13 @@ class MD_LangAlt(MD_Value, dict):
 
     DEFAULT = 'x-default'
 
-    def __init__(self, value=None, default_lang=None, strip=True):
+    def __init__(self, value=None, strip=True):
         if isinstance(value, str):
             value = {self.DEFAULT: value}
-        elif isinstance(value, MD_LangAlt):
-            default_lang = default_lang or value.default_lang
         value = value or {}
         if strip:
             value = dict((k, v.strip()) for (k, v) in value.items())
         value = dict((k, v) for (k, v) in value.items() if v)
-        if default_lang:
-            self.default_lang = default_lang
-            if self.DEFAULT in value and self.default_lang not in value:
-                value[self.default_lang] = value[self.DEFAULT]
-        else:
-            self.default_lang = self.identify_default(value)
-        if self.default_lang != self.DEFAULT and self.DEFAULT in value:
-            del value[self.DEFAULT]
         super(MD_LangAlt, self).__init__(value)
 
     @classmethod
@@ -955,63 +945,39 @@ class MD_LangAlt(MD_Value, dict):
     def __bool__(self):
         return any(self.values())
 
-    def __eq__(self, other):
-        if isinstance(other, MD_LangAlt):
-            return not self.__ne__(other)
-        return super(MD_LangAlt, self).__eq__(other)
-
-    def __ne__(self, other):
-        if isinstance(other, MD_LangAlt):
-            if self.default_lang != other.default_lang:
-                return True
-        return super(MD_LangAlt, self).__ne__(other)
-
     def __str__(self):
         result = []
-        for key in self.languages():
-            if key != self.DEFAULT:
-                result.append('-- {} --'.format(key))
+        for key in self:
+            result.append('-- {} --'.format(key))
             result.append(self[key])
         return '\n'.join(result)
 
     def best_match(self, lang=None):
         if len(self) < 2:
-            return self[self.default_lang]
+            return list(self.values())[0]
         lang = lang or QtCore.QLocale.system().bcp47Name()
-        if not lang:
-            return self[self.default_lang]
-        lang = lang.lower()
-        langs = [lang]
-        if '-' in lang:
-            langs.append(lang.split('-')[0])
-        for lang in langs:
-            for k in self:
-                if k.lower() == lang:
-                    return self[k]
-            for k in self:
-                if k.lower().startswith(lang):
-                    return self[k]
-        return self[self.default_lang]
-
-    def languages(self):
-        keys = list(self.keys())
-        if len(keys) < 1:
-            return [self.default_lang]
-        if len(keys) < 2:
-            return keys
-        if self.default_lang in keys:
-            keys.remove(self.default_lang)
-            keys.sort(key=lambda x: x.lower())
-            keys.insert(0, self.default_lang)
-        else:
-            keys.sort(key=lambda x: x.lower())
-        return keys
+        if lang:
+            lang = lang.lower()
+            langs = [lang]
+            if '-' in lang:
+                langs.append(lang.split('-')[0])
+            for lang in langs:
+                for k in self:
+                    if k.lower() == lang:
+                        return self[k]
+                for k in self:
+                    if k.lower().startswith(lang):
+                        return self[k]
+        if self.DEFAULT in self:
+            return self[self.DEFAULT]
+        return list(self.values())[0]
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
         if not self:
             return None
-        return self[self.default_lang]
+        default_lang = self.identify_default(self)
+        return self[default_lang]
 
     def to_iptc(self):
         return self.to_exif()
@@ -1023,7 +989,8 @@ class MD_LangAlt(MD_Value, dict):
             return dict(self)
         result = dict((k, v) for (k, v) in self.items() if v)
         if len(result) > 1:
-            result[self.DEFAULT] = result[self.default_lang]
+            default_lang = self.identify_default(result)
+            result[self.DEFAULT] = result[default_lang]
         return result
 
     def merge(self, info, tag, other):
@@ -1031,9 +998,9 @@ class MD_LangAlt(MD_Value, dict):
             return self
         if not isinstance(other, MD_LangAlt):
             other = MD_LangAlt(other)
-        default_lang = self.default_lang
+        default_lang = self.identify_default(self)
         if default_lang == self.DEFAULT:
-            default_lang = other.default_lang
+            default_lang = self.identify_default(other)
         result = dict(self)
         for key, value in other.items():
             if key == self.DEFAULT:
@@ -1054,7 +1021,7 @@ class MD_LangAlt(MD_Value, dict):
             else:
                 result[key] += ' // ' + value
             self.log_merged(info + '[' + key + ']', tag, value)
-        return self.__class__(result, default_lang=default_lang)
+        return self.__class__(result)
 
 
 class MD_Rights(MD_Collection):
@@ -1287,8 +1254,11 @@ class MD_Rating(MD_Float):
             value = min(max(float(file_value), -1.0), 5.0)
         return cls(value)
 
+    def __int__(self):
+        return int(self + 1.5) - 1
+
     def to_exif(self):
-        return str(int(self + 1.5) - 1)
+        return str(int(self))
 
 
 class MD_Rational(MD_Value, Fraction):
@@ -1646,6 +1616,19 @@ class MD_Dimensions(MD_Collection):
         if w > h:
             return target_size, int((float(target_size) * h / w) + 0.5)
         return int((float(target_size) * w / h) + 0.5), target_size
+
+
+class MD_FocalLength(MD_Collection):
+    _keys = ('fl', 'fl35')
+    _default_type = MD_Int
+    _type = {'fl': MD_Rational}
+
+    def reset_focal_length(self, new_fl):
+        if self['fl35'] and self['fl']:
+            new_fl35 = new_fl * self['fl35'] / self['fl']
+        else:
+            new_fl35 = None
+        return MD_FocalLength({'fl': new_fl, 'fl35': new_fl35})
 
 
 class CountryCode(MD_UnmergableString):

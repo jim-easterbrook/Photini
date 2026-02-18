@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -89,7 +89,7 @@ class LoggerFilter(object):
 
 
 class LoggerWindow(QtWidgets.QWidget):
-    def __init__(self, verbose, *arg, **kw):
+    def __init__(self, options, *arg, **kw):
         super(LoggerWindow, self).__init__(*arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.setWindowTitle(translate('LoggerWindow', "Photini error logging"))
@@ -113,7 +113,7 @@ class LoggerWindow(QtWidgets.QWidget):
         self.logger = logging.getLogger('')
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
-        threshold = logging.ERROR - (verbose * 10)
+        threshold = logging.ERROR - (options.verbose * 10)
         self.logger.setLevel(max(threshold, 1))
         self.stream_proxy = StreamProxy(self)
         self.stream_proxy.write_text.connect(self.write)
@@ -124,13 +124,21 @@ class LoggerWindow(QtWidgets.QWidget):
             datefmt='%H:%M:%S'))
         handler.addFilter(LoggerFilter(threshold))
         self.logger.addHandler(handler)
+        if options.test:
+            # also log to stderr
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter(
+                '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
+                datefmt='%H:%M:%S'))
+            handler.addFilter(LoggerFilter(threshold))
+            self.logger.addHandler(handler)
 
     def hide_word(self, word):
         if word not in self.hidden_words:
             self.hidden_words.append(word)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def shutdown(self):
         self.stream_proxy.write_text.disconnect()
         self.stream_proxy.flush_text.disconnect()
@@ -138,7 +146,7 @@ class LoggerWindow(QtWidgets.QWidget):
             self.logger.removeHandler(handler)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, translate('LoggerWindow', 'Save log file'),
@@ -153,14 +161,14 @@ class LoggerWindow(QtWidgets.QWidget):
                 of.write('\n==== end ====\n')
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def write(self, msg):
         for word in self.hidden_words:
             msg = msg.replace(word, 'XXXX')
         self.text.append(msg)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def flush(self):
         if self.isHidden():
             self.show()

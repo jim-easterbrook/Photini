@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2024-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2024-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This file is part of Photini.
 #
@@ -24,7 +24,7 @@ import os
 import requests
 
 from photini.photinimap import fetch_key, GeocoderBase, PhotiniMap
-from photini.pyqt import Busy, catch_all, Qt, QtCore, QtWidgets, scale_font
+from photini.pyqt import Busy, Qt, QtCore, QtWidgets, scale_font
 from photini.widgets import Label
 
 logger = logging.getLogger(__name__)

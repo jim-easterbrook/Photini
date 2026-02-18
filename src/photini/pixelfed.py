@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2023-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2023-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -31,8 +31,8 @@ from photini.configstore import BaseConfigStore, key_store
 from photini.pyqt import *
 from photini.uploader import (
     PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
-from photini.widgets import (
-    DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
+from photini.widgets import DropDownSelector, Label
+from photini.widgets.text import MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -199,13 +199,13 @@ class ChooseInstance(QtWidgets.QDialog):
         self.button_toggled()
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def text_changed(self, value):
         self.buttons[-1].setChecked(bool(value))
         self.buttons[-1].setEnabled(bool(value))
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def button_toggled(self, value=None):
         for button in self.buttons:
             if button.isChecked():
@@ -457,7 +457,7 @@ class PixelfedUser(UploaderUser):
             self.client_data['api_base_url'] + '/oauth/revoke', data=data))
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_token(self, token):
         self.user_data['token'] = token
         self.set_password(repr(token))
@@ -474,7 +474,7 @@ class ThumbList(QtWidgets.QWidget):
         self.max_media_attachments = 4
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def new_instance_config(self, config):
         self.max_media_attachments = config[
             'configuration']['statuses']['max_media_attachments']
@@ -512,14 +512,14 @@ class ThumbList(QtWidgets.QWidget):
             QtCore.QTimer.singleShot(1, self.scroll_to_last_widget)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def scroll_to_last_widget(self):
         scroll_bar = self.scroll_area.verticalScrollBar()
         scroll_bar.setValue(scroll_bar.maximum())
 
 
 class ScrollArea(QtWidgets.QScrollArea):
-    @catch_all
+    @catch_all()
     def resizeEvent(self, event):
         super(ScrollArea, self).resizeEvent(event)
         self.widget().setFixedWidth(self.viewport().contentsRect().width())
@@ -573,18 +573,20 @@ class TabWidget(PhotiniUploader):
             translate('PixelfedTab', 'Generate'))
         self.widget['auto_status'].clicked.connect(self.auto_status)
         sub_grid.addWidget(self.widget['auto_status'], 0, 2)
-        self.widget['status'] = MultiLineEdit(
-            'status', spell_check=True,
-            length_check=1000, length_always=True, length_bytes=False)
+        self.widget['status'] = MultiLineEdit('status')
+        self.widget['status'].add_length_check(
+            1000, length_always=True, length_bytes=False)
+        self.widget['status'].add_spell_check()
         policy = self.widget['status'].sizePolicy()
         policy.setVerticalStretch(1)
         self.widget['status'].setSizePolicy(policy)
         sub_grid.addWidget(self.widget['status'], 1, 0, 1, 3)
         sub_grid.setColumnStretch(1, 1)
         group.layout().addRow(sub_grid)
-        self.widget['spoiler_text'] = SingleLineEdit(
-            'spoiler_text', spell_check=True,
-            length_check=140, length_always=True, length_bytes=False)
+        self.widget['spoiler_text'] = SingleLineEdit('spoiler_text')
+        self.widget['spoiler_text'].add_length_check(
+            140, length_always=True, length_bytes=False)
+        self.widget['spoiler_text'].add_spell_check()
         self.widget['spoiler_text'].textChanged.connect(self.new_spoiler_text)
         group.layout().addRow(
             translate('PixelfedTab', 'Spoiler'), self.widget['spoiler_text'])
@@ -650,7 +652,7 @@ class TabWidget(PhotiniUploader):
             max_selected=3), 0
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_spoiler_text(self):
         if self.widget['spoiler_text'].get_value():
             self.widget['sensitive'].setChecked(True)
@@ -684,7 +686,7 @@ class TabWidget(PhotiniUploader):
         return self.widget['thumb_list'].get_selected_images()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def sync_remote(self):
         image_list = {}
         for image in self.app.image_list.get_selected_images():
@@ -819,7 +821,7 @@ class TabWidget(PhotiniUploader):
                          self.widget['thumb_list'].max_media_attachments))
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def auto_status(self):
         result = {
             'title': [], 'headline': [], 'description': [], 'keywords': [],
@@ -865,18 +867,19 @@ class TabWidget(PhotiniUploader):
         self.widget['status'].set_value('\n\n'.join(strings))
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_album(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('PixelfedTab', 'Create new collection'))
         dialog.setLayout(FormLayout())
-        title = SingleLineEdit(
-            'title', spell_check=True,
-            length_check=50, length_always=True, length_bytes=False)
+        title = SingleLineEdit('title')
+        title.add_length_check(50, length_always=True, length_bytes=False)
+        title.add_spell_check()
         dialog.layout().addRow(translate('PixelfedTab', 'Title'), title)
-        description = MultiLineEdit(
-            'description', spell_check=True,
-            length_check=500, length_always=True, length_bytes=False)
+        description = MultiLineEdit('description')
+        description.add_length_check(
+            500, length_always=True, length_bytes=False)
+        description.add_spell_check()
         dialog.layout().addRow(
             translate('PixelfedTab', 'Description'), description)
         visibility = DropDownSelector(
