@@ -29,7 +29,7 @@ from photini.pyqt import *
 from photini.pyqt import qt_version_info
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
                              Label, TopLevelWidgetMixin, WidgetMixin)
-from photini.widgets.text import MultiLineEdit, PlainTextEdit, SpellCheckMixin
+from photini.widgets.text import MultiLineEdit, SpellCheckMixin, TextEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -159,11 +159,11 @@ class KeywordCompleter(QtWidgets.QCompleter):
         self.complete()
 
 
-class HtmlTextEdit(PlainTextEdit, SpellCheckMixin):
+class NestedTagEdit(TextEdit, SpellCheckMixin):
     _single_line = True
 
     def __init__(self, list_view, data_model, *arg, **kw):
-        super(HtmlTextEdit, self).__init__('', *arg, **kw)
+        super(NestedTagEdit, self).__init__('', *arg, **kw)
         self.data_model = data_model
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
         self.setLineWrapMode(self.LineWrapMode.NoWrap)
@@ -181,18 +181,18 @@ class HtmlTextEdit(PlainTextEdit, SpellCheckMixin):
 
     @catch_all()
     def keyPressEvent(self, event):
-        super(HtmlTextEdit, self).keyPressEvent(event)
+        super(NestedTagEdit, self).keyPressEvent(event)
         self.completer.set_text(self.get_value())
 
     def get_value(self):
-        value = super(HtmlTextEdit, self).get_value()
+        value = super(NestedTagEdit, self).get_value()
         value = [x.strip() for x in value.replace('/', '|').split('|')]
         return '|'.join([x for x in value if x])
 
     def set_value(self, value):
         if value:
             value = self.data_model.formatted_name(value)
-        super(HtmlTextEdit, self).set_value(value, html=True)
+        super(NestedTagEdit, self).set_value(value, html=True)
 
 
 class HierarchicalTagDataItem(QtGui.QStandardItem):
@@ -588,7 +588,7 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
         layout = self.widget().layout()
         # insert new rows if needed
         for idx in range(layout.count() - 1, len(keys) + 1):
-            widget = HtmlTextEdit(self.list_view, self.data_model)
+            widget = NestedTagEdit(self.list_view, self.data_model)
             widget.add_spell_check()
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'

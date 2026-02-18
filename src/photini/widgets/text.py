@@ -176,9 +176,9 @@ class LengthCheckMixin(TextHighlighterMixin):
             self._length_check.set_length(length)
 
 
-class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
+class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
     def __init__(self, key, *arg, **kw):
-        super(PlainTextEdit, self).__init__(*arg, **kw)
+        super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
         self.context_menus = [self.add_choices_context_menu]
@@ -203,7 +203,7 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
     @catch_all()
     def focusOutEvent(self, event):
         self.emit_value()
-        super(PlainTextEdit, self).focusOutEvent(event)
+        super(TextEdit, self).focusOutEvent(event)
 
     @catch_all()
     def insertFromMimeData(self, source):
@@ -218,7 +218,7 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
                 Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
         self.handle_delete_key(event)
-        super(PlainTextEdit, self).keyPressEvent(event)
+        super(TextEdit, self).keyPressEvent(event)
         if self.placeholderText() and self.toPlainText():
             # user has typed something over <multiple values>
             self.setPlaceholderText('')
@@ -259,8 +259,7 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
         self.setPlaceholderText('')
         if value:
             if html:
-                self.clear()
-                self.appendHtml(value)
+                self.setHtml(value)
             else:
                 self.setPlainText(str(value))
         else:
@@ -272,11 +271,11 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
         return str(value)
 
 
-class MultiLineEdit(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
+class MultiLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
     _single_line = False
 
 
-class SingleLineEdit(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
+class SingleLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
     _single_line = True
 
 
@@ -292,7 +291,7 @@ class MultiStringEdit(SingleLineEdit):
         return [x for x in value if x]
 
 
-class LangAltWidgetText(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
+class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
     def __init__(self, owner, single_line=True, **kw):
         self._single_line = single_line
         super(LangAltWidgetText, self).__init__('', **kw)
