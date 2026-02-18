@@ -1911,7 +1911,7 @@
     </message>
     <message>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
-        <translation>Lunghezza focale minima</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Taken</source>
