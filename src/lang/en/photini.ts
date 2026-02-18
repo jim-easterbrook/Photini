@@ -127,15 +127,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation type="vanished"> m</translation>
+        <translation> m</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation type="vanished">Altitude of the location in metres.</translation>
+        <translation>Altitude of the location in metres.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="vanished">Altitude</translation>
+        <translation>Altitude</translation>
     </message>
 </context>
 <context>
@@ -1012,16 +1012,32 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="vanished">New language</translation>
+        <translation>New language</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="vanished">Language</translation>
+        <translation>Language</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="vanished">Lang: </translation>
+        <translation>Lang: </translation>
+    </message>
+    <message>
+        <source>Make &quot;{language}&quot; the default language.</source>
+        <translation>Make &quot;{language}&quot; the default language.</translation>
+    </message>
+    <message>
+        <source>Change language to &quot;{language}&quot;.</source>
+        <translation>Change language to &quot;{language}&quot;.</translation>
+    </message>
+    <message>
+        <source>Change language to other.</source>
+        <translation>Change language to other.</translation>
+    </message>
+    <message>
+        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
+        <translation>What language would you like to changeto? Please enter an RFC3066 language tag.</translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -1029,7 +1045,7 @@
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation type="vanished">What language would you like to add? Please enter an RFC3066 language tag.</translation>
+        <translation>What language would you like to add? Please enter an RFC3066 language tag.</translation>
     </message>
     <message>
         <source>Set default language</source>
@@ -1040,12 +1056,12 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation type="vanished">Latitude and longitude (in degrees) as two decimal numbers separated by a space.</translation>
+        <translation>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation type="vanished">Lat, long</translation>
+        <translation>Lat, long</translation>
     </message>
 </context>
 <context>
@@ -2206,7 +2222,11 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="vanished">&lt;new&gt;</translation>
+        <translation>&lt;new&gt;</translation>
+    </message>
+    <message>
+        <source>All &quot;{tab_name}&quot; data</source>
+        <translation>All &quot;{tab_name}&quot; data</translation>
     </message>
 </context>
 </TS>

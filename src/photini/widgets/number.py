@@ -251,7 +251,8 @@ class LatLongDisplay(NumericalWidget):
     def get_value_dict(self):
         if self.is_valid():
             value = self.get_value()
-            return {self.lat_key: value[0], self.lng_key: value[1]}
+            if value:
+                return {self.lat_key: value[0], self.lng_key: value[1]}
         return {}
 
     def set_value_dict(self, value):
