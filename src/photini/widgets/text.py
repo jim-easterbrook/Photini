@@ -303,7 +303,7 @@ class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
     def add_languages_context_menu(self, menu, event):
         if self.is_multiple():
             return
-        self._owner.add_languages_context_menu(self.lang(), self.is_default(), menu)
+        self._owner.add_languages_context_menu(self, menu)
 
     def is_default(self):
         return self._default
@@ -534,16 +534,17 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
         self.lang.setCurrentIndex(self.lang.findData(lang))
         self.edit_stack.currentWidget().setFocus()
 
-    def add_languages_context_menu(self, lang, is_default, menu):
+    def add_languages_context_menu(self, widget, menu):
+        old_lang = widget.lang()
         sep = menu.insertSeparator(menu.actions()[0])
         # set default language
         group = QtGui2.QActionGroup(menu)
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Make "{language}" the default language.'
-            ).format(language=lang), parent=group)
-        if is_default:
+            ).format(language=old_lang), parent=group)
+        if widget.is_default():
             action.setEnabled(False)
-        action.setData(lang)
+        action.setData(old_lang)
         menu.insertAction(sep, action)
         group.triggered.connect(self.set_default_lang)
         # change language
@@ -554,11 +555,11 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
             ).format(language=new_lang), parent=group)
         if self.lang.findData(new_lang) >= 0:
             action.setEnabled(False)
-        action.setData((lang, new_lang))
+        action.setData((old_lang, new_lang))
         menu.insertAction(sep, action)
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Change language to other.'), parent=group)
-        action.setData((lang, None))
+        action.setData((old_lang, None))
         menu.insertAction(sep, action)
         group.triggered.connect(self.set_text_lang)
 
