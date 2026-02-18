@@ -40,6 +40,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All &quot;{tab}&quot; address data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All &quot;subject&quot; addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation type="unfinished"></translation>
@@ -58,11 +66,11 @@
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>Zdvojit polohu</translation>
+        <translation type="vanished">Zdvojit polohu</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>Smazat polohu</translation>
+        <translation type="vanished">Smazat polohu</translation>
     </message>
     <message>
         <source>camera</source>
@@ -125,17 +133,8 @@
 <context>
     <name>AltitudeDisplay</name>
     <message>
-        <source> m</source>
-        <comment>metres altitude</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Altitude of the location in metres.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Altitude</source>
-        <translation>Výšina</translation>
+        <translation type="vanished">Výšina</translation>
     </message>
 </context>
 <context>
@@ -1030,6 +1029,10 @@
         <translation type="unfinished">Hledat</translation>
     </message>
     <message>
+        <source>All hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1056,28 +1059,28 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation>Nový jazyk</translation>
+        <translation type="vanished">Nový jazyk</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Jazyk</translation>
+        <translation type="vanished">Jazyk</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation>Jazyk: </translation>
+        <translation type="vanished">Jazyk: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation>V jakém jazyce je nynější text? Zadejte, prosím, jazykovou značku RFC3066.</translation>
+        <translation type="vanished">V jakém jazyce je nynější text? Zadejte, prosím, jazykovou značku RFC3066.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation>Jaký jazyk byste chtěli přidat? Zadejte, prosím, jazykovou značku RFC3066.</translation>
+        <translation type="vanished">Jaký jazyk byste chtěli přidat? Zadejte, prosím, jazykovou značku RFC3066.</translation>
     </message>
     <message>
         <source>Set default language</source>
-        <translation>Nastavit výchozí jazyk</translation>
+        <translation type="vanished">Nastavit výchozí jazyk</translation>
     </message>
 </context>
 <context>
@@ -1087,13 +1090,9 @@
         <translation type="vanished">Zeměpisná šířka, délka</translation>
     </message>
     <message>
-        <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation>Zeměpisná šířka, délka</translation>
+        <translation type="vanished">Zeměpisná šířka, délka</translation>
     </message>
 </context>
 <context>
@@ -1546,6 +1545,10 @@
         <translation>Odstranit data GPX</translation>
     </message>
     <message>
+        <source>All &quot;GPS&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;widen search&gt;</source>
         <translation>&lt;widen search&gt;</translation>
     </message>
@@ -1810,6 +1813,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All &quot;region {}&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1827,10 +1834,6 @@
     </message>
     <message>
         <source>New polygon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete region</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1980,6 +1983,14 @@
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set &quot;crop factor&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crop factor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2250,10 +2261,6 @@
     <message>
         <source>&lt;multiple values&gt;</source>
         <translation>&lt;multiple values&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;new&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
