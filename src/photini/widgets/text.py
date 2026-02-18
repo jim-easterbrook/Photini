@@ -316,6 +316,10 @@ class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
 
     def set_lang(self, lang):
         self._key = lang
+        locale = QtCore.QLocale(lang)
+        option = self.document().defaultTextOption()
+        option.setTextDirection(locale.textDirection())
+        self.document().setDefaultTextOption(option)
 
     def _save_data(self, metadata, value):
         if self._key in value:
