@@ -9,7 +9,7 @@ The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to edi
 
 .. image:: ../images/screenshot_020.png
 
-The data form is disabled until you select one or more images to edit.
+The data form is mostly disabled until you select one or more images to edit.
 
 .. image:: ../images/screenshot_021.png
 
@@ -94,27 +94,30 @@ This allows translations into alternative languages to be stored along with the 
 .. image:: ../images/screenshot_032.png
 
 Photini has a language drop down selector next to each ``Lang Alt`` data field.
-If the current text is in an unspecified default language the selector shows ``Language``, otherwise it shows ``Lang:`` and the current language.
-If the field is empty the current language is set to your computer's default locale.
-You can add an alternative language by clicking on the drop down and selecting ``<new>``.
-
-.. image:: ../images/screenshot_033.png
-
-If there is already some text in an unspecified default language you will be asked to say what that language is.
+If the current text is in an unspecified language the selector shows ``Language``, otherwise it shows ``Lang:`` and the current language.
 Languages are specified with an RFC3066_ code.
-This usually starts with a two-letter language code, e.g. ``en`` for English, and may be followed by a hyphen and a two-letter country code, e.g. ``en-GB`` for English as spoken in Great Britain.
+This usually starts with a two-letter language code, e.g. ``en`` for English, and may be followed by a hyphen and a two-letter country code, e.g. ``en-GB`` for English as used in Great Britain.
+You can add another language by clicking on the drop down and selecting ``<new>``.
 
 .. image:: ../images/screenshot_034.png
 
-Next you can set the language to be added, e.g. ``fr-FR`` for French as spoken in France.
+Next you can set the language to be added, e.g. ``fr-FR`` for French as used in France.
 
 .. image:: ../images/screenshot_035.png
 
 You can then type the translation in to the text field.
 
+.. image:: ../images/screenshot_033.png
+
+You can change the language of some existing text by right-clicking on it to bring up the context menu.
+This has options to change the language to your computer's default or to any other language.
+
 .. image:: ../images/screenshot_036.png
 
-If you would like to change the default language, right-click on the ``Lang:`` dropdown and choose a language.
+When there is more than one language to choose from you can make one language the default with the right-click context menu.
+Photini shows the default language first in the language drop down selector.
+
+When a ``Lang Alt`` data field has multiple values, you can use the drop down selector to select each language in turn before right-clicking on the text to choose one of the values.
 
 More information about the data fields
 --------------------------------------

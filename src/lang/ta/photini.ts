@@ -123,15 +123,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation type="vanished"> மீ</translation>
+        <translation> மீ</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation type="vanished">மீட்டரில் இருப்பிடத்தின் உயரம்.</translation>
+        <translation>மீட்டரில் இருப்பிடத்தின் உயரம்.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="vanished">குத்துயரம்</translation>
+        <translation>குத்துயரம்</translation>
     </message>
 </context>
 <context>
@@ -980,16 +980,32 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="vanished">புதிய மொழி</translation>
+        <translation>புதிய மொழி</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="vanished">மொழி</translation>
+        <translation>மொழி</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="vanished">லாங்: </translation>
+        <translation>லாங்: </translation>
+    </message>
+    <message>
+        <source>Make &quot;{language}&quot; the default language.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change language to &quot;{language}&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change language to other.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -997,7 +1013,7 @@
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation type="vanished">நீங்கள் எந்த மொழியைச் சேர்க்க விரும்புகிறீர்கள்? தயவுசெய்து ஒரு RFC3066 மொழி குறிச்சொல்லை உள்ளிடவும்.</translation>
+        <translation>நீங்கள் எந்த மொழியைச் சேர்க்க விரும்புகிறீர்கள்? தயவுசெய்து ஒரு RFC3066 மொழி குறிச்சொல்லை உள்ளிடவும்.</translation>
     </message>
     <message>
         <source>Set default language</source>
@@ -1008,12 +1024,12 @@
     <name>LatLongDisplay</name>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation type="vanished">அட்சரேகை மற்றும் தீர்க்கரேகை (டிகிரிகளில்) ஒரு இடத்தால் பிரிக்கப்பட்ட இரண்டு தசம எண்களாக.</translation>
+        <translation>அட்சரேகை மற்றும் தீர்க்கரேகை (டிகிரிகளில்) ஒரு இடத்தால் பிரிக்கப்பட்ட இரண்டு தசம எண்களாக.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation type="vanished">Lat, பெறுநர்</translation>
+        <translation>Lat, பெறுநர்</translation>
     </message>
 </context>
 <context>
@@ -2134,7 +2150,11 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="vanished">&lt;புதிய&gt;</translation>
+        <translation>&lt;புதிய&gt;</translation>
+    </message>
+    <message>
+        <source>All &quot;{tab_name}&quot; data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

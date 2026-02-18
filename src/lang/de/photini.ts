@@ -144,15 +144,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation type="vanished"> m</translation>
+        <translation> m</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation type="vanished">Höhe des Ortes in Metern.</translation>
+        <translation>Höhe des Ortes in Metern.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation type="vanished">Höhe</translation>
+        <translation>Höhe</translation>
     </message>
 </context>
 <context>
@@ -1065,16 +1065,32 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="vanished">Neue Sprache</translation>
+        <translation>Neue Sprache</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="vanished">Sprache</translation>
+        <translation>Sprache</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="vanished">Spr: </translation>
+        <translation>Spr: </translation>
+    </message>
+    <message>
+        <source>Make &quot;{language}&quot; the default language.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change language to &quot;{language}&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change language to other.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -1082,7 +1098,7 @@
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation type="vanished">Welche Sprache möchten Sie hinzufügen? Bitte geben Sie ein RFC3066-Sprachkennzeichen ein.</translation>
+        <translation>Welche Sprache möchten Sie hinzufügen? Bitte geben Sie ein RFC3066-Sprachkennzeichen ein.</translation>
     </message>
     <message>
         <source>Set default language</source>
@@ -1101,12 +1117,12 @@
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation type="vanished">Breitengrad und Längengrad als zwei durch ein Leerzeichen getrennte Dezimalzahlen.</translation>
+        <translation>Breitengrad und Längengrad als zwei durch ein Leerzeichen getrennte Dezimalzahlen.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation type="vanished">Breite, Länge</translation>
+        <translation>Breite, Länge</translation>
     </message>
 </context>
 <context>
@@ -2356,7 +2372,11 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="vanished">&lt;neu&gt;</translation>
+        <translation>&lt;neu&gt;</translation>
+    </message>
+    <message>
+        <source>All &quot;{tab_name}&quot; data</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
