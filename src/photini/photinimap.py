@@ -579,6 +579,8 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
             if None in location:
                 continue
             location = [float(x) for x in location]
+            if location[0] < -85.0 or location[0] > 85.0:
+                continue
             for info in self.marker_info.values():
                 if info['location'] == location:
                     info['images'].append(image)
