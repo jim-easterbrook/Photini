@@ -23,9 +23,11 @@ import re
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
 from photini.types import MD_LangAlt
-from photini.widgets import ChoicesContextMenu, DropDownSelector, WidgetMixin
+from photini.widgets import (
+    ChoicesContextMenu, ComboBox, CompoundWidgetMixin, WidgetMixin)
 
-__all__ = ('LangAltWidget', 'MultiLineEdit', 'MultiStringEdit', 'SingleLineEdit')
+__all__ = (
+    'LangAltWidget', 'MultiLineEdit', 'MultiStringEdit', 'SingleLineEdit')
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -249,9 +251,7 @@ class PlainTextEdit(QtWidgets.QPlainTextEdit, ChoicesContextMenu, WidgetMixin):
 
     def set_text_alignment(self, h_alignment):
         options = self.document().defaultTextOption()
-        v_alignment = options.alignment() & ~(
-            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignRight |
-            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignJustify)
+        v_alignment = options.alignment() & Qt.AlignmentFlag.AlignVertical_Mask
         options.setAlignment(h_alignment | v_alignment)
         self.document().setDefaultTextOption(options)
 
@@ -292,9 +292,200 @@ class MultiStringEdit(SingleLineEdit):
         return [x for x in value if x]
 
 
-class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
-    def __init__(self, key, multi_line=True, label=None, **kw):
+class LangAltWidgetText(PlainTextEdit, SpellCheckMixin, LengthCheckMixin):
+    def __init__(self, owner, single_line=True, **kw):
+        self._single_line = single_line
+        super(LangAltWidgetText, self).__init__('', **kw)
+        self._owner = owner
+        self.set_lang(None)
+        self.set_default(False)
+        self.context_menus.append(self.add_languages_context_menu)
+
+    def add_languages_context_menu(self, menu, event):
+        if self.is_multiple():
+            return
+        self._owner.add_languages_context_menu(self.lang(), self.is_default(), menu)
+
+    def is_default(self):
+        return self._default
+
+    def lang(self):
+        return self._key
+
+    def set_default(self, default):
+        self._default = default
+
+    def set_lang(self, lang):
+        self._key = lang
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            metadata[self._key] = value[self._key]
+            if self.is_default():
+                metadata[MD_LangAlt.DEFAULT] = value[self._key]
+        return False
+
+
+class LangAltEditStack(QtWidgets.QStackedLayout):
+    sw_new_value = QtSignal(dict)
+
+    def __init__(self, owner, widget_kw, *arg, **kw):
+        super(LangAltEditStack, self).__init__(*arg, **kw)
+        self._owner = owner
+        self._widget_kw = widget_kw
+        self._widget_options = []
+
+    def add_lang(self, lang):
+        # find unused text edit
+        for idx in range(self.count()):
+            widget = self.widget(idx)
+            if not widget.lang():
+                widget.set_value(None)
+                break
+        else:
+            # create new text edit
+            widget = LangAltWidgetText(self._owner, **self._widget_kw)
+            for func, arg, kw in self._widget_options:
+                getattr(widget, func)(*arg, **kw)
+            widget.new_value.connect(self.sw_new_value)
+            self.addWidget(widget)
+        widget.set_lang(lang)
+
+    def add_length_check(self, *arg, **kw):
+        self._widget_options.append(('add_length_check', arg, kw))
+
+    def add_spell_check(self, *arg, **kw):
+        self._widget_options.append(('add_spell_check', arg, kw))
+
+    def find_lang(self, lang):
+        for idx in range(self.count()):
+            widget = self.widget(idx)
+            if widget.lang() == lang:
+                return widget
+        return None
+
+    def get_langs(self):
+        langs = []
+        default_lang = None
+        for idx in range(self.count()):
+            widget = self.widget(idx)
+            lang = widget.lang()
+            if lang:
+                if widget.is_default():
+                    default_lang = lang
+                langs.append(lang)
+        return langs, default_lang
+
+    def set_default_lang(self, default_lang):
+        for idx in range(self.count()):
+            widget = self.widget(idx)
+            lang = widget.lang()
+            if lang:
+                if lang == MD_LangAlt.DEFAULT and lang != default_lang:
+                    widget.set_lang(None)
+                else:
+                    widget.set_default(lang == default_lang)
+
+    def set_height(self, *arg, **kw):
+        self._widget_options.append(('set_height', arg, kw))
+
+    def set_langs(self, langs):
+        for idx in range(self.count()):
+            widget = self.widget(idx)
+            widget.set_lang(None)
+            widget.set_default(False)
+        for lang in langs:
+            self.add_lang(lang)
+
+    @QtSlot(str)
+    @catch_all()
+    def show_lang(self, lang):
+        for idx in range(self.count()):
+            if self.widget(idx).lang() == lang:
+                self.setCurrentIndex(idx)
+                self.widget(idx).setFocus()
+                break
+
+    def sub_widgets(self):
+        for idx in range(self.count()):
+            widget = self.widget(idx)
+            if widget.lang():
+                yield widget
+
+
+class LangAltSelector(ComboBox):
+    add_lang = QtSignal(str)
+    show_lang = QtSignal(str)
+
+    def __init__(self, *arg, **kw):
+        super(LangAltSelector, self).__init__(*arg, **kw)
+        self.long_text = translate('LangAltWidget', 'Language')
+        self.short_text = translate('LangAltWidget', 'Lang: ',
+                                    'Short abbreviation of "Language: "')
+        self.setFixedWidth(max(
+            width_for_text(self, self.long_text + ('x' * 5)),
+            width_for_text(self, self.short_text + 'xx-XX' + ('x' * 5))))
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.activated.connect(self.lang_activated)
+        self.currentIndexChanged.connect(self.current_index_changed)
+        self.addItem(translate('Widgets', '<new>'))
+
+    @QtSlot(int)
+    @catch_all()
+    def current_index_changed(self, idx):
+        lang = self.itemData(idx)
+        if lang:
+            self.show_lang.emit(lang)
+
+    @QtSlot(int)
+    @catch_all()
+    def lang_activated(self, idx):
+        if idx < self.count() - 1:
+            return
+        # user selected <new>
+        prompt = self.locale().bcp47Name()
+        if self.findData(prompt) >= 0:
+            prompt = None
+        lang, OK = QtWidgets.QInputDialog.getText(
+            self, translate('LangAltWidget', 'New language'),
+            wrap_text(self, translate(
+                'LangAltWidget', 'What language would you like to add?'
+                ' Please enter an RFC3066 language tag.'), 2), text=prompt)
+        if not (OK and lang):
+            return
+        self.add_lang.emit(lang)
+
+    def set_langs(self, langs, default_lang):
+        langs.sort(key=lambda x: x.lower())
+        if default_lang in langs:
+            langs.remove(default_lang)
+            langs.insert(0, default_lang)
+        current_lang = self.currentData() or langs[0]
+        blocked = self.blockSignals(True)
+        while self.count() > 1 + len(langs):
+            self.removeItem(0)
+        while self.count() < 1 + len(langs):
+            self.insertItem(0, '')
+        for idx, lang in enumerate(langs):
+            if lang == MD_LangAlt.DEFAULT:
+                label = self.long_text
+            else:
+                label = self.short_text + lang
+            self.setItemText(idx, label)
+            self.setItemData(idx, lang)
+        idx = max(self.findData(current_lang), 0)
+        self.setCurrentIndex(idx)
+        self.blockSignals(blocked)
+        self.show_lang.emit(self.currentData())
+
+
+class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
+    dynamic = True
+
+    def __init__(self, key, multi_line=True, label=None, **widget_kw):
         super(LangAltWidget, self).__init__()
+        self._key = key
+        widget_kw['single_line'] = not multi_line
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(
@@ -302,9 +493,6 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
             | Qt.AlignmentFlag.AlignTop)
         layout.setColumnStretch(1, 1)
         self.setLayout(layout)
-        self._key = key
-        self.choices = {}
-        self.value = MD_LangAlt()
         # label
         if label:
             # put label and lang selector on line above edit box
@@ -314,189 +502,142 @@ class LangAltWidget(QtWidgets.QWidget, WidgetMixin):
         else:
             # put lang selector to right of edit box
             edit_pos = 0, 0, 1, 2
-        # text edit
-        if multi_line:
-            self.edit = MultiLineEdit(key, **kw)
-        else:
-            self.edit = SingleLineEdit(key, **kw)
-        self.edit.new_value.connect(self._new_value)
-        layout.addWidget(self.edit, *edit_pos)
+        # stack of text edit widgets
+        self.edit_stack = LangAltEditStack(self, widget_kw)
+        self.edit_stack.sw_new_value.connect(self.sw_new_value)
+        layout.addLayout(self.edit_stack, *edit_pos)
         # language drop down
         self.long_text = translate('LangAltWidget', 'Language')
         self.short_text = translate('LangAltWidget', 'Lang: ',
                                     'Short abbreviation of "Language: "')
-        self.lang = DropDownSelector(
-            'lang', with_multiple=False, extendable=True)
-        self.lang.setFixedWidth(max(
-            width_for_text(self.lang, self.long_text + ('x' * 5)),
-            width_for_text(self.lang, self.short_text + 'xx-XX' + ('x' * 5))))
-        self.lang.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.lang.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.lang.new_value.connect(self._change_lang)
-        self.lang.customContextMenuRequested.connect(self._context_menu)
+        self.lang = LangAltSelector()
+        self.lang.show_lang.connect(self.edit_stack.show_lang)
+        self.lang.add_lang.connect(self.add_lang)
         layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
-        self.set_value('')
         if not multi_line:
             self.setFixedHeight(self.sizeHint().height())
-        # adopt some child methods ...
-        self.add_length_check = self.edit.add_length_check
-        self.add_spell_check = self.edit.add_spell_check
-        self.is_multiple = self.edit.is_multiple
-        self.is_valid = self.edit.is_valid
-        self.set_height = self.edit.set_height
-        # ... and vice versa
-        self.lang.define_new_value = self._define_new_lang
+        # adopt some child methods
+        self.add_length_check = self.edit_stack.add_length_check
+        self.add_spell_check = self.edit_stack.add_spell_check
+        self.set_height = self.edit_stack.set_height
+        self.sub_widgets = self.edit_stack.sub_widgets
 
+    @QtSlot(str)
     @catch_all()
-    def set_enabled(self, enabled):
-        self.edit.setEnabled(enabled)
-        self.lang.setEnabled(enabled)
+    def add_lang(self, lang):
+        self.edit_stack.add_lang(lang)
+        self.update_lang_selector()
+        self.lang.setCurrentIndex(self.lang.findData(lang))
+        self.edit_stack.currentWidget().setFocus()
 
-    @catch_all()
-    def setToolTip(self, text):
-        self.edit.setToolTip(text)
+    def add_languages_context_menu(self, lang, is_default, menu):
+        sep = menu.insertSeparator(menu.actions()[0])
+        # set default language
+        group = QtGui2.QActionGroup(menu)
+        action = QtGui2.QAction(translate(
+            'LangAltWidget', 'Make "{language}" the default language.'
+            ).format(language=lang), parent=group)
+        if is_default:
+            action.setEnabled(False)
+        action.setData(lang)
+        menu.insertAction(sep, action)
+        group.triggered.connect(self.set_default_lang)
+        # change language
+        new_lang = self.locale().bcp47Name()
+        group = QtGui2.QActionGroup(menu)
+        action = QtGui2.QAction(translate(
+            'LangAltWidget', 'Change language to "{language}".'
+            ).format(language=new_lang), parent=group)
+        if self.lang.findData(new_lang) >= 0:
+            action.setEnabled(False)
+        action.setData((lang, new_lang))
+        menu.insertAction(sep, action)
+        action = QtGui2.QAction(translate(
+            'LangAltWidget', 'Change language to other.'), parent=group)
+        action.setData((lang, None))
+        menu.insertAction(sep, action)
+        group.triggered.connect(self.set_text_lang)
 
-    @QtSlot(dict)
+    @QtSlot(QtGui2.QAction)
     @catch_all()
-    def _change_lang(self, value):
-        lang = value['lang']
-        if lang == MD_LangAlt.DEFAULT:
-            direction = self.layoutDirection()
+    def set_default_lang(self, action):
+        lang = action.data()
+        self.edit_stack.set_default_lang(lang)
+        self.edit_stack.find_lang(lang).emit_value()
+        self.update_lang_selector()
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all()
+    def set_text_lang(self, action):
+        old_lang, new_lang = action.data()
+        if not new_lang:
+            new_lang, OK = QtWidgets.QInputDialog.getText(
+                self, translate('LangAltWidget', 'New language'),
+                wrap_text(self, translate(
+                    'LangAltWidget', 'What language would you like to change'
+                    'to? Please enter an RFC3066 language tag.'), 2))
+            if not (OK and new_lang):
+                return
+        old_widget = self.edit_stack.find_lang(old_lang)
+        old_value = old_widget.get_value()
+        new_widget = self.edit_stack.find_lang(new_lang)
+        if new_widget:
+            # merge widget values
+            new_value = new_widget.get_value()
+            if new_value in old_value:
+                text = old_value
+            elif old_value in new_value:
+                text = new_value
+            else:
+                text = ' // '.join((new_value, old_value))
         else:
-            direction = QtCore.QLocale(lang).textDirection()
-        if direction == Qt.LayoutDirection.RightToLeft:
-            self.edit.set_text_alignment(Qt.AlignmentFlag.AlignRight)
+            # change widget lang
+            new_widget = old_widget
+            text = old_value
+        old_widget.set_value(None)
+        old_widget.emit_value()
+        old_widget.set_lang(None)
+        new_widget.set_lang(new_lang)
+        if old_widget.is_default():
+            new_widget.set_default(True)
+        new_widget.set_value(text)
+        new_widget.emit_value()
+        self.update_lang_selector()
+        self.lang.setCurrentIndex(self.lang.findData(new_lang))
+
+    def update_lang_selector(self):
+        langs, default_lang = self.edit_stack.get_langs()
+        self.lang.set_langs(langs, default_lang)
+
+    def after_load(self):
+        langs, default_lang = self.edit_stack.get_langs()
+        if self.is_multiple():
+            default_lang = MD_LangAlt.DEFAULT
         else:
-            self.edit.set_text_alignment(Qt.AlignmentFlag.AlignLeft)
-        self.edit.set_value(self.value[lang])
-
-    @QtSlot(dict)
-    @catch_all()
-    def _new_value(self, value):
-        value = value[self.edit._key]
-        if value in self.choices:
-            # value pasted in by <multiple values> context menu
-            self.set_value(self.choices[value])
-        else:
-            default_lang = self.value.default_lang
-            new_value = dict(self.value)
-            new_value[self.lang.get_value()] = value
-            self.value = MD_LangAlt(
-                new_value, default_lang=default_lang, strip=False)
-        self.emit_value()
-
-    def _regularise_default(self):
-        if not self.value[MD_LangAlt.DEFAULT]:
-            return True
-        prompt = self.locale().bcp47Name()
-        if prompt in self.value:
-            prompt = None
-        self.lang.set_value(MD_LangAlt.DEFAULT)
-        self.edit.set_value(self.value[MD_LangAlt.DEFAULT])
-        lang, OK = QtWidgets.QInputDialog.getText(
-            self, translate('LangAltWidget', 'New language'),
-            wrap_text(self, translate(
-                'LangAltWidget', 'What language is the current text in?'
-                ' Please enter an RFC3066 language tag.'), 2), text=prompt)
-        if OK and lang:
-            self._set_default_lang(lang)
-        return OK
-
-    def _define_new_lang(self):
-        if not self._regularise_default():
-            return None, None
-        prompt = self.locale().bcp47Name()
-        if prompt in self.value:
-            prompt = None
-        lang, OK = QtWidgets.QInputDialog.getText(
-            self, translate('LangAltWidget', 'New language'),
-            wrap_text(self, translate(
-                'LangAltWidget', 'What language would you like to add?'
-                ' Please enter an RFC3066 language tag.'), 2), text=prompt)
-        if not (OK and lang):
-            return None, None
-        default_lang = self.value.default_lang
-        text = self.value[lang]
-        new_value = dict(self.value)
-        new_value[lang] = text
-        self.value = MD_LangAlt(
-            new_value, default_lang=default_lang, strip=False)
-        self.emit_value()
-        return self.labeled_lang(lang)
-
-    @QtSlot(QtCore.QPoint)
-    @catch_all()
-    def _context_menu(self, pos):
-        langs = []
-        for n in range(self.lang.count()):
-            lang = self.lang.itemData(n)
-            if lang and lang != MD_LangAlt.DEFAULT:
-                langs.append(lang)
-        if not langs:
-            return
-        default_lang = self.value.default_lang
-        menu = QtWidgets.QMenu()
-        menu.addAction(translate('LangAltWidget', 'Set default language'))
-        for lang in langs:
-            action = menu.addAction(lang)
-            action.setCheckable(True)
-            action.setChecked(lang == default_lang)
-        action = execute(menu, self.lang.mapToGlobal(pos))
-        if not (action and action.isCheckable()):
-            return
-        if not self._regularise_default():
-            return
-        self._set_default_lang(action.text())
-
-    def _set_default_lang(self, lang):
-        self.value = MD_LangAlt(self.value, default_lang=lang, strip=False)
-        self.emit_value()
-
-    def labeled_lang(self, lang):
-        if lang == MD_LangAlt.DEFAULT:
-            if len(self.value) == 1:
-                return self.long_text, lang
-            label = '-'
-        else:
-            label = lang
-        label = self.short_text + label
-        return label, lang
-
-    def set_value(self, value):
-        self.choices = {}
-        self.lang.setEnabled(self.edit.isEnabled())
-        self.value = MD_LangAlt(value, strip=False)
-        # use current language, if available
-        lang = self.lang.get_value()
-        if lang not in self.value:
-            # choose language from locale
-            lang = self.locale().bcp47Name()
-            if lang not in self.value:
-                base_lang = lang.split('-')[0]
-                for lang in self.value:
-                    if lang.split('-')[0] == base_lang:
+            default_widget = self.edit_stack.find_lang(MD_LangAlt.DEFAULT)
+            if default_widget:
+                default_lang = MD_LangAlt.DEFAULT
+                default_text = default_widget.get_value()
+                for lang in langs:
+                    if lang == MD_LangAlt.DEFAULT:
+                        continue
+                    widget = self.edit_stack.find_lang(lang)
+                    if widget.get_value() == default_text:
+                        default_lang = lang
+                        langs.remove(MD_LangAlt.DEFAULT)
                         break
-        if lang in self.value:
-            lang = self.value.find_key(lang)
-        elif self.value:
-            # use the default for this value
-            lang = self.value.default_lang
-        else:
-            self.value = MD_LangAlt(default_lang=lang)
-        # set language drop down
-        self.lang.set_values(
-            [self.labeled_lang(x) for x in self.value.languages()],
-            default=lang)
-        self._change_lang({'lang': lang})
+        self.edit_stack.set_default_lang(default_lang)
+        self.lang.set_langs(langs, default_lang)
 
-    def get_value(self):
-        return self.value
+    def set_default_widget(self, default_idx):
+        for idx in range(self.edit_stack.count()):
+            self.edit_stack.widget(idx).set_default(idx == default_idx)
 
-    def set_multiple(self, choices=[]):
-        self.choices = {}
-        for choice in choices:
-            if choice:
-                self.choices[str(choice)] = MD_LangAlt(choice, strip=False)
-        self.edit.set_multiple(choices=self.choices.keys())
-        self.lang.setEnabled(False)
+    def set_subwidgets(self, keys):
+        keys = keys or [self.locale().bcp47Name()]
+        self.edit_stack.set_langs(keys)
+
+    def set_enabled(self, enabled):
+        self.lang.setEnabled(enabled)
+        super(LangAltWidget, self).set_enabled(enabled)
