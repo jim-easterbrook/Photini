@@ -73,7 +73,7 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
         self.timer.start()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def save(self):
         super(ConfigStore, self).save()
 
@@ -89,12 +89,12 @@ class ServerSocket(QtCore.QObject):
         self.socket.disconnected.connect(self.socket_disconnected)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def read_data(self):
         self.data += self.socket.readAll().data()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def socket_disconnected(self):
         while self.socket.bytesAvailable():
             self.read_data()
@@ -140,7 +140,7 @@ class InstanceServer(QtNetwork.QLocalServer):
         InstanceConfig.write(name)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_connection(self):
         window = self.parent().window()
         window.setWindowState(
@@ -264,14 +264,14 @@ class MenuBar(QtWidgets.QMenuBar):
         self.app.image_list.new_metadata.connect(self.new_metadata)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def edit_settings(self):
         dialog = EditSettings(self)
         if execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted:
             self.parent().tabs.currentWidget().refresh()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def edit_map_keys(self):
         dialog = EditMapKeys(self)
         if execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted:
@@ -283,12 +283,12 @@ class MenuBar(QtWidgets.QMenuBar):
             tabs.currentWidget().refresh()
 
     @QtSlot(QtGui2.QAction)
-    @catch_all
+    @catch_all()
     def set_language(self, action):
         self.app.spell_check.set_language(action.data())
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def about(self):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
         with open(os.path.join(data_dir, 'icons', 'linux', '128x128',
@@ -328,7 +328,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         execute(dialog)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def check_update(self):
         import requests
         with Busy():
@@ -351,18 +351,18 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         execute(dialog)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def open_docs(self):
         QtGui.QDesktopServices.openUrl(
             QtCore.QUrl('http://photini.readthedocs.io/'))
 
     @QtSlot(list)
-    @catch_all
+    @catch_all()
     def new_selection(self, selection):
         self.app.image_list.configure_selected_actions(self.selected_actions)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def new_image_list(self):
         for image in self.app.image_list.images:
             thumb = image.metadata.thumbnail
@@ -372,7 +372,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         self.fix_thumbs_action.setEnabled(False)
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def new_metadata(self, unsaved_data):
         self.app.image_list.configure_selected_actions(self.selected_actions)
         self.save_action.setEnabled(unsaved_data)
@@ -410,7 +410,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.selection = list()
         # create shared global objects
         self.app = QtWidgets.QApplication.instance()
-        self.app.loggerwindow = LoggerWindow(options.verbose)
+        self.app.loggerwindow = LoggerWindow(options)
         self.app.loggerwindow.setWindowIcon(icon)
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
@@ -504,12 +504,12 @@ class MainWindow(QtWidgets.QMainWindow):
             QtCore.QTimer.singleShot(0, self.open_initial_files)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def open_initial_files(self):
         self.app.image_list.open_file_list(self.initial_files, select=False)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def add_tabs(self):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
@@ -533,7 +533,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tabs.setCurrentWidget(current)
         self.new_tab(-1)
 
-    @catch_all
+    @catch_all()
     def closeEvent(self, event):
         for n in range(self.tabs.count()):
             if self.tabs.widget(n).do_not_close():
@@ -544,13 +544,13 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).closeEvent(event)
 
     @QtSlot(int, int)
-    @catch_all
+    @catch_all()
     def new_split(self, pos, index):
         self.app.config_store.set(
             'main_window', 'split', self.central_widget.sizes())
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def new_tab(self, index):
         current = self.tabs.currentWidget()
         if current:
@@ -558,7 +558,7 @@ class MainWindow(QtWidgets.QMainWindow):
             current.refresh()
 
     @QtSlot(int, int)
-    @catch_all
+    @catch_all()
     def tab_moved(self, new_pos, old_pos):
         tab_bar = self.tabs.tabBar()
         modules = []
@@ -569,11 +569,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.config_store.set('tabs', 'modules', self.modules)
 
     @QtSlot(list)
-    @catch_all
+    @catch_all()
     def new_selection(self, selection):
         self.tabs.currentWidget().new_selection(selection)
 
-    @catch_all
+    @catch_all()
     def resizeEvent(self, event):
         window_state = self.windowState()
         self.app.config_store.set(

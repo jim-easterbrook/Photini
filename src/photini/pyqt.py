@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2015-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2015-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -167,15 +167,17 @@ if sys.platform.startswith('linux') and qt_version_info < (5, 11, 0):
 translate = QtCore.QCoreApplication.translate
 
 # decorator for methods called by Qt that logs any exception raised
-def catch_all(func):
-    @wraps(func)
-    def wrapper(*args, **kwds):
-        try:
-            return func(*args, **kwds)
-        except Exception as ex:
-            logger.exception(ex)
-    return wrapper
-
+def catch_all(exc_return=None):
+    def catch_all(func):
+        @wraps(func)
+        def wrapper(*args, **kwds):
+            try:
+                return func(*args, **kwds)
+            except Exception as ex:
+                logger.exception(ex)
+                return exc_return
+        return wrapper
+    return catch_all
 
 def image_types_lower():
     result = [

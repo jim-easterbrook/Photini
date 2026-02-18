@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -76,7 +76,7 @@ class SpellCheck(QtCore.QObject):
         return ''
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def enable(self, enabled):
         self.config_store.set('spelling', 'enabled', enabled)
         self.enabled = enabled and bool(enchant)

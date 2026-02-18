@@ -120,7 +120,7 @@ class TabWidget(PhotiniMap):
         url=url)
 
     def get_options(self):
-        user_agent = self.controls['map'].page().profile().httpUserAgent()
+        user_agent = self.widgets['map'].page().profile().httpUserAgent()
         match = re.search(r'\sChrome/(\d+)\.', user_agent)
         if match:
             chrome_version = int(match.group(1))

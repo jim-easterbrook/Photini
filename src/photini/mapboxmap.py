@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -89,7 +89,7 @@ class MapboxGeocoder(GeocoderBase):
         return [widget]
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def load_mapbox_tos(self):
         QtGui.QDesktopServices.openUrl(
             QtCore.QUrl('https://www.mapbox.com/tos/'))
@@ -171,7 +171,7 @@ function loadMap(lat, lng, zoom, options) {{
             return options
         return {}
 
-    @catch_all
+    @catch_all()
     def initialize_finished(self, OK):
         if self.map_choice:
             return super(TabWidget, self).initialize_finished(OK)

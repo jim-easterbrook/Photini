@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -204,13 +204,13 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
         return qt_im.scaled(w, h, Qt.AspectRatioMode.IgnoreAspectRatio,
                             Qt.TransformationMode.SmoothTransformation)
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
         self.app.image_list.add_selected_actions(menu)
         execute(menu, event.globalPos())
 
-    @catch_all
+    @catch_all()
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             if qt_version_info >= (6, 0):
@@ -218,7 +218,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
             else:
                 self.drag_start_pos = event.pos()
 
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         if event.modifiers() == Qt.KeyboardModifier.ControlModifier:
             self.app.image_list.select_image(self, multiple_selection=True)
@@ -227,7 +227,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
         else:
             self.app.image_list.select_image(self)
 
-    @catch_all
+    @catch_all()
     def mouseMoveEvent(self, event):
         if not self.app.image_list.drag_icon:
             return
@@ -275,7 +275,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
             # image wasn't dragged to map
             self.app.image_list.emit_selection()
 
-    @catch_all
+    @catch_all()
     def mouseDoubleClickEvent(self, event):
         if event.modifiers() == Qt.KeyboardModifier.NoModifier:
             QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
@@ -348,13 +348,13 @@ class ScrollArea(QtWidgets.QScrollArea):
         self.add_widget = self.thumbs.addWidget
         self.remove_widget = self.thumbs.removeWidget
 
-    @catch_all
+    @catch_all()
     def ensureWidgetVisible(self, widget):
         left, top, right, bottom = self.thumbs.getContentsMargins()
         super(ScrollArea, self).ensureWidgetVisible(
             widget, max(left, right), max(top, bottom))
 
-    @catch_all
+    @catch_all()
     def dropEvent(self, event):
         file_list = []
         for uri in event.mimeData().urls():
@@ -362,12 +362,12 @@ class ScrollArea(QtWidgets.QScrollArea):
         if file_list:
             self.dropped_images.emit(file_list)
 
-    @catch_all
+    @catch_all()
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat('text/uri-list'):
             event.acceptProposedAction()
 
-    @catch_all
+    @catch_all()
     def resizeEvent(self, event):
         super(ScrollArea, self).resizeEvent(event)
         self.thumbs.do_layout()
@@ -386,7 +386,7 @@ class ScrollArea(QtWidgets.QScrollArea):
         self.setMinimumHeight(min_height + margins.top() + margins.bottom())
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def multi_row_changed(self):
         if self.image_list.last_selected:
             self.ensureWidgetVisible(self.image_list.last_selected)
@@ -432,7 +432,7 @@ class ThumbsLayout(QtWidgets.QLayout):
     def hasHeightForWidth(self):
         return False
 
-    @catch_all
+    @catch_all()
     def setGeometry(self, rect):
         super(ThumbsLayout, self).setGeometry(rect)
         self.do_layout(rect)
@@ -570,7 +570,7 @@ class ImageList(QtWidgets.QWidget):
     def get_images(self):
         return self.images
 
-    @catch_all
+    @catch_all()
     def mousePressEvent(self, event):
         if self.scroll_area.underMouse():
             self._clear_selection()
@@ -579,7 +579,7 @@ class ImageList(QtWidgets.QWidget):
             self.emit_selection()
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def open_files(self, checked=False):
         args = [
             self,
@@ -599,7 +599,7 @@ class ImageList(QtWidgets.QWidget):
         self.open_file_list(path_list, select=False)
 
     @QtSlot(list)
-    @catch_all
+    @catch_all()
     def open_file_list(self, path_list, select=True):
         dir_list = []
         opened_images = []
@@ -679,7 +679,7 @@ class ImageList(QtWidgets.QWidget):
         return result
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def _new_sort_order(self):
         self._sort_thumbnails()
         self.sort_order_changed.emit()
@@ -749,19 +749,19 @@ class ImageList(QtWidgets.QWidget):
                 'ImageList', 'Close file(s)', '', len(images)))
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def reload_selected_metadata(self):
         with Busy():
             for image in self.get_selected_images():
                 image.reload_metadata()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def save_selected_metadata(self):
         self._save_files(images=self.get_selected_images())
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def diff_selected_metadata(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setLayout(QtWidgets.QVBoxLayout())
@@ -805,9 +805,9 @@ class ImageList(QtWidgets.QWidget):
                         'credit_line', 'copyright', 'rights', 'instructions',
                         'contact_info', 'date_taken', 'date_digitised',
                         'date_modified', 'orientation', 'camera_model',
-                        'lens_model', 'focal_length', 'focal_length_35',
-                        'aperture', 'gps_info', 'location_taken',
-                        'location_shown', 'image_region', 'thumbnail'):
+                        'lens_model', 'focal_length', 'aperture', 'gps_info',
+                        'location_taken', 'location_shown', 'image_region',
+                        'thumbnail'):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
                     continue
@@ -847,7 +847,7 @@ class ImageList(QtWidgets.QWidget):
             self.emit_selection()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def regenerate_selected_thumbnails(self):
         with Busy():
             for image in self.get_selected_images():
@@ -856,7 +856,7 @@ class ImageList(QtWidgets.QWidget):
                     self.app.processEvents()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def fix_missing_thumbs(self):
         with Busy():
             for image in self.get_images():
@@ -868,12 +868,12 @@ class ImageList(QtWidgets.QWidget):
         self.image_list_changed.emit()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def close_selected_files(self):
         self.close_files(False)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def close_all_files(self):
         self.close_files(True)
 
@@ -900,7 +900,7 @@ class ImageList(QtWidgets.QWidget):
         self.image_list_changed.emit()
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def save_files(self, checked=False):
         self._save_files(self.images)
 
@@ -1022,7 +1022,7 @@ class ImageList(QtWidgets.QWidget):
         self.select_image(self.images[idx], extend_selection=extend_selection)
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def _new_thumb_size(self, value):
         self.thumb_size = value
         self.app.config_store.set('controls', 'thumb_size', self.thumb_size)

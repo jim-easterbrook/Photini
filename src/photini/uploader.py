@@ -151,7 +151,7 @@ class UploadWorker(QtCore.QObject):
         self.upload_list = upload_list
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def start(self):
         with self.session(parent=self) as session:
             session.upload_progress.connect(self.upload_progress)
@@ -169,7 +169,7 @@ class AuthRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format_, *args):
         logger.debug(format_, *args)
 
-    @catch_all
+    @catch_all()
     def do_GET(self):
         query = urllib.parse.urlsplit(self.path).query
         self.server.result = urllib.parse.parse_qs(query)
@@ -203,7 +203,7 @@ class AuthServer(QtCore.QObject):
     finished = QtSignal()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def handle_requests(self):
         self.running = True
         self.server.timeout = 10
@@ -282,7 +282,7 @@ class UploaderUser(QtWidgets.QGridLayout):
         self.user_photo.setPixmap(pixmap)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def log_out(self):
         if keyring.get_password('photini', self.config_section):
             self.unauthorise()
@@ -291,7 +291,7 @@ class UploaderUser(QtWidgets.QGridLayout):
         self.connection_changed.emit(False)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def log_in(self, do_auth=True):
         with DisableWidget(self.connect_button):
             if self.load_user_data():
@@ -396,7 +396,7 @@ class AlbumList(QtWidgets.QWidget):
         return widget
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def state_changed(self, state):
         for widget in list(self.checked_widgets):
             if not widget.isChecked():
@@ -489,14 +489,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         return column
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def shutdown(self):
         self.stop_upload()
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def connection_changed(self, connected):
         if 'albums' in self.widget:
             self.widget['albums'].clear_albums()
@@ -751,7 +751,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         return None
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def stop_upload(self):
         if self.upload_worker:
             self.upload_worker.thread().requestInterruption()
@@ -760,7 +760,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         return self.app.image_list.get_selected_images()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def start_upload(self):
         if not self.app.image_list.unsaved_files_dialog(with_discard=False):
             return
@@ -797,7 +797,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         thread.start()
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def upload_progress(self, update):
         if 'keyword' in update:
             # store photo id in image keywords, in main thread
@@ -841,7 +841,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.stop_upload()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def uploader_finished(self):
         self.buttons['upload'].set_checked(False)
         self.enable_config(True)
@@ -1067,7 +1067,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         return None
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def sync_metadata(self):
         with Busy():
             # make list of known photo ids

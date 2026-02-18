@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -282,6 +282,7 @@ class ImageMetadata(MetadataHandler):
         'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
         'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
+        'Exif.Image.FocalLength*': ('Exif.Image.FocalLength',),
         'Exif.Image.Lens*': ('', '', '', 'Exif.Image.LensInfo'),
         'Exif.Image.Make*': (
             'Exif.Image.Make', 'Exif.Image.Model',
@@ -319,6 +320,8 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.OffsetTimeOriginal'),
         'Exif.Photo.FNumber*': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
+        'Exif.Photo.FocalLength*': (
+            'Exif.Photo.FocalLength', 'Exif.Photo.FocalLengthIn35mmFilm'),
         'Exif.Photo.Lens*': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber', 'Exif.Photo.LensSpecification'),
@@ -345,6 +348,8 @@ class ImageMetadata(MetadataHandler):
         'Xmp.aux.Lens*': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
+        'Xmp.exif.FocalLength*': (
+            'Xmp.exif.FocalLength', 'Xmp.exif.FocalLengthIn35mmFilm'),
         'Xmp.exif.GPS*': (
             'Xmp.exif.GPSVersionID', 'Xmp.exif.GPSProcessingMethod',
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef',
@@ -441,11 +446,9 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.video.Information')),
         'dimensions'     : (('W0', 'Xmp.video.Dims*'),
                             ('WN', 'Exif.Photo.Pixel*Dimension')),
-        'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
-                            ('W0', 'Exif.Image.FocalLength'),
-                            ('WX', 'Xmp.exif.FocalLength')),
-        'focal_length_35': (('WA', 'Exif.Photo.FocalLengthIn35mmFilm'),
-                            ('WX', 'Xmp.exif.FocalLengthIn35mmFilm')),
+        'focal_length'   : (('WA', 'Exif.Photo.FocalLength*'),
+                            ('W0', 'Exif.Image.FocalLength*'),
+                            ('WX', 'Xmp.exif.FocalLength*')),
         'gps_info'       : (('WA', 'Exif.GPSInfo.GPS*'),
                             ('WX', 'Xmp.exif.GPS*'),
                             ('W0', 'Xmp.video.GPSCoordinates')),
@@ -655,8 +658,7 @@ class Metadata(object):
         'date_taken'     : MD_DateTime,
         'description'    : MD_LangAlt,
         'dimensions'     : MD_Dimensions,
-        'focal_length'   : MD_Rational,
-        'focal_length_35': MD_Int,
+        'focal_length'   : MD_FocalLength,
         'gps_info'       : MD_GPSinfo,
         'headline'       : MD_String,
         'image_region'   : MD_ImageRegion,
@@ -844,52 +846,47 @@ class Metadata(object):
         md = self._if or self._sc
         if not md:
             return None
-        # get relevant metadata
         image_size = self.dimensions
         if not image_size:
             return None
-        resolution = {}
-        resolution_source = None, None
+        # resolution data can be in Exif.Image, Exif.Photo, Exif.SubImageN ...
         for key in md.get_all_tags():
             family, group, tag = key.split('.', 2)
-            if tag in ('FocalPlaneXResolution', 'FocalPlaneYResolution',
-                       'FocalPlaneResolutionUnit'):
-                resolution[key] = md.get_value(key)
-                resolution_source = family, group
-        # convert resolution values
-        if not resolution:
+            if tag == 'FocalPlaneXResolution':
+                break
+        else:
             return None
-        family, group = resolution_source
+        # convert Exif values
+        resolution = {}
         for tag in ('FocalPlaneXResolution', 'FocalPlaneYResolution',
                     'FocalPlaneResolutionUnit'):
-            key = '.'.join((family, group, tag))
-            if key not in resolution:
-                return None
-            resolution[tag] = resolution[key]
+            resolution[tag] = md.get_exif_value('.'.join((family, group, tag)))
         resolution['x'] = safe_fraction(resolution['FocalPlaneXResolution'])
         resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
         if not (resolution['x'] and resolution['y']):
             return None
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
-        # find largest image dimensions
+        # get sensor diagonal in mm
         w = image_size['width'] / resolution['x']
         h = image_size['height'] / resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))
         if resolution['unit'] == 3:
             # unit is cm
             d *= 10.0
+        elif resolution['unit'] == 4:
+            # unit is mm
+            pass
+        elif resolution['unit'] == 5:
+            # unit is µm
+            d /= 1000.0
         elif resolution['unit'] in (None, 1, 2):
             # unit is (assumed to be) inches
             d *= 25.4
         else:
-            logger.info('Unknown resolution unit %d', resolution['unit'])
+            logger.error('Unknown resolution unit %d', resolution['unit'])
             return None
         # 35 mm film diagonal is 43.27 mm
-        crop_factor = 43.27 / d
-        # round to 2 digits
-        scale = 10 ** int(math.log10(crop_factor))
-        crop_factor = round(crop_factor / scale, 1) * scale
-        return crop_factor
+        return 43.27 / d
 
     def get_mime_type(self):
         result = None

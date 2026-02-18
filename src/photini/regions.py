@@ -21,12 +21,15 @@ import math
 import os
 import re
 
+import exiv2
+
 from photini.pyqt import *
 from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
-    CompoundWidgetMixin, ContextMenuMixin, LangAltWidget, MultiStringEdit,
-    SingleLineEdit, WidgetMixin)
+    CompoundWidgetMixin, ContextMenuMixin, ListWidgetMixin,
+    TabWidgetEx, TopLevelWidgetMixin, WidgetMixin)
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -51,21 +54,21 @@ class ResizeHandle(QtWidgets.QGraphicsRectItem):
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.setVisible(False)
 
-    @catch_all
+    @catch_all()
     def mouseMoveEvent(self, event):
         super(ResizeHandle, self).mouseMoveEvent(event)
         self.parentItem().handle_drag(self, self.pos())
 
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(ResizeHandle, self).mouseReleaseEvent(event)
-        self.parentItem().emit_value()
+        self.parentItem().new_boundary()
 
 
 class PolygonHandle(ResizeHandle):
     deletable = True
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu()
         delete_action = self.deletable and menu.addAction(
@@ -79,30 +82,20 @@ class PolygonHandle(ResizeHandle):
             self.parentItem().new_vertex(event.scenePos())
 
 
-class Signaller(QtCore.QObject, WidgetMixin):
-    selected = QtSignal()
-
-    def is_multiple(self):
-        return False
-
-
 class RegionMixin(object):
-    def initialise(self, key, owner):
+    def initialise(self, owner):
         self.setFlag(self.GraphicsItemFlag.ItemIsMovable)
         self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)
-        self.display = owner.image_display
+        self.owner = owner
+        self.image_display = owner.image_display
         self.active = False
         self.handles = []
         self.setCursor(Qt.CursorShape.ArrowCursor)
-        # QObject subclass to send signals for the region
-        self.signaller = Signaller()
-        self.emit_value = self.signaller.emit_value
-        self.new_value = self.signaller.new_value
-        self.selected = self.signaller.selected
-        self.signaller._key = key
-        self.signaller.get_value = self.get_value
         # a dimension to set the size of elements such as line thickness
         self.draw_unit = width_for_text(owner, 'x') * 0.14
+
+    def new_boundary(self):
+        self.owner.new_boundary(self.get_value())
 
     def set_active(self, active):
         if active == self.active:
@@ -111,6 +104,8 @@ class RegionMixin(object):
         self.set_style()
         for handle in self.handles:
             handle.setVisible(active)
+        if self.active:
+            self.image_display.show_boundary(self)
 
     def set_role(self, value):
         pass
@@ -142,23 +137,23 @@ class RegionMixin(object):
             part.setPen(pen)
 
     def set_scale(self):
-        transform = self.display.transform()
+        transform = self.image_display.transform()
         scale = 1.0 / max(abs(transform.m11()), abs(transform.m21()))
         for handle in self.handles:
             handle.setScale(scale)
 
 
 class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
-    def __init__(self, key, boundary, owner, *arg, **kw):
+    def __init__(self, boundary, owner, *arg, **kw):
         super(RectangleRegion, self).__init__(*arg, **kw)
         self.constraint = None
-        self.initialise(key, owner)
+        self.initialise(owner)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         for idx in range(4):
             self.handles.append(ResizeHandle(self.draw_unit, parent=self))
         self.bg_parts = [self]
         self.fg_parts = [QtWidgets.QGraphicsRectItem(parent=self)]
-        rect = self.display.to_scene.mapRect(QtCore.QRectF(
+        rect = self.image_display.to_scene.mapRect(QtCore.QRectF(
             boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'],
             boundary['Iptc4xmpExt:rbW'], boundary['Iptc4xmpExt:rbH']))
         self.setRect(rect)
@@ -175,14 +170,14 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
             self.constraint = 'square'
         elif value.has_role('landscapeCropping'):
             self.constraint = ('landscape', 'portrait')[
-                self.display.transform().isRotating()]
+                self.image_display.transform().isRotating()]
         elif value.has_role('portraitCropping'):
             self.constraint = ('portrait', 'landscape')[
-                self.display.transform().isRotating()]
+                self.image_display.transform().isRotating()]
         else:
             self.constraint = None
 
-    @catch_all
+    @catch_all()
     def itemChange(self, change, value):
         scene = self.scene()
         if scene and change == self.GraphicsItemChange.ItemSceneHasChanged:
@@ -202,15 +197,12 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
                     min(max(value.y(), bounds.y()), bounds.bottom()))
         return super(RectangleRegion, self).itemChange(change, value)
 
-    @catch_all
-    def mousePressEvent(self, event):
-        super(RectangleRegion, self).mousePressEvent(event)
-        self.selected.emit()
-
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(RectangleRegion, self).mouseReleaseEvent(event)
-        self.emit_value()
+        if not self.active:
+            self.owner.region_clicked()
+        self.new_boundary()
 
     @classmethod
     def nearest_aspect(cls, width, height):
@@ -281,7 +273,7 @@ class RectangleRegion(QtWidgets.QGraphicsRectItem, RegionMixin):
     def get_value(self):
         rect = self.rect()
         rect.translate(self.scenePos())
-        rect = self.display.from_scene.mapRect(rect)
+        rect = self.image_display.from_scene.mapRect(rect)
         boundary = {
             'Iptc4xmpExt:rbUnit': 'relative',
             'Iptc4xmpExt:rbShape': 'rectangle',
@@ -301,9 +293,9 @@ RectangleRegion.ar_thresholds = [
 
 
 class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
-    def __init__(self, key, boundary, owner, *arg, **kw):
+    def __init__(self, boundary, owner, *arg, **kw):
         super(CircleRegion, self).__init__(*arg, **kw)
-        self.initialise(key, owner)
+        self.initialise(owner)
         for idx in range(4):
             self.handles.append(ResizeHandle(self.draw_unit, parent=self))
         self.bg_parts = [self]
@@ -311,8 +303,8 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         centre = QtCore.QPointF(
             boundary['Iptc4xmpExt:rbX'], boundary['Iptc4xmpExt:rbY'])
         edge = centre + QtCore.QPointF(boundary['Iptc4xmpExt:rbRx'], 0.0)
-        centre = self.display.to_scene.map(centre)
-        edge = self.display.to_scene.map(edge)
+        centre = self.image_display.to_scene.map(centre)
+        edge = self.image_display.to_scene.map(edge)
         x = centre.x()
         y = centre.y()
         r = edge.x() - x
@@ -326,15 +318,12 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
         self.set_style()
         self.set_scale()
 
-    @catch_all
-    def mousePressEvent(self, event):
-        super(CircleRegion, self).mousePressEvent(event)
-        self.selected.emit()
-
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(CircleRegion, self).mouseReleaseEvent(event)
-        self.emit_value()
+        if not self.active:
+            self.owner.region_clicked()
+        self.new_boundary()
 
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
@@ -360,7 +349,7 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
     def get_value(self):
         rect = self.rect()
         rect.translate(self.scenePos())
-        rect = self.display.from_scene.mapRect(rect)
+        rect = self.image_display.from_scene.mapRect(rect)
         centre = rect.center()
         boundary = {
             'Iptc4xmpExt:rbUnit': 'relative',
@@ -373,9 +362,9 @@ class CircleRegion(QtWidgets.QGraphicsEllipseItem, RegionMixin):
 
 
 class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
-    def __init__(self, key, boundary, owner, *arg, **kw):
+    def __init__(self, boundary, owner, *arg, **kw):
         super(PointRegion, self).__init__(*arg, **kw)
-        self.initialise(key, owner)
+        self.initialise(owner)
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.setFlag(self.GraphicsItemFlag.ItemSendsGeometryChanges)
         # single point, draw cross hairs with a centre circle
@@ -394,17 +383,17 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
             parts.append(circle)
             self.addToGroup(circle)
         pos = boundary['Iptc4xmpExt:rbVertices'][0]
-        self.setPos(self.display.to_scene.map(
+        self.setPos(self.image_display.to_scene.map(
             QtCore.QPointF(pos['Iptc4xmpExt:rbX'], pos['Iptc4xmpExt:rbY'])))
         self.set_style()
         self.set_scale()
 
     def set_scale(self):
-        transform = self.display.transform()
+        transform = self.image_display.transform()
         scale = 1.0 / max(abs(transform.m11()), abs(transform.m21()))
         self.setScale(scale)
 
-    @catch_all
+    @catch_all()
     def itemChange(self, change, value):
         scene = self.scene()
         if scene and change == self.GraphicsItemChange.ItemPositionChange:
@@ -415,18 +404,15 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
                     min(max(value.y(), bounds.y()), bounds.bottom()))
         return super(PointRegion, self).itemChange(change, value)
 
-    @catch_all
-    def mousePressEvent(self, event):
-        super(PointRegion, self).mousePressEvent(event)
-        self.selected.emit()
-
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(PointRegion, self).mouseReleaseEvent(event)
-        self.emit_value()
+        if not self.active:
+            self.owner.region_clicked()
+        self.new_boundary()
 
     def get_value(self):
-        pos = self.display.from_scene.map(self.scenePos())
+        pos = self.image_display.from_scene.map(self.scenePos())
         boundary = {
             'Iptc4xmpExt:rbUnit': 'relative',
             'Iptc4xmpExt:rbShape': 'polygon',
@@ -437,10 +423,10 @@ class PointRegion(QtWidgets.QGraphicsItemGroup, RegionMixin):
 
 
 class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
-    def __init__(self, key, boundary, owner, *arg, **kw):
+    def __init__(self, boundary, owner, *arg, **kw):
         super(PolygonRegion, self).__init__(*arg, **kw)
-        self.initialise(key, owner)
-        polygon = self.display.to_scene.map(QtGui.QPolygonF(
+        self.initialise(owner)
+        polygon = self.image_display.to_scene.map(QtGui.QPolygonF(
             [QtCore.QPointF(v['Iptc4xmpExt:rbX'], v['Iptc4xmpExt:rbY'])
              for v in boundary['Iptc4xmpExt:rbVertices']]))
         for idx in range(polygon.count()):
@@ -454,7 +440,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         self.set_style()
         self.set_scale()
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         if not self.active:
             return super(PolygonRegion, self).contextMenuEvent(event)
@@ -485,21 +471,18 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         handle = PolygonHandle(self.draw_unit, parent=self)
         handle.setPos(p0)
         handle.setVisible(self.active)
-        transform = self.display.transform()
+        transform = self.image_display.transform()
         scale = 1.0 / max(abs(transform.m11()), abs(transform.m21()))
         handle.setScale(scale)
         self.handles.insert(insert, handle)
-        self.emit_value()
+        self.new_boundary()
 
-    @catch_all
-    def mousePressEvent(self, event):
-        super(PolygonRegion, self).mousePressEvent(event)
-        self.selected.emit()
-
-    @catch_all
+    @catch_all()
     def mouseReleaseEvent(self, event):
         super(PolygonRegion, self).mouseReleaseEvent(event)
-        self.emit_value()
+        if not self.active:
+            self.owner.region_clicked()
+        self.new_boundary()
 
     def handle_drag(self, handle, pos):
         idx = self.handles.index(handle)
@@ -519,12 +502,12 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
         polygon.remove(idx)
         self.setPolygon(polygon)
         self.fg_parts[0].setPolygon(polygon)
-        self.emit_value()
+        self.new_boundary()
 
     def get_value(self):
         polygon = self.polygon()
         polygon.translate(self.scenePos())
-        polygon = self.display.from_scene.map(polygon)
+        polygon = self.image_display.from_scene.map(polygon)
         boundary = {
             'Iptc4xmpExt:rbUnit': 'relative',
             'Iptc4xmpExt:rbShape': 'polygon',
@@ -536,7 +519,7 @@ class PolygonRegion(QtWidgets.QGraphicsPolygonItem, RegionMixin):
 
 
 class ImageGraphic(QtWidgets.QGraphicsPixmapItem):
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         view = self.scene().views()[0]
         pos = view.from_scene.map(event.pos())
@@ -572,22 +555,26 @@ class ImageGraphic(QtWidgets.QGraphicsPixmapItem):
             data = action.data()
             data['Iptc4xmpExt:rbUnit'] = 'relative'
             region = {'Iptc4xmpExt:RegionBoundary': data}
-            view.tab_widget.add_region(region)
+            view.region_tabs.add_region(region)
 
 
-class ImageDisplayWidget(QtWidgets.QGraphicsView):
-    def __init__(self, tab_widget, *arg, **kw):
+class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
+    _key = 'AppliedToDimensions'
+
+    def __init__(self, *arg, **kw):
         super(ImageDisplayWidget, self).__init__(*arg, **kw)
-        self.tab_widget = tab_widget
         self.setRenderHint(
             QtGui.QPainter.RenderHint.Antialiasing, True)
         self.setRenderHint(
             QtGui.QPainter.RenderHint.SmoothPixmapTransform, True)
         self.setScene(QtWidgets.QGraphicsScene())
         self.setDragMode(self.DragMode.ScrollHandDrag)
-        self.image = None
+        self.graphic = None
 
-    @catch_all
+    def set_region_tabs(self, region_tabs):
+        self.region_tabs = region_tabs
+
+    @catch_all()
     def keyPressEvent(self, event):
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if event.key() == Qt.Key.Key_Plus:
@@ -598,7 +585,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                 return
         super(ImageDisplayWidget, self).keyPressEvent(event)
 
-    @catch_all
+    @catch_all()
     def wheelEvent(self, event):
         if not event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             return super(ImageDisplayWidget, self).wheelEvent(event)
@@ -615,16 +602,17 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
         for boundary in self.boundaries():
             boundary.set_scale()
 
-    def set_image(self, image):
-        self.image = image
+    def load_image(self, image):
         scene = self.scene()
-        scene.clear()
+        if self.graphic:
+            scene.removeItem(self.graphic)
+            self.graphic = None
         self.resetTransform()
         if image:
             with Busy():
                 pixmap = image.metadata.get_image_pixmap()
             if not pixmap:
-                item = scene.addText(
+                self.graphic = scene.addText(
                     translate('RegionsTab', 'Unreadable image format'))
             else:
                 rect = self.contentsRect()
@@ -645,23 +633,63 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                     scale = h_sc / h_im
                 transform = transform.scale(scale, scale)
                 self.setTransform(transform)
-                item = ImageGraphic(pixmap)
-                scene.addItem(item)
-            scene.setSceneRect(item.boundingRect())
+                self.graphic = ImageGraphic(pixmap)
+                scene.addItem(self.graphic)
+            scene.setSceneRect(self.graphic.boundingRect())
         # transforms between scene and normalised/relative coordinates
         rect = scene.sceneRect()
         self.to_scene = QtGui.QTransform().scale(rect.width(), rect.height())
         self.from_scene = self.to_scene.inverted()[0]
 
+    def get_value(self):
+        if not self.graphic:
+            return {}
+        rect = self.graphic.boundingRect()
+        return {'stDim:w': int(rect.width()),
+                'stDim:h': int(rect.height()), 'stDim:unit': 'pixel'}
+
+    def is_multiple(self):
+        return False
+
+    def is_valid(self):
+        return True
+
+    def set_value(self, value):
+        if not self.region_tabs.has_value():
+            return
+        dims = self.get_value()
+        if value == dims:
+            return
+        if value:
+            dialog = QtWidgets.QMessageBox(parent=self)
+            dialog.setWindowTitle(
+                translate('RegionsTab', 'Photini: image size'))
+            dialog.setText('<h3>{}</h3>'.format(
+                translate('RegionsTab', 'Image has been resized.')))
+            dialog.setInformativeText(translate(
+                'RegionsTab', 'Image dimensions {w_im}x{h_im} do not match'
+                ' region definition {w_reg}x{h_reg}. The image regions may'
+                ' be incorrect.').format(
+                    w_im=dims['stDim:w'], h_im=dims['stDim:h'],
+                    w_reg=value['stDim:w'], h_reg=value['stDim:h']))
+            dialog.setStandardButtons(dialog.StandardButton.Ok)
+            dialog.setIcon(dialog.Icon.Warning)
+            execute(dialog)
+        self.emit_value()
+
     def boundaries(self):
         return [x for x in self.items() if isinstance(
             x, (RectangleRegion, CircleRegion, PointRegion, PolygonRegion))]
+
+    def show_boundary(self, boundary):
+        self.stack_boundaries()
+        self.ensure_visible(boundary)
 
     def stack_boundaries(self):
         items = self.boundaries()
         # put active item at the front by default
         for item in items:
-            item.setZValue((0, len(items) * 2)[item.active])
+            item.setZValue((1, len(items) * 2)[item.active])
         # ensure big regions don't hide small regions
         mode = Qt.ItemSelectionMode.ContainsItemBoundingRect
         for item_m in items:
@@ -672,8 +700,6 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView):
                     item_n.setZValue(max(item_n.zValue(), item_m.zValue() + 1))
 
     def ensure_visible(self, boundary):
-        if not boundary:
-            return
         # zoom out if needed to make boundary visible
         rect = boundary.boundingRect()
         visible = self.mapToScene(self.viewport().geometry()).boundingRect()
@@ -723,7 +749,7 @@ class EntityConceptWidget(SingleLineEdit):
             self.actions.append(action)
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def update_display(self, checked=None):
         if self._updating:
             return
@@ -734,7 +760,7 @@ class EntityConceptWidget(SingleLineEdit):
         self.setPlainText(', '.join(selection))
 
     @QtSlot(bool)
-    @catch_all
+    @catch_all()
     def action_triggered(self, checked=None):
         self.emit_value()
 
@@ -809,6 +835,9 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
     def is_multiple(self):
         return False
 
+    def is_valid(self):
+        return True
+
     def set_value(self, value):
         scene = self.image_display.scene()
         active = False
@@ -821,53 +850,60 @@ class BoundaryWidget(QtWidgets.QWidget, WidgetMixin):
             self.buttons[key].setChecked(key == value.get('Iptc4xmpExt:rbUnit'))
         if not value:
             return
-        rect = scene.sceneRect()
-        self.image_dims = {'stDim:w': rect.width(), 'stDim:h': rect.height()}
-        value = value.to_relative(self.image_dims)
+        self.image_dims = self.image_display.get_value()
+        if value['Iptc4xmpExt:rbUnit'] != 'relative':
+            value = value.to_relative(self.image_dims)
         if value['Iptc4xmpExt:rbShape'] == 'rectangle':
-            self.graphic = RectangleRegion(self._key, value, self)
+            self.graphic = RectangleRegion(value, self)
         elif value['Iptc4xmpExt:rbShape'] == 'circle':
-            self.graphic = CircleRegion(self._key, value, self)
+            self.graphic = CircleRegion(value, self)
         elif len(value['Iptc4xmpExt:rbVertices']) == 1:
-            self.graphic = PointRegion(self._key, value, self)
+            self.graphic = PointRegion(value, self)
         else:
-            self.graphic = PolygonRegion(self._key, value, self)
+            self.graphic = PolygonRegion(value, self)
+        scene.addItem(self.graphic)
         if active:
             self.graphic.set_active(active)
-        self.graphic.new_value.connect(self.new_boundary)
-        self.graphic.selected.connect(self.region_form.region_clicked)
-        scene.addItem(self.graphic)
 
-    @QtSlot(dict)
-    @catch_all
-    def new_boundary(self, value):
-        boundary = value[self._key]
+    def new_boundary(self, boundary):
         if self.buttons['pixel'].isChecked():
-            value[self._key] = boundary.to_pixel(self.image_dims)
+            boundary = boundary.to_pixel(self.image_dims)
         else:
-            value[self._key] = boundary.to_relative(self.image_dims)
-        self.new_value.emit(value)
+            boundary = boundary.to_relative(self.image_dims)
+        self.new_value.emit({self._key: boundary})
+
+    def region_clicked(self):
+        self.region_form.region_clicked()
 
     def set_active(self, active):
         if self.graphic:
             self.graphic.set_active(active)
 
     @QtSlot(dict)
-    @catch_all
+    @catch_all()
     def set_role(self, value):
         if self.graphic:
             self.graphic.set_role(ImageRegionItem(value))
 
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            reload = bool(metadata.get(self._key)) != bool(value[self._key])
+            metadata[self._key] = value[self._key]
+            return reload
+        return False
+
 
 class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
-    select_region = QtSignal(int)
+    new_person = QtSignal(dict)
     clipboard_key = 'RegionForm'
+    dynamic = True
 
-    def __init__(self, idx, image_display, *arg, **kw):
+    def __init__(self, idx, owner, *arg, **kw):
         super(RegionForm, self).__init__(*arg, **kw)
         self._key = idx
+        self.owner = owner
         self.app = QtWidgets.QApplication.instance()
-        self.image_display = image_display
+        self.image_display = owner.image_display
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self.setWidget(QtWidgets.QWidget())
         self.setWidgetResizable(True)
@@ -879,15 +915,18 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         # name
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(
-            key, multi_line=False, min_width=15,
-            label=translate('RegionsTab', 'Region name'))
+            key, multi_line=False, label=translate('RegionsTab', 'Region name'))
+        self.widgets[key].setMinimumWidth(
+            width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
             ' all Region Names of an image.')))
         layout.addRow(self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
-        self.widgets[key] = SingleLineEdit(key, min_width=15)
+        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key].setMinimumWidth(
+            width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Identifier of the region. Must be unique among all'
             ' Region Identifiers of an image. Does not have to be unique beyond'
@@ -925,16 +964,21 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
         key = 'Iptc4xmpExt:PersonInImage'
-        self.widgets[key] = MultiStringEdit(key, min_width=15)
+        self.widgets[key] = MultiStringEdit(key)
+        self.widgets[key].setMinimumWidth(
+            width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter the names of people shown in this region.'
             ' Separate multiple entries with ";" characters.')))
+        self.widgets[key].new_value.connect(self.new_person)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
         # description
         key = 'dc:description'
         self.widgets[key] = LangAltWidget(
-            key, min_width=15, label=translate('RegionsTab', 'Description'))
+            key, label=translate('RegionsTab', 'Description'))
+        self.widgets[key].setMinimumWidth(
+            width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
             'RegionsTab', 'Enter a "caption" describing the who, what, and why'
             ' of what is happening in this region.')))
@@ -944,7 +988,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         # disable widgets until value is set
         self.set_value_dict({})
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
         self.compound_context_menu(event, title=translate(
             'RegionsTab', 'All "region {}" data').format(self._key + 1))
@@ -952,69 +996,80 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     def sub_widgets(self):
         return self.widgets.values()
 
-    def is_multiple(self):
-        return False
-
-    @QtSlot()
-    @catch_all
     def region_clicked(self):
-        self.select_region.emit(self._key)
+        self.owner.setCurrentIndex(self._key)
 
-    def get_boundary(self):
-        return self.widgets['Iptc4xmpExt:RegionBoundary'].graphic
-
-    def set_value(self, region):
-        region = region or {}
+    def set_subwidgets(self, keys):
         # shrink or extend form if needed
         layout = self.widget().layout()
         for key in self.extra_keys:
-            if key not in region or not region[key]:
+            if key not in keys:
                 layout.removeRow(self.widgets[key])
                 self.extra_keys.remove(key)
                 del self.widgets[key]
-        for key, value in region.items():
-            if not value or key in self.widgets:
+        for key in keys:
+            if key in self.widgets:
                 continue
             self.extra_keys.append(key)
-            label = key.split(':')[-1]
-            label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
-            label = label.capitalize()
-            if isinstance(value, dict):
-                self.widgets[key] = LangAltWidget(
-                    key, multi_line=False, min_width=15, label=label)
-                label = None
-            elif isinstance(value, list):
-                self.widgets[key] = MultiStringEdit(key, min_width=15)
+            info = exiv2.XmpProperties.propertyInfo(
+                exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+            if info:
+                label = info.title
+                desc = info.desc
+                type_id = info.typeId
             else:
-                self.widgets[key] = SingleLineEdit(key, min_width=15)
-            self.widgets[key].setToolTip('<p>{}<br/>{}</p>'.format(
-                key, translate(
+                label = key.split(':')[-1]
+                label = re.sub(r'([a-z])([A-Z])', r'\1 \2', label)
+                label = label.capitalize()
+                desc = '{}<br/>{}'.format(key, translate(
                     'RegionsTab', 'The Image Region Structure includes'
-                    ' optionally any metadata property which is related to the'
-                    ' region.')))
-            self.widgets[key].new_value.connect(self.update_value)
-            if label:
-                layout.addRow(label, self.widgets[key])
+                    ' optionally any metadata property which is related to'
+                    ' the region.'))
+                if isinstance(value, dict):
+                    type_id = exiv2.TypeId.langAlt
+                elif isinstance(value, list):
+                    type_id = exiv2.TypeId.xmpBag
+                else:
+                    type_id = exiv2.TypeId.xmpText
+            if type_id == exiv2.TypeId.langAlt:
+                self.widgets[key] = LangAltWidget(
+                    key, multi_line=False, label=label)
+            elif type_id == exiv2.TypeId.xmpText:
+                self.widgets[key] = SingleLineEdit(key)
             else:
+                self.widgets[key] = MultiStringEdit(key)
+            self.widgets[key].setMinimumWidth(
+                width_for_text(self.widgets[key], 'x' * 15))
+            self.widgets[key].setToolTip('<p>{}</p>'.format(desc))
+            self.widgets[key].new_value.connect(self.sw_new_value)
+            if type_id == exiv2.TypeId.langAlt:
                 layout.addRow(self.widgets[key])
-        # set values and enable or disable widgets
-        for widget in self.sub_widgets():
-            widget.setEnabled(bool(region))
-            widget.set_value_dict(region)
+            else:
+                layout.addRow(label, self.widgets[key])
+
+    def after_load(self):
+        # enable sub widgets
+        enabled = self.widgets['Iptc4xmpExt:RegionBoundary'].has_value()
+        self.set_enabled(enabled)
+        self.owner.set_placeholder(self, not enabled)
         # set region constraints
-        self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(region)
+        self.widgets['Iptc4xmpExt:RegionBoundary'].set_role(
+            self.widgets['Iptc4xmpExt:rRole'].get_value_dict())
 
 
 class QTabBar(QtWidgets.QTabBar):
-    @catch_all
+    @catch_all()
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
         size.setWidth(size.height() * 140 // 100)
         return size
 
 
-class RegionTabs(QtWidgets.QTabWidget, WidgetMixin):
-    _key = 'iptcExt:ImageRegion'
+class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
+    new_person = QtSignal(dict)
+    clipboard_key = 'RegionsTab'
+    dynamic = True
+    _key = 'RegionList'
 
     def __init__(self, *arg, **kw):
         super(RegionTabs, self).__init__(*arg, **kw)
@@ -1022,130 +1077,73 @@ class RegionTabs(QtWidgets.QTabWidget, WidgetMixin):
         self.setTabBar(QTabBar())
         self.setFixedWidth(width_for_text(self, 'x' * 42))
         self.currentChanged.connect(self.tab_changed)
-        # image display area
-        self.image_display = ImageDisplayWidget(self)
 
-    def emit_value(self):
-        pass
+    def set_image_display(self, image_display):
+        self.image_display = image_display
 
-    def get_value(self):
-        result = {}
+    def sub_widgets(self):
         for idx in range(self.count()):
-            result[idx] = self.widget(idx).get_value()
-        return result
-
-    def is_multiple(self):
-        return False
-
-    def set_value(self, value):
-        value = value or {}
-        md = self.image.metadata
-        md.image_region = md.image_region.set_regions(value.values())
-        self.update_display()
+            yield self.widget(idx)
 
     def add_region(self, region):
-        self.update_value({self.count() - 1: region})
+        idx = self.count() - 1
+        self.setCurrentIndex(idx)
+        widget = self.widget(idx)
+        widget.paste_value(region)
+        widget.set_active(True)
 
-    def update_display(self, current=None):
-        if current is None:
-            current = self.currentIndex()
-        if self.image:
-            regions = self.image.metadata.image_region
-        else:
-            regions = []
-        data_len = len(regions)
+    def set_subwidgets(self, keys):
+        data_len = 0
+        if keys:
+            data_len = max(keys) + 1
         # always have one extra tab to paste into
         count = data_len + 1
         # add tabs if needed
         idx = self.count()
         while idx < count:
-            region_form = RegionForm(idx, self.image_display)
-            region_form.new_value.connect(self.update_value)
-            region_form.select_region.connect(self.setCurrentIndex)
+            region_form = RegionForm(idx, self)
+            region_form.new_value.connect(self.sw_new_value)
+            region_form.new_person.connect(self.new_person)
             idx += 1
             self.addTab(region_form, str(idx))
-        self.widget(data_len).set_value(None)
-        # remove surplus tabs
+        # remove tabs if not needed
         idx = self.count()
         while idx > count:
             idx -= 1
-            self.widget(idx).set_value(None)
+            self.widget(idx).set_value({})
             self.removeTab(idx)
-        # set data
-        for idx, region in enumerate(regions):
-            self.widget(idx).set_value(region)
-        # make current region selected and visible
-        current = max(0, min(current, data_len - 1))
-        self.setCurrentIndex(current)
-        self.tab_changed(current)
 
-    def set_image(self, image):
-        current = self.currentIndex()
-        blocked = self.blockSignals(True)
-        self.clear()
-        self.blockSignals(blocked)
-        self.image_display.scene().clear()
-        self.image_display.set_image(image)
-        self.image = image
-        if image:
-            md = image.metadata
-            image_dims = md.dimensions
-            image_dims = {'w': image_dims['width'], 'h': image_dims['height']}
-            region_dims = md.image_region.get_dimensions()
-            if region_dims and region_dims != image_dims:
-                dialog = QtWidgets.QMessageBox(parent=self)
-                dialog.setWindowTitle(
-                    translate('RegionsTab', 'Photini: image size'))
-                dialog.setText('<h3>{}</h3>'.format(
-                    translate('RegionsTab', 'Image has been resized.')))
-                dialog.setInformativeText(translate(
-                    'RegionsTab', 'Image dimensions {w_im}x{h_im} do not match'
-                    ' region definition {w_reg}x{h_reg}. The image regions may'
-                    ' be incorrect.').format(
-                        w_im=image_dims['w'], h_im=image_dims['h'],
-                        w_reg=region_dims['w'], h_reg=region_dims['h']))
-                dialog.setStandardButtons(dialog.StandardButton.Ok)
-                dialog.setIcon(dialog.Icon.Warning)
-                execute(dialog)
-            # set region image dimensions without flagging as changed
-            changed = md.changed()
-            md.image_region = md.image_region.set_dimensions(image_dims)
-            md.set_changed(changed)
-        self.update_display(current=current)
+    def after_load(self):
+        # make current region selected and visible
+        idx = self.currentIndex()
+        data_len = self.count() - 1
+        if data_len and idx >= data_len:
+            idx = data_len - 1
+            self.setCurrentIndex(idx)
+        else:
+            self.tab_changed(idx)
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def tab_changed(self, idx):
         for n in range(self.count()):
             self.widget(n).set_active(n == idx)
-        self.image_display.stack_boundaries()
-        self.image_display.ensure_visible(self.widget(idx).get_boundary())
-
-    @QtSlot(dict)
-    @catch_all
-    def update_value(self, value):
-        (idx, value), = value.items()
-        simple_update = len(value) == 1
-        md = self.image.metadata
-        regions = list(md.image_region)
-        while len(regions) <= idx:
-            regions.append({})
-            simple_update = False
-        regions[idx].update(value)
-        md.image_region = md.image_region.set_regions(regions)
-        if 'Iptc4xmpExt:PersonInImage' in value:
-            people = list(md.people)
-            for name in value['Iptc4xmpExt:PersonInImage']:
-                if name not in people:
-                    people.append(name)
-            md.people = people
-        if not simple_update:
-            self.update_display(current=idx)
 
 
-class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
-    clipboard_key = 'RegionsTab'
+class ImageRegionCompound(QtCore.QObject, CompoundWidgetMixin):
+    _key = 'image_region'
 
+    def __init__(self, widgets, *arg, **kw):
+        super(ImageRegionCompound, self).__init__(*arg, **kw)
+        self.widgets = widgets
+        for widget in self.widgets:
+            widget.new_value.connect(self.sw_new_value)
+
+    def sub_widgets(self):
+        return self.widgets
+
+
+class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin, TopLevelWidgetMixin):
     @staticmethod
     def tab_name():
         return translate('RegionsTab', 'Image regions',
@@ -1161,23 +1159,45 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QHBoxLayout())
         # data display area
-        self.widgets = {'region_tabs': RegionTabs()}
-        self.layout().addWidget(self.widgets['region_tabs'])
+        self.region_tabs = RegionTabs()
+        self.region_tabs.new_person.connect(self.new_person)
+        self.layout().addWidget(self.region_tabs)
         # image display area
-        self.layout().addWidget(
-            self.widgets['region_tabs'].image_display, stretch=1)
+        self.image_display = ImageDisplayWidget()
+        self.layout().addWidget(self.image_display, stretch=1)
+        # each widget needs to know about the other
+        self.region_tabs.set_image_display(self.image_display)
+        self.image_display.set_region_tabs(self.region_tabs)
+        # compound non-widget to combine regions and dimensions
+        self.compound = ImageRegionCompound(
+            (self.region_tabs, self.image_display))
+        self.compound.new_value.connect(self.save_data)
+        # delegate context menu to region tabs
+        self.region_tabs.tab_short_name = self.tab_short_name
 
-    @catch_all
+    @catch_all()
     def contextMenuEvent(self, event):
-        self.compound_context_menu(event)
+        self.region_tabs.compound_context_menu(event)
 
     def sub_widgets(self):
-        return [self.widgets['region_tabs']]
+        return [self.compound]
 
-    @QtSlot()
-    @catch_all
-    def emit_value(self):
-        pass
+    def save_finished(self, value, images):
+        # ensure image dimensions are saved
+        if 'AppliedToDimensions' not in value['image_region']:
+            self.image_display.emit_value()
+
+    @QtSlot(dict)
+    @catch_all()
+    def new_person(self, value):
+        value, = value.values()
+        images = self.app.image_list.get_selected_images()
+        for image in images:
+            people = list(image.metadata.people)
+            for name in value:
+                if name not in people:
+                    people.append(name)
+            image.metadata.people = people
 
     def refresh(self):
         self.new_selection(self.app.image_list.get_selected_images())
@@ -1187,8 +1207,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
 
     def new_selection(self, selection):
         if len(selection) != 1:
-            self.widgets['region_tabs'].set_image(None)
-            self.setEnabled(False)
-            return
-        self.widgets['region_tabs'].set_image(selection[0])
-        self.setEnabled(True)
+            selection = []
+            self.image_display.load_image(None)
+        else:
+            self.image_display.load_image(selection[0])
+        self.load_data(selection)

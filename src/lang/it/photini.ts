@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>Posizione duplicata</translation>
+        <translation type="vanished">Posizione duplicata</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>Elimina posizione</translation>
+        <translation type="vanished">Elimina posizione</translation>
     </message>
     <message>
         <source>camera</source>
@@ -70,6 +70,14 @@
     <message>
         <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
         <translation>Inserisci gli identificatori univoci globali della posizione. Separali con i caratteri &quot;;&quot;.</translation>
+    </message>
+    <message>
+        <source>All &quot;{tab}&quot; address data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All &quot;subject&quot; addresses</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Location addresses</source>
@@ -132,15 +140,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation> m</translation>
+        <translation type="vanished"> m</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation>Altitudine della posizione in metri.</translation>
+        <translation type="vanished">Altitudine della posizione in metri.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation>Altitudine</translation>
+        <translation type="vanished">Altitudine</translation>
     </message>
 </context>
 <context>
@@ -979,6 +987,10 @@
         <translation>Cerca</translation>
     </message>
     <message>
+        <source>All hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
         <translation>Inserisci una gerarchia di parole chiave, termini o frasi utilizzate per esprimere l&apos;argomento nell&apos;immagine. Separali con i caratteri &quot;|&quot; o &quot;/&quot;.</translation>
     </message>
@@ -1013,28 +1025,28 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation>Nuova lingua</translation>
+        <translation type="vanished">Nuova lingua</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Lingue</translation>
+        <translation type="vanished">Lingue</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation>Lingua: </translation>
+        <translation type="vanished">Lingua: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation>In che lingua è il testo attuale? Inserisci un tag di lingua RFC3066.</translation>
+        <translation type="vanished">In che lingua è il testo attuale? Inserisci un tag di lingua RFC3066.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation>Quale lingua vorresti aggiungere? Inserisci un tag di lingua RFC3066.</translation>
+        <translation type="vanished">Quale lingua vorresti aggiungere? Inserisci un tag di lingua RFC3066.</translation>
     </message>
     <message>
         <source>Set default language</source>
-        <translation>Imposta la lingua predefinita</translation>
+        <translation type="vanished">Imposta la lingua predefinita</translation>
     </message>
 </context>
 <context>
@@ -1045,12 +1057,12 @@
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation>Latitudine e longitudine (in gradi) come due numeri decimali separati da uno spazio.</translation>
+        <translation type="vanished">Latitudine e longitudine (in gradi) come due numeri decimali separati da uno spazio.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation>Lat, long</translation>
+        <translation type="vanished">Lat, long</translation>
     </message>
 </context>
 <context>
@@ -1500,6 +1512,10 @@
         <translation>Rimuovi i dati GPX</translation>
     </message>
     <message>
+        <source>All &quot;GPS&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;widen search&gt;</source>
         <translation>&lt;amplia ricerca&gt;</translation>
     </message>
@@ -1777,6 +1793,10 @@
         <translation>Inserisci una &quot;didascalia&quot; che descriva chi, cosa e perché di ciò che sta accadendo in questa regione.</translation>
     </message>
     <message>
+        <source>All &quot;region {}&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
         <translation>La struttura della regione dell&apos;immagine include facoltativamente qualsiasi proprietà di metadati correlata alla regione.</translation>
     </message>
@@ -1798,7 +1818,7 @@
     </message>
     <message>
         <source>Delete region</source>
-        <translation>Elimina regione</translation>
+        <translation type="vanished">Elimina regione</translation>
     </message>
     <message>
         <source>Image regions</source>
@@ -1912,6 +1932,14 @@
     <message>
         <source>Focal length</source>
         <translation>Lunghezza focale</translation>
+    </message>
+    <message>
+        <source>Set &quot;crop factor&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crop factor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>35mm equiv</source>
@@ -2204,7 +2232,7 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;nuovo&gt;</translation>
+        <translation type="vanished">&lt;nuovo&gt;</translation>
     </message>
 </context>
 </TS>

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -205,7 +205,7 @@ class FileCopier(QtCore.QObject):
         self.running = True
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def start(self):
         status = 'ok'
         try:
@@ -242,7 +242,7 @@ class NameMangler(QtCore.QObject):
         self.format_string = None
 
     @QtSlot(str)
-    @catch_all
+    @catch_all()
     def new_format(self, format_string):
         self.format_string = format_string
         self.refresh_example()
@@ -276,13 +276,13 @@ class NameMangler(QtCore.QObject):
 
 
 class PathFormatValidator(QtGui.QValidator):
-    @catch_all
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
     def validate(self, inp, pos):
         if os.path.abspath(inp) == inp:
             return self.State.Acceptable, inp, pos
         return self.State.Intermediate, inp, pos
 
-    @catch_all
+    @catch_all(exc_return='')
     def fixup(self, inp):
         return os.path.abspath(inp)
 
@@ -401,7 +401,7 @@ class ImporterTab(QtWidgets.QWidget):
             os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
 
     @QtSlot(int)
-    @catch_all
+    @catch_all()
     def new_source(self, idx):
         self.source = None
         item_data = self.source_selector.itemData(idx)
@@ -422,7 +422,7 @@ class ImporterTab(QtWidgets.QWidget):
         QtCore.QTimer.singleShot(100, self.list_files)
 
     @QtSlot(QtCore.QPoint)
-    @catch_all
+    @catch_all()
     def remove_folder(self, pos):
         menu = QtWidgets.QMenu()
         roots = []
@@ -476,7 +476,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.refresh()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def path_format_finished(self):
         if self.source:
             self.config_store.set(
@@ -484,7 +484,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.show_file_list()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def refresh(self):
         was_blocked = self.source_selector.blockSignals(True)
         # save current selection
@@ -553,7 +553,7 @@ class ImporterTab(QtWidgets.QWidget):
         pass
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def list_files(self):
         file_data = {}
         if self.source:
@@ -574,7 +574,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.sort_file_list()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def sort_file_list(self):
         if self.config_store.get('controls', 'sort_date', False):
             self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])
@@ -615,7 +615,7 @@ class ImporterTab(QtWidgets.QWidget):
             first_active, self.file_list_widget.ScrollHint.PositionAtTop)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def selection_changed(self):
         count = len(self.file_list_widget.selectedItems())
         if qt_version_info >= (6, 0):
@@ -630,12 +630,12 @@ class ImporterTab(QtWidgets.QWidget):
             self.copy_button.setEnabled(count > 0)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def select_all(self):
         self.select_files(datetime.min)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def select_new(self):
         since = datetime.min
         if self.source:
@@ -669,12 +669,12 @@ class ImporterTab(QtWidgets.QWidget):
             first_active, self.file_list_widget.ScrollHint.PositionAtTop)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def move_selected(self):
         self.copy_selected(move=True)
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def copy_selected(self, move=False):
         with Busy():
             copy_list = []
@@ -742,7 +742,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.list_files()
 
     @QtSlot()
-    @catch_all
+    @catch_all()
     def stop_copy(self):
         if self.file_copier:
             self.file_copier.running = False

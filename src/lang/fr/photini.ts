@@ -40,6 +40,14 @@
         <translation>ID de l&apos;emplacement</translation>
     </message>
     <message>
+        <source>All &quot;{tab}&quot; address data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All &quot;subject&quot; addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Location addresses</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation type="unfinished"></translation>
@@ -58,11 +66,11 @@
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>Dupliquer l’emplacement</translation>
+        <translation type="vanished">Dupliquer l’emplacement</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>Supprimer l&apos;emplacement</translation>
+        <translation type="vanished">Supprimer l&apos;emplacement</translation>
     </message>
     <message>
         <source>camera</source>
@@ -127,15 +135,15 @@
     <message>
         <source> m</source>
         <comment>metres altitude</comment>
-        <translation> m</translation>
+        <translation type="vanished"> m</translation>
     </message>
     <message>
         <source>Altitude of the location in metres.</source>
-        <translation>Altitude de l’emplacement en mètres.</translation>
+        <translation type="vanished">Altitude de l’emplacement en mètres.</translation>
     </message>
     <message>
         <source>Altitude</source>
-        <translation>Altitude</translation>
+        <translation type="vanished">Altitude</translation>
     </message>
 </context>
 <context>
@@ -1022,6 +1030,10 @@
         <translation type="unfinished">Recherche</translation>
     </message>
     <message>
+        <source>All hierarchical keywords</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1048,28 +1060,28 @@
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation>Nouvelle langue</translation>
+        <translation type="vanished">Nouvelle langue</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation>Langue</translation>
+        <translation type="vanished">Langue</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation>Langue&#xa0;: </translation>
+        <translation type="vanished">Langue&#xa0;: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation>En quelle langue est le texte suivant&#xa0;? Veuillez saisir un code de langue au format RFC3066.</translation>
+        <translation type="vanished">En quelle langue est le texte suivant&#xa0;? Veuillez saisir un code de langue au format RFC3066.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation>Quel langue souhaitez-vous ajouter&#xa0;? Veuillez saisir un code de langue au format RFC3066.</translation>
+        <translation type="vanished">Quel langue souhaitez-vous ajouter&#xa0;? Veuillez saisir un code de langue au format RFC3066.</translation>
     </message>
     <message>
         <source>Set default language</source>
-        <translation>Définir la langue par défaut</translation>
+        <translation type="vanished">Définir la langue par défaut</translation>
     </message>
 </context>
 <context>
@@ -1080,12 +1092,12 @@
     </message>
     <message>
         <source>Latitude and longitude (in degrees) as two decimal numbers separated by a space.</source>
-        <translation>Latitude et longitude (en degrés) comme deux nombres décimaux séparés par un espace.</translation>
+        <translation type="vanished">Latitude et longitude (en degrés) comme deux nombres décimaux séparés par un espace.</translation>
     </message>
     <message>
         <source>Lat, long</source>
         <comment>Short abbreviation of &quot;Latitude, longitude&quot;</comment>
-        <translation>Lat, lon</translation>
+        <translation type="vanished">Lat, lon</translation>
     </message>
 </context>
 <context>
@@ -1574,6 +1586,10 @@
         <translation>Supprimer les données GPX</translation>
     </message>
     <message>
+        <source>All &quot;GPS&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;widen search&gt;</source>
         <translation>&lt;Recherche avancée&gt;</translation>
     </message>
@@ -1842,6 +1858,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All &quot;region {}&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1863,7 +1883,7 @@
     </message>
     <message>
         <source>Delete region</source>
-        <translation>Supprimer la région</translation>
+        <translation type="vanished">Supprimer la région</translation>
     </message>
     <message>
         <source>Image regions</source>
@@ -2017,6 +2037,14 @@
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation>La modification du nom du fabricant invalidera les informations Exif sur les notes de fabrication.</translation>
+    </message>
+    <message>
+        <source>Set &quot;crop factor&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crop factor</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Technical metadata</source>
@@ -2313,7 +2341,7 @@
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;Nouveau&gt;</translation>
+        <translation type="vanished">&lt;Nouveau&gt;</translation>
     </message>
 </context>
 </TS>
