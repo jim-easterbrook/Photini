@@ -1024,6 +1024,14 @@
         <translation>Lang: </translation>
     </message>
     <message>
+        <source>This language</source>
+        <translation>This language</translation>
+    </message>
+    <message>
+        <source>All languages</source>
+        <translation>All languages</translation>
+    </message>
+    <message>
         <source>Make &quot;{language}&quot; the default language.</source>
         <translation>Make &quot;{language}&quot; the default language.</translation>
     </message>

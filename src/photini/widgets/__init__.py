@@ -548,6 +548,12 @@ class ContextMenuMixin(object):
         title = title or translate(
             'Widgets', 'All "{tab_name}" data').format(
                 tab_name=self.tab_short_name())
+        menu = QtWidgets.QMenu()
+        menu.addSection(title)
+        self.add_copy_paste_context_menu(menu)
+        execute(menu, event.globalPos())
+
+    def add_copy_paste_context_menu(self, menu):
         if qt_version_info >= (6, 7):
             icons = {'Cut': QtGui.QIcon.ThemeIcon.EditCut,
                      'Copy': QtGui.QIcon.ThemeIcon.EditCopy,
@@ -562,8 +568,6 @@ class ContextMenuMixin(object):
                      'Copy': self.do_copy,
                      'Paste': self.do_paste,
                      'Delete': self.do_delete}
-        menu = QtWidgets.QMenu()
-        menu.addSection(title)
         for key in ('Cut', 'Copy', 'Paste', 'Delete'):
             action = menu.addAction(QtGui.QIcon.fromTheme(icons[key]),
                                     translate('QShortcut', key), functions[key])
@@ -573,7 +577,6 @@ class ContextMenuMixin(object):
                 action.setEnabled(self.has_value())
             else:
                 action.setEnabled(self.has_value() and self.is_valid())
-        execute(menu, event.globalPos())
 
     @QtSlot()
     @catch_all()
