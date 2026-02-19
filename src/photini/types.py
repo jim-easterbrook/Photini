@@ -902,7 +902,40 @@ class MD_LangAlt(MD_Value, dict):
         if strip:
             value = dict((k, v.strip()) for (k, v) in value.items())
         value = dict((k, v) for (k, v) in value.items() if v)
+        value = self.add_default(value)
         super(MD_LangAlt, self).__init__(value)
+
+    @classmethod
+    def add_default(cls, value):
+        # "normalises" a LangAlt dict by adding a default value if missing
+        if not value:
+            return {}
+        value = dict(value)
+        if cls.DEFAULT in value:
+            return value
+        if len(value) == 1:
+            value[cls.DEFAULT], = value.values()
+            return value
+        # find nearest match to system's default language(s)
+        # RFC3066 has optional parts between primary language and region
+        # if no match, use the first language in value
+        langs = QtCore.QLocale.system().uiLanguages()
+        langs = [cls.norm_key(lang).split('-') for lang in langs]
+        best_match = (-1, None)
+        for key in value.keys():
+            parts = cls.norm_key(key).split('-')
+            for lang in langs:
+                match = len([x for x in parts[1:] if x in lang[1:]])
+                if parts[0] == lang[0]:
+                    match += 1
+                if match > best_match[0]:
+                    best_match = match, key
+        value[cls.DEFAULT] = value[best_match[1]]
+        return value
+
+    @staticmethod
+    def norm_key(key):
+        return key.lower().replace('_', '-')
 
     @classmethod
     def identify_default(cls, value):
