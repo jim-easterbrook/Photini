@@ -226,7 +226,6 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
             self.app.image_list.select_image(self, extend_selection=True)
         else:
             self.app.image_list.select_image(self)
-        self.setFocus()
 
     @catch_all()
     def mouseMoveEvent(self, event):

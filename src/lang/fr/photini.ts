@@ -1072,6 +1072,14 @@
         <translation>Langue&#xa0;: </translation>
     </message>
     <message>
+        <source>This language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All languages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Make &quot;{language}&quot; the default language.</source>
         <translation type="unfinished"></translation>
     </message>

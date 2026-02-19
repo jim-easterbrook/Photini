@@ -23,8 +23,8 @@ import re
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
 from photini.types import MD_LangAlt
-from photini.widgets import (
-    ChoicesContextMenu, ComboBox, CompoundWidgetMixin, WidgetMixin)
+from photini.widgets import (ChoicesContextMenu, ComboBox, CompoundWidgetMixin,
+                             ContextMenuMixin, WidgetMixin)
 
 __all__ = (
     'LangAltWidget', 'MultiLineEdit', 'MultiStringEdit', 'SingleLineEdit')
@@ -305,6 +305,14 @@ class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
             return
         self._owner.add_languages_context_menu(self, menu)
 
+    def get_value_dict(self):
+        if self.is_valid():
+            result = {self._key: self.get_value()}
+            if self.is_default():
+                result[MD_LangAlt.DEFAULT] = result[self._key]
+            return result
+        return {}
+
     def is_default(self):
         return self._default
 
@@ -406,7 +414,6 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
         for idx in range(self.count()):
             if self.widget(idx).lang() == lang:
                 self.setCurrentIndex(idx)
-                self.widget(idx).setFocus()
                 break
 
     def sub_widgets(self):
@@ -444,9 +451,10 @@ class LangAltSelector(ComboBox):
     @catch_all()
     def lang_activated(self, idx):
         if idx < self.count() - 1:
+            self.add_lang.emit('')
             return
         # user selected <new>
-        prompt = self.locale().bcp47Name()
+        prompt = self.locale().uiLanguages()[0]
         if self.findData(prompt) >= 0:
             prompt = None
         lang, OK = QtWidgets.QInputDialog.getText(
@@ -455,6 +463,7 @@ class LangAltSelector(ComboBox):
                 'LangAltWidget', 'What language would you like to add?'
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
+            self.setCurrentIndex(0)
             return
         self.add_lang.emit(lang)
 
@@ -482,11 +491,13 @@ class LangAltSelector(ComboBox):
         self.show_lang.emit(self.currentData())
 
 
-class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
+class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
+    clipboard_key = 'LangAltWidget'
     dynamic = True
 
     def __init__(self, key, multi_line=True, label=None, **widget_kw):
         super(LangAltWidget, self).__init__()
+        self.app = QtWidgets.QApplication.instance()
         self._key = key
         widget_kw['single_line'] = not multi_line
         layout = QtWidgets.QGridLayout()
@@ -529,15 +540,26 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
     @QtSlot(str)
     @catch_all()
     def add_lang(self, lang):
-        self.edit_stack.add_lang(lang)
-        self.update_lang_selector()
-        self.lang.setCurrentIndex(self.lang.findData(lang))
+        if lang:
+            self.edit_stack.add_lang(lang)
+            self.update_lang_selector()
+            self.lang.setCurrentIndex(self.lang.findData(lang))
         self.edit_stack.currentWidget().setFocus()
 
     def add_languages_context_menu(self, widget, menu):
-        old_lang = widget.lang()
-        sep = menu.insertSeparator(menu.actions()[0])
+        # cut/paste menu for all languages
+        sep = menu.insertSection(menu.actions()[0], translate(
+            'LangAltWidget', 'This language'))
+        temp = QtWidgets.QMenu()
+        self.add_copy_paste_context_menu(temp)
+        for action in temp.actions():
+            temp.removeAction(action)
+            action.setParent(menu)
+            menu.insertAction(sep, action)
+        sep = menu.insertSection(menu.actions()[0], translate(
+            'LangAltWidget', 'All languages'))
         # set default language
+        old_lang = widget.lang()
         group = QtGui2.QActionGroup(menu)
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Make "{language}" the default language.'
@@ -548,7 +570,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
         menu.insertAction(sep, action)
         group.triggered.connect(self.set_default_lang)
         # change language
-        new_lang = self.locale().bcp47Name()
+        new_lang = self.locale().uiLanguages()[0]
         group = QtGui2.QActionGroup(menu)
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Change language to "{language}".'
@@ -639,7 +661,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
             self.edit_stack.widget(idx).set_default(idx == default_idx)
 
     def set_subwidgets(self, keys):
-        keys = keys or [self.locale().bcp47Name()]
+        keys = keys or [self.locale().uiLanguages()[0]]
         self.edit_stack.set_langs(keys)
 
     def set_enabled(self, enabled):

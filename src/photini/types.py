@@ -902,24 +902,61 @@ class MD_LangAlt(MD_Value, dict):
         if strip:
             value = dict((k, v.strip()) for (k, v) in value.items())
         value = dict((k, v) for (k, v) in value.items() if v)
+        value = self.add_default(value)
         super(MD_LangAlt, self).__init__(value)
 
     @classmethod
-    def identify_default(cls, value):
+    def add_default(cls, value):
+        # "normalises" a LangAlt dict by adding a default value if missing
+        if not value:
+            return {}
+        value = dict(value)
+        if cls.DEFAULT in value:
+            return value
+        if len(value) == 1:
+            value[cls.DEFAULT], = value.values()
+            return value
         keys = list(value.keys())
-        if len(keys) == 0:
-            return QtCore.QLocale.system().bcp47Name() or cls.DEFAULT
-        if len(keys) == 1:
-            return keys[0]
-        if cls.DEFAULT not in keys:
-            # arbitrarily choose first language
-            return keys[0]
-        # look for language with same text as 'x-default' value
-        text = value[cls.DEFAULT]
-        for k, v in value.items():
-            if k != cls.DEFAULT and v == text:
-                return k
-        return cls.DEFAULT
+        default = cls._best_match(keys) or keys[0]
+        value[cls.DEFAULT] = value[default]
+        return value
+
+    @classmethod
+    def _best_match(cls, keys, lang=None):
+        # find nearest match to a lang or the system's default language(s)
+        # RFC3066 has optional parts between primary language and region
+        if lang:
+            langs = [lang]
+        else:
+            langs = QtCore.QLocale.system().uiLanguages()
+        langs = [cls.norm_key(lang).split('-') for lang in langs]
+        best_match = (0, None)
+        for key in keys:
+            parts = cls.norm_key(key).split('-')
+            for lang in langs:
+                match = len([x for x in parts[1:] if x in lang[1:]])
+                if parts[0] == lang[0]:
+                    match += 1
+                if match > best_match[0]:
+                    best_match = match, key
+        return best_match[1]
+
+    @staticmethod
+    def norm_key(key):
+        return key.lower().replace('_', '-')
+
+    @classmethod
+    def strip_default(cls, value):
+        # return a dict with the default value removed if it's safe to do so
+        result = dict(value)
+        default_lang = None
+        if cls.DEFAULT in result:
+            for lang, text in result.items():
+                if lang != cls.DEFAULT and text == result[cls.DEFAULT]:
+                    default_lang = lang
+                    del result[cls.DEFAULT]
+                    break
+        return result, default_lang
 
     def find_key(self, key):
         # languages are case insensitive
@@ -953,31 +990,14 @@ class MD_LangAlt(MD_Value, dict):
         return '\n'.join(result)
 
     def best_match(self, lang=None):
-        if len(self) < 2:
-            return list(self.values())[0]
-        lang = lang or QtCore.QLocale.system().bcp47Name()
-        if lang:
-            lang = lang.lower()
-            langs = [lang]
-            if '-' in lang:
-                langs.append(lang.split('-')[0])
-            for lang in langs:
-                for k in self:
-                    if k.lower() == lang:
-                        return self[k]
-                for k in self:
-                    if k.lower().startswith(lang):
-                        return self[k]
-        if self.DEFAULT in self:
-            return self[self.DEFAULT]
-        return list(self.values())[0]
+        lang = self._best_match(self.keys(), lang) or self.DEFAULT
+        return self[lang]
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
         if not self:
             return None
-        default_lang = self.identify_default(self)
-        return self[default_lang]
+        return self[self.DEFAULT]
 
     def to_iptc(self):
         return self.to_exif()
@@ -985,33 +1005,18 @@ class MD_LangAlt(MD_Value, dict):
     def to_xmp(self):
         if not self:
             return None
-        if len(self) < 2:
-            return dict(self)
         result = dict((k, v) for (k, v) in self.items() if v)
-        if len(result) > 1:
-            default_lang = self.identify_default(result)
-            result[self.DEFAULT] = result[default_lang]
+        stripped, default_lang = self.strip_default(result)
+        if len(stripped) == 1:
+            return stripped
         return result
 
     def merge(self, info, tag, other):
         if self == other:
             return self
-        if not isinstance(other, MD_LangAlt):
-            other = MD_LangAlt(other)
-        default_lang = self.identify_default(self)
-        if default_lang == self.DEFAULT:
-            default_lang = self.identify_default(other)
-        result = dict(self)
+        result, self_default = self.strip_default(self)
+        other, other_default = self.strip_default(other)
         for key, value in other.items():
-            if key == self.DEFAULT:
-                # try to find matching value
-                for k, v in result.items():
-                    if k != self.DEFAULT and v == value:
-                        key = k
-                        break
-            else:
-                # try to find matching language
-                key = self.find_key(key) or key
             if key not in result:
                 result[key] = value
             elif value in result[key]:
@@ -1021,6 +1026,8 @@ class MD_LangAlt(MD_Value, dict):
             else:
                 result[key] += ' // ' + value
             self.log_merged(info + '[' + key + ']', tag, value)
+        if self.DEFAULT not in result:
+            result[self.DEFAULT] = result[self_default]
         return self.__class__(result)
 
 
