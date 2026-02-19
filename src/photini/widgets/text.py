@@ -406,7 +406,6 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
         for idx in range(self.count()):
             if self.widget(idx).lang() == lang:
                 self.setCurrentIndex(idx)
-                self.widget(idx).setFocus()
                 break
 
     def sub_widgets(self):
@@ -444,6 +443,7 @@ class LangAltSelector(ComboBox):
     @catch_all()
     def lang_activated(self, idx):
         if idx < self.count() - 1:
+            self.add_lang.emit('')
             return
         # user selected <new>
         prompt = self.locale().bcp47Name()
@@ -455,6 +455,7 @@ class LangAltSelector(ComboBox):
                 'LangAltWidget', 'What language would you like to add?'
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
+            self.setCurrentIndex(0)
             return
         self.add_lang.emit(lang)
 
@@ -529,9 +530,10 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin):
     @QtSlot(str)
     @catch_all()
     def add_lang(self, lang):
-        self.edit_stack.add_lang(lang)
-        self.update_lang_selector()
-        self.lang.setCurrentIndex(self.lang.findData(lang))
+        if lang:
+            self.edit_stack.add_lang(lang)
+            self.update_lang_selector()
+            self.lang.setCurrentIndex(self.lang.findData(lang))
         self.edit_stack.currentWidget().setFocus()
 
     def add_languages_context_menu(self, widget, menu):
