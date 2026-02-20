@@ -73,6 +73,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.set_value_dict = self.edit.set_value_dict
         self.set_enabled = self.edit.set_enabled
         self.set_multiple = self.edit.set_multiple
+        self.has_value = self.edit.has_value
         self.is_multiple = self.edit.is_multiple
         self.is_valid = self.edit.is_valid
         self.new_value = self.edit.new_value
@@ -581,6 +582,12 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
     def append_value(self, value):
         value.update(self.get_value())
         self.set_value(value)
+
+    def get_value(self):
+        result = super(HierarchicalTagsEditor, self).get_value()
+        if not result['']:
+            del result['']
+        return result
 
     def set_subwidgets(self, keys):
         keys = list(keys)
