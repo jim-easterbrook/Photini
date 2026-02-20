@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2024  Jim Easterbrook.
+   Copyright (C)  2024-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Keywords
@@ -118,5 +118,16 @@ When this happens Photini searches the flat keywords for other words in the hier
 For example, if the flat keywords contain "USA" or "Texas" but not "France" then the choice is obvious.
 If the ambiguity cannot be resolved then the flat keyword is not copied to the hierarchical keywords.
 
+Copy and paste
+--------------
+
+.. image:: ../images/screenshot_066.png
+
+As with the "descriptive" metadata tab, right-clicking outside any data entry brings up a context menu that allows copying and pasting (and cutting and deleting) all the keywords in an image, hierarchical and "flat".
+
+.. image:: ../images/screenshot_067.png
+
+In addition, the hierarchical keywords have a context menu to allow copy and paste of all the hierarchical keywords, but without the flat keywords.
+(But keyword synchronisation may add them when the hierarchical keywords are pasted.)
 
 .. _Linnaean taxonomy: https://en.wikipedia.org/wiki/Linnaean_taxonomy
