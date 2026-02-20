@@ -233,7 +233,9 @@ class ChoicesContextMenu(object):
     def add_choices_context_menu(self, menu, event):
         if not (self.is_multiple() and self.choices):
             return
-        sep = menu.insertSeparator(menu.actions()[0])
+        sep = menu.actions()[0]
+        if not sep.isSeparator():
+            sep = menu.insertSeparator(sep)
         group = QtGui2.QActionGroup(menu)
         fm = menu.fontMetrics()
         for suggestion in self.choices:
