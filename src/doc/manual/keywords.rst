@@ -118,6 +118,16 @@ When this happens Photini searches the flat keywords for other words in the hier
 For example, if the flat keywords contain "USA" or "Texas" but not "France" then the choice is obvious.
 If the ambiguity cannot be resolved then the flat keyword is not copied to the hierarchical keywords.
 
+Multiple values
+---------------
+
+.. image:: ../images/screenshot_068.png
+
+Hierarchical keywords handle multiple values differently from other data entry fields.
+Keywords that are present in all the selected images are shown normally.
+Other fields show ``<multiple values>`` but only have one entry in the context menu.
+Selecting this entry adds the keyword to all the selected images.
+
 Copy and paste
 --------------
 
