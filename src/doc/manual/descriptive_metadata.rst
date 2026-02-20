@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-24  Jim Easterbrook.
+   Copyright (C)  2012-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Descriptive metadata
@@ -109,15 +109,36 @@ You can then type the translation in to the text field.
 
 .. image:: ../images/screenshot_033.png
 
-You can change the language of some existing text by right-clicking on it to bring up the context menu.
+You can change the language of some existing text by right-clicking on the language selector drop down to bring up its context menu.
 This has options to change the language to your computer's default or to any other language.
 
 .. image:: ../images/screenshot_036.png
 
-When there is more than one language to choose from you can make one language the default with the right-click context menu.
-Photini shows the default language first in the language drop down selector.
+When there is more than one language you can choose which one is the default with the right-click context menu.
+The default language appears first in the language drop down selector.
 
 When a ``Lang Alt`` data field has multiple values, you can use the drop down selector to select each language in turn before right-clicking on the text to choose one of the values.
+
+Copy and paste
+^^^^^^^^^^^^^^
+
+.. image:: ../images/screenshot_037.png
+
+The usual context menu allows cut / copy /paste / delete of the widget's text.
+Photini can also perform these operations on all the languages in a ``Lang Alt`` data field.
+
+.. image:: ../images/screenshot_038.png
+
+Copy and paste
+--------------
+
+.. image:: ../images/screenshot_039.png
+
+You can copy and paste all of the "descriptive" metadata by right-clicking outside any data field.
+(You can also delete all the data!)
+The cut and copy actions are disabled if any of the data fields has multiple values.
+
+This menu, and the ``Lang Alt`` all languages menu, uses a private clipboard, rather then the shared clipboard used by the usual data field context menu.
 
 More information about the data fields
 --------------------------------------

@@ -231,8 +231,10 @@ class TopLevelWidgetMixin(WidgetMixin):
 class ChoicesContextMenu(object):
     # mixin for <multiple values> to allow choosing one
     def add_choices_context_menu(self, menu, event):
-        if not (self.is_multiple() and self.choices):
-            return
+        if not self.is_multiple():
+            return False
+        if not self.choices:
+            return True
         sep = menu.insertSeparator(menu.actions()[0])
         group = QtGui2.QActionGroup(menu)
         fm = menu.fontMetrics()
@@ -244,6 +246,7 @@ class ChoicesContextMenu(object):
             action.setData(suggestion)
             menu.insertAction(sep, action)
         group.triggered.connect(self._choice_triggered)
+        return True
 
     @QtSlot(QtGui2.QAction)
     @catch_all()
