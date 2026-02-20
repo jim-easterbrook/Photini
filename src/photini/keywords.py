@@ -503,10 +503,11 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
     @catch_all()
     def clicked_apply(self):
         # construct new value
-        new_value = []
+        new_value = {}
         for child in self.data_model.all_children():
             if child.checked('is_set'):
-                new_value.append(child.full_name())
+                key = child.full_name()
+                new_value[key] = key
         self.parent().set_value(new_value)
         self.parent().emit_value()
 
