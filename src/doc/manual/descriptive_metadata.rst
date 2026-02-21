@@ -106,6 +106,12 @@ Next you can set the language to be added, e.g. ``fr-FR`` for French as used in 
 .. image:: ../images/screenshot_035.png
 
 You can then type the translation in to the text field.
+Of course the English spelling checker doesn't recognise most French words.
+
+.. image:: ../images/screenshot_040.png
+
+If you install the appropriate dictionaries than setting the language of a ``Lang Alt`` data field also selects the dictionary used by the spelling checker.
+(Deliberate spelling error introduced for illustrative purposes.)
 
 .. image:: ../images/screenshot_033.png
 
