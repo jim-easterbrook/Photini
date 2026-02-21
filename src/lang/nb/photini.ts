@@ -443,7 +443,7 @@
     </message>
     <message>
         <source>Change album membership</source>
-        <translation type="unfinished">Endre albumsmedlemsskap</translation>
+        <translation>Endre albumsmedlemskap</translation>
     </message>
     <message>
         <source>Create new Flickr album</source>
@@ -1566,7 +1566,7 @@
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Annet</translation>
+        <translation>Annet</translation>
     </message>
     <message>
         <source>Pixelfed</source>
@@ -1596,7 +1596,7 @@
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished">Offentlig</translation>
+        <translation>Offentlig</translation>
     </message>
     <message>
         <source>Unlisted</source>
@@ -1636,15 +1636,15 @@
     </message>
     <message>
         <source>Attribution-ShareAlike</source>
-        <translation type="unfinished">Navngivelse-DelPåSammeVilkår</translation>
+        <translation>Navngivelse-DelPåSammeVilkår</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial</source>
-        <translation type="unfinished">Navngivelse-IkkeKommersiell</translation>
+        <translation>Navngivelse-IkkeKommersiell</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike</source>
-        <translation type="unfinished">Navngivelse-IkkeKommersiell-DelPåSammeVilkår</translation>
+        <translation>Navngivelse-IkkeKommersiell-DelPåSammeVilkår</translation>
     </message>
     <message>
         <source>Attribution-NoDerivs</source>
@@ -1656,7 +1656,7 @@
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished">Lisens</translation>
+        <translation>Lisens</translation>
     </message>
     <message>
         <source>New collection</source>
@@ -1676,7 +1676,7 @@
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beskrivelse</translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <source>Draft</source>
@@ -1779,7 +1779,7 @@
     </message>
     <message>
         <source>Content type</source>
-        <translation type="unfinished">Innholdstype</translation>
+        <translation>Innholdstype</translation>
     </message>
     <message>
         <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
@@ -1791,7 +1791,7 @@
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beskrivelse</translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>
