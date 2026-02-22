@@ -141,6 +141,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
         self.hour_validator = QtGui.QIntValidator(-14, 15, parent=self)
         self.minute_validator = QtGui.QIntValidator(0, 59, parent=self)
         self._key = key
+        self.none_value = -1
         self.setRange(self.hour_validator.bottom() * 60,
                       self.hour_validator.top() * 60)
         self.setSingleStep(15)
@@ -167,12 +168,20 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
         super(TimeZoneWidget, self).focusOutEvent(event)
 
     @catch_all()
+    def stepBy(self, steps):
+        if self.value() == self.none_value:
+            self.setValue(0)
+        super(TimeZoneWidget, self).stepBy(steps)
+
+    @catch_all()
     def keyPressEvent(self, event):
         self.handle_delete_key(event)
         super(TimeZoneWidget, self).keyPressEvent(event)
 
     @catch_all(exc_return='')
     def textFromValue(self, value):
+        if value == self.none_value:
+            return ''
         if value < 0:
             sign = self.locale().negativeSign()
             value = -value
@@ -199,7 +208,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, ChoicesContextMenu, WidgetMixin):
     @catch_all(exc_return=0)
     def valueFromText(self, text):
         if not text.strip():
-            return 0
+            return self.none_value
         value = [self.locale().toInt(x) for x in text.split(':')]
         if len(value) > 2 or not all(x[1] for x in value):
             return 0
