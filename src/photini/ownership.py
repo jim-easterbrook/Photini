@@ -460,6 +460,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             return
         self.config_store.remove_section('ownership')
         template = form.get_value()
+        template = self.remove_empty(template)
         for key, value in template.items():
             if key in ('rights', 'contact_info'):
                 for k, v in value.items():
@@ -467,8 +468,17 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                         compound_key = '{}/{}'.format(
                             key, k.split(':')[-1])
                         self.config_store.set('ownership', compound_key, v)
-            elif value:
+            else:
                 self.config_store.set('ownership', key, value)
+
+    def remove_empty(self, value):
+        result = {}
+        for k, v in value.items():
+            if isinstance(v, dict):
+                v = self.remove_empty(v)
+            if v:
+                result[k] = v
+        return result
 
     @QtSlot()
     @catch_all()
