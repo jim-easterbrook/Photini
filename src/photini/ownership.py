@@ -225,7 +225,7 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
     clipboard_key = 'OwnerTab'
     _key = 'form'
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, active, *arg, **kw):
         super(DataForm, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
@@ -291,8 +291,9 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form.addRow(Label(
             translate('OwnerTab', 'Creator / Licensor Contact Information'),
             lines=3, layout=form), self.widgets['contact_info'])
-        for widget in self.sub_widgets():
-            widget.new_value.connect(self.save_data)
+        if active:
+            for widget in self.sub_widgets():
+                widget.new_value.connect(self.save_data)
 
     def sub_widgets(self):
         return self.widgets.values()
@@ -318,7 +319,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         # construct widgets
         self.enableable = []
         ## data fields
-        self.form = DataForm()
+        self.form = DataForm(True)
         self.form.tab_short_name = self.tab_short_name
         self.widgets = self.form.widgets
         self.layout().addWidget(self.form)
@@ -439,7 +440,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             translate('OwnerTab', 'Photini: ownership template'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
-        form = DataForm()
+        form = DataForm(False)
         widgets = form.widgets
         widgets['copyright'].setToolTip(
             widgets['copyright'].toolTip() + '<p>{}</p>'.format(
