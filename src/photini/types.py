@@ -624,8 +624,6 @@ class MD_Collection(MD_Dict):
     @classmethod
     def convert(cls, value):
         for key in value:
-            if not value[key]:
-                continue
             value[key] = cls.get_type(key)(value[key])
         return value
 

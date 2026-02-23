@@ -67,7 +67,7 @@ class WidgetMixin(object):
         choices = []
         for md in md_list:
             value = None
-            if md and self._key in md:
+            if self._key in md:
                 value = md[self._key]
             if value not in choices:
                 choices.append(value)
@@ -122,8 +122,7 @@ class CompoundWidgetMixin(WidgetMixin):
         if self.dynamic:
             keys = set()
             for md in md_list:
-                if md:
-                    keys |= {k for k in md if md[k]}
+                keys |= {k for k in md if md[k]}
             self.set_subwidgets(keys)
         for widget in self.sub_widgets():
             widget._load_data(md_list)
