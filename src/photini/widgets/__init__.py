@@ -167,7 +167,7 @@ class ListWidgetMixin(CompoundWidgetMixin):
         for widget in self.sub_widgets():
             for md in copy_list:
                 while len(md) <= widget._key:
-                    md.append({})
+                    md.append(self.item_type())
             widget._load_data(copy_list)
         self.after_load()
 
