@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-24  Jim Easterbrook.
+   Copyright (C)  2012-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Technical metadata
@@ -56,7 +56,7 @@ Below each date/time is a slider that allows you to set the precision.
 At its maximum value the time is shown to a precision of 1 millisecond.
 Cameras that can take more than one photograph per second need this precision!
 Moving the slider to the left removes parts of the date & time.
-This is useful for scans of old photographs where, for example, you might only know the year and month it was taken in.
+This is useful for scans of old photographs where, for example, you might only know the year and month the photos were taken in.
 Setting the precision allows you to record this uncertainty.
 
 .. image:: ../images/screenshot_107.png
@@ -127,13 +127,13 @@ The calculated value is shown in faint text.
 
 .. image:: ../images/screenshot_118.png
 
-If you know your camera's crop factor you can correct Photini's calculation by typing in the correct 35mm equivalent focal length.
-Photini will then store the crop factor for that camera model in its config file for future use.
+If you know your camera's crop factor you can correct Photini's calculation by setting the correct crop factor.
+Right-click on the ``35mm equiv`` field to bring up its (rather short) context menu.
 
 .. image:: ../images/screenshot_119.png
 
-If you don't want to store the 35mm equivalent focal length you entered in the photograph's metadata you can undo the edit by reloading the metadata.
-Right-click on the thumbnail and select ``reload file`` from the context menu.
+Type the correct crop factor into the dialog box and click ``OK``.
+Photini will then store the crop factor for that camera model in its config file for future use.
 
 .. image:: ../images/screenshot_120.png
 

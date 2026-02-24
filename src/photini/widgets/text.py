@@ -63,6 +63,7 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
         self.setUnderlineStyle(self.UnderlineStyle.SpellCheckUnderline)
         self.spell_check = QtWidgets.QApplication.instance().spell_check
         self.spell_check.new_dict.connect(highlighter.rehighlight)
+        self._lang = None
         highlighter.add_formatter(self)
 
     def add_spelling_context_menu(self, menu, cursor, callback):
@@ -76,7 +77,8 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
             cursor.setPosition(block_pos + start)
             cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
             break
-        suggestions = self.spell_check.suggest(cursor.selectedText())
+        suggestions = self.spell_check.suggest(
+            cursor.selectedText(), lang=self._lang)
         if not suggestions:
             return False
         group = QtGui2.QActionGroup(menu)
@@ -92,8 +94,14 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
 
     def highlight_block(self, text, highlighter):
         for word, start, end in self.spell_check.find_words(text):
-            if not self.spell_check.check(word):
+            if not self.spell_check.check(word, lang=self._lang):
                 highlighter.setFormat(start, end - start, self)
+
+    def set_lang(self, lang):
+        if lang == MD_LangAlt.DEFAULT:
+            lang = None
+        self._lang = lang
+        self.spell_check.load_dict(lang)
 
 
 class SpellCheckMixin(TextHighlighterMixin):
@@ -198,13 +206,10 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
 
     @catch_all()
     def contextMenuEvent(self, event):
-        print('contextMenuEvent')
         menu = self.createStandardContextMenu()
         for key in sorted(self.context_menus.keys()):
             add_context_menu = self.context_menus[key]
-            print(add_context_menu)
             if add_context_menu(menu, event):
-                print('done')
                 break
         execute(menu, event.globalPos())
 
@@ -327,10 +332,13 @@ class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
 
     def set_lang(self, lang):
         self._key = lang
-        locale = QtCore.QLocale(lang)
-        option = self.document().defaultTextOption()
-        option.setTextDirection(locale.textDirection())
-        self.document().setDefaultTextOption(option)
+        if lang:
+            if self._spell_check:
+                self._spell_check.set_lang(lang)
+            locale = QtCore.QLocale(lang)
+            option = self.document().defaultTextOption()
+            option.setTextDirection(locale.textDirection())
+            self.document().setDefaultTextOption(option)
 
     def _save_data(self, metadata, value):
         if self._key in value:

@@ -225,7 +225,7 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
     clipboard_key = 'OwnerTab'
     _key = 'form'
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, active, *arg, **kw):
         super(DataForm, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
@@ -291,8 +291,9 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form.addRow(Label(
             translate('OwnerTab', 'Creator / Licensor Contact Information'),
             lines=3, layout=form), self.widgets['contact_info'])
-        for widget in self.sub_widgets():
-            widget.new_value.connect(self.save_data)
+        if active:
+            for widget in self.sub_widgets():
+                widget.new_value.connect(self.save_data)
 
     def sub_widgets(self):
         return self.widgets.values()
@@ -318,7 +319,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         # construct widgets
         self.enableable = []
         ## data fields
-        self.form = DataForm()
+        self.form = DataForm(True)
         self.form.tab_short_name = self.tab_short_name
         self.widgets = self.form.widgets
         self.layout().addWidget(self.form)
@@ -412,17 +413,18 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         template = {}
         for key, widget in self.widgets.items():
             if key in ('rights', 'contact_info'):
-                template[key] = {}
+                value = {}
                 for w in widget.sub_widgets():
                     sub_key = w._key
-                    value = self.config_store.get('ownership', '{}/{}'.format(
-                        key, sub_key.split(':')[-1]))
-                    if value:
-                        template[key][sub_key] = value
+                    sub_value = self.config_store.get(
+                        'ownership', '{}/{}'.format(
+                            key, sub_key.split(':')[-1]))
+                    if sub_value:
+                        value[sub_key] = sub_value
             else:
                 value = self.config_store.get('ownership', key)
-                if value:
-                    template[key] = value
+            if value:
+                template[key] = value
         return template
 
     @QtSlot()
@@ -439,7 +441,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             translate('OwnerTab', 'Photini: ownership template'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
-        form = DataForm()
+        form = DataForm(False)
         widgets = form.widgets
         widgets['copyright'].setToolTip(
             widgets['copyright'].toolTip() + '<p>{}</p>'.format(
@@ -459,6 +461,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             return
         self.config_store.remove_section('ownership')
         template = form.get_value()
+        template = self.remove_empty(template)
         for key, value in template.items():
             if key in ('rights', 'contact_info'):
                 for k, v in value.items():
@@ -466,8 +469,17 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                         compound_key = '{}/{}'.format(
                             key, k.split(':')[-1])
                         self.config_store.set('ownership', compound_key, v)
-            elif value:
+            else:
                 self.config_store.set('ownership', key, value)
+
+    def remove_empty(self, value):
+        result = {}
+        for k, v in value.items():
+            if isinstance(v, dict):
+                v = self.remove_empty(v)
+            if v:
+                result[k] = v
+        return result
 
     @QtSlot()
     @catch_all()
@@ -475,13 +487,15 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         template = self.read_template()
         images = self.app.image_list.get_selected_images()
         for image in images:
-            date_taken = image.metadata.date_taken
+            md = image.metadata
+            date_taken = md.date_taken
             if date_taken:
                 date_taken = date_taken['datetime']
             else:
                 date_taken = datetime.now()
             value = self.process_template(template, date_taken)
-            self.form.save_data(value, [image])
+            for key in value:
+                md[key] = value[key]
         self.form.load_data(images)
 
     def process_template(self, template, date_taken):
