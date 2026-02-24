@@ -76,7 +76,7 @@ class IntValidator(QtGui.QIntValidator, DecoratorMixin):
         return None
 
     def value_to_text(self, value):
-        return self.locale().toString(value)
+        return self.locale().toString(int(value))
 
 
 class DoubleValidator(QtGui.QDoubleValidator, DecoratorMixin):

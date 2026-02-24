@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2021-23  Jim Easterbrook.
+   Copyright (C)  2021-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Ownership metadata
@@ -39,6 +39,15 @@ See the `Quick guide to IPTC Photo Metadata and Google Images`_ for more detail.
 The ``Apply template`` button copies the template data to all the selected images, setting the correct year in the ``Copyright Notice``.
 If you want to clear any of the images' existing ownership data when the template is applied, then set the corresponding template field to a single space.
 You can then add more information, or edit the existing information, in the usual way.
+
+Copy and paste
+--------------
+
+.. image:: ../images/screenshot_205.png
+
+If you want to copy all the "ownership" metadata from one photograph to another, right-clicking outside the data entry fields brings up a context menu with ``Cut``, ``Copy``, ``Paste``, and ``Delete`` actions.
+Cut and copy are disabled if any of the data fields has multiple values, paste is disabled if the (private) clipboard is empty.
+
 
 More information about the data fields
 --------------------------------------

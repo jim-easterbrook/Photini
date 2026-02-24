@@ -493,7 +493,10 @@ class MD_DateTime(MD_Dict):
             if verbose:
                 self.log_ignored(info, tag, other)
             return self
-        # datetime and timezone values agree, use higher precision
+        # datetime and timezone values agree
+        if tag.startswith('Xmp'):
+            # other's precision is trustworthy
+            return other
         if other['precision'] > self['precision']:
             return other
         return self
@@ -624,8 +627,6 @@ class MD_Collection(MD_Dict):
     @classmethod
     def convert(cls, value):
         for key in value:
-            if not value[key]:
-                continue
             value[key] = cls.get_type(key)(value[key])
         return value
 

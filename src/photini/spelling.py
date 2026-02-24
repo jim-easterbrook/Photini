@@ -43,36 +43,36 @@ class SpellCheck(QtCore.QObject):
 
     def __init__(self, *arg, **kw):
         super(SpellCheck, self).__init__(*arg, **kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
+        app = QtWidgets.QApplication.instance()
+        self.config_store = app.config_store
+        self.dictionaries = {}
+        self.default_lang = app.locale.uiLanguages()[0]
         self.enable(self.config_store.get('spelling', 'enabled', True))
         self.set_language(self.config_store.get('spelling', 'language'))
 
     @staticmethod
     def available_languages():
-        result = defaultdict(list)
-        if enchant:
-            for code in enchant.list_languages():
-                locale = QtCore.QLocale(code)
-                language = locale.languageToString(locale.language())
-                if '_' in code and '_ANY' not in code:
-                    if qt_version_info < (6, 2):
-                        country = locale.countryToString(locale.country())
-                    else:
-                        country = locale.territoryToString(locale.territory())
-                else:
-                    country = ''
-                result[language].append((country, code))
-        else:
+        if not enchant:
             return None
+        result = defaultdict(list)
+        for code in enchant.list_languages():
+            locale = QtCore.QLocale(code)
+            language = locale.languageToString(locale.language())
+            if '_' in code and '_ANY' not in code:
+                if qt_version_info < (6, 2):
+                    country = locale.countryToString(locale.country())
+                else:
+                    country = locale.territoryToString(locale.territory())
+            else:
+                country = ''
+            result[language].append((country, code))
         for value in result.values():
             value.sort()
         return dict(result) or None
 
     def current_language(self):
-        if not self.dict:
-            return ''
-        if enchant:
-            return self.dict.tag
+        if self.default_lang in self.dictionaries:
+            return self.dictionaries[self.default_lang].tag
         return ''
 
     @QtSlot(bool)
@@ -82,16 +82,31 @@ class SpellCheck(QtCore.QObject):
         self.enabled = enabled and bool(enchant)
         self.new_dict.emit()
 
+    def load_dict(self, lang):
+        if not (lang and self.enabled):
+            return
+        if lang in self.dictionaries:
+            return
+        test = lang.replace('-', '_')
+        if test in self.dictionaries:
+            self.dictionaries[lang] = self.dictionaries[test]
+            return
+        for test in test, test.split('_')[0]:
+            for code in enchant.list_languages():
+                if code.startswith(test):
+                    self.dictionaries[lang] = enchant.request_dict(code)
+                    return
+        self.dictionaries[lang] = self.dictionaries[self.default_lang]
+        return
+
     def set_language(self, code):
         if code:
             logger.debug('Setting dictionary %s', code)
-        self.dict = None
-        if enchant:
-            if code and enchant.dict_exists(code):
-                self.dict = enchant.Dict(code)
-        else:
+        if not (enchant and code):
             return
-        if code and not self.dict:
+        self.default_lang = code
+        self.load_dict(code)
+        if code and not self.dictionaries[code]:
             logger.warning('Failed to set dictionary %s', code)
         self.config_store.set('spelling', 'language', self.current_language())
         self.new_dict.emit()
@@ -102,18 +117,16 @@ class SpellCheck(QtCore.QObject):
         for word in self.words.finditer(text):
             yield word.group(), word.start(), word.end()
 
-    def check(self, word):
-        if not (word and self.enabled and self.dict):
+    def check(self, word, lang=None):
+        if not (word and self.enabled):
             return True
         if word.isnumeric():
             return True
-        if enchant:
-            return self.dict.check(word)
-        return True
+        lang = lang or self.default_lang
+        return self.dictionaries[lang].check(word)
 
-    def suggest(self, word):
-        if self.check(word):
+    def suggest(self, word, lang=None):
+        lang = lang or self.default_lang
+        if self.check(word, lang=lang):
             return []
-        if enchant:
-            return self.dict.suggest(word)
-        return []
+        return self.dictionaries[lang].suggest(word)

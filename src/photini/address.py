@@ -265,6 +265,8 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
 
 
 class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
+    item_type = MD_Location
+
     def __init__(self, tab_widget, is_camera, *arg, **kw):
         super(LocationList, self).__init__(*arg, **kw)
         self.tab_widget = tab_widget

@@ -63,12 +63,13 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
         self.setUnderlineStyle(self.UnderlineStyle.SpellCheckUnderline)
         self.spell_check = QtWidgets.QApplication.instance().spell_check
         self.spell_check.new_dict.connect(highlighter.rehighlight)
+        self._lang = None
         highlighter.add_formatter(self)
 
     def add_spelling_context_menu(self, menu, cursor, callback):
-        block_pos = cursor.block().position()
-        for word, start, end in self.spell_check.find_words(
-                                                    cursor.block().text()):
+        block = cursor.block()
+        block_pos = block.position()
+        for word, start, end in self.spell_check.find_words(block.text()):
             if start > cursor.positionInBlock():
                 break
             if end <= cursor.positionInBlock():
@@ -76,21 +77,31 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
             cursor.setPosition(block_pos + start)
             cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
             break
-        suggestions = self.spell_check.suggest(cursor.selectedText())
+        suggestions = self.spell_check.suggest(
+            cursor.selectedText(), lang=self._lang)
         if not suggestions:
-            return
+            return False
         group = QtGui2.QActionGroup(menu)
-        sep = menu.insertSeparator(menu.actions()[0])
+        sep = menu.actions()[0]
+        if not sep.isSeparator():
+            sep = menu.insertSeparator(sep)
         for suggestion in suggestions:
             action = QtGui2.QAction(suggestion, parent=group)
             action.setData(cursor)
             menu.insertAction(sep, action)
         group.triggered.connect(callback)
+        return True
 
     def highlight_block(self, text, highlighter):
         for word, start, end in self.spell_check.find_words(text):
-            if not self.spell_check.check(word):
+            if not self.spell_check.check(word, lang=self._lang):
                 highlighter.setFormat(start, end - start, self)
+
+    def set_lang(self, lang):
+        if lang == MD_LangAlt.DEFAULT:
+            lang = None
+        self._lang = lang
+        self.spell_check.load_dict(lang)
 
 
 class SpellCheckMixin(TextHighlighterMixin):
@@ -98,12 +109,12 @@ class SpellCheckMixin(TextHighlighterMixin):
 
     def add_spell_check(self):
         self._spell_check = SpellCheckFormatter(self.highlighter())
-        self.context_menus.append(self.add_spelling_context_menu)
+        self.context_menus['B'] = self.add_spelling_context_menu
 
     def add_spelling_context_menu(self, menu, event):
-        if self.is_multiple() or not self._spell_check:
-            return
-        self._spell_check.add_spelling_context_menu(
+        if not self._spell_check:
+            return False
+        return self._spell_check.add_spelling_context_menu(
             menu, self.cursorForPosition(event.pos()),
             self._spelling_triggered)
 
@@ -181,7 +192,7 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
-        self.context_menus = [self.add_choices_context_menu]
+        self.context_menus = {'A': self.add_choices_context_menu}
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
@@ -196,8 +207,10 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
     @catch_all()
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
-        for add_context_menu in self.context_menus:
-            add_context_menu(menu, event)
+        for key in sorted(self.context_menus.keys()):
+            add_context_menu = self.context_menus[key]
+            if add_context_menu(menu, event):
+                break
         execute(menu, event.globalPos())
 
     @catch_all()
@@ -298,12 +311,7 @@ class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
         self._owner = owner
         self.set_lang(None)
         self.set_default(False)
-        self.context_menus.append(self.add_languages_context_menu)
-
-    def add_languages_context_menu(self, menu, event):
-        if self.is_multiple():
-            return
-        self._owner.add_languages_context_menu(self, menu)
+        self.context_menus['Z'] = self._owner.add_all_langs_context_menu
 
     def get_value_dict(self):
         if self.is_valid():
@@ -324,10 +332,13 @@ class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
 
     def set_lang(self, lang):
         self._key = lang
-        locale = QtCore.QLocale(lang)
-        option = self.document().defaultTextOption()
-        option.setTextDirection(locale.textDirection())
-        self.document().setDefaultTextOption(option)
+        if lang:
+            if self._spell_check:
+                self._spell_check.set_lang(lang)
+            locale = QtCore.QLocale(lang)
+            option = self.document().defaultTextOption()
+            option.setTextDirection(locale.textDirection())
+            self.document().setDefaultTextOption(option)
 
     def _save_data(self, metadata, value):
         if self._key in value:
@@ -427,8 +438,9 @@ class LangAltSelector(ComboBox):
     add_lang = QtSignal(str)
     show_lang = QtSignal(str)
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, owner, *arg, **kw):
         super(LangAltSelector, self).__init__(*arg, **kw)
+        self._owner = owner
         self.long_text = translate('LangAltWidget', 'Language')
         self.short_text = translate('LangAltWidget', 'Lang: ',
                                     'Short abbreviation of "Language: "')
@@ -439,6 +451,10 @@ class LangAltSelector(ComboBox):
         self.activated.connect(self.lang_activated)
         self.currentIndexChanged.connect(self.current_index_changed)
         self.addItem(translate('Widgets', '<new>'))
+
+    @catch_all()
+    def contextMenuEvent(self, event):
+        self._owner.lang_selector_context_menu(event)
 
     @QtSlot(int)
     @catch_all()
@@ -524,7 +540,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         self.long_text = translate('LangAltWidget', 'Language')
         self.short_text = translate('LangAltWidget', 'Lang: ',
                                     'Short abbreviation of "Language: "')
-        self.lang = LangAltSelector()
+        self.lang = LangAltSelector(self)
         self.lang.show_lang.connect(self.edit_stack.show_lang)
         self.lang.add_lang.connect(self.add_lang)
         layout.addWidget(self.lang, 0, 2)
@@ -546,7 +562,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             self.lang.setCurrentIndex(self.lang.findData(lang))
         self.edit_stack.currentWidget().setFocus()
 
-    def add_languages_context_menu(self, widget, menu):
+    def add_all_langs_context_menu(self, menu, event):
         # cut/paste menu for all languages
         sep = menu.insertSection(menu.actions()[0], translate(
             'LangAltWidget', 'This language'))
@@ -556,18 +572,22 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             temp.removeAction(action)
             action.setParent(menu)
             menu.insertAction(sep, action)
-        sep = menu.insertSection(menu.actions()[0], translate(
+        menu.insertSection(menu.actions()[0], translate(
             'LangAltWidget', 'All languages'))
+
+    def lang_selector_context_menu(self, event):
+        menu = QtWidgets.QMenu()
         # set default language
-        old_lang = widget.lang()
+        old_lang = self.lang.currentData()
+        widget = self.edit_stack.find_lang(old_lang)
         group = QtGui2.QActionGroup(menu)
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Make "{language}" the default language.'
             ).format(language=old_lang), parent=group)
-        if widget.is_default():
+        if widget.is_default() or self.edit_stack.find_lang(MD_LangAlt.DEFAULT):
             action.setEnabled(False)
         action.setData(old_lang)
-        menu.insertAction(sep, action)
+        menu.addAction(action)
         group.triggered.connect(self.set_default_lang)
         # change language
         new_lang = self.locale().uiLanguages()[0]
@@ -575,15 +595,16 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Change language to "{language}".'
             ).format(language=new_lang), parent=group)
-        if self.lang.findData(new_lang) >= 0:
+        if self.edit_stack.find_lang(new_lang):
             action.setEnabled(False)
         action.setData((old_lang, new_lang))
-        menu.insertAction(sep, action)
+        menu.addAction(action)
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Change language to other.'), parent=group)
         action.setData((old_lang, None))
-        menu.insertAction(sep, action)
+        menu.addAction(action)
         group.triggered.connect(self.set_text_lang)
+        execute(menu, event.globalPos())
 
     @QtSlot(QtGui2.QAction)
     @catch_all()

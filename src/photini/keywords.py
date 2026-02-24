@@ -73,6 +73,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.set_value_dict = self.edit.set_value_dict
         self.set_enabled = self.edit.set_enabled
         self.set_multiple = self.edit.set_multiple
+        self.has_value = self.edit.has_value
         self.is_multiple = self.edit.is_multiple
         self.is_valid = self.edit.is_valid
         self.new_value = self.edit.new_value
@@ -502,10 +503,11 @@ class HierarchicalTagsDialog(QtWidgets.QDialog):
     @catch_all()
     def clicked_apply(self):
         # construct new value
-        new_value = []
+        new_value = {}
         for child in self.data_model.all_children():
             if child.checked('is_set'):
-                new_value.append(child.full_name())
+                key = child.full_name()
+                new_value[key] = key
         self.parent().set_value(new_value)
         self.parent().emit_value()
 
@@ -581,6 +583,12 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
     def append_value(self, value):
         value.update(self.get_value())
         self.set_value(value)
+
+    def get_value(self):
+        result = super(HierarchicalTagsEditor, self).get_value()
+        if not result['']:
+            del result['']
+        return result
 
     def set_subwidgets(self, keys):
         keys = list(keys)

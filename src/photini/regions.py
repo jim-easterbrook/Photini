@@ -1069,6 +1069,7 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
     new_person = QtSignal(dict)
     clipboard_key = 'RegionsTab'
     dynamic = True
+    item_type = ImageRegionItem
     _key = 'RegionList'
 
     def __init__(self, *arg, **kw):
