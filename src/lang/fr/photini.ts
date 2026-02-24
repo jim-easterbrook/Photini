@@ -1676,7 +1676,7 @@
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished">Public</translation>
+        <translation>Public</translation>
     </message>
     <message>
         <source>Unlisted</source>
@@ -1712,19 +1712,19 @@
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished">Attribution</translation>
+        <translation>Attribution</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike</source>
-        <translation type="unfinished">Attribution - Partage dans les Mêmes Conditions</translation>
+        <translation>Attribution - Partage dans les Mêmes Conditions</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial</source>
-        <translation type="unfinished">Attribution - Pas d’Utilisation Commerciale</translation>
+        <translation>Attribution - Pas d’Utilisation Commerciale</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike</source>
-        <translation type="unfinished">Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions</translation>
+        <translation>Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions</translation>
     </message>
     <message>
         <source>Attribution-NoDerivs</source>
@@ -1875,7 +1875,7 @@
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this region.</source>

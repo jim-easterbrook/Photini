@@ -1727,7 +1727,7 @@
     </message>
     <message>
         <source>Content type</source>
-        <translation type="unfinished">Typ zawartości</translation>
+        <translation>Typ zawartości</translation>
     </message>
     <message>
         <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
