@@ -467,6 +467,11 @@ class DateLink(QtWidgets.QCheckBox):
             self.src.emit_value()
 
 
+class FL35Widget(NumericalWidget):
+    def contextMenuEvent(self, event):
+        self._owner.context_menu_event(event)
+
+
 class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
     _key = 'focal_length'
 
@@ -481,8 +486,9 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         self.fl = NumericalWidget(
             'fl', DoubleValidator(minimum=0.0, suffix=suffix))
         # 35mm equivalent focal length
-        self.fl35 = NumericalWidget(
+        self.fl35 = FL35Widget(
             'fl35', IntValidator(minimum=0, suffix=suffix))
+        self.fl35._owner = self
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
 
