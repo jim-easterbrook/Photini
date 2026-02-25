@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-25  Jim Easterbrook.
+   Copyright (C)  2012-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 .. |nbsp| unicode:: 0xA0
@@ -100,7 +100,7 @@ Not all map providers have altitude data, and the accuracy varies quite a lot.
 You can edit the value to correct it.
 
 Map failures
-------------
+^^^^^^^^^^^^
 
 .. image:: ../images/screenshot_143.png
 
@@ -111,6 +111,13 @@ Some of the map providers use WebGL to draw their maps, so if WebGL, or some fea
 Problems with WebGL could be caused by having an incompatible graphics card or driver, or by the system configuration.
 Clicking on the link in the error message might provide some useful diagnostic information.
 You could also try choosing a different Qt package in Photini's :doc:`configuration <configuration>`.
+
+Copy and paste
+--------------
+
+.. image:: ../images/screenshot_144.png
+
+The latitude, longitude and altitude of a location can be copied and pasted by right-clicking outside the map or any data entry field.
 
 GPX file import
 ---------------
