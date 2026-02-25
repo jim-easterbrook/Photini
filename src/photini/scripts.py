@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020-24  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -78,8 +78,6 @@ def configure(argv=None):
         install_extras.append(choice)
     ## Other options are simpler
     options = [('flickr', 'photini.flickr', 'upload pictures to Flickr'),
-               ('google', 'photini.googlephotos',
-                'upload pictures to Google Photos'),
                ('ipernity', 'photini.ipernity', 'upload pictures to Ipernity'),
                ('pixelfed', 'photini.pixelfed',
                 'upload pictures to Pixelfed or Mastodon'),

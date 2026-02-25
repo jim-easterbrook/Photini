@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2019-24  Jim Easterbrook.
+   Copyright (C)  2019-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Extending Photini
@@ -19,7 +19,6 @@ For example, if the package ``mypackage`` provides a Photini tab in the module `
              'photini.technical',
              'mypackage.photini',
              'photini.googlemap',
-             'photini.bingmap',
              'photini.azuremap',
              'photini.mapboxmap',
              'photini.address',
@@ -27,8 +26,7 @@ For example, if the package ``mypackage`` provides a Photini tab in the module `
              'photini.flickr',
              'photini.ipernity',
              'photini.pixelfed',
-             'photini.importer',
-             'photini.googlephotos']
+             'photini.importer']
 
 You can add your module anywhere in the configuration file's module list.
 The user can then set the tab order by drag and drop.

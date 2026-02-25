@@ -52,7 +52,6 @@ requires-python = ">= 3.6"
 
 [project.optional-dependencies]
 flickr = ["photini[keyring,requests-oauthlib,requests-toolbelt]"]
-google = ["photini[keyring,requests-oauthlib]"]
 importer = ["gphoto2 >= 2.4; platform_system != 'Windows'"]
 ipernity = ["photini[keyring,requests-toolbelt]"]
 pixelfed = ["photini[keyring,requests-oauthlib,requests-toolbelt]"]

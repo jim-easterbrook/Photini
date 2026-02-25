@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-24  Jim Easterbrook.
+   Copyright (C)  2012-26  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 .. |nbsp| unicode:: 0xA0
@@ -203,7 +203,6 @@ Photini has a number of optional extras that can be installed with pip_.
 These are:
 
 * flickr: Enable uploading pictures to Flickr_.
-* google: Enable uploading pictures to `Google Photos`_.
 * ipernity: Enable uploading pictures to Ipernity_.
 * pixelfed: Enable uploading pictures to Pixelfed_ or Mastodon_.
 * importer: Import photos directly from a camera (not available on Windows).
@@ -793,7 +792,6 @@ Spell check[1]                pyenchant_ 2.0+
 Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Ipernity upload               `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Pixelfed upload               `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
-Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
 Thumbnail creation[2]         FFmpeg_
 Import photos from camera[3]  `python3-gphoto2`_ 1.8+
 Import GPS logger file        gpxpy_ 1.3.5+
@@ -914,7 +912,6 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _FFmpeg:            https://ffmpeg.org/
 .. _Flickr:            http://www.flickr.com/
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
-.. _Google Photos:     https://photos.google.com/
 .. _gpxpy:             https://pypi.org/project/gpxpy/
 .. _Ipernity:          http://www.ipernity.com/
 .. _keyring:           https://keyring.readthedocs.io/

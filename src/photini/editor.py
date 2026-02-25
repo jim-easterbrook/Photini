@@ -455,11 +455,12 @@ class MainWindow(QtWidgets.QMainWindow):
                            'photini.regions',      'photini.googlemap',
                            'photini.azuremap',     'photini.mapboxmap',
                            'photini.address',      'photini.flickr',
-                           'photini.ipernity',     'photini.googlephotos',
+                           'photini.ipernity',
                            'photini.pixelfed',     'photini.importer']
         self.modules = self.app.config_store.get(
             'tabs', 'modules', default_modules)
-        for key in ('photini.openstreetmap', 'photini.bingmap'):
+        for key in ('photini.openstreetmap', 'photini.bingmap',
+                    'photini.googlephotos'):
             if key in self.modules:
                 self.modules.remove(key)
                 self.app.config_store.delete('tabs', key)

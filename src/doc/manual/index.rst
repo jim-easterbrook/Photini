@@ -22,7 +22,6 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    flickr
    ipernity
    pixelfed
-   google_photos
    importer
    video
    configuration

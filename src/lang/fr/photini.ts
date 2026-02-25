@@ -570,7 +570,7 @@
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation>Nouvel album</translation>
+        <translation type="vanished">Nouvel album</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
@@ -578,37 +578,37 @@
     </message>
     <message>
         <source>Google Photos</source>
-        <translation>Google Photos</translation>
+        <translation type="vanished">Google Photos</translation>
     </message>
     <message>
         <source>Google Photos upload</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished">Import Google Photos</translation>
+        <translation type="obsolete">Import Google Photos</translation>
     </message>
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>&amp;Google</translation>
+        <translation type="vanished">&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>Photini&#xa0;: gros fichier</translation>
+        <translation type="vanished">Photini&#xa0;: gros fichier</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Le fichier «&#xa0;{file_name}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{file_name}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>Nom de l&apos;album</translation>
+        <translation type="vanished">Nom de l&apos;album</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>Veuillez saisir un nom pour l&apos;album</translation>
+        <translation type="vanished">Veuillez saisir un nom pour l&apos;album</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>Fichier volumineux.</translation>
+        <translation type="vanished">Fichier volumineux.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
