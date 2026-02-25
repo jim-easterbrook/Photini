@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2023-24  Jim Easterbrook.
+   Copyright (C)  2023-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Image regions
@@ -22,6 +22,7 @@ The user interface is disabled until one image file is selected.
 
 The image is shown on the right hand side in a scrollable area.
 On the left are one or more tabs showing metadata for each image region.
+An empty "placeholder" tab with a faint label number is always included.
 
 .. note::
     You should avoid using "raw" image format photographs as these are often slightly larger than the intended display size.
@@ -32,12 +33,11 @@ On the left are one or more tabs showing metadata for each image region.
 
 .. |plus| unicode:: U+002b
 
-To create a new region, click on the |plus| button and select a region shape.
-(To delete a region, right-click on its tab and select ``Delete region``.)
+To create a new region, right-click anywhere in the image and choose a region type from the context menu.
 
 .. image:: ../images/screenshot_273.png
 
-The new region (a rectangle in this example) is initially placed at the centre of the image.
+The new region (a rectangle in this example) is initially centred on your mouse pointer.
 
 .. image:: ../images/screenshot_274.png
 
@@ -85,8 +85,8 @@ It can be useful to set cropping regions for an image.
 Many social media web sites crop images, typically to square or 16:9 aspect ratio landscape.
 This often causes problems such as decapitated bodies.
 
-Note that the unselected region is shown with a blue & yellow dashed outline.
-You can select an unselected region by clicking on it.
+Note that the first region is now shown with a blue & yellow dashed outline as it is no longer selected.
+You can select an unselected region by clicking on it in the image or by clicking on its tab.
 
 .. image:: ../images/screenshot_280.png
 
@@ -100,8 +100,20 @@ A vertex can also be added by right-clicking anywhere within the polygon.
 
 .. image:: ../images/screenshot_282.png
 
-Vertices can be added to make shapes of arbitrary complexity.
-Is this useful for anything?
+Vertices can be added to make shapes of any complexity.
+
+Copy and paste
+--------------
+
+.. image:: ../images/screenshot_283.png
+
+An individual region can be copied or deleted by right-clicking within its tab.
+Pasting a region overwrites the current region, so you should usually select the empty "placeholder" region before pasting.
+
+.. image:: ../images/screenshot_284.png
+
+Right-clicking outside a region tab allows copying or deleting all the image's regions.
+Pasting a set of regions adds them to the existing regions, unless they are already present.
 
 
 .. _content type:

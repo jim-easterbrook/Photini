@@ -305,7 +305,9 @@ class UploaderUser(QtWidgets.QGridLayout):
     def authorise(self):
         with Busy():
             # do full authentication procedure
-            frob_or_uri = self.get_frob()
+            frob_or_uri, OK = self.get_frob()
+            if not OK:
+                return
             if frob_or_uri:
                 http_server = None
                 auth_response = frob_or_uri
@@ -359,7 +361,7 @@ class UploaderUser(QtWidgets.QGridLayout):
                 pass
 
     def get_frob(self):
-        return None
+        return None, True
 
     def get_password(self):
         return keyring.get_password('photini', self.config_section)

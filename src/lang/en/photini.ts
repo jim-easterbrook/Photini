@@ -546,7 +546,7 @@
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation>New album</translation>
+        <translation type="vanished">New album</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
@@ -554,37 +554,37 @@
     </message>
     <message>
         <source>Google Photos</source>
-        <translation>Google Photos</translation>
+        <translation type="vanished">Google Photos</translation>
     </message>
     <message>
         <source>Google Photos upload</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Google Photos upload</translation>
+        <translation type="vanished">Google Photos upload</translation>
     </message>
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>&amp;Google</translation>
+        <translation type="vanished">&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>Photini: large file</translation>
+        <translation type="vanished">Photini: large file</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>File &quot;{file_name}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</translation>
+        <translation type="vanished">File &quot;{file_name}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>Album title</translation>
+        <translation type="vanished">Album title</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>Please enter a title for the album</translation>
+        <translation type="vanished">Please enter a title for the album</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>Large file.</translation>
+        <translation type="vanished">Large file.</translation>
     </message>
 </context>
 <context>

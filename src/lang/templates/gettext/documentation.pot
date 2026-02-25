@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2025.6.0.post29\n"
+"Project-Id-Version: Photini 2025.10.0.post170\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-21 09:33+0100\n"
+"POT-Creation-Date: 2026-02-24 09:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -199,7 +199,7 @@ msgstr ""
 msgid "The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to edit basic information about your photographs, such as the title and description."
 msgstr ""
 
-msgid "The data form is disabled until you select one or more images to edit."
+msgid "The data form is mostly disabled until you select one or more images to edit."
 msgstr ""
 
 msgid "The first thing I usually do with a new set of photographs is to set the title. Select all the images that should have the same title, then type the title in the ``Title / Object name`` text editing box. Hovering the mouse over the data field displays a popup \"tooltip\" describing the sort of information to put in that field. This help text is taken from the `IPTC standard`_."
@@ -250,19 +250,37 @@ msgstr ""
 msgid "Some fields, such as title and description, are stored in XMP as `Lang Alt`_ data. This allows translations into alternative languages to be stored along with the default language text. (Only the default language is stored in Exif and IPTC-IIM.)"
 msgstr ""
 
-msgid "Photini has a language drop down selector next to each ``Lang Alt`` data field. If the current text is in an unspecified default language the selector shows ``Language``, otherwise it shows ``Lang:`` and the current language. If the field is empty the current language is set to your computer's default locale. You can add an alternative language by clicking on the drop down and selecting ``<new>``."
+msgid "Photini has a language drop down selector next to each ``Lang Alt`` data field. If the current text is in an unspecified language the selector shows ``Language``, otherwise it shows ``Lang:`` and the current language. Languages are specified with an RFC3066_ code. This usually starts with a two-letter language code, e.g. ``en`` for English, and may be followed by a hyphen and a two-letter country code, e.g. ``en-GB`` for English as used in Great Britain. You can add another language by clicking on the drop down and selecting ``<new>``."
 msgstr ""
 
-msgid "If there is already some text in an unspecified default language you will be asked to say what that language is. Languages are specified with an RFC3066_ code. This usually starts with a two-letter language code, e.g. ``en`` for English, and may be followed by a hyphen and a two-letter country code, e.g. ``en-GB`` for English as spoken in Great Britain."
+msgid "Next you can set the language to be added, e.g. ``fr-FR`` for French as used in France."
 msgstr ""
 
-msgid "Next you can set the language to be added, e.g. ``fr-FR`` for French as spoken in France."
+msgid "You can then type the translation in to the text field. Of course the English spelling checker doesn't recognise most French words."
 msgstr ""
 
-msgid "You can then type the translation in to the text field."
+msgid "If you install the appropriate dictionaries than setting the language of a ``Lang Alt`` data field also selects the dictionary used by the spelling checker. (Deliberate spelling error introduced for illustrative purposes.)"
 msgstr ""
 
-msgid "If you would like to change the default language, right-click on the ``Lang:`` dropdown and choose a language."
+msgid "You can change the language of some existing text by right-clicking on the language selector drop down to bring up its context menu. This has options to change the language to your computer's default or to any other language."
+msgstr ""
+
+msgid "When there is more than one language you can choose which one is the default with the right-click context menu. The default language appears first in the language drop down selector."
+msgstr ""
+
+msgid "When a ``Lang Alt`` data field has multiple values, you can use the drop down selector to select each language in turn before right-clicking on the text to choose one of the values."
+msgstr ""
+
+msgid "Copy and paste"
+msgstr ""
+
+msgid "The usual context menu allows cut / copy /paste / delete of the widget's text. Photini can also perform these operations on all the languages in a ``Lang Alt`` data field."
+msgstr ""
+
+msgid "You can copy and paste all of the \"descriptive\" metadata by right-clicking outside any data field. (You can also delete all the data!) The cut and copy actions are disabled if any of the data fields has multiple values."
+msgstr ""
+
+msgid "This menu, and the ``Lang Alt`` all languages menu, uses a private clipboard, rather then the shared clipboard used by the usual data field context menu."
 msgstr ""
 
 msgid "More information about the data fields"
@@ -757,6 +775,18 @@ msgstr ""
 msgid "When this happens Photini searches the flat keywords for other words in the hierarchies. For example, if the flat keywords contain \"USA\" or \"Texas\" but not \"France\" then the choice is obvious. If the ambiguity cannot be resolved then the flat keyword is not copied to the hierarchical keywords."
 msgstr ""
 
+msgid "Multiple values"
+msgstr ""
+
+msgid "Hierarchical keywords handle multiple values differently from other data entry fields. Keywords that are present in all the selected images are shown normally. Other fields show ``<multiple values>`` but only have one entry in the context menu. Selecting this entry adds the keyword to all the selected images."
+msgstr ""
+
+msgid "As with the \"descriptive\" metadata tab, right-clicking outside any data entry brings up a context menu that allows copying and pasting (and cutting and deleting) all the keywords in an image, hierarchical and \"flat\"."
+msgstr ""
+
+msgid "In addition, the hierarchical keywords have a context menu to allow copy and paste of all the hierarchical keywords, but without the flat keywords. (But keyword synchronisation may add them when the hierarchical keywords are pasted.)"
+msgstr ""
+
 msgid "Geotagging"
 msgstr ""
 
@@ -896,6 +926,9 @@ msgid "Google Image Search displays the ``Creator``, ``Credit Line``, and ``Copy
 msgstr ""
 
 msgid "The ``Apply template`` button copies the template data to all the selected images, setting the correct year in the ``Copyright Notice``. If you want to clear any of the images' existing ownership data when the template is applied, then set the corresponding template field to a single space. You can then add more information, or edit the existing information, in the usual way."
+msgstr ""
+
+msgid "If you want to copy all the \"ownership\" metadata from one photograph to another, right-clicking outside the data entry fields brings up a context menu with ``Cut``, ``Copy``, ``Paste``, and ``Delete`` actions. Cut and copy are disabled if any of the data fields has multiple values, paste is disabled if the (private) clipboard is empty."
 msgstr ""
 
 msgid "Click on any field name below to see the IPTC definition and user notes for that field. Although these fields are defined in an `IPTC standard`_, they are all stored in XMP metadata. Some of them are also stored in \"legacy\" IPTC-IIM data."
@@ -1549,7 +1582,7 @@ msgstr ""
 msgid "You can also offset the time zone. In this example my camera clock was set to British Summer Time (+01:00) but records timestamps without zone information. I was on holiday in mainland Europe (+02:00) so I need to add 1 hour to each timestamp and 2 hours to the time zone. The ``Adjust times`` values are stored in Photini's configuration file, so each day's photos can be given the same offset with just one button click."
 msgstr ""
 
-msgid "Below each date/time is a slider that allows you to set the precision. At its maximum value the time is shown to a precision of 1 millisecond. Cameras that can take more than one photograph per second need this precision! Moving the slider to the left removes parts of the date & time. This is useful for scans of old photographs where, for example, you might only know the year and month it was taken in. Setting the precision allows you to record this uncertainty."
+msgid "Below each date/time is a slider that allows you to set the precision. At its maximum value the time is shown to a precision of 1 millisecond. Cameras that can take more than one photograph per second need this precision! Moving the slider to the left removes parts of the date & time. This is useful for scans of old photographs where, for example, you might only know the year and month the photos were taken in. Setting the precision allows you to record this uncertainty."
 msgstr ""
 
 msgid "The ``Orientation`` value sets the required rotation or reflection to display the image. Note that this does not actually transform the image data. Image display programs should rotate or reflect the image according to the orientation metadata, but not all of them do."
@@ -1591,10 +1624,10 @@ msgstr ""
 msgid "The ``35mm equiv`` field shows the \"`35mm equivalent focal length <https://en.wikipedia.org/wiki/35_mm_equivalent_focal_length>`_\" of the actual focal length. These two numbers are related by the camera's \"`crop factor <https://en.wikipedia.org/wiki/Crop_factor>`_\". Some cameras store both focal length numbers in the image metadata, in which case both numbers are shown normally. If the 35mm equivalent focal length is not present Photini attempts to calculate it from the actual focal length and other metadata. The calculated value is shown in faint text."
 msgstr ""
 
-msgid "If you know your camera's crop factor you can correct Photini's calculation by typing in the correct 35mm equivalent focal length. Photini will then store the crop factor for that camera model in its config file for future use."
+msgid "If you know your camera's crop factor you can correct Photini's calculation by setting the correct crop factor. Right-click on the ``35mm equiv`` field to bring up its (rather short) context menu."
 msgstr ""
 
-msgid "If you don't want to store the 35mm equivalent focal length you entered in the photograph's metadata you can undo the edit by reloading the metadata. Right-click on the thumbnail and select ``reload file`` from the context menu."
+msgid "Type the correct crop factor into the dialog box and click ``OK``. Photini will then store the crop factor for that camera model in its config file for future use."
 msgstr ""
 
 msgid "Now the 35mm equivalent focal length is computed using the correct crop factor."

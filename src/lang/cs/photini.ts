@@ -574,7 +574,7 @@
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation>Nové album</translation>
+        <translation type="vanished">Nové album</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
@@ -582,37 +582,37 @@
     </message>
     <message>
         <source>Google Photos</source>
-        <translation>Google Photos</translation>
+        <translation type="vanished">Google Photos</translation>
     </message>
     <message>
         <source>Google Photos upload</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Nahrání na Google Photos</translation>
+        <translation type="vanished">Nahrání na Google Photos</translation>
     </message>
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>&amp;Google</translation>
+        <translation type="vanished">&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>Velký soubor</translation>
+        <translation type="vanished">Velký soubor</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Soubor &quot;{file_name}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+        <translation type="vanished">Soubor &quot;{file_name}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>Název alba</translation>
+        <translation type="vanished">Název alba</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>Zadejte, prosím, název pro album</translation>
+        <translation type="vanished">Zadejte, prosím, název pro album</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>Velký soubor.</translation>
+        <translation type="vanished">Velký soubor.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>

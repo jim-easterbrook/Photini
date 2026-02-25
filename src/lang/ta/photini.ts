@@ -534,41 +534,41 @@
     <name>GooglePhotosTab</name>
     <message>
         <source>Google Photos</source>
-        <translation>கூகிள் புகைப்படங்கள்</translation>
+        <translation type="vanished">கூகிள் புகைப்படங்கள்</translation>
     </message>
     <message>
         <source>Google Photos upload</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Google புகைப்படங்கள் பதிவேற்றம்</translation>
+        <translation type="vanished">Google புகைப்படங்கள் பதிவேற்றம்</translation>
     </message>
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>கூகிள்</translation>
+        <translation type="vanished">கூகிள்</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation>புதிய ஆல்பம்</translation>
+        <translation type="vanished">புதிய ஆல்பம்</translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>ஃபோட்டினி: பெரிய கோப்பு</translation>
+        <translation type="vanished">ஃபோட்டினி: பெரிய கோப்பு</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>பெரிய கோப்பு.</translation>
+        <translation type="vanished">பெரிய கோப்பு.</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>கோப்பு &quot;{file_name}&quot; 25 mb க்கு மேல் உள்ளது. ஃபோட்டினி பதிவேற்றங்கள் உங்கள் Google கணக்கில் சேமிப்பிடம் எண்ணப்படுகின்றன என்பதை நினைவில் கொள்ளுங்கள். எப்படியும் பதிவேற்றவா?</translation>
+        <translation type="vanished">கோப்பு &quot;{file_name}&quot; 25 mb க்கு மேல் உள்ளது. ஃபோட்டினி பதிவேற்றங்கள் உங்கள் Google கணக்கில் சேமிப்பிடம் எண்ணப்படுகின்றன என்பதை நினைவில் கொள்ளுங்கள். எப்படியும் பதிவேற்றவா?</translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>ஆல்பம் தலைப்பு</translation>
+        <translation type="vanished">ஆல்பம் தலைப்பு</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>ஆல்பத்திற்கான தலைப்பை உள்ளிடவும்</translation>
+        <translation type="vanished">ஆல்பத்திற்கான தலைப்பை உள்ளிடவும்</translation>
     </message>
 </context>
 <context>
