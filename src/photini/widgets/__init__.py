@@ -183,7 +183,7 @@ class ListWidgetMixin(CompoundWidgetMixin):
                 md = []
             for widget in self.sub_widgets():
                 while len(md) <= widget._key:
-                    md.append({})
+                    md.append(self.item_type())
                 if widget._save_data(md, value):
                     reload = True
             metadata[self._key] = md
