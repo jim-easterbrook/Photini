@@ -1,6 +1,6 @@
 Photini - a simple photo metadata editor.
 http://github.com/jim-easterbrook/Photini
-Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -15,6 +15,9 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
+
+Changes in v2026.3.0:
+  1/ Remove Google Photos uploader.
 
 Changes in v2025.10.0:
   1/ Add ability to use user-supplied map API keys.

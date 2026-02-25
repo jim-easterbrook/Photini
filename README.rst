@@ -32,7 +32,7 @@ Features
 *   Reads Exif, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
-*   Upload to Flickr_ or `Google Photos`_ or Ipernity_ or Pixelfed_ with reuse of metadata.
+*   Upload to Flickr_ or Ipernity_ or Pixelfed_ with reuse of metadata.
 
 .. image:: https://raw.githubusercontent.com/jim-easterbrook/Photini/refs/heads/main/src/doc/images/screenshot_224.png
    :alt: Geotagging screenshot
@@ -96,7 +96,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 | Catalan translation by Joan Juvanteny
 | Czech translation by Pavel Fric
@@ -156,7 +156,6 @@ A copy of the license is included in the documentation section entitled "GNU Fre
       https://www.jim-easterbrook.me.uk/2012/10/photini-whats-in-a-name/
 .. _exiv2:         https://exiv2.org/manpage.html
 .. _Flickr:        http://www.flickr.com/
-.. _Google Photos: https://photos.google.com/
 .. _Google Maps Terms of Use:
       http://www.google.com/help/terms_maps.html
 .. _Google Privacy Policy:

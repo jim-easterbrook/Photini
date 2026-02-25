@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-25  Jim Easterbrook.
+   Copyright (C)  2012-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Configuration
@@ -232,21 +232,19 @@ You can reorder the tabs by reordering this list.
            'photini.ownership',
            'photini.technical',
            'photini.googlemap',
-           'photini.bingmap',
+           'photini.azuremap',
            'photini.mapboxmap',
            'photini.openstreetmap',
            'photini.address',
            'photini.flickr',
-           'photini.googlephotos',
            'photini.importer']
    photini.descriptive = True
    photini.technical = True
    photini.googlemap = True
-   photini.bingmap = True
+   photini.azuremap = True
    photini.mapboxmap = True
    photini.openstreetmap = True
    photini.flickr = True
-   photini.googlephotos = True
    photini.importer = True
    photini.address = True
    photini.ownership = True

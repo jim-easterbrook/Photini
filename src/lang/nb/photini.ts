@@ -562,41 +562,28 @@
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation>Nytt album</translation>
-    </message>
-    <message>
-        <source>Google Photos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Google Photos upload</source>
-        <comment>Full name of tab shown as a tooltip</comment>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Nytt album</translation>
     </message>
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>&amp;Google</translation>
+        <translation type="vanished">&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>Photini: stor fil</translation>
-    </message>
-    <message>
-        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Photini: stor fil</translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>Albumnavn</translation>
+        <translation type="vanished">Albumnavn</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>Skriv inn et navn på albumet</translation>
+        <translation type="vanished">Skriv inn et navn på albumet</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>Stor fil.</translation>
+        <translation type="vanished">Stor fil.</translation>
     </message>
 </context>
 <context>

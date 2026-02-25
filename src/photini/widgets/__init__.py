@@ -158,6 +158,13 @@ class ListWidgetMixin(CompoundWidgetMixin):
                 values.append(value)
         self.set_value(dict(enumerate(values)))
 
+    def get_value(self):
+        values = []
+        for widget in self.sub_widgets():
+            if widget.has_value():
+                values.append(widget.get_value())
+        return dict(enumerate(values))
+
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
         if self.dynamic:
@@ -183,7 +190,7 @@ class ListWidgetMixin(CompoundWidgetMixin):
                 md = []
             for widget in self.sub_widgets():
                 while len(md) <= widget._key:
-                    md.append({})
+                    md.append(self.item_type())
                 if widget._save_data(md, value):
                     reload = True
             metadata[self._key] = md

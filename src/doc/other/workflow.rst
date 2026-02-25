@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-22  Jim Easterbrook.
+   Copyright (C)  2012-26  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Typical workflow
@@ -65,7 +65,7 @@ Amongst the commonly used image metadata items are the latitude and longitude of
 (Some people argue that it should be the position of the subject of the photograph, but what about photographs of the Moon?)
 Photini makes it easy to set the latitude and longitude of any photograph by dragging and dropping it onto a map.
 
-There are currently three map tabs in the Photini editor, each of which gets maps (or aerial photographs) from a different provider: Google, Microsoft Bing, and Mapbox.
+There are currently three map tabs in the Photini editor, each of which gets maps (or aerial photographs) from a different provider: Google, Microsoft Azure, and Mapbox.
 (Each of these providers has terms and conditions you should read and accept before using their maps.)
 The maps differ in appearance, and show different levels of detail for different parts of the world.
 You should use the one that you like best, but it's very easy to switch to another at any time.

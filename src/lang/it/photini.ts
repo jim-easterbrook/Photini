@@ -563,41 +563,41 @@
     </message>
     <message>
         <source>Google Photos</source>
-        <translation>Google Foto</translation>
+        <translation type="vanished">Google Foto</translation>
     </message>
     <message>
         <source>Google Photos upload</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Google Carica foto</translation>
+        <translation type="vanished">Google Carica foto</translation>
     </message>
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>&amp;Google</translation>
+        <translation type="vanished">&amp;Google</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation>Nuovo album</translation>
+        <translation type="vanished">Nuovo album</translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>Photini: file grande</translation>
+        <translation type="vanished">Photini: file grande</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>File grande.</translation>
+        <translation type="vanished">File grande.</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Il file &quot;{file_name}&quot; supera i 25 MB. Ricorda che i caricamenti di Photini vengono conteggiati per l&apos;archiviazione nel tuo account Google. Caricarlo comunque?</translation>
+        <translation type="vanished">Il file &quot;{file_name}&quot; supera i 25 MB. Ricorda che i caricamenti di Photini vengono conteggiati per l&apos;archiviazione nel tuo account Google. Caricarlo comunque?</translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>Titolo dell&apos;album</translation>
+        <translation type="vanished">Titolo dell&apos;album</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>Inserisci un titolo per l&apos;album</translation>
+        <translation type="vanished">Inserisci un titolo per l&apos;album</translation>
     </message>
 </context>
 <context>

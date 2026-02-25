@@ -396,8 +396,8 @@ class IpernityUser(UploaderUser):
         with self.session(parent=self) as session:
             rsp = session.api_call('auth.getFrob')
         if not rsp:
-            return ''
-        return rsp['auth']['frob']
+            return '', False
+        return rsp['auth']['frob'], True
 
     def auth_exchange(self, frob):
         with self.session(parent=self) as session:

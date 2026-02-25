@@ -582,7 +582,7 @@
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation>Nou àlbum</translation>
+        <translation type="vanished">Nou àlbum</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
@@ -590,7 +590,7 @@
     </message>
     <message>
         <source>Google Photos</source>
-        <translation>Google Photos</translation>
+        <translation type="vanished">Google Photos</translation>
     </message>
     <message>
         <source>Google Photos upload</source>
@@ -599,7 +599,7 @@
     <message>
         <source>Google Photos upload</source>
         <comment>Full name of tab shown as a tooltip</comment>
-        <translation>Càrrega a Google Photos</translation>
+        <translation type="vanished">Càrrega a Google Photos</translation>
     </message>
     <message>
         <source>&amp;Google</source>
@@ -608,27 +608,27 @@
     <message>
         <source>&amp;Google</source>
         <comment>Shortest possible name used as tab label</comment>
-        <translation>&amp;Google</translation>
+        <translation type="vanished">&amp;Google</translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>Photini: fitxer gran</translation>
+        <translation type="vanished">Photini: fitxer gran</translation>
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El fitxer &quot;{file_name}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+        <translation type="vanished">El fitxer &quot;{file_name}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>Títol de l&apos;àlbum</translation>
+        <translation type="vanished">Títol de l&apos;àlbum</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>Entreu un títol per l&apos;àlbum</translation>
+        <translation type="vanished">Entreu un títol per l&apos;àlbum</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>Fitxer gran.</translation>
+        <translation type="vanished">Fitxer gran.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
