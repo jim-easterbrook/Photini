@@ -100,7 +100,7 @@ Not all map providers have altitude data, and the accuracy varies quite a lot.
 You can edit the value to correct it.
 
 Map failures
-^^^^^^^^^^^^
+------------
 
 .. image:: ../images/screenshot_143.png
 
