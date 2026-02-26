@@ -110,7 +110,7 @@ Of course the English spelling checker doesn't recognise most French words.
 
 .. image:: ../images/screenshot_040.png
 
-If you install the appropriate dictionaries than setting the language of a ``Lang Alt`` data field also selects the dictionary used by the spelling checker.
+If you install the appropriate dictionaries then setting the language of a ``Lang Alt`` data field also selects the dictionary used by the spelling checker.
 (Deliberate spelling error introduced for illustrative purposes.)
 
 .. image:: ../images/screenshot_033.png
