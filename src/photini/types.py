@@ -1027,7 +1027,7 @@ class MD_LangAlt(MD_Value, dict):
             else:
                 result[key] += ' // ' + value
             self.log_merged(info + '[' + key + ']', tag, value)
-        if self.DEFAULT not in result:
+        if self_default and self.DEFAULT not in result:
             result[self.DEFAULT] = result[self_default]
         return self.__class__(result)
 
