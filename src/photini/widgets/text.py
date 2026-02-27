@@ -637,7 +637,10 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
                 return False
             old_value = dict(metadata[self._key])
             new_value = {new_lang: old_value[old_lang]}
-            del old_value[old_lang]
+            if old_value[MD_LangAlt.DEFAULT] == old_value[old_lang]:
+                del old_value[MD_LangAlt.DEFAULT]
+            if old_lang in old_value:
+                del old_value[old_lang]
             old_value = MD_LangAlt(old_value)
             metadata[self._key] = old_value.merge(
                 self._key, old_lang, new_value)
