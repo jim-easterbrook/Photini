@@ -97,11 +97,11 @@
     </message>
     <message>
         <source>All &quot;{tab}&quot; address data</source>
-        <translation type="unfinished"></translation>
+        <translation>அனைத்து &quot;{tab}&quot; முகவரி தரவு</translation>
     </message>
     <message>
         <source>All &quot;subject&quot; addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>அனைத்து &quot;பொருள்&quot; முகவரிகள்</translation>
     </message>
     <message>
         <source>Location addresses</source>
@@ -350,23 +350,23 @@
     </message>
     <message>
         <source>Photini: map keys</source>
-        <translation type="unfinished"></translation>
+        <translation>ஃபோட்டினி: வரைபட விசைகள்</translation>
     </message>
     <message>
         <source>Azure map</source>
-        <translation type="unfinished"></translation>
+        <translation>நீலமான வரைபடம்</translation>
     </message>
     <message>
         <source>Google map</source>
-        <translation type="unfinished"></translation>
+        <translation>கூகுள் மேப்</translation>
     </message>
     <message>
         <source>Mapbox map</source>
-        <translation type="unfinished"></translation>
+        <translation>மேப்பாக்ச் வரைபடம்</translation>
     </message>
     <message>
         <source>Address lookup (OpenCage)</source>
-        <translation type="unfinished"></translation>
+        <translation>முகவரி தேடுதல் (OpenCage)</translation>
     </message>
 </context>
 <context>
@@ -951,7 +951,7 @@
     </message>
     <message>
         <source>All hierarchical keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>அனைத்து படிநிலை முக்கிய வார்த்தைகள்</translation>
     </message>
     <message>
         <source>Enter a hierarchy of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;|&quot; or &quot;/&quot; characters.</source>
@@ -993,27 +993,27 @@
     </message>
     <message>
         <source>This language</source>
-        <translation type="unfinished"></translation>
+        <translation>இந்த மொழி</translation>
     </message>
     <message>
         <source>All languages</source>
-        <translation type="unfinished"></translation>
+        <translation>அனைத்து மொழிகளும்</translation>
     </message>
     <message>
         <source>Make &quot;{language}&quot; the default language.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;{language}&quot; ஐ இயல்பு மொழியாக மாற்றவும்.</translation>
     </message>
     <message>
         <source>Change language to &quot;{language}&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>மொழியை &quot;{language}&quot; ஆக மாற்றவும்.</translation>
     </message>
     <message>
         <source>Change language to other.</source>
-        <translation type="unfinished"></translation>
+        <translation>மொழியை மற்ற மொழிக்கு மாற்றவும்.</translation>
     </message>
     <message>
         <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
+        <translation>எந்த மொழியை மாற்ற விரும்புகிறீர்கள்? தயவுசெய்து RFC 3066 மொழிக் குறிச்சொல்லை உள்ளிடவும்.</translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -1164,7 +1164,7 @@
     </message>
     <message>
         <source>Map keys</source>
-        <translation type="unfinished"></translation>
+        <translation>வரைபட விசைகள்</translation>
     </message>
     <message>
         <source>Spelling</source>
@@ -1464,7 +1464,7 @@
     </message>
     <message>
         <source>All &quot;GPS&quot; data</source>
-        <translation type="unfinished"></translation>
+        <translation>அனைத்து &quot;GPS&quot; தரவு</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
@@ -1732,7 +1732,7 @@
     </message>
     <message>
         <source>All &quot;region {}&quot; data</source>
-        <translation type="unfinished"></translation>
+        <translation>அனைத்து &quot;பிராந்திய {}&quot; தரவு</translation>
     </message>
     <message>
         <source>The Image Region Structure includes optionally any metadata property which is related to the region.</source>
@@ -1813,11 +1813,11 @@
     </message>
     <message>
         <source>Set &quot;crop factor&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;பயிர் காரணி&quot; அமைக்கவும்</translation>
     </message>
     <message>
         <source>Crop factor</source>
-        <translation type="unfinished"></translation>
+        <translation>பயிர் காரணி</translation>
     </message>
     <message>
         <source>Technical metadata</source>
@@ -2162,7 +2162,7 @@
     </message>
     <message>
         <source>All &quot;{tab_name}&quot; data</source>
-        <translation type="unfinished"></translation>
+        <translation>அனைத்து &quot;{tab_name}&quot; தரவு</translation>
     </message>
 </context>
 </TS>
