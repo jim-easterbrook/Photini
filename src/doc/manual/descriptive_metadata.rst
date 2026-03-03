@@ -118,12 +118,15 @@ If you install the appropriate dictionaries then setting the language of a ``Lan
 You can change the language of some existing text by right-clicking on the language selector drop down to bring up its context menu.
 This has options to change the language to your computer's default or to any other language.
 
+If there is already text in the language you change to then that text is merged with the current text.
+
 .. image:: ../images/screenshot_036.png
 
 When there is more than one language you can choose which one is the default with the right-click context menu.
 The default language appears first in the language drop down selector.
 
 When a ``Lang Alt`` data field has multiple values, you can use the drop down selector to select each language in turn before right-clicking on the text to choose one of the values.
+You can also change the language of multiple values with the language selector context menu.
 
 Copy and paste
 ^^^^^^^^^^^^^^
