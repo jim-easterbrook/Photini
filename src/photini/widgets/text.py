@@ -596,8 +596,6 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Change language to "{language}".'
             ).format(language=new_lang), parent=group)
-        if self.edit_stack.find_lang(new_lang):
-            action.setEnabled(False)
         action.setData((old_lang, new_lang))
         menu.addAction(action)
         action = QtGui2.QAction(translate(
