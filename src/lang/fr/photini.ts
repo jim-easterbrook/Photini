@@ -862,7 +862,7 @@
     </message>
     <message>
         <source>Attribution + non commercial + no derivative</source>
-        <translation>Attribution + Usage non commercial + Partage dans les mêmes conditions</translation>
+        <translation type="unfinished">Attribution + Usage non commercial + Partage dans les mêmes conditions</translation>
     </message>
     <message>
         <source>Attribution + non commercial + share alike</source>
@@ -2254,7 +2254,7 @@
     </message>
     <message>
         <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
-        <translation>Le fichier «&#x202f;{file_name}&#x202f;» a {size} pixels et dépasse les limites de {max_size} pixels de {service}</translation>
+        <translation>Le fichier «&#x202f;{file_name}&#x202f;» a {size} pixels et dépasse les limites de {max_size} pixels de {service}.</translation>
     </message>
     <message>
         <source>Photini: too large</source>
