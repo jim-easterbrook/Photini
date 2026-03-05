@@ -1654,7 +1654,7 @@ class MD_Location(MD_Structure):
         'Iptc4xmpExt:City': MD_String,
         'Iptc4xmpExt:CountryCode': CountryCode,
         'Iptc4xmpExt:CountryName': MD_String,
-        'exif:GPSAltitude': MD_Rational,
+        'exif:GPSAltitude': MD_Altitude,
         'exif:GPSLatitude': MD_Latitude,
         'exif:GPSLongitude': MD_Longitude,
         'Iptc4xmpExt:LocationId': MD_MultiString,
@@ -1669,11 +1669,28 @@ class MD_Location(MD_Structure):
         'Iptc4xmpExt:CountryCode',
         )
 
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, dict):
+            if 'exif:GPSAltitudeRef' in file_value:
+                file_value['exif:GPSAltitude'] = (
+                    file_value['exif:GPSAltitude'],
+                    file_value['exif:GPSAltitudeRef'])
+                del file_value['exif:GPSAltitudeRef']
+            else:
+                file_value['exif:GPSAltitude'] = (
+                    file_value['exif:GPSAltitude'], '0')
+        return super(MD_Location, cls).from_exiv2(file_value, tag)
+
     def to_xmp(self):
         if not self:
             # need a place holder for empty values
             return {'Iptc4xmpExt:City': ' '}
-        return super(MD_Location, self).to_xmp()
+        result = super(MD_Location, self).to_xmp()
+        if 'exif:GPSAltitude' in result:
+            result['exif:GPSAltitudeRef'] = result['exif:GPSAltitude'][1]
+            result['exif:GPSAltitude'] = result['exif:GPSAltitude'][0]
+        return result
 
     @classmethod
     def from_address(cls, gps, address, key_map):
