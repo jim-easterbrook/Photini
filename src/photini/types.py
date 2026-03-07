@@ -1671,7 +1671,7 @@ class MD_Location(MD_Structure):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if isinstance(file_value, dict):
+        if isinstance(file_value, dict) and 'exif:GPSAltitude' in file_value:
             if 'exif:GPSAltitudeRef' in file_value:
                 file_value['exif:GPSAltitude'] = (
                     file_value['exif:GPSAltitude'],
