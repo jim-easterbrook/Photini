@@ -22,7 +22,6 @@ import xml.etree.ElementTree as ET
 from distutils.command.build import build
 from distutils.errors import DistutilsOptionError
 from setuptools import Command, setup
-from setuptools import __version__ as setuptools_version
 
 
 def strip_plurals(self, src_file, dst_file, plural_count):
@@ -117,44 +116,5 @@ setup_kwds = {
             },
         },
     }
-
-
-if tuple(map(int, setuptools_version.split('.')[:2])) < (61, 0):
-    # get metadata from pyproject.toml
-    import toml
-    metadata = toml.load('pyproject.toml')
-
-    with open(metadata['project']['readme']) as ldf:
-        long_description = ldf.read()
-
-    package_data = []
-    for root, dirs, files in os.walk('src/photini/data/'):
-        package_data += [
-            os.path.join(root.replace('src/photini/', ''), x) for x in files]
-
-    setup_kwds.update(
-        name = metadata['project']['name'],
-        author = metadata['project']['authors'][0]['name'],
-        author_email = metadata['project']['authors'][0]['email'],
-        url = metadata['project']['urls']['Homepage'],
-        description = metadata['project']['description'],
-        long_description = long_description,
-        classifiers = metadata['project']['classifiers'],
-        license = metadata['project']['license']['text'],
-        packages = ['photini', 'photini.widgets'],
-        package_dir = {'' : 'src'},
-        package_data = {'photini' : package_data},
-        entry_points = {
-            'console_scripts' : [
-                '{} = {}'.format(k, v)
-                for k, v in metadata['project']['scripts'].items()],
-            'gui_scripts' : [
-                '{} = {}'.format(k, v)
-                for k, v in metadata['project']['gui-scripts'].items()],
-            },
-        install_requires = metadata['project']['dependencies'],
-        extras_require = metadata['project']['optional-dependencies'],
-        zip_safe = metadata['tool']['setuptools']['zip-safe'],
-        )
 
 setup(**setup_kwds)

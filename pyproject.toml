@@ -17,14 +17,14 @@
 #  <http://www.gnu.org/licenses/>.
 
 [build-system]
-requires = ["setuptools >= 59.6", "setuptools_scm[toml]>=6.2", "toml"]
+requires = ["setuptools >= 77.0", "setuptools_scm[toml]>=6.2", "toml"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "Photini"
 description = "Simple photo metadata editor"
 readme = "README.rst"
-license = {text = "GPLv3+"}
+license = "GPL-3.0-or-later"
 authors = [{name = "Jim Easterbrook", email = "jim@jim-easterbrook.me.uk"}]
 keywords = ["Exif", "IPTC", "XMP"]
 classifiers = [
@@ -32,7 +32,6 @@ classifiers = [
     "Environment :: Win32 (MS Windows)",
     "Environment :: X11 Applications :: Qt",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Topic :: Multimedia :: Graphics",
