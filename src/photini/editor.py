@@ -193,11 +193,7 @@ class MenuBar(QtWidgets.QMenuBar):
             self.app.image_list.fix_missing_thumbs)
         action = file_menu.addAction(translate('MenuBar', 'Close all files'))
         action.triggered.connect(self.app.image_list.close_all_files)
-        file_menu.addSeparator()
-        sep = QtWidgets.QWidgetAction(self)
-        sep.setDefaultWidget(QtWidgets.QLabel(
-            translate('MenuBar', 'Selected images')))
-        file_menu.addAction(sep)
+        file_menu.addSection(translate('MenuBar', 'Selected images'))
         self.selected_actions = self.app.image_list.add_selected_actions(file_menu)
         file_menu.addSeparator()
         action = file_menu.addAction(translate('MenuBar', 'Quit'))

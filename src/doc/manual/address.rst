@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2019-24  Jim Easterbrook.
+   Copyright (C)  2019-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Location addresses
@@ -45,16 +45,29 @@ It is usually necessary to edit the address.
 
 .. image:: ../images/screenshot_294.png
 
-Right-clicking on a location tab displays a context menu that allows the tab to be copied to a new tab or deleted.
-Copying the ``camera`` location is an easy way to initialise a ``subject`` location.
-(An empty ``subject 2`` tab is immediately created, in case the photograph has more than one subject.)
+Right-clicking on a location tab displays a context menu that allows the tab data to be copied or deleted.
+The ``camera`` location can be copied...
 
 .. image:: ../images/screenshot_295.png
 
+...and pasted into a ``subject`` location.
+(An empty ``subject 2`` tab is immediately created, in case the photograph has more than one subject.)
+
+.. image:: ../images/screenshot_296.png
+
 In this case most of the data is the same, but I changed ``street`` to the subject of the photograph rather than the place where I was standing, and then deleted the latitude & longitude.
 
-To reorder the subject locations, or to convert between camera and subject, you can drag any of the tabs to another position.
-Photini ensures there is always one empty subject location ready to be filled in.
+Copy and paste
+--------------
+
+.. image:: ../images/screenshot_297.png
+
+All of the ``subject`` locations can be copied by right-clicking on the tab bar.
+When the locations are pasted they are added to any existing locations, after removing any duplicates.
+
+.. image:: ../images/screenshot_298.png
+
+To copy or paste ``camera`` and ``subject`` locations together, right-click on the area outside the location tabs.
 
 .. _IPTC web site: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#location-structure
 .. _ISO code:      https://www.iso.org/iso-3166-country-codes.html
