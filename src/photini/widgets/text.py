@@ -596,8 +596,6 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Change language to "{language}".'
             ).format(language=new_lang), parent=group)
-        if self.edit_stack.find_lang(new_lang):
-            action.setEnabled(False)
         action.setData((old_lang, new_lang))
         menu.addAction(action)
         action = QtGui2.QAction(translate(
@@ -627,32 +625,25 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
                     'to? Please enter an RFC3066 language tag.'), 2))
             if not (OK and new_lang):
                 return
-        old_widget = self.edit_stack.find_lang(old_lang)
-        old_value = old_widget.get_value()
-        new_widget = self.edit_stack.find_lang(new_lang)
-        if new_widget:
-            # merge widget values
-            new_value = new_widget.get_value()
-            if new_value in old_value:
-                text = old_value
-            elif old_value in new_value:
-                text = new_value
-            else:
-                text = ' // '.join((new_value, old_value))
-        else:
-            # change widget lang
-            new_widget = old_widget
-            text = old_value
-        old_widget.set_value(None)
-        old_widget.emit_value()
-        old_widget.set_lang(None)
-        new_widget.set_lang(new_lang)
-        if old_widget.is_default():
-            new_widget.set_default(True)
-        new_widget.set_value(text)
-        new_widget.emit_value()
-        self.update_lang_selector()
+        self.sw_new_value({'change_lang': (old_lang, new_lang)})
         self.lang.setCurrentIndex(self.lang.findData(new_lang))
+
+    def _save_data(self, metadata, value):
+        if self._key in value and 'change_lang' in value[self._key]:
+            old_lang, new_lang = value[self._key]['change_lang']
+            if old_lang == new_lang:
+                return False
+            old_value = dict(metadata[self._key])
+            new_value = {new_lang: old_value[old_lang]}
+            if old_value[MD_LangAlt.DEFAULT] == old_value[old_lang]:
+                del old_value[MD_LangAlt.DEFAULT]
+            if old_lang in old_value:
+                del old_value[old_lang]
+            old_value = MD_LangAlt(old_value)
+            metadata[self._key] = old_value.merge(
+                self._key, old_lang, new_value)
+            return True
+        return super(LangAltWidget, self)._save_data(metadata, value)
 
     def update_lang_selector(self):
         langs, default_lang = self.edit_stack.get_langs()

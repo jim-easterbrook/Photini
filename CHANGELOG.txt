@@ -18,6 +18,12 @@ along with this program.  If not, see
 
 Changes in v2026.3.0:
   1/ Remove Google Photos uploader.
+  2/ Add cut & paste context menu to many widget groups.
+  3/ Fix bug with GPSAltitudeRef in location address data.
+  4/ Changed how alternative languages are set.
+  5/ Changed how "crop factor" is set.
+  6/ Changed how image regions are created.
+  7/ Other minor improvements and bug fixes.
 
 Changes in v2025.10.0:
   1/ Add ability to use user-supplied map API keys.
