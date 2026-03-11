@@ -557,9 +557,12 @@ class ContextMenuMixin(object):
             return
         title = title or translate(
             'Widgets', 'All "{tab_name}" data').format(
-                tab_name=self.tab_short_name())
+                tab_name=self.tab_short_name().replace('&', ''))
         menu = QtWidgets.QMenu()
-        menu.addSection(title)
+        action = QtWidgets.QWidgetAction(menu)
+        action.setDefaultWidget(QtWidgets.QLabel(
+            '<div style="font-weight: 500">{}</div>'.format(title)))
+        menu.addAction(action)
         self.add_copy_paste_context_menu(menu)
         execute(menu, event.globalPos())
 
