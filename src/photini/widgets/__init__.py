@@ -242,17 +242,20 @@ class ChoicesContextMenu(object):
             return False
         if not self.choices:
             return True
-        sep = menu.insertSeparator(menu.actions()[0])
-        group = QtGui2.QActionGroup(menu)
-        fm = menu.fontMetrics()
+        sub_menu = QtWidgets.QMenu(translate(
+            'Widgets', 'Choose value'), parent=menu)
+        group = QtGui2.QActionGroup(sub_menu)
+        fm = sub_menu.fontMetrics()
         for suggestion in self.choices:
             text = self.value_to_text(suggestion)
             text = fm.elidedText(
                 text, Qt.TextElideMode.ElideMiddle, self.width())
             action = QtGui2.QAction(text, parent=group)
             action.setData(suggestion)
-            menu.insertAction(sep, action)
+            sub_menu.addAction(action)
         group.triggered.connect(self._choice_triggered)
+        sep = menu.insertSeparator(menu.actions()[0])
+        menu.insertMenu(sep, sub_menu)
         return True
 
     @QtSlot(QtGui2.QAction)

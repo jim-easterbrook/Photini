@@ -81,15 +81,18 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
             cursor.selectedText(), lang=self._lang)
         if not suggestions:
             return False
-        group = QtGui2.QActionGroup(menu)
-        sep = menu.actions()[0]
-        if not sep.isSeparator():
-            sep = menu.insertSeparator(sep)
+        sub_menu = QtWidgets.QMenu(translate(
+            'Widgets', 'Spelling'), parent=menu)
+        group = QtGui2.QActionGroup(sub_menu)
         for suggestion in suggestions:
             action = QtGui2.QAction(suggestion, parent=group)
             action.setData(cursor)
-            menu.insertAction(sep, action)
+            sub_menu.addAction(action)
         group.triggered.connect(callback)
+        sep = menu.actions()[0]
+        if not sep.isSeparator():
+            sep = menu.insertSeparator(sep)
+        menu.insertMenu(sep, sub_menu)
         return True
 
     def highlight_block(self, text, highlighter):
