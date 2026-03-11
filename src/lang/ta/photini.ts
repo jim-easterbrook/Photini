@@ -993,7 +993,7 @@
     </message>
     <message>
         <source>This language</source>
-        <translation>இந்த மொழி</translation>
+        <translation type="vanished">இந்த மொழி</translation>
     </message>
     <message>
         <source>All languages</source>
@@ -2157,12 +2157,20 @@
         <translation>&lt;பல மதிப்புகள்&gt;</translation>
     </message>
     <message>
+        <source>Choose value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;புதிய&gt;</translation>
     </message>
     <message>
         <source>All &quot;{tab_name}&quot; data</source>
         <translation>அனைத்து &quot;{tab_name}&quot; தரவு</translation>
+    </message>
+    <message>
+        <source>Spelling</source>
+        <translation type="unfinished">எழுத்துப்பிழை</translation>
     </message>
 </context>
 </TS>

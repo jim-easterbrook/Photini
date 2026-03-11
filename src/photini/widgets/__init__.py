@@ -238,22 +238,27 @@ class TopLevelWidgetMixin(WidgetMixin):
 class ChoicesContextMenu(object):
     # mixin for <multiple values> to allow choosing one
     def add_choices_context_menu(self, menu, event):
-        if not self.is_multiple():
-            return False
-        if not self.choices:
-            return True
-        sep = menu.insertSeparator(menu.actions()[0])
-        group = QtGui2.QActionGroup(menu)
-        fm = menu.fontMetrics()
+        sub_menu = self.create_choices_context_menu(menu, event)
+        if sub_menu:
+            sep = menu.insertSeparator(menu.actions()[0])
+            menu.insertMenu(sep, sub_menu)
+
+    def create_choices_context_menu(self, menu, event):
+        if not (self.is_multiple() and self.choices):
+            return None
+        sub_menu = QtWidgets.QMenu(translate(
+            'Widgets', 'Choose value'), parent=menu)
+        group = QtGui2.QActionGroup(sub_menu)
+        fm = sub_menu.fontMetrics()
         for suggestion in self.choices:
             text = self.value_to_text(suggestion)
             text = fm.elidedText(
                 text, Qt.TextElideMode.ElideMiddle, self.width())
             action = QtGui2.QAction(text, parent=group)
             action.setData(suggestion)
-            menu.insertAction(sep, action)
+            sub_menu.addAction(action)
         group.triggered.connect(self._choice_triggered)
-        return True
+        return sub_menu
 
     @QtSlot(QtGui2.QAction)
     @catch_all()
@@ -557,9 +562,12 @@ class ContextMenuMixin(object):
             return
         title = title or translate(
             'Widgets', 'All "{tab_name}" data').format(
-                tab_name=self.tab_short_name())
+                tab_name=self.tab_short_name().replace('&', ''))
         menu = QtWidgets.QMenu()
-        menu.addSection(title)
+        action = QtWidgets.QWidgetAction(menu)
+        action.setDefaultWidget(QtWidgets.QLabel(
+            '<div style="font-weight: 500">{}</div>'.format(title)))
+        menu.addAction(action)
         self.add_copy_paste_context_menu(menu)
         execute(menu, event.globalPos())
 

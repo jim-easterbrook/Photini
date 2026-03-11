@@ -991,10 +991,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All languages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2147,11 +2143,19 @@
         <translation>&lt;wiele wartości&gt;</translation>
     </message>
     <message>
+        <source>Choose value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;nowe&gt;</translation>
     </message>
     <message>
         <source>All &quot;{tab_name}&quot; data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spelling</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
