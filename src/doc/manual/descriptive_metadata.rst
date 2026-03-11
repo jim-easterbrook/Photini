@@ -38,7 +38,8 @@ The word "Château-Gontier" is not in the British English dictionary, as indicat
 
 .. image:: ../images/screenshot_025.png
 
-Right-clicking on a misspelled word shows any suggested alternatives, one of which can be chosen by clicking on it.
+Right-clicking on a misspelled word invokes a context menu with a ``spelling`` sub-menu.
+This shows any suggested alternatives, one of which can be chosen by clicking on it.
 
 .. |hazard| unicode:: U+026A1
 
@@ -60,6 +61,7 @@ There are probably only one or two photographs that share the same description, 
 If you select several images you may see ``<multiple values>`` displayed in some of the text boxes.
 You can right-click on the box to bring up a context menu from which you can choose a value to be copied to all the selected photographs.
 Very long texts are elided with ``...`` replacing some of the text.
+(If only one choice is shown it means some of the images have no text in that field.)
 
 .. image:: ../images/screenshot_029.png
 

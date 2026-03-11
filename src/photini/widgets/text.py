@@ -623,6 +623,11 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         self.sw_new_value({'change_lang': (old_lang, new_lang)})
         self.lang.setCurrentIndex(self.lang.findData(new_lang))
 
+    def get_value(self):
+        if self.has_value():
+            return super(LangAltWidget, self).get_value()
+        return {}
+
     def _save_data(self, metadata, value):
         if self._key in value and 'change_lang' in value[self._key]:
             old_lang, new_lang = value[self._key]['change_lang']
