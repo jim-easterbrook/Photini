@@ -565,16 +565,11 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
 
     def add_all_langs_context_menu(self, menu, event):
         # cut/paste menu for all languages
-        sep = menu.insertSection(menu.actions()[0], translate(
-            'LangAltWidget', 'This language'))
-        temp = QtWidgets.QMenu()
-        self.add_copy_paste_context_menu(temp)
-        for action in temp.actions():
-            temp.removeAction(action)
-            action.setParent(menu)
-            menu.insertAction(sep, action)
-        menu.insertSection(menu.actions()[0], translate(
-            'LangAltWidget', 'All languages'))
+        sep = menu.insertSeparator(menu.actions()[0])
+        sub_menu = QtWidgets.QMenu(translate(
+            'LangAltWidget', 'All languages'), parent=menu)
+        self.add_copy_paste_context_menu(sub_menu)
+        menu.insertMenu(sep, sub_menu)
 
     def lang_selector_context_menu(self, event):
         menu = QtWidgets.QMenu()
