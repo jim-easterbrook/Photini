@@ -1025,7 +1025,7 @@
     </message>
     <message>
         <source>This language</source>
-        <translation>This language</translation>
+        <translation type="vanished">This language</translation>
     </message>
     <message>
         <source>All languages</source>
@@ -2229,12 +2229,20 @@
         <translation>&lt;multiple values&gt;</translation>
     </message>
     <message>
+        <source>Choose value</source>
+        <translation>Choose value</translation>
+    </message>
+    <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;new&gt;</translation>
     </message>
     <message>
         <source>All &quot;{tab_name}&quot; data</source>
         <translation>All &quot;{tab_name}&quot; data</translation>
+    </message>
+    <message>
+        <source>Spelling</source>
+        <translation>Spelling</translation>
     </message>
 </context>
 </TS>
