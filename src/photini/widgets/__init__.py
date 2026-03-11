@@ -238,10 +238,8 @@ class TopLevelWidgetMixin(WidgetMixin):
 class ChoicesContextMenu(object):
     # mixin for <multiple values> to allow choosing one
     def add_choices_context_menu(self, menu, event):
-        if not self.is_multiple():
-            return False
-        if not self.choices:
-            return True
+        if not (self.is_multiple() and self.choices):
+            return None
         sub_menu = QtWidgets.QMenu(translate(
             'Widgets', 'Choose value'), parent=menu)
         group = QtGui2.QActionGroup(sub_menu)
@@ -254,9 +252,7 @@ class ChoicesContextMenu(object):
             action.setData(suggestion)
             sub_menu.addAction(action)
         group.triggered.connect(self._choice_triggered)
-        sep = menu.insertSeparator(menu.actions()[0])
-        menu.insertMenu(sep, sub_menu)
-        return True
+        return sub_menu
 
     @QtSlot(QtGui2.QAction)
     @catch_all()
