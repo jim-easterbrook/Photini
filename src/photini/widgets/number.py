@@ -270,7 +270,7 @@ class LatLongDisplay(NumericalWidget):
                 choices.append(value)
         if len(choices) > 1:
             self.set_multiple(choices=[
-                x for x in choices if x != None])
+                x for x in choices if x != (None, None)])
         else:
             self.set_value(choices and choices[0])
 

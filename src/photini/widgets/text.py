@@ -80,17 +80,16 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
         suggestions = self.spell_check.suggest(
             cursor.selectedText(), lang=self._lang)
         if not suggestions:
-            return False
-        group = QtGui2.QActionGroup(menu)
-        sep = menu.actions()[0]
-        if not sep.isSeparator():
-            sep = menu.insertSeparator(sep)
+            return None
+        sub_menu = QtWidgets.QMenu(translate(
+            'Widgets', 'Spelling'), parent=menu)
+        group = QtGui2.QActionGroup(sub_menu)
         for suggestion in suggestions:
             action = QtGui2.QAction(suggestion, parent=group)
             action.setData(cursor)
-            menu.insertAction(sep, action)
+            sub_menu.addAction(action)
         group.triggered.connect(callback)
-        return True
+        return sub_menu
 
     def highlight_block(self, text, highlighter):
         for word, start, end in self.spell_check.find_words(text):
@@ -113,7 +112,7 @@ class SpellCheckMixin(TextHighlighterMixin):
 
     def add_spelling_context_menu(self, menu, event):
         if not self._spell_check:
-            return False
+            return None
         return self._spell_check.add_spelling_context_menu(
             menu, self.cursorForPosition(event.pos()),
             self._spelling_triggered)
@@ -192,7 +191,7 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
-        self.context_menus = {'A': self.add_choices_context_menu}
+        self.context_menus = {'A': self.create_choices_context_menu}
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
@@ -207,10 +206,12 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
     @catch_all()
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
+        sep = None
         for key in sorted(self.context_menus.keys()):
-            add_context_menu = self.context_menus[key]
-            if add_context_menu(menu, event):
-                break
+            sub_menu = self.context_menus[key](menu, event)
+            if sub_menu:
+                sep = sep or menu.insertSeparator(menu.actions()[0])
+                menu.insertMenu(sep, sub_menu)
         execute(menu, event.globalPos())
 
     @catch_all()
@@ -565,16 +566,10 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
 
     def add_all_langs_context_menu(self, menu, event):
         # cut/paste menu for all languages
-        sep = menu.insertSection(menu.actions()[0], translate(
-            'LangAltWidget', 'This language'))
-        temp = QtWidgets.QMenu()
-        self.add_copy_paste_context_menu(temp)
-        for action in temp.actions():
-            temp.removeAction(action)
-            action.setParent(menu)
-            menu.insertAction(sep, action)
-        menu.insertSection(menu.actions()[0], translate(
-            'LangAltWidget', 'All languages'))
+        sub_menu = QtWidgets.QMenu(translate(
+            'LangAltWidget', 'All languages'), parent=menu)
+        self.add_copy_paste_context_menu(sub_menu)
+        return sub_menu
 
     def lang_selector_context_menu(self, event):
         menu = QtWidgets.QMenu()

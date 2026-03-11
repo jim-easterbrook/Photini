@@ -1037,10 +1037,6 @@
         <translation>Lingua: </translation>
     </message>
     <message>
-        <source>This language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All languages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2255,12 +2251,20 @@
         <translation>&lt;valori multipli&gt;</translation>
     </message>
     <message>
+        <source>Choose value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;nuovo&gt;</translation>
     </message>
     <message>
         <source>All &quot;{tab_name}&quot; data</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spelling</source>
+        <translation type="unfinished">Ortografia</translation>
     </message>
 </context>
 </TS>
