@@ -238,6 +238,12 @@ class TopLevelWidgetMixin(WidgetMixin):
 class ChoicesContextMenu(object):
     # mixin for <multiple values> to allow choosing one
     def add_choices_context_menu(self, menu, event):
+        sub_menu = self.create_choices_context_menu(menu, event)
+        if sub_menu:
+            sep = menu.insertSeparator(menu.actions()[0])
+            menu.insertMenu(sep, sub_menu)
+
+    def create_choices_context_menu(self, menu, event):
         if not (self.is_multiple() and self.choices):
             return None
         sub_menu = QtWidgets.QMenu(translate(

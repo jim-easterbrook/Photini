@@ -191,7 +191,7 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
-        self.context_menus = {'A': self.add_choices_context_menu}
+        self.context_menus = {'A': self.create_choices_context_menu}
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
