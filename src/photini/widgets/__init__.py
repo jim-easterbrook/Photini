@@ -20,7 +20,7 @@ import enum
 import logging
 
 from photini.pyqt import *
-from photini.pyqt import qt_version_info
+from photini.pyqt import qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -147,10 +147,23 @@ class CompoundWidgetMixin(WidgetMixin):
     @QtSlot(dict)
     @catch_all()
     def sw_new_value(self, value):
+        if using_pyside and 'PySide6_wrap' in value:
+            # PySide6 >= 6.5 can't send dicts with integer keys
+            value = value['PySide6_wrap']
         self.new_value.emit({self._key: value})
 
 
 class ListWidgetMixin(CompoundWidgetMixin):
+    @QtSlot()
+    @catch_all()
+    def emit_value(self):
+        if self.is_valid():
+            value = self.get_value_dict()
+            if using_pyside:
+                # PySide6 >= 6.5 can't send dicts with integer keys
+                value = {'PySide6_wrap': value}
+            self.new_value.emit(value)
+
     def append_value(self, value):
         values = list(self.get_value().values())
         for value in value.values():
