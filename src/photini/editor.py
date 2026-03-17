@@ -408,6 +408,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 icon.addFile(path)
         self.setWindowIcon(icon)
         self.selection = list()
+        # ensure place holder text is correct
+        if qt_version_info >= (6, 5):
+            palette = self.palette()
+            colour = palette.color(palette.ColorGroup.Normal,
+                                   palette.ColorRole.PlaceholderText)
+            colour = colour.name(format=colour.NameFormat.HexArgb)
+            self.setStyleSheet(f'* {{ placeholder-text-color: {colour} }}')
         # create shared global objects
         self.app = QtWidgets.QApplication.instance()
         self.app.loggerwindow = LoggerWindow(options)
@@ -525,7 +532,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not use_tab:
                 continue
             if 'object' not in tab:
-                tab['object'] = tab['class'](self.app.image_list)
+                tab['object'] = tab['class']()
             idx = self.tabs.addTab(tab['object'], tab['label'])
             self.tabs.setTabToolTip(idx, tab['name'])
             self.tabs.tabBar().setTabData(idx, module)

@@ -288,8 +288,8 @@ class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
     clipboard_key = 'PhotiniMap'
     use_layout_direction = True
 
-    def __init__(self, parent=None):
-        super(PhotiniMap, self).__init__(parent)
+    def __init__(self, *arg, **kw):
+        super(PhotiniMap, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(
