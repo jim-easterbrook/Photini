@@ -150,7 +150,10 @@ class CompoundWidgetMixin(WidgetMixin):
         if using_pyside and 'PySide6_wrap' in value:
             # PySide6 >= 6.5 can't send dicts with integer keys
             value = value['PySide6_wrap']
-        self.new_value.emit({self._key: value})
+        value = {self._key: value}
+        if using_pyside and isinstance(self._key, int):
+            value = {'PySide6_wrap': value}
+        self.new_value.emit(value)
 
 
 class ListWidgetMixin(CompoundWidgetMixin):
