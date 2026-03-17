@@ -525,7 +525,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not use_tab:
                 continue
             if 'object' not in tab:
-                tab['object'] = tab['class'](self.app.image_list)
+                tab['object'] = tab['class']()
             idx = self.tabs.addTab(tab['object'], tab['label'])
             self.tabs.setTabToolTip(idx, tab['name'])
             self.tabs.tabBar().setTabData(idx, module)

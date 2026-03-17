@@ -631,7 +631,8 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         other_group.layout().addRow(translate('TechnicalTab', 'Lens model'),
                                     self.widgets['lens_model'])
         # focal lengths
-        self.widgets['focal_length'] = FocalLengthCompound(parent=self)
+        self.widgets['focal_length'] = FocalLengthCompound()
+        self.widgets['focal_length'].setParent(self)
         other_group.layout().addRow(translate('TechnicalTab', 'Focal length'),
                                     self.widgets['focal_length'].fl)
         other_group.layout().addRow(translate('TechnicalTab', '35mm equiv'),

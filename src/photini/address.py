@@ -360,8 +360,8 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         return translate('AddressTab', '&Address',
                          'Shortest possible name used as tab label')
 
-    def __init__(self, parent=None):
-        super(TabWidget, self).__init__(parent)
+    def __init__(self, *arg, **kw):
+        super(TabWidget, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.geocoder = OpenCage(parent=self)
         self.setLayout(QtWidgets.QHBoxLayout())
