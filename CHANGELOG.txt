@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2026.3.3:
+  1/ Fix problem pasting single address data with PySide6.
+  2/ Fix problem pasting all address data.
+
 Changes in v2026.3.2:
   1/ Fix problems editing address and image region data with PySide6.
   2/ Fix invisible "multiple values" with recent Qt6.
