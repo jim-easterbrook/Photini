@@ -47,7 +47,11 @@ class WidgetMixin(object):
     @catch_all()
     def emit_value(self):
         if self.is_valid():
-            self.new_value.emit(self.get_value_dict())
+            value = self.get_value_dict()
+            if using_pyside and isinstance(self._key, int):
+                # PySide6 >= 6.5 can't send dicts with integer keys
+                value = {'PySide6_wrap': value}
+            self.new_value.emit(value)
 
     def get_value_dict(self):
         if self.is_valid():
@@ -157,16 +161,6 @@ class CompoundWidgetMixin(WidgetMixin):
 
 
 class ListWidgetMixin(CompoundWidgetMixin):
-    @QtSlot()
-    @catch_all()
-    def emit_value(self):
-        if self.is_valid():
-            value = self.get_value_dict()
-            if using_pyside:
-                # PySide6 >= 6.5 can't send dicts with integer keys
-                value = {'PySide6_wrap': value}
-            self.new_value.emit(value)
-
     def append_value(self, value):
         values = list(self.get_value().values())
         for value in value.values():
