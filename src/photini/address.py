@@ -345,6 +345,10 @@ class AddressTabs(TabWidgetEx, ContextMenuMixin, CompoundWidgetMixin):
             idx -= 1
             self.removeTab(idx)
 
+    def emit_value(self):
+        for widget in self.sub_widgets():
+            widget.emit_value()
+
     def sub_widgets(self):
         return (self.camera_locations, self.subject_locations)
 
