@@ -999,15 +999,16 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     def region_clicked(self):
         self.owner.setCurrentIndex(self._key)
 
-    def set_subwidgets(self, keys):
+    def set_subwidgets(self, values):
+        values = dict((k, v) for k, v in values.items() if v)
         # shrink or extend form if needed
         layout = self.widget().layout()
         for key in self.extra_keys:
-            if key not in keys:
+            if key not in values:
                 layout.removeRow(self.widgets[key])
                 self.extra_keys.remove(key)
                 del self.widgets[key]
-        for key in keys:
+        for key in values:
             if key in self.widgets:
                 continue
             self.extra_keys.append(key)
@@ -1025,9 +1026,9 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
                     'RegionsTab', 'The Image Region Structure includes'
                     ' optionally any metadata property which is related to'
                     ' the region.'))
-                if isinstance(value, dict):
+                if isinstance(values[key], dict):
                     type_id = exiv2.TypeId.langAlt
-                elif isinstance(value, list):
+                elif isinstance(values[key], list):
                     type_id = exiv2.TypeId.xmpBag
                 else:
                     type_id = exiv2.TypeId.xmpText
@@ -1093,12 +1094,9 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
         widget.paste_value(region)
         widget.set_active(True)
 
-    def set_subwidgets(self, keys):
-        data_len = 0
-        if keys:
-            data_len = max(keys) + 1
+    def set_subwidgets(self, values):
         # always have one extra tab to paste into
-        count = data_len + 1
+        count = len(values) + 1
         # add tabs if needed
         idx = self.count()
         while idx < count:

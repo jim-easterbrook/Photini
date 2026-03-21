@@ -590,8 +590,8 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
             del result['']
         return result
 
-    def set_subwidgets(self, keys):
-        keys = list(keys)
+    def set_subwidgets(self, values):
+        keys = list(values.keys())
         keys.sort(key=str.casefold)
         layout = self.widget().layout()
         # insert new rows if needed

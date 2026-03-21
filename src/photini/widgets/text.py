@@ -673,8 +673,8 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         for idx in range(self.edit_stack.count()):
             self.edit_stack.widget(idx).set_default(idx == default_idx)
 
-    def set_subwidgets(self, keys):
-        keys = keys or [self.locale().uiLanguages()[0]]
+    def set_subwidgets(self, values):
+        keys = list(values.keys()) or [self.locale().uiLanguages()[0]]
         self.edit_stack.set_langs(keys)
 
     def set_enabled(self, enabled):
