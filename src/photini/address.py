@@ -275,11 +275,8 @@ class LocationList(QtCore.QObject, ContextMenuMixin, ListWidgetMixin):
         self._key = ('location_shown', 'location_taken')[is_camera]
         self.clipboard_key = self._key
 
-    def set_subwidgets(self, keys):
-        data_len = 0
-        if keys:
-            data_len = max(keys) + 1
-        self.tab_widget.set_tab_count(1 + data_len)
+    def set_subwidgets(self, values):
+        self.tab_widget.set_tab_count(len(values) + 1)
 
     def sub_widgets(self):
         if self.is_camera:

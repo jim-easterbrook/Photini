@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2026.3.4:
+  1/ Fix bug in image regions with Apple face information metadata.
+    (This was fixed in v2025.10.0 but recent changes allowed it to reappear.)
+
 Changes in v2026.3.3:
   1/ Fix problem pasting single address data with PySide6.
   2/ Fix problem pasting all address data.

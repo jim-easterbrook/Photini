@@ -115,8 +115,7 @@ class CompoundWidgetMixin(WidgetMixin):
     def set_value(self, value):
         value = value or {}
         if self.dynamic:
-            keys = [k for k in value if value[k]]
-            self.set_subwidgets(keys)
+            self.set_subwidgets(value)
         for widget in self.sub_widgets():
             widget.set_value_dict(value)
         self.after_load()
@@ -124,10 +123,10 @@ class CompoundWidgetMixin(WidgetMixin):
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
         if self.dynamic:
-            keys = set()
+            values = {}
             for md in md_list:
-                keys |= {k for k in md if md[k]}
-            self.set_subwidgets(keys)
+                values.update(md)
+            self.set_subwidgets(values)
         for widget in self.sub_widgets():
             widget._load_data(md_list)
         self.after_load()
@@ -178,8 +177,10 @@ class ListWidgetMixin(CompoundWidgetMixin):
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
         if self.dynamic:
-            count = max(len(x) for x in md_list)
-            self.set_subwidgets(list(range(count)))
+            values = {}
+            for md in md_list:
+                values.update(dict(enumerate(md)))
+            self.set_subwidgets(values)
         copy_list = [list(md) for md in md_list]
         for widget in self.sub_widgets():
             for md in copy_list:
