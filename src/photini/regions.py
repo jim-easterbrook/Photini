@@ -24,6 +24,7 @@ import re
 import exiv2
 
 from photini.pyqt import *
+from photini.pyqt import qt_version_info
 from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
@@ -722,7 +723,11 @@ class EntityConceptWidget(SingleLineEdit):
         self.add_menu_items(vocab)
 
     def mousePressEvent(self, event):
-        self.menu.popup(self.mapToGlobal(event.pos()))
+        if qt_version_info >= (6, 0):
+            pos = event.position().toPoint()
+        else:
+            pos = event.pos()
+        self.menu.popup(self.mapToGlobal(pos))
 
     def add_menu_items(self, items, add_separator=True, exclusive=False):
         if self.add_separator:
