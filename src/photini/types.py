@@ -228,7 +228,7 @@ class MD_DateTime(MD_Dict):
     _tz_re = re.compile(r'(.*?[T ].*?)([+-])(\d{1,2}):?(\d{1,2})$')
     _subsec_re = re.compile(r'(.*?)\.(\d+)$')
     _time_re = re.compile(r'(.*?)[T ](\d{1,2}):?(\d{1,2})?:?(\d{1,2})?$')
-    _date_re = re.compile(r'(\d{1,4})[:-]?(\d{1,2})?[:-]?(\d{1,2})?$')
+    _date_re = re.compile(r'(\d{1,4})[:/-]?(\d{1,2})?[:/-]?(\d{1,2})?$')
 
     @classmethod
     def from_ISO_8601(cls, datetime_string, sub_sec_string=None):
