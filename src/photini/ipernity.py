@@ -46,6 +46,9 @@ class IpernitySession(UploaderSession):
     def sign_request(self, method, params):
         params = dict(params)
         params['api_key'] = self.client_data['api_key']
+        params['lg'] = 'en'
+        if 'lang' in self.user_data:
+            params['lg'] = self.user_data['lang']
         if 'auth_token' in self.user_data:
             params['auth_token'] = self.user_data['auth_token']
         string = ''
