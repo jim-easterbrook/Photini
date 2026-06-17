@@ -507,6 +507,12 @@ class MD_LensSpec(MD_Dict):
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
     _quiet = True
 
+    def contains(self, this, other):
+        for key in self._keys:
+            if this[key] and other[key] and other[key] != this[key]:
+                return False
+        return True
+
     @staticmethod
     def convert(value):
         for key in value:
