@@ -361,6 +361,8 @@ class MD_DateTime(MD_Dict):
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
+        while offset_string and offset_string[-2:] == '  ':
+            offset_string = offset_string[:-3]
         # do conversion
         if offset_string and len(datetime_string) > 11:
             datetime_string += offset_string
