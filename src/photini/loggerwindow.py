@@ -71,7 +71,10 @@ class StreamProxy(QtCore.QObject):
             self.write_text.emit(msg)
 
     def flush(self):
-        self.flush_text.emit()
+        try:
+            self.flush_text.emit()
+        except RuntimeError:
+            pass
 
 
 class LoggerFilter(object):
