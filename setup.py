@@ -71,7 +71,12 @@ class BuildLang(Command):
                                    ('force', 'force'),
                                    )
         if not self.input_dir:
-            raise DistutilsOptionError('no input directory specified')
+            # Editable builds don't always propagate command_options here.
+            self.input_dir = os.path.join(
+                os.path.dirname(__file__), 'src', 'lang')
+        if not os.path.isdir(self.input_dir):
+            raise DistutilsOptionError(
+                'no input directory specified: {}'.format(self.input_dir))
         self.build_temp = os.path.join(self.build_temp, 'lang')
         self.output_dir = os.path.join(
             self.build_lib, 'photini', 'data', 'lang')
