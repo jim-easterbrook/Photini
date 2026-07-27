@@ -22,6 +22,7 @@ import locale
 import logging
 from optparse import OptionParser
 import os
+import re
 import sys
 import warnings
 
@@ -610,6 +611,12 @@ def main(argv=None):
     # create locale object
     locale.setlocale(locale.LC_ALL, '')
     app.locale = Locale(QtCore.QLocale.system())
+    # make a list of languages for LangAltWidget
+    rfc_tag = re.compile(r'[a-zA-Z]{2,3}-[a-zA-Z]{2,3}$')
+    app.langs = [x for x in app.locale.uiLanguages() if rfc_tag.match(x)]
+    # use US English if user doesn't have a preferred UI language
+    app.langs = app.langs or ['en-US']
+    print(app.langs)
     # install translations
     lang_dir = os.path.join(os.path.dirname(__file__), 'data', 'lang')
     langs = [x.replace('-', '_') for x in app.locale.uiLanguages()]
