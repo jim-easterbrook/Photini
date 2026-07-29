@@ -474,11 +474,7 @@ class LangAltSelector(ComboBox):
         prompt = self._owner.app.langs[0]
         if self.findData(prompt) >= 0:
             prompt = None
-        lang, OK = QtWidgets.QInputDialog.getText(
-            self, translate('LangAltWidget', 'New language'),
-            wrap_text(self, translate(
-                'LangAltWidget', 'What language would you like to add?'
-                ' Please enter an RFC3066 language tag.'), 2), text=prompt)
+        lang, OK = self._owner.new_language_dialog(prompt=prompt)
         if not (OK and lang):
             self.setCurrentIndex(0)
             return
@@ -610,21 +606,43 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         self.edit_stack.find_lang(lang).emit_value()
         self.update_lang_selector()
 
+    def new_language_dialog(self, change=False, prompt=None):
+        if change:
+            label = translate(
+                'LangAltWidget', 'What language would you like to change to?'
+                ' Please enter an RFC3066 language tag.')
+        else:
+            label = translate(
+                'LangAltWidget', 'What language would you like to add?'
+                ' Please enter an RFC3066 language tag.')
+        dialog = QtWidgets.QInputDialog(self)
+        dialog.setWindowTitle(translate('LangAltWidget', 'New language'))
+        dialog.setLabelText(wrap_text(self, label, 2))
+        if prompt:
+            dialog.setTextValue(prompt)
+        dialog.show()
+        edit = dialog.findChild(QtWidgets.QLineEdit)
+        edit.setValidator(QtGui.QRegularExpressionValidator(
+            QtCore.QRegularExpression(r'[a-zA-z]{1,8}(-[a-zA-z0-9]{1,8})*'),
+            parent=edit))
+        OK = execute(dialog) == dialog.DialogCode.Accepted
+        return dialog.textValue(), OK
+
     @QtSlot(QtGui2.QAction)
     @catch_all()
     def set_text_lang(self, action):
         old_lang, new_lang = action.data()
         if not new_lang:
-            new_lang, OK = QtWidgets.QInputDialog.getText(
-                self, translate('LangAltWidget', 'New language'),
-                wrap_text(self, translate(
-                    'LangAltWidget', 'What language would you like to change'
-                    'to? Please enter an RFC3066 language tag.'), 2))
+            new_lang, OK = self.new_language_dialog(change=True)
             if not (OK and new_lang):
                 return
             new_lang = MD_LangAlt.normalise_key(new_lang)
-        self.sw_new_value({'change_lang': (old_lang, new_lang)})
-        self.lang.setCurrentIndex(self.lang.findData(new_lang))
+        widget = self.edit_stack.find_lang(old_lang)
+        if widget.get_value():
+            self.sw_new_value({'change_lang': (old_lang, new_lang)})
+            self.lang.setCurrentIndex(self.lang.findData(new_lang))
+        else:
+            self.add_lang(new_lang)
 
     def get_value(self):
         if self.has_value():
@@ -640,8 +658,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             new_value = {new_lang: old_value[old_lang]}
             if old_value[MD_LangAlt.DEFAULT] == old_value[old_lang]:
                 del old_value[MD_LangAlt.DEFAULT]
-            if old_lang in old_value:
-                del old_value[old_lang]
+            del old_value[old_lang]
             old_value = MD_LangAlt(old_value)
             metadata[self._key] = old_value.merge(
                 self._key, old_lang, new_value)
