@@ -623,10 +623,10 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         dialog.show()
         edit = dialog.findChild(QtWidgets.QLineEdit)
         edit.setValidator(QtGui.QRegularExpressionValidator(
-            QtCore.QRegularExpression(r'[a-zA-z]{1,8}(-[a-zA-z0-9]{1,8})*'),
+            QtCore.QRegularExpression(r'[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*'),
             parent=edit))
         OK = execute(dialog) == dialog.DialogCode.Accepted
-        return dialog.textValue(), OK
+        return dialog.textValue().strip('-'), OK
 
     @QtSlot(QtGui2.QAction)
     @catch_all()
