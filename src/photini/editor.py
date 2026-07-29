@@ -44,7 +44,6 @@ from photini.pyqt import *
 from photini.pyqt import QtNetwork, qt_version_info, QtWebEngineCore
 from photini.spelling import SpellCheck
 from photini.types import MD_LangAlt
-from photini.widgets.text import LangAltWidget
 
 try:
     from photini.gpximporter import GpxImporter
@@ -615,7 +614,7 @@ def main(argv=None):
     app.locale = Locale(QtCore.QLocale.system())
     # make a list of languages for LangAltWidget
     app.langs = [x for x in app.locale.uiLanguages()
-                 if LangAltWidget.rfc_tag.match(x)]
+                 if MD_LangAlt.rfc_tag.match(x)]
     app.langs = [MD_LangAlt.normalise_key(x) for x in app.langs]
     # use US English if user doesn't have a preferred UI language
     app.langs = app.langs or ['en-US']

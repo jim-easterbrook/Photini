@@ -903,6 +903,7 @@ class MD_LangAlt(MD_Value, dict):
     # https://developer.adobe.com/xmp/docs/xmp-namespaces/xmp-data-types/#derived-types
 
     DEFAULT = 'x-default'
+    rfc_tag = re.compile(r'[a-zA-Z]{2,3}-[a-zA-Z]{2,3}$')
 
     def __init__(self, value=None, strip=True):
         if isinstance(value, str):

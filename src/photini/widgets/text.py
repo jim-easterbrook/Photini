@@ -508,7 +508,6 @@ class LangAltSelector(ComboBox):
 class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
     clipboard_key = 'LangAltWidget'
     dynamic = True
-    rfc_tag = re.compile(r'[a-zA-Z]{2,3}-[a-zA-Z]{2,3}$')
 
     def __init__(self, key, multi_line=True, label=None, **widget_kw):
         super(LangAltWidget, self).__init__()
@@ -698,7 +697,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         for lang in keys:
             if lang.lower() in [x.lower() for x in self.app.langs]:
                 continue
-            if self.rfc_tag.match(lang):
+            if MD_LangAlt.rfc_tag.match(lang):
                 self.app.langs.append(lang)
         self.edit_stack.set_langs(keys)
 
