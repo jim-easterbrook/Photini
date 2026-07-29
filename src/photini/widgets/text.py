@@ -435,6 +435,52 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
                 yield widget
 
 
+class LangAltLangValidator(QtGui.QRegularExpressionValidator):
+    def __init__(self, *arg, **kw):
+        super(LangAltLangValidator, self).__init__(*arg, **kw)
+        self.setRegularExpression(
+            QtCore.QRegularExpression(r'[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*'))
+
+    @catch_all(exc_return='')
+    def fixup(self, text):
+        # the only intermediate result has a '-' at the end
+        return text.strip('-')
+
+
+class LangAltLangDialog(QtWidgets.QDialog):
+    def __init__(self, *arg, change=False, prompt=None, **kw):
+        super(LangAltLangDialog, self).__init__(*arg, **kw)
+        self.setWindowTitle(translate('LangAltWidget', 'New language'))
+        self.setLayout(FormLayout(wrapped=True))
+        # main dialog area
+        self.edit = QtWidgets.QLineEdit()
+        if prompt:
+            self.edit.setText(prompt)
+        self.edit.setValidator(LangAltLangValidator(parent=self.edit))
+        if change:
+            label = translate(
+                'LangAltWidget', 'What language would you like to change to?'
+                ' Please enter an RFC3066 language tag.')
+        else:
+            label = translate(
+                'LangAltWidget', 'What language would you like to add?'
+                ' Please enter an RFC3066 language tag.')
+        self.layout().addRow(wrap_text(self, label, 2), self.edit)
+        # OK & cancel buttons
+        self.button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        button = self.button_box.button(self.button_box.StandardButton.Ok)
+        self.layout().addRow(self.button_box)
+
+    def execute(self):
+        if execute(self) != self.DialogCode.Accepted:
+            return None
+        return self.edit.text()
+
+
 class LangAltSelector(ComboBox):
     add_lang = QtSignal(str)
     show_lang = QtSignal(str)
@@ -474,8 +520,8 @@ class LangAltSelector(ComboBox):
         prompt = self._owner.app.langs[0]
         if self.findData(prompt) >= 0:
             prompt = None
-        lang, OK = self._owner.new_language_dialog(prompt=prompt)
-        if not (OK and lang):
+        lang = LangAltLangDialog(prompt=prompt, parent=self).execute()
+        if not lang:
             self.setCurrentIndex(0)
             return
         lang = MD_LangAlt.normalise_key(lang)
@@ -605,35 +651,13 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         self.edit_stack.find_lang(lang).emit_value()
         self.update_lang_selector()
 
-    def new_language_dialog(self, change=False, prompt=None):
-        if change:
-            label = translate(
-                'LangAltWidget', 'What language would you like to change to?'
-                ' Please enter an RFC3066 language tag.')
-        else:
-            label = translate(
-                'LangAltWidget', 'What language would you like to add?'
-                ' Please enter an RFC3066 language tag.')
-        dialog = QtWidgets.QInputDialog(self)
-        dialog.setWindowTitle(translate('LangAltWidget', 'New language'))
-        dialog.setLabelText(wrap_text(self, label, 2))
-        if prompt:
-            dialog.setTextValue(prompt)
-        dialog.show()
-        edit = dialog.findChild(QtWidgets.QLineEdit)
-        edit.setValidator(QtGui.QRegularExpressionValidator(
-            QtCore.QRegularExpression(r'[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*'),
-            parent=edit))
-        OK = execute(dialog) == dialog.DialogCode.Accepted
-        return dialog.textValue().strip('-'), OK
-
     @QtSlot(QtGui2.QAction)
     @catch_all()
     def set_text_lang(self, action):
         old_lang, new_lang = action.data()
         if not new_lang:
-            new_lang, OK = self.new_language_dialog(change=True)
-            if not (OK and new_lang):
+            new_lang = LangAltLangDialog(change=True, parent=self).execute()
+            if not new_lang:
                 return
             new_lang = MD_LangAlt.normalise_key(new_lang)
         widget = self.edit_stack.find_lang(old_lang)
