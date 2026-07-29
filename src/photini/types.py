@@ -900,7 +900,7 @@ class MD_LangAlt(MD_Value, dict):
     # text values. The sequence can have a single default value, but if
     # it has more than one value, the default should be repeated with a
     # language tag. See
-    # https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
+    # https://developer.adobe.com/xmp/docs/xmp-namespaces/xmp-data-types/#derived-types
 
     DEFAULT = 'x-default'
 
@@ -937,7 +937,7 @@ class MD_LangAlt(MD_Value, dict):
         if lang:
             langs = [lang]
         else:
-            langs = QtCore.QLocale.system().uiLanguages()
+            langs = QtWidgets.QApplication.instance().langs
         langs = [cls.norm_key(lang).split('-') for lang in langs]
         best_match = (0, None)
         for key in keys:
@@ -949,6 +949,15 @@ class MD_LangAlt(MD_Value, dict):
                 if match > best_match[0]:
                     best_match = match, key
         return best_match[1]
+
+    @staticmethod
+    def normalise_key(key):
+        # the XMP toolkit makes keys lower case, but if the region subtag
+        # has two letters it is made upper case
+        parts = key.lower().split('-')
+        if len(parts) > 1 and len(parts[1]) == 2:
+            parts[1] = parts[1].upper()
+        return '-'.join(parts)
 
     @staticmethod
     def norm_key(key):

@@ -482,6 +482,7 @@ class LangAltSelector(ComboBox):
         if not (OK and lang):
             self.setCurrentIndex(0)
             return
+        lang = MD_LangAlt.normalise_key(lang)
         self.add_lang.emit(lang)
 
     def set_langs(self, langs, default_lang):
@@ -621,6 +622,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
                     'to? Please enter an RFC3066 language tag.'), 2))
             if not (OK and new_lang):
                 return
+            new_lang = MD_LangAlt.normalise_key(new_lang)
         self.sw_new_value({'change_lang': (old_lang, new_lang)})
         self.lang.setCurrentIndex(self.lang.findData(new_lang))
 
