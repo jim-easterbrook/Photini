@@ -439,12 +439,15 @@ class LangAltLangValidator(QtGui.QRegularExpressionValidator):
     def __init__(self, *arg, **kw):
         super(LangAltLangValidator, self).__init__(*arg, **kw)
         self.setRegularExpression(
-            QtCore.QRegularExpression(r'[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*'))
+            QtCore.QRegularExpression(
+                r'x-default|[a-zA-Z]{2}(-([a-zA-Z]{2}|[a-zA-Z0-9]{3,8}))?'))
 
     @catch_all(exc_return='')
     def fixup(self, text):
-        # the only intermediate result has a '-' at the end
-        return text.strip('-')
+        # delete last character until string matches
+        while text and self.validate(text, 0)[0] != self.State.Acceptable:
+            text = text[:-1]
+        return text
 
 
 class LangAltLangDialog(QtWidgets.QDialog):
