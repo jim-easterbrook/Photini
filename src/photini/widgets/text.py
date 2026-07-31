@@ -187,21 +187,17 @@ class LengthCheckMixin(TextHighlighterMixin):
 
 
 class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
-    def __init__(self, key, *arg, **kw):
+    def __init__(self, key, *arg, no_return=False, **kw):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
+        self._no_return = no_return
         self.context_menus = {'A': self.create_choices_context_menu}
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
         if self._single_line:
             self.set_height(1)
-            self.setLineWrapMode(self.LineWrapMode.NoWrap)
-            self.setHorizontalScrollBarPolicy(
-                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            self.setVerticalScrollBarPolicy(
-                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     @catch_all()
     def contextMenuEvent(self, event):
@@ -222,13 +218,13 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
     @catch_all()
     def insertFromMimeData(self, source):
         text = source.text()
-        if self._single_line:
+        if self._no_return:
             text = text.replace('\n', ' ')
         self.insertPlainText(text)
 
     @catch_all()
     def keyPressEvent(self, event):
-        if self._single_line and event.key() in (
+        if self._no_return and event.key() in (
                 Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
         self.handle_delete_key(event)
@@ -255,6 +251,12 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         height += (rows - 1) * self.fontMetrics().lineSpacing()
         if rows == 1:
             self.setFixedHeight(height)
+            self.setLineWrapMode(self.LineWrapMode.NoWrap)
+            self.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self._no_return = True
         else:
             self.setMaximumHeight(height)
 
@@ -280,7 +282,7 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
             self.clear()
 
     def value_to_text(self, value):
-        if self._single_line:
+        if self._no_return:
             return str(value).replace('\n', ' ')
         return str(value)
 

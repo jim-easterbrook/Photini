@@ -54,7 +54,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = MultiLineEdit(key, **kw)
+        self.edit = MultiLineEdit(key, no_return=True, **kw)
         self.edit.set_height(3)
         layout.addWidget(self.edit)
         # favourites drop down
@@ -78,6 +78,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.is_multiple = self.edit.is_multiple
         self.is_valid = self.edit.is_valid
         self.new_value = self.edit.new_value
+        self.setToolTip = self.edit.setToolTip
         self.emit_value = self.edit.emit_value
         self._load_data = self.edit._load_data
 
