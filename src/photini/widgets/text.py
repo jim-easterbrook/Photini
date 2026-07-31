@@ -585,6 +585,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         if not multi_line:
             self.edit_stack.add_lang('')
             self.setFixedHeight(layout.minimumSize().height())
+            self.edit_stack.removeWidget(self.edit_stack.widget(0))
         # adopt some child methods
         self.add_length_check = self.edit_stack.add_length_check
         self.add_spell_check = self.edit_stack.add_spell_check
