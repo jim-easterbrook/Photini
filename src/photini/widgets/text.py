@@ -27,7 +27,7 @@ from photini.widgets import (ChoicesContextMenu, ComboBox, CompoundWidgetMixin,
                              ContextMenuMixin, WidgetMixin)
 
 __all__ = (
-    'LangAltWidget', 'MultiLineEdit', 'MultiStringEdit', 'SingleLineEdit')
+    'LangAltWidget', 'MultiLineEdit', 'SingleLineEdit')
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -291,18 +291,6 @@ class MultiLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
 
 class SingleLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
     _single_line = True
-
-
-class MultiStringEdit(SingleLineEdit):
-    def set_value(self, value):
-        if isinstance(value, (list, tuple)):
-            value = '; '.join(value)
-        super(MultiStringEdit, self).set_value(value)
-
-    def get_value(self):
-        value = super(MultiStringEdit, self).get_value().split(';')
-        value = [x.strip() for x in value]
-        return [x for x in value if x]
 
 
 class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):

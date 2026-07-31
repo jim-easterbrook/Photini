@@ -25,7 +25,8 @@ import exiv2
 
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
-from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
+from photini.types import (
+    ImageRegionItem, MD_LangAlt, MD_MultiString, RegionBoundary)
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, ListWidgetMixin,
@@ -969,7 +970,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
         key = 'Iptc4xmpExt:PersonInImage'
-        self.widgets[key] = MultiStringEdit(key)
+        self.widgets[key] = SingleLineEdit(key)
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
@@ -1040,10 +1041,8 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
             if type_id == exiv2.TypeId.langAlt:
                 self.widgets[key] = LangAltWidget(
                     key, multi_line=False, label=label)
-            elif type_id == exiv2.TypeId.xmpText:
-                self.widgets[key] = SingleLineEdit(key)
             else:
-                self.widgets[key] = MultiStringEdit(key)
+                self.widgets[key] = SingleLineEdit(key)
             self.widgets[key].setMinimumWidth(
                 width_for_text(self.widgets[key], 'x' * 15))
             self.widgets[key].setToolTip('<p>{}</p>'.format(desc))
@@ -1195,6 +1194,7 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin, TopLevelWidgetMixin):
     @catch_all()
     def new_person(self, value):
         value, = value.values()
+        value = MD_MultiString(value)
         images = self.app.image_list.get_selected_images()
         for image in images:
             people = list(image.metadata.people)
