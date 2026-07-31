@@ -27,7 +27,7 @@ from photini.pyqt import (
     available_packages, catch_all, execute, FormLayout, qt_lib, QtCore, QtGui,
     QtSlot, QtWidgets, width_for_text)
 from photini.widgets import Label
-from photini.widgets.text import MultiLineEdit
+from photini.widgets.text import TextEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -322,7 +322,7 @@ class EditMapKeys(QtWidgets.QDialog):
                 ('mapboxmap', translate('EditSettings', 'Mapbox map'), 1),
                 ('opencage', translate('EditSettings',
                                        'Address lookup (OpenCage)'), 2)):
-            self.widgets[section] = MultiLineEdit(section, height=3)
+            self.widgets[section] = TextEdit(section, height=3)
             self.widgets[section].setMinimumWidth(
                 width_for_text(self.widgets[section], 'x' * 60))
             self.widgets[section].set_value(

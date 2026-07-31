@@ -712,9 +712,9 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
         self.ensureVisible(boundary)
 
 
-class EntityConceptWidget(SingleLineEdit):
+class EntityConceptWidget(TextEdit):
     def __init__(self, key, vocab, *arg, **kw):
-        super(EntityConceptWidget, self).__init__(key, *arg, **kw)
+        super(EntityConceptWidget, self).__init__(key, *arg, height=1, **kw)
         self.setReadOnly(True)
         self._updating = False
         self.menu = QtWidgets.QMenu(parent=self)
@@ -921,7 +921,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         # name
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(
-            key, multi_line=False, label=translate('RegionsTab', 'Region name'))
+            key, height=1, label=translate('RegionsTab', 'Region name'))
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
@@ -930,7 +930,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         layout.addRow(self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
-        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key] = TextEdit(key, height=1)
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
@@ -970,7 +970,7 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
         key = 'Iptc4xmpExt:PersonInImage'
-        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key] = TextEdit(key, height=1)
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
         self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
@@ -1039,10 +1039,9 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
                 else:
                     type_id = exiv2.TypeId.xmpText
             if type_id == exiv2.TypeId.langAlt:
-                self.widgets[key] = LangAltWidget(
-                    key, multi_line=False, label=label)
+                self.widgets[key] = LangAltWidget(key, height=1, label=label)
             else:
-                self.widgets[key] = SingleLineEdit(key)
+                self.widgets[key] = TextEdit(key, height=1)
             self.widgets[key].setMinimumWidth(
                 width_for_text(self.widgets[key], 'x' * 15))
             self.widgets[key].setToolTip('<p>{}</p>'.format(desc))

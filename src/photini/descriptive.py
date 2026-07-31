@@ -88,7 +88,7 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = LangAltWidget('title', multi_line=False)
+        self.widgets['title'] = LangAltWidget('title', height=1)
         self.widgets['title'].add_length_check(
             ImageMetadata.max_bytes('title'))
         self.widgets['title'].add_spell_check()
@@ -99,7 +99,7 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
-        self.widgets['headline'] = MultiLineEdit('headline', height=3)
+        self.widgets['headline'] = TextEdit('headline', height=3)
         self.widgets['headline'].add_length_check(
             ImageMetadata.max_bytes('headline'))
         self.widgets['headline'].add_spell_check()
@@ -151,7 +151,7 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
         # people
-        self.widgets['people'] = SingleLineEdit('people')
+        self.widgets['people'] = TextEdit('people', height=1)
         self.widgets['people'].add_spell_check()
         self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'

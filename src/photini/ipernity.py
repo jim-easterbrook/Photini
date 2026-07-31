@@ -31,7 +31,7 @@ from photini.pyqt import *
 from photini.types import MD_ImageRegion
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import DropDownSelector, Label
-from photini.widgets.text import MultiLineEdit, SingleLineEdit
+from photini.widgets.text import TextEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -612,10 +612,10 @@ class TabWidget(PhotiniUploader):
     @catch_all()
     def new_album(self):
         dialog = self.new_album_dialog()
-        title = SingleLineEdit('title')
+        title = TextEdit('title', height=1)
         title.add_spell_check()
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
-        description = MultiLineEdit('description')
+        description = TextEdit('description')
         description.add_spell_check()
         dialog.layout().addRow(
             translate('IpernityTab', 'Description'), description)

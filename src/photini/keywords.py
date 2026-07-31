@@ -30,7 +30,7 @@ from photini.pyqt import qt_version_info
 from photini.types import MD_Keywords
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
                              Label, TopLevelWidgetMixin, WidgetMixin)
-from photini.widgets.text import MultiLineEdit, SpellCheckMixin, TextEdit
+from photini.widgets.text import TextEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -54,7 +54,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = MultiLineEdit(key, height=3, no_return=True, **kw)
+        self.edit = TextEdit(key, height=3, no_return=True, **kw)
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()
@@ -160,7 +160,7 @@ class KeywordCompleter(QtWidgets.QCompleter):
         self.complete()
 
 
-class NestedTagEdit(TextEdit, SpellCheckMixin):
+class NestedTagEdit(TextEdit):
     _single_line = True
 
     def __init__(self, list_view, data_model, *arg, **kw):

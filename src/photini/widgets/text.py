@@ -26,8 +26,7 @@ from photini.types import MD_LangAlt
 from photini.widgets import (ChoicesContextMenu, ComboBox, CompoundWidgetMixin,
                              ContextMenuMixin, WidgetMixin)
 
-__all__ = (
-    'LangAltWidget', 'MultiLineEdit', 'SingleLineEdit')
+__all__ = ('LangAltWidget', 'TextEdit')
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -186,7 +185,8 @@ class LengthCheckMixin(TextHighlighterMixin):
             self._length_check.set_length(length)
 
 
-class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
+class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
+               SpellCheckMixin, LengthCheckMixin):
     def __init__(self, key, *arg, height=None, no_return=False, **kw):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
@@ -198,8 +198,6 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         self.setTabChangesFocus(True)
         if height:
             self.set_height(height)
-        elif self._single_line:
-            self.set_height(1)
 
     @catch_all()
     def contextMenuEvent(self, event):
@@ -289,17 +287,8 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         return str(value)
 
 
-class MultiLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
-    _single_line = False
-
-
-class SingleLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
-    _single_line = True
-
-
-class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
-    def __init__(self, owner, single_line=True, **kw):
-        self._single_line = single_line
+class LangAltWidgetText(TextEdit):
+    def __init__(self, owner, **kw):
         super(LangAltWidgetText, self).__init__('', **kw)
         self._owner = owner
         self.set_lang(None)
@@ -547,11 +536,10 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
     clipboard_key = 'LangAltWidget'
     dynamic = True
 
-    def __init__(self, key, multi_line=True, label=None, **widget_kw):
+    def __init__(self, key, label=None, **widget_kw):
         super(LangAltWidget, self).__init__()
         self.app = QtWidgets.QApplication.instance()
         self._key = key
-        widget_kw['single_line'] = not multi_line
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(
@@ -581,7 +569,7 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         self.lang.add_lang.connect(self.add_lang)
         layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
-        if not multi_line:
+        if 'height' in widget_kw:
             self.edit_stack.add_lang('')
             self.setFixedHeight(layout.minimumSize().height())
             self.edit_stack.removeWidget(self.edit_stack.widget(0))
