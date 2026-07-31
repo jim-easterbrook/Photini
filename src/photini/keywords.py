@@ -27,6 +27,7 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
+from photini.types import MD_Keywords
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
                              Label, TopLevelWidgetMixin, WidgetMixin)
 from photini.widgets.text import MultiLineEdit, SpellCheckMixin, TextEdit
@@ -134,10 +135,9 @@ class KeywordsEditor(QtWidgets.QWidget):
             return
         self.favourites.setCurrentIndex(0)
         new_value = self.favourites.itemText(idx)
-        current_value = self.get_value()
-        if current_value:
-            new_value = current_value + '; ' + new_value
-        self.set_value(new_value)
+        current_value = list(MD_Keywords(self.get_value()))
+        current_value.append(new_value)
+        self.set_value(MD_Keywords(current_value))
         self.edit.emit_value()
 
 
