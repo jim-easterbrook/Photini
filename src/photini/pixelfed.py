@@ -573,20 +573,19 @@ class TabWidget(PhotiniUploader):
             translate('PixelfedTab', 'Generate'))
         self.widget['auto_status'].clicked.connect(self.auto_status)
         sub_grid.addWidget(self.widget['auto_status'], 0, 2)
-        self.widget['status'] = TextEdit('status')
+        self.widget['status'] = TextEdit('status', spell_check=True)
         self.widget['status'].add_length_check(
             1000, length_always=True, length_bytes=False)
-        self.widget['status'].add_spell_check()
         policy = self.widget['status'].sizePolicy()
         policy.setVerticalStretch(1)
         self.widget['status'].setSizePolicy(policy)
         sub_grid.addWidget(self.widget['status'], 1, 0, 1, 3)
         sub_grid.setColumnStretch(1, 1)
         group.layout().addRow(sub_grid)
-        self.widget['spoiler_text'] = TextEdit('spoiler_text', height=1)
+        self.widget['spoiler_text'] = TextEdit(
+            'spoiler_text', height=1, spell_check=True)
         self.widget['spoiler_text'].add_length_check(
             140, length_always=True, length_bytes=False)
-        self.widget['spoiler_text'].add_spell_check()
         self.widget['spoiler_text'].textChanged.connect(self.new_spoiler_text)
         group.layout().addRow(
             translate('PixelfedTab', 'Spoiler'), self.widget['spoiler_text'])
@@ -872,14 +871,12 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('PixelfedTab', 'Create new collection'))
         dialog.setLayout(FormLayout())
-        title = TextEdit('title', height=1)
+        title = TextEdit('title', height=1, spell_check=True)
         title.add_length_check(50, length_always=True, length_bytes=False)
-        title.add_spell_check()
         dialog.layout().addRow(translate('PixelfedTab', 'Title'), title)
-        description = TextEdit('description')
+        description = TextEdit('description', spell_check=True)
         description.add_length_check(
             500, length_always=True, length_bytes=False)
-        description.add_spell_check()
         dialog.layout().addRow(
             translate('PixelfedTab', 'Description'), description)
         visibility = DropDownSelector(

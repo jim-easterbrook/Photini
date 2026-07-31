@@ -187,7 +187,8 @@ class LengthCheckMixin(TextHighlighterMixin):
 
 class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
                SpellCheckMixin, LengthCheckMixin):
-    def __init__(self, key, *arg, height=None, no_return=False, **kw):
+    def __init__(self, key, *arg, height=None, no_return=False,
+                 spell_check=False, **kw):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
@@ -198,6 +199,8 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
         self.setTabChangesFocus(True)
         if height:
             self.set_height(height)
+        if spell_check:
+            self.add_spell_check()
 
     @catch_all()
     def contextMenuEvent(self, event):
@@ -357,9 +360,6 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
 
     def add_length_check(self, *arg, **kw):
         self._widget_options.append(('add_length_check', arg, kw))
-
-    def add_spell_check(self, *arg, **kw):
-        self._widget_options.append(('add_spell_check', arg, kw))
 
     def find_lang(self, lang):
         for idx in range(self.count()):
@@ -575,7 +575,6 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             self.edit_stack.removeWidget(self.edit_stack.widget(0))
         # adopt some child methods
         self.add_length_check = self.edit_stack.add_length_check
-        self.add_spell_check = self.edit_stack.add_spell_check
         self.sub_widgets = self.edit_stack.sub_widgets
 
     @QtSlot(str)

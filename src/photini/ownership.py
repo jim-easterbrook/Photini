@@ -68,8 +68,7 @@ class RightsDropDown(DropDownSelector):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
         dialog.setLayout(FormLayout())
-        name = TextEdit('name', height=1)
-        name.add_spell_check()
+        name = TextEdit('name', height=1, spell_check=True)
         dialog.layout().addRow(translate('OwnerTab', 'Name'), name)
         url = TextEdit('url', height=1)
         dialog.layout().addRow(translate('OwnerTab', 'URL'), url)
@@ -114,8 +113,8 @@ class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.setLayout(FormLayout())
         self.widgets = {}
         # usage terms
-        self.widgets['UsageTerms'] = LangAltWidget('UsageTerms', height=1)
-        self.widgets['UsageTerms'].add_spell_check()
+        self.widgets['UsageTerms'] = LangAltWidget(
+            'UsageTerms', height=1, spell_check=True)
         self.widgets['UsageTerms'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter instructions on how this image can legally'
             ' be used.')))
@@ -166,24 +165,23 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
                              self.widgets['Telephone1'])
         # extended address
         self.widgets['ExtendedAddress'] = TextEdit(
-            'plus:LicensorExtendedAddress', height=1)
-        self.widgets['ExtendedAddress'].add_spell_check()
+            'plus:LicensorExtendedAddress', height=1, spell_check=True)
         self.widgets['ExtendedAddress'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter address detail (e.g. flat number or'
                       ' room number) for the person that created this image.')))
         self.layout().addRow(translate('OwnerTab', 'Detail Address'),
                              self.widgets['ExtendedAddress'])
         # address
-        self.widgets['StreetAddress'] = TextEdit('plus:LicensorStreetAddress')
-        self.widgets['StreetAddress'].add_spell_check()
+        self.widgets['StreetAddress'] = TextEdit(
+            'plus:LicensorStreetAddress', spell_check=True)
         self.widgets['StreetAddress'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter street address for the person that'
                       ' created this image.')))
         self.layout().addRow(translate('OwnerTab', 'Street Address'),
                              self.widgets['StreetAddress'])
         # city
-        self.widgets['City'] = TextEdit('plus:LicensorCity', height=1)
-        self.widgets['City'].add_spell_check()
+        self.widgets['City'] = TextEdit(
+            'plus:LicensorCity', height=1, spell_check=True)
         self.widgets['City'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter the city for the address of the person'
                       ' that created this image.')))
@@ -198,16 +196,16 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.layout().addRow(translate('OwnerTab', 'Postal Code'),
                              self.widgets['PostalCode'])
         # region
-        self.widgets['Region'] = TextEdit('plus:LicensorRegion', height=1)
-        self.widgets['Region'].add_spell_check()
+        self.widgets['Region'] = TextEdit(
+            'plus:LicensorRegion', height=1, spell_check=True)
         self.widgets['Region'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter the state for the address of the'
                       ' person that created this image.')))
         self.layout().addRow(translate('OwnerTab', 'State/Province'),
                              self.widgets['Region'])
         # country
-        self.widgets['Country'] = TextEdit('plus:LicensorCountry', height=1)
-        self.widgets['Country'].add_spell_check()
+        self.widgets['Country'] = TextEdit(
+            'plus:LicensorCountry', height=1, spell_check=True)
         self.widgets['Country'].setToolTip('<p>{}</p>'.format(
             translate('OwnerTab', 'Enter the country name for the address of'
                       ' the person that created this image.')))
@@ -235,39 +233,39 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form = FormLayout()
         self.widget().setLayout(form)
         # creator
-        self.widgets['creator'] = TextEdit('creator', height=1)
+        self.widgets['creator'] = TextEdit(
+            'creator', height=1, spell_check=True)
         self.widgets['creator'].add_length_check(
             ImageMetadata.max_bytes('creator'), multi_string=True)
-        self.widgets['creator'].add_spell_check()
         self.widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the name of the person that created this'
             ' image.')))
         form.addRow(translate('OwnerTab', 'Creator'), self.widgets['creator'])
         # creator title
-        self.widgets['creator_title'] = TextEdit('creator_title', height=1)
+        self.widgets['creator_title'] = TextEdit(
+            'creator_title', height=1, spell_check=True)
         self.widgets['creator_title'].add_length_check(
             ImageMetadata.max_bytes('creator_title'), multi_string=True)
-        self.widgets['creator_title'].add_spell_check()
         self.widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the job title of the person listed in the'
             ' Creator field.')))
         form.addRow(translate('OwnerTab', "Creator's Jobtitle"),
                     self.widgets['creator_title'])
         # credit line
-        self.widgets['credit_line'] = TextEdit('credit_line', height=1)
+        self.widgets['credit_line'] = TextEdit(
+            'credit_line', height=1, spell_check=True)
         self.widgets['credit_line'].add_length_check(
             ImageMetadata.max_bytes('credit_line'))
-        self.widgets['credit_line'].add_spell_check()
         self.widgets['credit_line'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter who should be credited when this image is'
             ' published.')))
         form.addRow(translate('OwnerTab', 'Credit Line'),
                     self.widgets['credit_line'])
         # copyright
-        self.widgets['copyright'] = LangAltWidget('copyright', height=1)
+        self.widgets['copyright'] = LangAltWidget(
+            'copyright', height=1, spell_check=True)
         self.widgets['copyright'].add_length_check(
             ImageMetadata.max_bytes('copyright'))
-        self.widgets['copyright'].add_spell_check()
         self.widgets['copyright'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
             ' copyright for this image, such as "©2008 Jane Doe".')))
@@ -277,10 +275,10 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         self.widgets['rights'] = RightsGroup('rights')
         form.addRow(translate('OwnerTab', 'Rights'), self.widgets['rights'])
         # special instructions
-        self.widgets['instructions'] = TextEdit('instructions', height=1)
+        self.widgets['instructions'] = TextEdit(
+            'instructions', height=1, spell_check=True)
         self.widgets['instructions'].add_length_check(
             ImageMetadata.max_bytes('instructions'))
-        self.widgets['instructions'].add_spell_check()
         self.widgets['instructions'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter information about embargoes, or other'
             ' restrictions not covered by the Rights Usage Terms field.')))

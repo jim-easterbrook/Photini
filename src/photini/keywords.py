@@ -66,7 +66,6 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.setFixedHeight(self.sizeHint().height())
         # adopt child widget methods and signals
         self.add_length_check = self.edit.add_length_check
-        self.add_spell_check = self.edit.add_spell_check
         self.get_value = self.edit.get_value
         self.get_value_dict = self.edit.get_value_dict
         self.set_value = self.edit.set_value
@@ -161,15 +160,10 @@ class KeywordCompleter(QtWidgets.QCompleter):
 
 
 class NestedTagEdit(TextEdit):
-    _single_line = True
-
     def __init__(self, list_view, data_model, *arg, **kw):
-        super(NestedTagEdit, self).__init__('', *arg, **kw)
+        super(NestedTagEdit, self).__init__(
+            '', height=1, spell_check=True, *arg, **kw)
         self.data_model = data_model
-        self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
-        self.setLineWrapMode(self.LineWrapMode.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.completer = KeywordCompleter(list_view, self)
         self.completer.activated.connect(self.completer_activated)
 
@@ -597,7 +591,6 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
         # insert new rows if needed
         for idx in range(layout.count() - 1, len(keys) + 1):
             widget = NestedTagEdit(self.list_view, self.data_model)
-            widget.add_spell_check()
             widget.setToolTip('<p>{}</p>'.format(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
@@ -685,10 +678,9 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets = {}
         self.buttons = {}
         # keywords
-        self.widgets['keywords'] = KeywordsEditor('keywords')
+        self.widgets['keywords'] = KeywordsEditor('keywords', spell_check=True)
         self.widgets['keywords'].add_length_check(
             ImageMetadata.max_bytes('keywords'), multi_string=True)
-        self.widgets['keywords'].add_spell_check()
         self.widgets['keywords'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'
