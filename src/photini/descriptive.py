@@ -99,11 +99,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
-        self.widgets['headline'] = MultiLineEdit('headline')
+        self.widgets['headline'] = MultiLineEdit('headline', height=3)
         self.widgets['headline'].add_length_check(
             ImageMetadata.max_bytes('headline'))
         self.widgets['headline'].add_spell_check()
-        self.widgets['headline'].set_height(3)
         self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
             ' of the contents of the image.')))
@@ -124,11 +123,10 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         layout.addRow(translate('DescriptiveTab', 'Description / Caption'),
                       self.widgets['description'])
         # alt text
-        self.widgets['alt_text'] = LangAltWidget('alt_text')
+        self.widgets['alt_text'] = LangAltWidget('alt_text', height=3)
         self.widgets['alt_text'].add_length_check(
             250, length_always=True, length_bytes=False)
         self.widgets['alt_text'].add_spell_check()
-        self.widgets['alt_text'].set_height(3)
         self.widgets['alt_text'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter text describing the appearance of the'
             ' image from a visual perspective, focusing on details that are'

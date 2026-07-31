@@ -54,8 +54,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = MultiLineEdit(key, no_return=True, **kw)
-        self.edit.set_height(3)
+        self.edit = MultiLineEdit(key, height=3, no_return=True, **kw)
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()

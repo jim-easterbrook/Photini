@@ -187,7 +187,7 @@ class LengthCheckMixin(TextHighlighterMixin):
 
 
 class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
-    def __init__(self, key, *arg, no_return=False, **kw):
+    def __init__(self, key, *arg, height=None, no_return=False, **kw):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
@@ -196,7 +196,9 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
-        if self._single_line:
+        if height:
+            self.set_height(height)
+        elif self._single_line:
             self.set_height(1)
 
     @catch_all()
@@ -399,9 +401,6 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
                 else:
                     widget.set_default(lang == default_lang)
 
-    def set_height(self, *arg, **kw):
-        self._widget_options.append(('set_height', arg, kw))
-
     def set_langs(self, langs):
         for idx in range(self.count()):
             widget = self.widget(idx)
@@ -589,7 +588,6 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         # adopt some child methods
         self.add_length_check = self.edit_stack.add_length_check
         self.add_spell_check = self.edit_stack.add_spell_check
-        self.set_height = self.edit_stack.set_height
         self.sub_widgets = self.edit_stack.sub_widgets
 
     @QtSlot(str)
