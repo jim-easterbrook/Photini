@@ -2064,8 +2064,10 @@ class ImageRegionItem(MD_Structure):
                                           str(boundary['Iptc4xmpExt:rbY']),
                                           str(boundary['Iptc4xmpExt:rbW']),
                                           str(boundary['Iptc4xmpExt:rbH']))),
-            'MPReg:PersonDisplayName': str(self['Iptc4xmpExt:PersonInImage']),
             }
+        people = self['Iptc4xmpExt:PersonInImage']
+        if people:
+            region['MPReg:PersonDisplayName'] = people[0]
         for key in ('MPReg:PersonEmailDigest', 'MPReg:PersonLiveIdCID'):
             if key in self:
                 region[key] = self[key]
