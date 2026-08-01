@@ -65,7 +65,6 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.addWidget(self.favourites, 0, Qt.AlignmentFlag.AlignTop)
         self.setFixedHeight(self.sizeHint().height())
         # adopt child widget methods and signals
-        self.add_length_check = self.edit.add_length_check
         self.get_value = self.edit.get_value
         self.get_value_dict = self.edit.get_value_dict
         self.set_value = self.edit.set_value
@@ -678,9 +677,10 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets = {}
         self.buttons = {}
         # keywords
-        self.widgets['keywords'] = KeywordsEditor('keywords', spell_check=True)
-        self.widgets['keywords'].add_length_check(
-            ImageMetadata.max_bytes('keywords'), multi_string=True)
+        self.widgets['keywords'] = KeywordsEditor(
+            'keywords', spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('keywords'),
+                'multi_string': True})
         self.widgets['keywords'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'

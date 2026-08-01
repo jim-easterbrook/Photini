@@ -89,9 +89,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets = {}
         # title
         self.widgets['title'] = LangAltWidget(
-            'title', height=1, spell_check=True)
-        self.widgets['title'].add_length_check(
-            ImageMetadata.max_bytes('title'))
+            'title', height=1, spell_check=True,
+            length_check={'length': ImageMetadata.max_bytes('title')})
         self.widgets['title'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.')))
@@ -100,9 +99,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                       self.widgets['title'])
         # headline
         self.widgets['headline'] = TextEdit(
-            'headline', height=3, spell_check=True)
-        self.widgets['headline'].add_length_check(
-            ImageMetadata.max_bytes('headline'))
+            'headline', height=3, spell_check=True,
+            length_check={'length': ImageMetadata.max_bytes('headline')})
         self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
             ' of the contents of the image.')))
@@ -111,9 +109,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                       self.widgets['headline'])
         # description
         self.widgets['description'] = LangAltWidget(
-            'description', spell_check=True)
-        self.widgets['description'].add_length_check(
-            ImageMetadata.max_bytes('description'))
+            'description', spell_check=True,
+            length_check={'length': ImageMetadata.max_bytes('description')})
         self.widgets['description'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter a "caption" describing the who, what,'
             ' and why of what is happening in this image, this might include'
@@ -124,9 +121,8 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                       self.widgets['description'])
         # alt text
         self.widgets['alt_text'] = LangAltWidget(
-            'alt_text', height=3, spell_check=True)
-        self.widgets['alt_text'].add_length_check(
-            250, length_always=True, length_bytes=False)
+            'alt_text', height=3, spell_check=True, length_check={
+                'length': 250, 'length_always': True, 'length_bytes': False})
         self.widgets['alt_text'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter text describing the appearance of the'
             ' image from a visual perspective, focusing on details that are'

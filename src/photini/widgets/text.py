@@ -125,7 +125,7 @@ class SpellCheckMixin(TextHighlighterMixin):
 
 class LengthFormatter(QtGui.QTextCharFormat):
     def __init__(self, highlighter, length,
-                 length_always=True, length_bytes=True, multi_string=False):
+                 length_always=False, length_bytes=True, multi_string=False):
         super(LengthFormatter, self).__init__()
         self.setUnderlineColor(Qt.GlobalColor.blue)
         self.setUnderlineStyle(self.UnderlineStyle.SingleUnderline)
@@ -172,8 +172,8 @@ class LengthFormatter(QtGui.QTextCharFormat):
 class LengthCheckMixin(TextHighlighterMixin):
     _length_check = None
 
-    def add_length_check(self, length, length_always=True, length_bytes=True,
-                         multi_string=False):
+    def add_length_check(self, length=None, length_always=False,
+                         length_bytes=True, multi_string=False):
         if not length:
             return
         self._length_check = LengthFormatter(
@@ -188,7 +188,7 @@ class LengthCheckMixin(TextHighlighterMixin):
 class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
                SpellCheckMixin, LengthCheckMixin):
     def __init__(self, key, *arg, height=None, no_return=False,
-                 spell_check=False, **kw):
+                 spell_check=False, length_check=None, **kw):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
@@ -199,6 +199,8 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
         self.setTabChangesFocus(True)
         if height:
             self.set_height(height)
+        if length_check:
+            self.add_length_check(**length_check)
         if spell_check:
             self.add_spell_check()
 
@@ -340,7 +342,6 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
         super(LangAltEditStack, self).__init__(*arg, **kw)
         self._owner = owner
         self._widget_kw = widget_kw
-        self._widget_options = []
 
     def add_lang(self, lang):
         # find unused text edit
@@ -352,14 +353,9 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
         else:
             # create new text edit
             widget = LangAltWidgetText(self._owner, **self._widget_kw)
-            for func, arg, kw in self._widget_options:
-                getattr(widget, func)(*arg, **kw)
             widget.new_value.connect(self.sw_new_value)
             self.addWidget(widget)
         widget.set_lang(lang)
-
-    def add_length_check(self, *arg, **kw):
-        self._widget_options.append(('add_length_check', arg, kw))
 
     def find_lang(self, lang):
         for idx in range(self.count()):
@@ -574,7 +570,6 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             self.setFixedHeight(layout.minimumSize().height())
             self.edit_stack.removeWidget(self.edit_stack.widget(0))
         # adopt some child methods
-        self.add_length_check = self.edit_stack.add_length_check
         self.sub_widgets = self.edit_stack.sub_widgets
 
     @QtSlot(str)

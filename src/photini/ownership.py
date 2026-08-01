@@ -234,18 +234,18 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         self.widget().setLayout(form)
         # creator
         self.widgets['creator'] = TextEdit(
-            'creator', height=1, spell_check=True)
-        self.widgets['creator'].add_length_check(
-            ImageMetadata.max_bytes('creator'), multi_string=True)
+            'creator', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('creator'),
+                'multi_string': True})
         self.widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the name of the person that created this'
             ' image.')))
         form.addRow(translate('OwnerTab', 'Creator'), self.widgets['creator'])
         # creator title
         self.widgets['creator_title'] = TextEdit(
-            'creator_title', height=1, spell_check=True)
-        self.widgets['creator_title'].add_length_check(
-            ImageMetadata.max_bytes('creator_title'), multi_string=True)
+            'creator_title', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('creator_title'),
+                'multi_string': True})
         self.widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the job title of the person listed in the'
             ' Creator field.')))
@@ -253,9 +253,8 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
                     self.widgets['creator_title'])
         # credit line
         self.widgets['credit_line'] = TextEdit(
-            'credit_line', height=1, spell_check=True)
-        self.widgets['credit_line'].add_length_check(
-            ImageMetadata.max_bytes('credit_line'))
+            'credit_line', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('credit_line')})
         self.widgets['credit_line'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter who should be credited when this image is'
             ' published.')))
@@ -263,9 +262,8 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
                     self.widgets['credit_line'])
         # copyright
         self.widgets['copyright'] = LangAltWidget(
-            'copyright', height=1, spell_check=True)
-        self.widgets['copyright'].add_length_check(
-            ImageMetadata.max_bytes('copyright'))
+            'copyright', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('copyright')})
         self.widgets['copyright'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
             ' copyright for this image, such as "©2008 Jane Doe".')))
@@ -276,9 +274,8 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form.addRow(translate('OwnerTab', 'Rights'), self.widgets['rights'])
         # special instructions
         self.widgets['instructions'] = TextEdit(
-            'instructions', height=1, spell_check=True)
-        self.widgets['instructions'].add_length_check(
-            ImageMetadata.max_bytes('instructions'))
+            'instructions', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('instructions')})
         self.widgets['instructions'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter information about embargoes, or other'
             ' restrictions not covered by the Rights Usage Terms field.')))
