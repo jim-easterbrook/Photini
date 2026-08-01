@@ -147,10 +147,11 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
         # people
-        self.widgets['people'] = TextEdit('people', height=1, spell_check=True)
+        self.widgets['people'] = MultiTextEdit(
+            'people', height=1, spell_check=True)
         self.widgets['people'].setToolTip(translate(
-            'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
-            ' image. Separate them with ";" characters.'))
+            'DescriptiveTab',
+            'Enter the name(s) of the person(s) shown in this image.'))
         self.widgets['people'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Person(s) shown'),
                       self.widgets['people'])

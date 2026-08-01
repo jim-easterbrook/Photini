@@ -231,7 +231,7 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form = FormLayout()
         self.widget().setLayout(form)
         # creator
-        self.widgets['creator'] = MultiTextEdit(
+        self.widgets['creator'] = TextEdit(
             'creator', height=1, spell_check=True, length_check={
                 'length': ImageMetadata.max_bytes('creator')})
         self.widgets['creator'].setToolTip(translate(
@@ -239,7 +239,7 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
             'Enter the name of the person that created this image.'))
         form.addRow(translate('OwnerTab', 'Creator'), self.widgets['creator'])
         # creator title
-        self.widgets['creator_title'] = MultiTextEdit(
+        self.widgets['creator_title'] = TextEdit(
             'creator_title', height=1, spell_check=True, length_check={
                 'length': ImageMetadata.max_bytes('creator_title')})
         self.widgets['creator_title'].setToolTip(translate(

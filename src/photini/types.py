@@ -35,12 +35,13 @@ logger = logging.getLogger(__name__)
 
 # photini.metadata imports these classes
 __all__ = (
-    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_FocalLength', 'MD_GPSinfo', 'MD_HierarchicalTags',
-    'MD_ImageRegion', 'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel',
-    'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation', 'MD_Rating',
-    'MD_Rational', 'MD_Rights', 'MD_SingleLocation', 'MD_Software', 'MD_String',
-    'MD_Thumbnail', 'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
+    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_Creator',
+    'MD_DateTime', 'MD_Dimensions', 'MD_FocalLength', 'MD_GPSinfo',
+    'MD_HierarchicalTags', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
+    'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
+    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
+    'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
+    'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -146,6 +147,24 @@ class MD_UnmergableString(MD_Value, str):
 class MD_String(MD_UnmergableString):
     def concat(self, this, other):
         return this + ' // ' + other, True, False
+
+
+class MD_Creator(MD_String):
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, str):
+            # Photini used to write multiple values separated by ';'
+            file_value = file_value.split(';')
+        return super(MD_Creator, cls).from_exiv2(file_value, tag)
+
+    def merge(self, info, tag, other):
+        if not other:
+            return self
+        # merge each component of a list separately
+        result = self.__class__(self)
+        for item in other.split(' // '):
+            result = super(MD_Creator, result).merge(info, tag, item)
+        return result
 
 
 class MD_Software(MD_String):
@@ -1161,7 +1180,7 @@ class MD_MultiString(MD_Value, tuple):
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
-            return MD_MultiString(result)
+            return self.__class__(result)
         return self
 
 
