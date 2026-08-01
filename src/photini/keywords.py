@@ -590,10 +590,10 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
         # insert new rows if needed
         for idx in range(layout.count() - 1, len(keys) + 1):
             widget = NestedTagEdit(self.list_view, self.data_model)
-            widget.setToolTip('<p>{}</p>'.format(translate(
+            widget.setToolTip(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
-                ' Separate them with "|" or "/" characters.')))
+                ' Separate them with "|" or "/" characters.'))
             widget.new_value.connect(self.sw_new_value)
             layout.insertWidget(idx, widget)
         # hide or reveal rows and set subwidget keys
@@ -680,10 +680,9 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets['keywords'] = KeywordsEditor(
             'keywords', spell_check=True, length_check={
                 'length': ImageMetadata.max_bytes('keywords')})
-        self.widgets['keywords'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['keywords'].setToolTip(translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
-            ' used to express the subject matter in the image.'
-            ' Separate them with ";" characters.')))
+            ' used to express the subject matter in the image.'))
         self.widgets['keywords'].new_value.connect(self.save_data)
         layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
         layout.addWidget(self.widgets['keywords'], 0, 1)

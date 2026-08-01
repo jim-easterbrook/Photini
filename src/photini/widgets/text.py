@@ -235,6 +235,9 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
             # user has typed something over <multiple values>
             self.setPlaceholderText('')
 
+    def setToolTip(self, text):
+        super(TextEdit, self).setToolTip('<p>{}</p>'.format(text))
+
     def get_value(self):
         if qt_version_info < (5, 9):
             return self.toPlainText()
@@ -290,6 +293,10 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
 
 
 class MultiTextEdit(TextEdit):
+    def setToolTip(self, text):
+        text += ' ' + translate('Widgets', 'Separate them with ";" characters.')
+        super(MultiTextEdit, self).setToolTip(text)
+
     def add_length_check(self, options={}):
         options['multi_string'] = True
         super(MultiTextEdit, self).add_length_check(options)
@@ -574,6 +581,9 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             self.edit_stack.removeWidget(self.edit_stack.widget(0))
         # adopt some child methods
         self.sub_widgets = self.edit_stack.sub_widgets
+
+    def setToolTip(self, text):
+        super(LangAltWidget, self).setToolTip('<p>{}</p>'.format(text))
 
     @QtSlot(str)
     @catch_all()
