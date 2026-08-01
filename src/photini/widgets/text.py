@@ -26,7 +26,7 @@ from photini.types import MD_LangAlt
 from photini.widgets import (ChoicesContextMenu, ComboBox, CompoundWidgetMixin,
                              ContextMenuMixin, WidgetMixin)
 
-__all__ = ('LangAltWidget', 'TextEdit')
+__all__ = ('LangAltWidget', 'MultiTextEdit', 'TextEdit')
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -124,7 +124,7 @@ class SpellCheckMixin(TextHighlighterMixin):
 
 
 class LengthFormatter(QtGui.QTextCharFormat):
-    def __init__(self, highlighter, length,
+    def __init__(self, highlighter, length=None,
                  length_always=False, length_bytes=True, multi_string=False):
         super(LengthFormatter, self).__init__()
         self.setUnderlineColor(Qt.GlobalColor.blue)
@@ -172,13 +172,10 @@ class LengthFormatter(QtGui.QTextCharFormat):
 class LengthCheckMixin(TextHighlighterMixin):
     _length_check = None
 
-    def add_length_check(self, length=None, length_always=False,
-                         length_bytes=True, multi_string=False):
-        if not length:
+    def add_length_check(self, options={}):
+        if not options['length']:
             return
-        self._length_check = LengthFormatter(
-            self.highlighter(), length, length_always=length_always,
-            length_bytes=length_bytes, multi_string=multi_string)
+        self._length_check = LengthFormatter(self.highlighter(), **options)
 
     def set_length(self, length):
         if self._length_check:
@@ -200,7 +197,7 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
         if height:
             self.set_height(height)
         if length_check:
-            self.add_length_check(**length_check)
+            self.add_length_check(options=length_check)
         if spell_check:
             self.add_spell_check()
 
@@ -290,6 +287,12 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
         if self._no_return:
             return str(value).replace('\n', ' ')
         return str(value)
+
+
+class MultiTextEdit(TextEdit):
+    def add_length_check(self, options={}):
+        options['multi_string'] = True
+        super(MultiTextEdit, self).add_length_check(options)
 
 
 class LangAltWidgetText(TextEdit):

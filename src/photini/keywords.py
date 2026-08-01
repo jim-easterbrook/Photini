@@ -30,7 +30,7 @@ from photini.pyqt import qt_version_info
 from photini.types import MD_Keywords
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
                              Label, TopLevelWidgetMixin, WidgetMixin)
-from photini.widgets.text import TextEdit
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -54,7 +54,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = TextEdit(key, height=3, no_return=True, **kw)
+        self.edit = MultiTextEdit(key, height=3, no_return=True, **kw)
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()
@@ -679,8 +679,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         # keywords
         self.widgets['keywords'] = KeywordsEditor(
             'keywords', spell_check=True, length_check={
-                'length': ImageMetadata.max_bytes('keywords'),
-                'multi_string': True})
+                'length': ImageMetadata.max_bytes('keywords')})
         self.widgets['keywords'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'

@@ -24,7 +24,7 @@ from photini.pyqt import *
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
     PushButton, TopLevelWidgetMixin)
-from photini.widgets.text import LangAltWidget, TextEdit
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -233,19 +233,17 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form = FormLayout()
         self.widget().setLayout(form)
         # creator
-        self.widgets['creator'] = TextEdit(
+        self.widgets['creator'] = MultiTextEdit(
             'creator', height=1, spell_check=True, length_check={
-                'length': ImageMetadata.max_bytes('creator'),
-                'multi_string': True})
+                'length': ImageMetadata.max_bytes('creator')})
         self.widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the name of the person that created this'
             ' image.')))
         form.addRow(translate('OwnerTab', 'Creator'), self.widgets['creator'])
         # creator title
-        self.widgets['creator_title'] = TextEdit(
+        self.widgets['creator_title'] = MultiTextEdit(
             'creator_title', height=1, spell_check=True, length_check={
-                'length': ImageMetadata.max_bytes('creator_title'),
-                'multi_string': True})
+                'length': ImageMetadata.max_bytes('creator_title')})
         self.widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
             'OwnerTab', 'Enter the job title of the person listed in the'
             ' Creator field.')))
