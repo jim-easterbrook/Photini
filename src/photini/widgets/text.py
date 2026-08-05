@@ -306,6 +306,7 @@ class MultiTextEdit(TextEdit):
         value = super(MultiTextEdit, self).get_value()
         value = [x.strip() for x in value.split(';')]
         value = [x for x in value if x]
+        self.set_value(value)
         return value
 
     def set_value(self, value):
