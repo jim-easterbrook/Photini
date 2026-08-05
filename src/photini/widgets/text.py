@@ -660,12 +660,8 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             if not new_lang:
                 return
             new_lang = MD_LangAlt.normalise_key(new_lang)
-        widget = self.edit_stack.find_lang(old_lang)
-        if widget.get_value():
-            self.sw_new_value({'change_lang': (old_lang, new_lang)})
-            self.lang.setCurrentIndex(self.lang.findData(new_lang))
-        else:
-            self.add_lang(new_lang)
+        self.sw_new_value({'change_lang': (old_lang, new_lang)})
+        self.lang.setCurrentIndex(self.lang.findData(new_lang))
 
     def get_value(self):
         if self.has_value():
@@ -678,10 +674,12 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             if old_lang == new_lang:
                 return False
             old_value = dict(metadata[self._key])
-            new_value = {new_lang: old_value[old_lang]}
-            if old_value[MD_LangAlt.DEFAULT] == old_value[old_lang]:
-                del old_value[MD_LangAlt.DEFAULT]
-            del old_value[old_lang]
+            new_value = {new_lang: ''}
+            if old_lang in old_value:
+                new_value[new_lang] = old_value[old_lang]
+                if old_value[MD_LangAlt.DEFAULT] == old_value[old_lang]:
+                    new_value[MD_LangAlt.DEFAULT] = old_value[old_lang]
+                del old_value[old_lang]
             old_value = MD_LangAlt(old_value)
             metadata[self._key] = old_value.merge(
                 self._key, old_lang, new_value)
