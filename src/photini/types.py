@@ -150,6 +150,8 @@ class MD_String(MD_UnmergableString):
 
 
 class MD_Creator(MD_String):
+    # XMP and IPTC values are lists, but Photini assumes only one creator
+    # Merge list data with ' // ' separators, then treat as a single value
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if isinstance(file_value, str):
@@ -1148,22 +1150,17 @@ class MD_LensModel(MD_Collection):
 class MD_MultiString(MD_Value, tuple):
     def __new__(cls, value=None):
         value = value or []
-        if isinstance(value, str):
-            value = value.split(';')
+        assert(isinstance(value, (list, tuple)))
         value = filter(bool, [x.strip() for x in value])
         return super(MD_MultiString, cls).__new__(cls, value)
 
-    def to_exif(self):
-        return ';'.join(self)
+    to_exif = None
 
     def to_iptc(self):
         return tuple(self)
 
     def to_xmp(self):
         return tuple(self)
-
-    def __str__(self):
-        return '; '.join(self)
 
     def merge(self, info, tag, other):
         merged = False
