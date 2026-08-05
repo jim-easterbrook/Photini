@@ -279,10 +279,11 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
     def set_value(self, value, html=False):
         self.setPlaceholderText('')
         if value:
+            assert(isinstance(value, str))
             if html:
                 self.setHtml(value)
             else:
-                self.setPlainText(str(value))
+                self.setPlainText(value)
         else:
             self.clear()
 
@@ -300,6 +301,18 @@ class MultiTextEdit(TextEdit):
     def add_length_check(self, options={}):
         options['multi_string'] = True
         super(MultiTextEdit, self).add_length_check(options)
+
+    def get_value(self):
+        value = super(MultiTextEdit, self).get_value()
+        value = [x.strip() for x in value.split(';')]
+        value = [x for x in value if x]
+        return value
+
+    def set_value(self, value):
+        if value:
+            assert(isinstance(value, (list, tuple)))
+            value = '; '.join(value)
+        super(MultiTextEdit, self).set_value(value)
 
 
 class LangAltWidgetText(TextEdit):
