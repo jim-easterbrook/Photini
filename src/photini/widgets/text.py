@@ -135,7 +135,7 @@ class LengthFormatter(QtGui.QTextCharFormat):
         self.length_bytes = length_bytes
         if multi_string:
             # treat each keyword separately
-            self.regex = re.compile(r'\s*(.+?)(;|$)')
+            self.set_separator(';')
         else:
             # treat the entire block as one
             self.regex = re.compile(r'(.+)')
@@ -167,6 +167,10 @@ class LengthFormatter(QtGui.QTextCharFormat):
 
     def set_length(self, length):
         self.length = length
+
+    def set_separator(self, sep):
+        self.regex = re.compile(
+            r'\s*(.+?)\s*(\{sep}|$)'.format(sep=sep.strip()))
 
 
 class LengthCheckMixin(TextHighlighterMixin):
@@ -294,17 +298,57 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
 
 
 class MultiTextEdit(TextEdit):
+    separators = [', ', '; ', ' / ', ' * ']
+    sep = separators[1]
+
+    def __init__(self, *arg, **kw):
+        super(MultiTextEdit, self).__init__(*arg, **kw)
+        self.context_menus['C'] = self.add_separators_context_menu
+
     def setToolTip(self, text):
-        text += ' ' + translate('Widgets', 'Separate them with ";" characters.')
+        self.tooltip_text = text
+        text += ' ' + translate(
+            'Widgets', 'Separate them with "{sep}" characters.').format(
+                sep = self.sep.strip())
         super(MultiTextEdit, self).setToolTip(text)
+
+    def add_separators_context_menu(self, menu, event):
+        sub_menu = QtWidgets.QMenu(translate(
+            'Widgets', 'Item separator'), parent=menu)
+        group = QtGui2.QActionGroup(sub_menu)
+        for sep in self.separators:
+            action = QtGui2.QAction(
+                '"{sep}"'.format(sep=sep.strip()), parent=group)
+            action.setData(sep)
+            sub_menu.addAction(action)
+        group.triggered.connect(self.ctx_set_separator)
+        return sub_menu
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all()
+    def ctx_set_separator(self, action):
+        sep = action.data()
+        if self.sep == sep:
+            return
+        value = self.get_value()
+        self.set_separator(sep)
+        self.set_value(value)
+
+    def set_separator(self, sep):
+        self.sep = sep
+        if self._length_check:
+            self._length_check.set_separator(sep)
+        self.setToolTip(self.tooltip_text)
 
     def add_length_check(self, options={}):
         options['multi_string'] = True
         super(MultiTextEdit, self).add_length_check(options)
+        if self._length_check:
+            self._length_check.set_separator(self.sep)
 
     def get_value(self):
         value = super(MultiTextEdit, self).get_value()
-        value = [x.strip() for x in value.split(';')]
+        value = [x.strip() for x in value.split(self.sep.strip())]
         value = [x for x in value if x]
         self.set_value(value)
         return value
@@ -312,7 +356,13 @@ class MultiTextEdit(TextEdit):
     def set_value(self, value):
         if value:
             assert(isinstance(value, (list, tuple)))
-            value = '; '.join(value)
+            for sep in [self.sep] + self.separators:
+                sep_char = sep.strip()
+                if not any(sep_char in x for x in value):
+                    if self.sep != sep:
+                        self.set_separator(sep)
+                    break
+            value = self.sep.join(value)
         super(MultiTextEdit, self).set_value(value)
 
 
