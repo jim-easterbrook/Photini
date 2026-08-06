@@ -188,12 +188,13 @@ class LengthCheckMixin(TextHighlighterMixin):
 
 class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
                SpellCheckMixin, LengthCheckMixin):
-    def __init__(self, key, *arg, height=None, no_return=False,
+    _no_return = False
+
+    def __init__(self, key, *arg, height=None,
                  spell_check=False, length_check=None, **kw):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
-        self._no_return = no_return
         self.context_menus = {'A': self.create_choices_context_menu}
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
@@ -300,10 +301,18 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
 class MultiTextEdit(TextEdit):
     separators = [', ', '; ', ' / ', ' * ']
     sep = separators[1]
+    _no_return = True
 
     def __init__(self, *arg, **kw):
         super(MultiTextEdit, self).__init__(*arg, **kw)
         self.context_menus['C'] = self.add_separators_context_menu
+
+    @catch_all()
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            self.insertPlainText(self.sep)
+            return
+        super(MultiTextEdit, self).keyPressEvent(event)
 
     def setToolTip(self, text):
         self.tooltip_text = text
