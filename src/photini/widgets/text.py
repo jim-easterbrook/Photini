@@ -371,6 +371,9 @@ class MultiTextEdit(TextEdit):
                     if self.sep != sep:
                         self.set_separator(sep)
                     break
+            else:
+                logger.error(
+                    '%s: all separators in value %s', self._key, value)
             value = self.sep.join(value)
         super(MultiTextEdit, self).set_value(value)
 
