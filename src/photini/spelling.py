@@ -38,6 +38,19 @@ else:
     spelling_version = None
 
 
+class NullDictionary(object):
+    tag = ''
+
+    def check(self, word):
+        return True
+
+    def suggest(self, word):
+        return []
+
+    def __bool__(self):
+        return False
+
+
 class SpellCheck(QtCore.QObject):
     new_dict = QtSignal()
 
@@ -96,8 +109,16 @@ class SpellCheck(QtCore.QObject):
                 if code.startswith(test):
                     self.dictionaries[lang] = enchant.request_dict(code)
                     return
-        self.dictionaries[lang] = self.dictionaries[self.default_lang]
-        return
+        if lang != self.default_lang:
+            self.load_dict(self.default_lang)
+            if self.default_lang in self.dictionaries:
+                self.dictionaries[lang] = self.dictionaries[self.default_lang]
+                return
+        for code in enchant.list_languages():
+            self.dictionaries[lang] = enchant.request_dict(code)
+            return
+        logger.warning('No dictionary available for %s', lang)
+        self.dictionaries[lang] = NullDictionary()
 
     def set_language(self, code):
         if code:
