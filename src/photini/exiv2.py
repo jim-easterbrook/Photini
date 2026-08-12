@@ -904,6 +904,12 @@ class MetadataHandler(object):
         return tag in self._exifData
 
     def save_file(self):
+        # GIMP and MP namespaces don't mix!
+        # See https://github.com/Exiv2/exiv2/issues/9417
+        for tag in self.get_xmp_tags():
+            if tag.startswith('Xmp.GIMP'):
+                self.clear_xmp_tag('Xmp.MP.RegionInfo')
+                break
         try:
             self._image.writeMetadata()
         except exiv2.Exiv2Error as ex:
