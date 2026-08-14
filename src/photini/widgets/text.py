@@ -61,8 +61,8 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
         self.setUnderlineColor(Qt.GlobalColor.red)
         self.setUnderlineStyle(self.UnderlineStyle.SpellCheckUnderline)
         self.spell_check = QtWidgets.QApplication.instance().spell_check
-        self.spell_check.new_dict.connect(highlighter.rehighlight)
-        self._lang = None
+        self.set_lang(MD_LangAlt.DEFAULT)
+        self.spell_check.rehighlight.connect(highlighter.rehighlight)
         highlighter.add_formatter(self)
 
     def add_spelling_context_menu(self, menu, cursor, callback):
@@ -76,8 +76,7 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
             cursor.setPosition(block_pos + start)
             cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
             break
-        suggestions = self.spell_check.suggest(
-            cursor.selectedText(), lang=self._lang)
+        suggestions = self._dict.suggest(cursor.selectedText())
         if not suggestions:
             return None
         sub_menu = QtWidgets.QMenu(translate(
@@ -92,14 +91,11 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
 
     def highlight_block(self, text, highlighter):
         for word, start, end in self.spell_check.find_words(text):
-            if not self.spell_check.check(word, lang=self._lang):
+            if not self._dict.check(word):
                 highlighter.setFormat(start, end - start, self)
 
     def set_lang(self, lang):
-        if lang == MD_LangAlt.DEFAULT:
-            lang = None
-        self._lang = lang
-        self.spell_check.load_dict(lang)
+        self._dict = self.spell_check.get_dict(lang)
 
 
 class SpellCheckMixin(TextHighlighterMixin):
