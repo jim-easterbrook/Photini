@@ -67,6 +67,13 @@ class Dictionary(QtCore.QObject):
             return self._dict.tag
         return ''
 
+    words = re.compile(r"\w+([-'’]\w+)*", flags=re.IGNORECASE | re.UNICODE)
+
+    def find_words(self, text):
+        for word in self.words.finditer(text):
+            print(word.group(), word.start(), word.end())
+            yield word.group(), word.start(), word.end()
+
 
 class SpellCheck(QtCore.QObject):
     # controller class, one instance is created and stored in app.spell_check
@@ -140,10 +147,3 @@ class SpellCheck(QtCore.QObject):
         self.dictionaries[MD_LangAlt.DEFAULT].copy_dict(dictionary)
         self.config_store.set('spelling', 'language', self.current_language())
         self.rehighlight.emit()
-
-    words = re.compile(r"\w+([-'’]\w+)*", flags=re.IGNORECASE | re.UNICODE)
-
-    def find_words(self, text):
-        for word in self.words.finditer(text):
-            yield word.group(), word.start(), word.end()
-

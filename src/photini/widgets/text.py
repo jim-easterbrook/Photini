@@ -68,7 +68,7 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
     def add_spelling_context_menu(self, menu, cursor, callback):
         block = cursor.block()
         block_pos = block.position()
-        for word, start, end in self.spell_check.find_words(block.text()):
+        for word, start, end in self._dict.find_words(block.text()):
             if start > cursor.positionInBlock():
                 break
             if end <= cursor.positionInBlock():
@@ -90,7 +90,7 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
         return sub_menu
 
     def highlight_block(self, text, highlighter):
-        for word, start, end in self.spell_check.find_words(text):
+        for word, start, end in self._dict.find_words(text):
             if not self._dict.check(word):
                 highlighter.setFormat(start, end - start, self)
 
