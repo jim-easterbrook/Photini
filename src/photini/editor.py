@@ -44,6 +44,7 @@ from photini.pyqt import *
 from photini.pyqt import QtNetwork, qt_version_info, QtWebEngineCore
 from photini.spelling import SpellCheck
 from photini.types import MD_LangAlt
+from photini.widgets.text import MultiTextEdit
 
 try:
     from photini.gpximporter import GpxImporter
@@ -432,6 +433,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.image_list.selection_changed.connect(self.new_selection)
         self.app.map_icon_factory = MapIconFactory(parent=self)
         self.app.clipboard = {}
+        # get some config
+        sep = self.app.config_store.get(
+            'descriptive', 'list_separator', MultiTextEdit.default_sep)
+        if sep not in MultiTextEdit.separators:
+            MultiTextEdit.separators.append(sep)
+        MultiTextEdit.default_sep = sep
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # initialise web engine

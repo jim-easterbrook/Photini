@@ -26,8 +26,8 @@ except ImportError:
 from photini.pyqt import (
     available_packages, catch_all, execute, FormLayout, qt_lib, QtCore, QtGui,
     QtSlot, QtWidgets, width_for_text)
-from photini.widgets import Label
-from photini.widgets.text import TextEdit
+from photini.widgets import ComboBox, Label
+from photini.widgets.text import MultiTextEdit, TextEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -145,6 +145,15 @@ class EditSettings(QtWidgets.QDialog):
                 self.config_store.get('map', 'gpx_altitude', True))
             panel.layout().addRow(
                 translate('EditSettings', 'GPX importer'), self.gpx_altitude)
+        # list metadata separator
+        self.item_separator = ComboBox()
+        self.item_separator.setFixedWidth(width_for_text(self, 'x' * 15))
+        for n, (text, data) in enumerate(MultiTextEdit.sep_list()):
+            self.item_separator.addItem(text, data)
+            if data == MultiTextEdit.default_sep:
+                self.item_separator.setCurrentIndex(n)
+        panel.layout().addRow(
+            translate('EditSettings', 'List separator'), self.item_separator)
         # map icon colours
         self.map_pin = {}
         self.map_pin[True] = {'button': QtWidgets.QPushButton(
@@ -270,6 +279,9 @@ class EditSettings(QtWidgets.QDialog):
         else:
             keep_time = 'now'
         self.config_store.set('files', 'preserve_timestamps', keep_time)
+        MultiTextEdit.default_sep = self.item_separator.currentData()
+        self.config_store.set(
+            'descriptive', 'list_separator', MultiTextEdit.default_sep)
         if self.app.gpx_importer:
             self.config_store.set(
                 'map', 'gpx_altitude', self.gpx_altitude.isChecked())

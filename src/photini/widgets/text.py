@@ -296,17 +296,18 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
 
 class MultiTextEdit(TextEdit):
     separators = [', ', '; ', ' / ', ' * ']
-    sep = separators[1]
+    default_sep = separators[1]
     _no_return = True
 
     def __init__(self, *arg, **kw):
+        self.current_sep = self.default_sep
         super(MultiTextEdit, self).__init__(*arg, **kw)
         self.context_menus['C'] = self.add_separators_context_menu
 
     @catch_all()
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            self.insertPlainText(self.sep)
+            self.insertPlainText(self.current_sep)
             return
         super(MultiTextEdit, self).keyPressEvent(event)
 
@@ -314,17 +315,21 @@ class MultiTextEdit(TextEdit):
         self.tooltip_text = text
         text += ' ' + translate(
             'Widgets', 'Separate them with "{sep}" characters.').format(
-                sep = self.sep.strip())
+                sep=self.current_sep.strip())
         super(MultiTextEdit, self).setToolTip(text)
+
+    @classmethod
+    def sep_list(cls):
+        for sep in cls.separators:
+            yield '"{}"'.format(sep.strip()), sep
 
     def add_separators_context_menu(self, menu, event):
         sub_menu = QtWidgets.QMenu(translate(
             'Widgets', 'Item separator'), parent=menu)
         group = QtGui2.QActionGroup(sub_menu)
-        for sep in self.separators:
-            action = QtGui2.QAction(
-                '"{sep}"'.format(sep=sep.strip()), parent=group)
-            action.setData(sep)
+        for text, data in self.sep_list():
+            action = QtGui2.QAction(text, parent=group)
+            action.setData(data)
             sub_menu.addAction(action)
         group.triggered.connect(self.ctx_set_separator)
         return sub_menu
@@ -333,14 +338,16 @@ class MultiTextEdit(TextEdit):
     @catch_all()
     def ctx_set_separator(self, action):
         sep = action.data()
-        if self.sep == sep:
+        if self.default_sep == sep:
             return
+        # change default for this instance only
         value = self.get_value()
+        self.default_sep = sep
         self.set_separator(sep)
         self.set_value(value)
 
     def set_separator(self, sep):
-        self.sep = sep
+        self.current_sep = sep
         if self._length_check:
             self._length_check.set_separator(sep)
         self.setToolTip(self.tooltip_text)
@@ -349,28 +356,27 @@ class MultiTextEdit(TextEdit):
         options['multi_string'] = True
         super(MultiTextEdit, self).add_length_check(options)
         if self._length_check:
-            self._length_check.set_separator(self.sep)
+            self._length_check.set_separator(self.current_sep)
 
     def get_value(self):
         value = super(MultiTextEdit, self).get_value()
-        value = [x.strip() for x in value.split(self.sep.strip())]
+        value = [x.strip() for x in value.split(self.current_sep.strip())]
         value = [x for x in value if x]
         self.set_value(value)
         return value
 
     def set_value(self, value):
         if value:
-            assert(isinstance(value, (list, tuple)))
-            for sep in [self.sep] + self.separators:
+            for sep in [self.default_sep] + self.separators:
                 sep_char = sep.strip()
                 if not any(sep_char in x for x in value):
-                    if self.sep != sep:
+                    if self.current_sep != sep:
                         self.set_separator(sep)
                     break
             else:
                 logger.error(
                     '%s: all separators in value %s', self._key, value)
-            value = self.sep.join(value)
+            value = self.current_sep.join(value)
         super(MultiTextEdit, self).set_value(value)
 
 
