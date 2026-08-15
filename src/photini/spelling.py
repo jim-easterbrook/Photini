@@ -71,7 +71,6 @@ class Dictionary(QtCore.QObject):
 
     def find_words(self, text):
         for word in self.words.finditer(text):
-            print(word.group(), word.start(), word.end())
             yield word.group(), word.start(), word.end()
 
 
