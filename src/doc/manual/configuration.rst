@@ -44,6 +44,8 @@ You may need to scroll down to see all the settings available.
 
 If you have installed gpxpy_ then there is an option to determine if the altitude is included when a GPX file is used to set pictures' GPS data.
 
+The "list separator" is used as a delimiter for list values such as keywords or people shown in an image.
+
 .. image:: ../images/screenshot_083.png
 
 Clicking on one of the "map icon colours" fields opens a colour chooser dialog that allows you to click on a colour or type in its values in a variety of formats.
