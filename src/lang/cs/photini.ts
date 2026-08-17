@@ -8,10 +8,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -105,6 +101,10 @@
         <translation>Zadejte název světové oblasti.</translation>
     </message>
     <message>
+        <source>Enter globally unique identifier(s) of the location.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Address</source>
         <comment>Shortest possible name used as tab label</comment>
         <translation>&amp;Adresa</translation>
@@ -180,6 +180,10 @@
         <translation>&lt;favourites&gt;</translation>
     </message>
     <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.</source>
+        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku.</translation>
+    </message>
+    <message>
         <source>&amp;Descriptive metadata</source>
         <translation type="vanished">&amp;Popisné údaje</translation>
     </message>
@@ -220,19 +224,19 @@
         <translation>Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
     </message>
     <message>
-        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Person(s) shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
-        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &quot;;&quot;.</translation>
+        <translation type="vanished">Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name(s) of the person(s) shown in this image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -330,6 +334,10 @@
     </message>
     <message>
         <source>GPX importer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1071,6 +1079,10 @@
         <translation>Nový jazyk</translation>
     </message>
     <message>
+        <source>What language would you like to change to? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Language</source>
         <translation>Jazyk</translation>
     </message>
@@ -1093,10 +1105,6 @@
     </message>
     <message>
         <source>Change language to other.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1830,10 +1838,6 @@
         <translation type="unfinished">Typ obsahu</translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Person shown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1867,6 +1871,10 @@
     </message>
     <message>
         <source>New polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the names of people shown in this region.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2310,6 +2318,14 @@
     <message>
         <source>Spelling</source>
         <translation type="unfinished">Pravopis</translation>
+    </message>
+    <message>
+        <source>Separate them with &quot;{sep}&quot; characters.</source>
+        <translation type="unfinished">Oddělte je znaky &quot;{sep}&quot;.</translation>
+    </message>
+    <message>
+        <source>Item separator</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

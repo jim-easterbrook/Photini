@@ -12,6 +12,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Enter globally unique identifier(s) of the location.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,10 +61,6 @@
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -164,6 +164,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Descriptive metadata</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation type="unfinished"></translation>
@@ -180,10 +184,6 @@
     <message>
         <source>Description / Caption</source>
         <translation>설명 / 캡션</translation>
-    </message>
-    <message>
-        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Person(s) shown</source>
@@ -214,7 +214,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <source>Enter the name(s) of the person(s) shown in this image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -306,6 +306,10 @@
     </message>
     <message>
         <source>GPX importer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -943,6 +947,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>What language would you like to change to? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -960,10 +968,6 @@
     </message>
     <message>
         <source>Change language to other.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1637,10 +1641,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Person shown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1674,6 +1674,10 @@
     </message>
     <message>
         <source>New polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the names of people shown in this region.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2088,6 +2092,14 @@
     </message>
     <message>
         <source>Spelling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Separate them with &quot;{sep}&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Item separator</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

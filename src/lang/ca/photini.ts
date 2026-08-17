@@ -4,10 +4,6 @@
 <context>
     <name>AddressTab</name>
     <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -112,6 +108,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Enter globally unique identifier(s) of the location.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All &quot;{tab}&quot; address data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -180,6 +180,10 @@
         <translation>&lt;favourites&gt;</translation>
     </message>
     <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Descriptive metadata</source>
         <translation type="vanished">Metadades &amp;descriptives</translation>
     </message>
@@ -220,19 +224,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Person(s) shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <source>Enter the name(s) of the person(s) shown in this image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -330,6 +330,10 @@
     </message>
     <message>
         <source>GPX importer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List separator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1092,6 +1096,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>What language would you like to change to? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1109,10 +1117,6 @@
     </message>
     <message>
         <source>Change language to other.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1855,10 +1859,6 @@
         <translation type="unfinished">Tipus de contingut</translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Person shown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1892,6 +1892,10 @@
     </message>
     <message>
         <source>New polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the names of people shown in this region.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2347,6 +2351,14 @@
     <message>
         <source>Spelling</source>
         <translation type="unfinished">Ortografia</translation>
+    </message>
+    <message>
+        <source>Separate them with &quot;{sep}&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Item separator</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

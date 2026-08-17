@@ -76,8 +76,10 @@ class RatingWidget(QtWidgets.QWidget):
                                  (chr(0x2606) * (5 - value)))
 
 
-class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
-                      ContextMenuMixin, CompoundWidgetMixin):
+# Linguist update can't parse if parent classes on same line
+class DescriptiveData(
+        QtWidgets.QWidget, TopLevelWidgetMixin, ContextMenuMixin,
+        CompoundWidgetMixin):
     clipboard_key = 'DescriptiveTab'
 
     def __init__(self, *arg, **kw):
