@@ -68,8 +68,12 @@
         <translation>Immettere il nome dell&apos;area geografica del mondo.</translation>
     </message>
     <message>
+        <source>Enter globally unique identifier(s) of the location.</source>
+        <translation>Inserisci gli identificatori univoci globali della posizione.</translation>
+    </message>
+    <message>
         <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
-        <translation>Inserisci gli identificatori univoci globali della posizione. Separali con i caratteri &quot;;&quot;.</translation>
+        <translation type="vanished">Inserisci gli identificatori univoci globali della posizione. Separali con i caratteri &quot;;&quot;.</translation>
     </message>
     <message>
         <source>All &quot;{tab}&quot; address data</source>
@@ -185,6 +189,10 @@
         <translation>&lt;preferiti&gt;</translation>
     </message>
     <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.</source>
+        <translation>Inserisci un numero qualsiasi di parole chiave, termini o frasi utilizzate per esprimere l&apos;oggetto dell&apos;immagine.</translation>
+    </message>
+    <message>
         <source>&amp;Descriptive metadata</source>
         <translation type="vanished">Metadati &amp;descrittivi</translation>
     </message>
@@ -210,7 +218,7 @@
     </message>
     <message>
         <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
-        <translation>Inserisci il/i nome/i della/e persona/e mostrata/e in questa immagine. Separali con i caratteri &quot;;&quot;.</translation>
+        <translation type="vanished">Inserisci il/i nome/i della/e persona/e mostrata/e in questa immagine. Separali con i caratteri &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Person(s) shown</source>
@@ -230,11 +238,15 @@
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
-        <translation>Inserisci un numero qualsiasi di parole chiave, termini o frasi utilizzate per esprimere l&apos;oggetto dell&apos;immagine. Separali con i caratteri &quot;;&quot;.</translation>
+        <translation type="vanished">Inserisci un numero qualsiasi di parole chiave, termini o frasi utilizzate per esprimere l&apos;oggetto dell&apos;immagine. Separali con i caratteri &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
         <translation>Immettere il testo che descrive l&apos;aspetto dell&apos;immagine da una prospettiva visiva, concentrandosi sui dettagli rilevanti per lo scopo e il significato dell&apos;immagine.</translation>
+    </message>
+    <message>
+        <source>Enter the name(s) of the person(s) shown in this image.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Descriptive metadata</source>
@@ -332,6 +344,10 @@
     <message>
         <source>GPX importer</source>
         <translation>Importatore GPX</translation>
+    </message>
+    <message>
+        <source>List separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>location pin (selected)</source>
@@ -1028,6 +1044,10 @@
         <translation>Nuova lingua</translation>
     </message>
     <message>
+        <source>What language would you like to change to? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Language</source>
         <translation>Lingue</translation>
     </message>
@@ -1050,10 +1070,6 @@
     </message>
     <message>
         <source>Change language to other.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1757,6 +1773,10 @@
         <translation>Parte relativa delle dimensioni di un&apos;immagine lungo l&apos;asse x o y.</translation>
     </message>
     <message>
+        <source>Enter the names of people shown in this region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Name</source>
         <translation type="vanished">Nome</translation>
     </message>
@@ -1798,7 +1818,7 @@
     </message>
     <message>
         <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
-        <translation>Inserisci i nomi delle persone mostrate in questa regione. Separa più voci con i caratteri &quot;;&quot;.</translation>
+        <translation type="vanished">Inserisci i nomi delle persone mostrate in questa regione. Separa più voci con i caratteri &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Person shown</source>
@@ -2265,6 +2285,14 @@
     <message>
         <source>Spelling</source>
         <translation type="unfinished">Ortografia</translation>
+    </message>
+    <message>
+        <source>Separate them with &quot;{sep}&quot; characters.</source>
+        <translation type="unfinished">Separali con i caratteri &quot;{sep}&quot;.</translation>
+    </message>
+    <message>
+        <source>Item separator</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
