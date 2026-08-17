@@ -20,7 +20,7 @@ Hierarchical keywords are a more recent addition to photography metadata and may
 .. image:: ../images/screenshot_051.png
 
 You can set a list of simple keywords for the image by typing them in the ``Keywords`` box.
-Keywords are separated by semicolon (``;``) characters.
+Keywords are separated by semicolon (``;``) characters, as described in :ref:`descriptive-list-values`.
 The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often.
 
 Hierarchical keywords are sequences of words or phrases that describe the subject in descending generality or increasing precision.

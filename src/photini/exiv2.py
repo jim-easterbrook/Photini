@@ -184,6 +184,7 @@ class MetadataHandler(object):
             'Xmp.iptc.AltTextAccessibility': exiv2.TypeId.langAlt,
             'Xmp.iptc.ExtDescrAccessibility': exiv2.TypeId.langAlt,
             'Xmp.iptcExt.ImageRegion': exiv2.TypeId.xmpBag,
+            'Iptc4xmpExt:LocationId': exiv2.TypeId.xmpBag,
             'Iptc4xmpExt:LocationName': exiv2.TypeId.langAlt,
             'Iptc4xmpExt:Name': exiv2.TypeId.langAlt,
             'Iptc4xmpExt:rCtype': exiv2.TypeId.xmpBag,
@@ -823,6 +824,7 @@ class MetadataHandler(object):
             self._xmpData[tag] = exiv2.XmpTextValue(str(value))
         elif not isinstance(value[0], dict):
             # simple array value
+            assert(type_id != exiv2.TypeId.xmpText)
             self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
         else:
             # clear any existing array elements
@@ -902,6 +904,12 @@ class MetadataHandler(object):
         return tag in self._exifData
 
     def save_file(self):
+        # GIMP and MP namespaces don't mix!
+        # See https://github.com/Exiv2/exiv2/issues/9417
+        for tag in self.get_xmp_tags():
+            if tag.startswith('Xmp.GIMP'):
+                self.clear_xmp_tag('Xmp.MP.RegionInfo')
+                break
         try:
             self._image.writeMetadata()
         except exiv2.Exiv2Error as ex:

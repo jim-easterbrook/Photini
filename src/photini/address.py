@@ -188,9 +188,9 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
         layout.setContentsMargins(0, 0, 0, 0)
         self.widgets = {}
         self.widgets['LocationName'] = LangAltWidget(
-            'Iptc4xmpExt:LocationName', multi_line=False)
-        self.widgets['LocationName'].setToolTip('<p>{}</p>'.format(
-            translate('AddressTab', 'Enter a full name of the location.')))
+            'Iptc4xmpExt:LocationName', height=1)
+        self.widgets['LocationName'].setToolTip(translate(
+            'AddressTab', 'Enter a full name of the location.'))
         for (key, tool_tip) in (
                 ('Sublocation', translate(
                     'AddressTab', 'Enter the name of the sublocation.')),
@@ -204,14 +204,19 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
                     'AddressTab', 'Enter the 2 or 3 letter ISO 3166 country'
                     ' code of the country.')),
                 ('WorldRegion', translate(
-                    'AddressTab', 'Enter the name of the world region.')),
-                ('LocationId', translate(
-                    'AddressTab', 'Enter globally unique identifier(s) of the'
-                    ' location. Separate them with ";" characters.'))):
-            self.widgets[key] = SingleLineEdit('Iptc4xmpExt:' + key)
-            self.widgets[key].add_length_check(
-                ImageMetadata.iptc_max_len('Iptc.Application2.' + key))
-            self.widgets[key].setToolTip('<p>{}</p>'.format(tool_tip))
+                    'AddressTab', 'Enter the name of the world region.'))):
+            self.widgets[key] = TextEdit(
+                'Iptc4xmpExt:' + key, height=1, length_check={
+                    'length': ImageMetadata.iptc_max_len(
+                        'Iptc.Application2.' + key)})
+            self.widgets[key].setToolTip(tool_tip)
+        self.widgets['LocationId'] = MultiTextEdit(
+            'Iptc4xmpExt:LocationId', height=1, length_check={
+                'length': ImageMetadata.iptc_max_len(
+                    'Iptc.Application2.LocationId')})
+        self.widgets['LocationId'].setToolTip(translate(
+            'AddressTab',
+            'Enter globally unique identifier(s) of the location.'))
         self.widgets['latlon'] = LatLongDisplay()
         self.widgets['alt'] = AltitudeDisplay()
         self.widgets['CountryCode'].setMaximumWidth(
