@@ -286,8 +286,10 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
             event.acceptProposedAction()
 
 
-class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
-                 ContextMenuMixin, CompoundWidgetMixin):
+# Linguist update can't parse if parent classes on same line
+class PhotiniMap(
+        QtWidgets.QWidget, TopLevelWidgetMixin, ContextMenuMixin,
+        CompoundWidgetMixin):
     clipboard_key = 'PhotiniMap'
     use_layout_direction = True
 
