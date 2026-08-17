@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-24  Jim Easterbrook.
+   Copyright (C)  2012-26  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Image selector
@@ -85,7 +85,7 @@ If you want to discard any of these changes then select the appropriate ``undo``
 
 .. image:: ../images/screenshot_010.png
 
-The same menu items also appear in the main ``File`` menu.
+The same menu items also appear in a sub-menu of the main ``File`` menu.
 
 Using Photini with other programs
 ---------------------------------

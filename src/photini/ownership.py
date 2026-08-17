@@ -24,7 +24,7 @@ from photini.pyqt import *
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
     PushButton, TopLevelWidgetMixin)
-from photini.widgets.text import LangAltWidget, MultiLineEdit, SingleLineEdit
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -68,10 +68,9 @@ class RightsDropDown(DropDownSelector):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
         dialog.setLayout(FormLayout())
-        name = SingleLineEdit('name')
-        name.add_spell_check()
+        name = TextEdit('name', height=1, spell_check=True)
         dialog.layout().addRow(translate('OwnerTab', 'Name'), name)
-        url = SingleLineEdit('url')
+        url = TextEdit('url', height=1)
         dialog.layout().addRow(translate('OwnerTab', 'URL'), url)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.StandardButton.Ok |
@@ -115,11 +114,10 @@ class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.widgets = {}
         # usage terms
         self.widgets['UsageTerms'] = LangAltWidget(
-            'UsageTerms', multi_line=False)
-        self.widgets['UsageTerms'].add_spell_check()
-        self.widgets['UsageTerms'].setToolTip('<p>{}</p>'.format(translate(
+            'UsageTerms', height=1, spell_check=True)
+        self.widgets['UsageTerms'].setToolTip(translate(
             'OwnerTab', 'Enter instructions on how this image can legally'
-            ' be used.')))
+            ' be used.'))
         self.layout().addRow(translate('OwnerTab', 'Usage Terms'),
                              self.widgets['UsageTerms'])
         # web statement of rights
@@ -141,76 +139,74 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.setLayout(FormLayout())
         self.widgets = {}
         # email addresses
-        self.widgets['Email'] = SingleLineEdit('plus:LicensorEmail')
-        self.widgets['Email'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter the work email address for the'
-                      ' person that created this image, such as'
-                      ' name@domain.com.')))
+        self.widgets['Email'] = TextEdit('plus:LicensorEmail', height=1)
+        self.widgets['Email'].setToolTip(translate(
+            'OwnerTab', 'Enter the work email address for the person that'
+            ' created this image, such as name@domain.com.'))
         self.layout().addRow(translate('OwnerTab', 'Email(s)'),
                              self.widgets['Email'])
         # URLs
-        self.widgets['URL'] = SingleLineEdit('plus:LicensorURL')
-        self.widgets['URL'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter the work Web URL for the person'
-                      ' that created this image, such as'
-                      ' http://www.domain.com/.')))
+        self.widgets['URL'] = TextEdit('plus:LicensorURL', height=1)
+        self.widgets['URL'].setToolTip(translate(
+            'OwnerTab', 'Enter the work Web URL for the person that created'
+            ' this image, such as http://www.domain.com/.'))
         self.layout().addRow(translate('OwnerTab', 'Web URL(s)'),
                              self.widgets['URL'])
         # phone numbers
-        self.widgets['Telephone1'] = SingleLineEdit('plus:LicensorTelephone1')
-        self.widgets['Telephone1'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter the work phone number for the'
-                      ' person that created this image, using the international'
-                      ' format, such as +1 (123) 456789.')))
+        self.widgets['Telephone1'] = TextEdit(
+            'plus:LicensorTelephone1', height=1)
+        self.widgets['Telephone1'].setToolTip(translate(
+            'OwnerTab', 'Enter the work phone number for the person that'
+            ' created this image, using the international format, such as'
+            ' +1 (123) 456789.'))
         self.layout().addRow(translate('OwnerTab', 'Phone(s)'),
                              self.widgets['Telephone1'])
         # extended address
-        self.widgets['ExtendedAddress'] = SingleLineEdit(
-            'plus:LicensorExtendedAddress')
-        self.widgets['ExtendedAddress'].add_spell_check()
-        self.widgets['ExtendedAddress'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter address detail (e.g. flat number or'
-                      ' room number) for the person that created this image.')))
+        self.widgets['ExtendedAddress'] = TextEdit(
+            'plus:LicensorExtendedAddress', height=1, spell_check=True)
+        self.widgets['ExtendedAddress'].setToolTip(translate(
+            'OwnerTab', 'Enter address detail (e.g. flat number or room'
+            ' number) for the person that created this image.'))
         self.layout().addRow(translate('OwnerTab', 'Detail Address'),
                              self.widgets['ExtendedAddress'])
         # address
-        self.widgets['StreetAddress'] = MultiLineEdit(
-            'plus:LicensorStreetAddress')
-        self.widgets['StreetAddress'].add_spell_check()
-        self.widgets['StreetAddress'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter street address for the person that'
-                      ' created this image.')))
+        self.widgets['StreetAddress'] = TextEdit(
+            'plus:LicensorStreetAddress', spell_check=True)
+        self.widgets['StreetAddress'].setToolTip(translate(
+            'OwnerTab',
+            'Enter street address for the person that created this image.'))
         self.layout().addRow(translate('OwnerTab', 'Street Address'),
                              self.widgets['StreetAddress'])
         # city
-        self.widgets['City'] = SingleLineEdit('plus:LicensorCity')
-        self.widgets['City'].add_spell_check()
-        self.widgets['City'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter the city for the address of the person'
-                      ' that created this image.')))
+        self.widgets['City'] = TextEdit(
+            'plus:LicensorCity', height=1, spell_check=True)
+        self.widgets['City'].setToolTip(translate(
+            'OwnerTab', 'Enter the city for the address of the person that'
+            ' created this image.'))
         self.layout().addRow(translate('OwnerTab', 'City'),
                              self.widgets['City'])
         # postcode
-        self.widgets['PostalCode'] = SingleLineEdit('plus:LicensorPostalCode')
-        self.widgets['PostalCode'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter the postal code for the address of the'
-                      ' person that created this image.')))
+        self.widgets['PostalCode'] = TextEdit(
+            'plus:LicensorPostalCode', height=1)
+        self.widgets['PostalCode'].setToolTip(translate(
+            'OwnerTab', 'Enter the postal code for the address of the person'
+            ' that created this image.'))
         self.layout().addRow(translate('OwnerTab', 'Postal Code'),
                              self.widgets['PostalCode'])
         # region
-        self.widgets['Region'] = SingleLineEdit('plus:LicensorRegion')
-        self.widgets['Region'].add_spell_check()
-        self.widgets['Region'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter the state for the address of the'
-                      ' person that created this image.')))
+        self.widgets['Region'] = TextEdit(
+            'plus:LicensorRegion', height=1, spell_check=True)
+        self.widgets['Region'].setToolTip(translate(
+            'OwnerTab', 'Enter the state for the address of the person that'
+            ' created this image.'))
         self.layout().addRow(translate('OwnerTab', 'State/Province'),
                              self.widgets['Region'])
         # country
-        self.widgets['Country'] = SingleLineEdit('plus:LicensorCountry')
-        self.widgets['Country'].add_spell_check()
-        self.widgets['Country'].setToolTip('<p>{}</p>'.format(
-            translate('OwnerTab', 'Enter the country name for the address of'
-                      ' the person that created this image.')))
+        self.widgets['Country'] = TextEdit(
+            'plus:LicensorCountry', height=1, spell_check=True)
+        self.widgets['Country'].setToolTip(translate(
+            'OwnerTab', 'Enter the country name for the address of the person'
+            ' that created this image.'))
         self.layout().addRow(translate('OwnerTab', 'Country'),
                              self.widgets['Country'])
         for widget in self.sub_widgets():
@@ -235,55 +231,50 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form = FormLayout()
         self.widget().setLayout(form)
         # creator
-        self.widgets['creator'] = SingleLineEdit('creator')
-        self.widgets['creator'].add_length_check(
-            ImageMetadata.max_bytes('creator'), multi_string=True)
-        self.widgets['creator'].add_spell_check()
-        self.widgets['creator'].setToolTip('<p>{}</p>'.format(translate(
-            'OwnerTab', 'Enter the name of the person that created this'
-            ' image.')))
+        self.widgets['creator'] = TextEdit(
+            'creator', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('creator')})
+        self.widgets['creator'].setToolTip(translate(
+            'OwnerTab',
+            'Enter the name of the person that created this image.'))
         form.addRow(translate('OwnerTab', 'Creator'), self.widgets['creator'])
         # creator title
-        self.widgets['creator_title'] = SingleLineEdit('creator_title')
-        self.widgets['creator_title'].add_length_check(
-            ImageMetadata.max_bytes('creator_title'), multi_string=True)
-        self.widgets['creator_title'].add_spell_check()
-        self.widgets['creator_title'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['creator_title'] = TextEdit(
+            'creator_title', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('creator_title')})
+        self.widgets['creator_title'].setToolTip(translate(
             'OwnerTab', 'Enter the job title of the person listed in the'
-            ' Creator field.')))
+            ' Creator field.'))
         form.addRow(translate('OwnerTab', "Creator's Jobtitle"),
                     self.widgets['creator_title'])
         # credit line
-        self.widgets['credit_line'] = SingleLineEdit('credit_line')
-        self.widgets['credit_line'].add_length_check(
-            ImageMetadata.max_bytes('credit_line'))
-        self.widgets['credit_line'].add_spell_check()
-        self.widgets['credit_line'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['credit_line'] = TextEdit(
+            'credit_line', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('credit_line')})
+        self.widgets['credit_line'].setToolTip(translate(
             'OwnerTab', 'Enter who should be credited when this image is'
-            ' published.')))
+            ' published.'))
         form.addRow(translate('OwnerTab', 'Credit Line'),
                     self.widgets['credit_line'])
         # copyright
-        self.widgets['copyright'] = LangAltWidget('copyright', multi_line=False)
-        self.widgets['copyright'].add_length_check(
-            ImageMetadata.max_bytes('copyright'))
-        self.widgets['copyright'].add_spell_check()
-        self.widgets['copyright'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['copyright'] = LangAltWidget(
+            'copyright', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('copyright')})
+        self.widgets['copyright'].setToolTip(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
-            ' copyright for this image, such as "©2008 Jane Doe".')))
+            ' copyright for this image, such as "©2008 Jane Doe".'))
         form.addRow(translate('OwnerTab', 'Copyright Notice'),
                     self.widgets['copyright'])
         ## usage information
         self.widgets['rights'] = RightsGroup('rights')
         form.addRow(translate('OwnerTab', 'Rights'), self.widgets['rights'])
         # special instructions
-        self.widgets['instructions'] = SingleLineEdit('instructions')
-        self.widgets['instructions'].add_length_check(
-            ImageMetadata.max_bytes('instructions'))
-        self.widgets['instructions'].add_spell_check()
-        self.widgets['instructions'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['instructions'] = TextEdit(
+            'instructions', height=1, spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('instructions')})
+        self.widgets['instructions'].setToolTip(translate(
             'OwnerTab', 'Enter information about embargoes, or other'
-            ' restrictions not covered by the Rights Usage Terms field.')))
+            ' restrictions not covered by the Rights Usage Terms field.'))
         form.addRow(translate('OwnerTab', 'Instructions'),
                     self.widgets['instructions'])
         ## creator contact information

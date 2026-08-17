@@ -27,9 +27,10 @@ from photini.configstore import ConfigFileHandler
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import qt_version_info
+from photini.types import MD_Keywords
 from photini.widgets import (ComboBox, CompoundWidgetMixin, ContextMenuMixin,
                              Label, TopLevelWidgetMixin, WidgetMixin)
-from photini.widgets.text import MultiLineEdit, SpellCheckMixin, TextEdit
+from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -53,8 +54,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = MultiLineEdit(key, **kw)
-        self.edit.set_height(3)
+        self.edit = MultiTextEdit(key, height=3, **kw)
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()
@@ -65,8 +65,6 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.addWidget(self.favourites, 0, Qt.AlignmentFlag.AlignTop)
         self.setFixedHeight(self.sizeHint().height())
         # adopt child widget methods and signals
-        self.add_length_check = self.edit.add_length_check
-        self.add_spell_check = self.edit.add_spell_check
         self.get_value = self.edit.get_value
         self.get_value_dict = self.edit.get_value_dict
         self.set_value = self.edit.set_value
@@ -77,6 +75,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.is_multiple = self.edit.is_multiple
         self.is_valid = self.edit.is_valid
         self.new_value = self.edit.new_value
+        self.setToolTip = self.edit.setToolTip
         self.emit_value = self.edit.emit_value
         self._load_data = self.edit._load_data
 
@@ -134,10 +133,9 @@ class KeywordsEditor(QtWidgets.QWidget):
             return
         self.favourites.setCurrentIndex(0)
         new_value = self.favourites.itemText(idx)
-        current_value = self.get_value()
-        if current_value:
-            new_value = current_value + '; ' + new_value
-        self.set_value(new_value)
+        current_value = list(MD_Keywords(self.get_value()))
+        current_value.append(new_value)
+        self.set_value(MD_Keywords(current_value))
         self.edit.emit_value()
 
 
@@ -160,16 +158,11 @@ class KeywordCompleter(QtWidgets.QCompleter):
         self.complete()
 
 
-class NestedTagEdit(TextEdit, SpellCheckMixin):
-    _single_line = True
-
+class NestedTagEdit(TextEdit):
     def __init__(self, list_view, data_model, *arg, **kw):
-        super(NestedTagEdit, self).__init__('', *arg, **kw)
+        super(NestedTagEdit, self).__init__(
+            '', height=1, spell_check=True, *arg, **kw)
         self.data_model = data_model
-        self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
-        self.setLineWrapMode(self.LineWrapMode.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.completer = KeywordCompleter(list_view, self)
         self.completer.activated.connect(self.completer_activated)
 
@@ -590,18 +583,17 @@ class HierarchicalTagsEditor(QtWidgets.QScrollArea, CompoundWidgetMixin,
             del result['']
         return result
 
-    def set_subwidgets(self, keys):
-        keys = list(keys)
+    def set_subwidgets(self, values):
+        keys = list(values.keys())
         keys.sort(key=str.casefold)
         layout = self.widget().layout()
         # insert new rows if needed
         for idx in range(layout.count() - 1, len(keys) + 1):
             widget = NestedTagEdit(self.list_view, self.data_model)
-            widget.add_spell_check()
-            widget.setToolTip('<p>{}</p>'.format(translate(
+            widget.setToolTip(translate(
                 'KeywordsTab', 'Enter a hierarchy of keywords, terms or'
                 ' phrases used to express the subject matter in the image.'
-                ' Separate them with "|" or "/" characters.')))
+                ' Separate them with "|" or "/" characters.'))
             widget.new_value.connect(self.sw_new_value)
             layout.insertWidget(idx, widget)
         # hide or reveal rows and set subwidget keys
@@ -685,14 +677,12 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin,
         self.widgets = {}
         self.buttons = {}
         # keywords
-        self.widgets['keywords'] = KeywordsEditor('keywords')
-        self.widgets['keywords'].add_length_check(
-            ImageMetadata.max_bytes('keywords'), multi_string=True)
-        self.widgets['keywords'].add_spell_check()
-        self.widgets['keywords'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['keywords'] = KeywordsEditor(
+            'keywords', spell_check=True, length_check={
+                'length': ImageMetadata.max_bytes('keywords')})
+        self.widgets['keywords'].setToolTip(translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
-            ' used to express the subject matter in the image.'
-            ' Separate them with ";" characters.')))
+            ' used to express the subject matter in the image.'))
         self.widgets['keywords'].new_value.connect(self.save_data)
         layout.addWidget(Label(translate('DescriptiveTab', 'Keywords')), 0, 0)
         layout.addWidget(self.widgets['keywords'], 0, 1)

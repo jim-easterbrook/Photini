@@ -141,9 +141,10 @@ function loadMap(lat, lng, zoom, options) {{
 </script>
 """
     def get_head(self):
+        # mapbox-gl >= v3.24.0 requires Chrome >= ~94.0
         if self.map_choice == 'mapbox-gl':
             return self.head_gl.format(
-                url_mb='https://api.mapbox.com/mapbox-gl-js/v3.14.0',
+                url_mb='https://api.mapbox.com/mapbox-gl-js/v3.23.1',
                 url_ss='https://cdnjs.cloudflare.com/ajax/libs'
                        '/mapbox-gl-style-switcher/1.0.11')
         if self.map_choice == 'mapbox.js':
@@ -151,7 +152,7 @@ function loadMap(lat, lng, zoom, options) {{
                 url='https://api.mapbox.com/mapbox.js/v3.3.1')
         return self.head_test.format(
             url='https://api.mapbox.com/mapbox-gl-js/plugins'
-                '/mapbox-gl-supported/v2.0.0')
+                '/mapbox-gl-supported/v3.0.0')
 
     def get_body(self, text_dir):
         return '''  <body onload="initialize()" ondragstart="return false">

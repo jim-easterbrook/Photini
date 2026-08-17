@@ -20,7 +20,7 @@ import enum
 import logging
 
 from photini.pyqt import *
-from photini.pyqt import qt_version_info
+from photini.pyqt import qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -47,7 +47,11 @@ class WidgetMixin(object):
     @catch_all()
     def emit_value(self):
         if self.is_valid():
-            self.new_value.emit(self.get_value_dict())
+            value = self.get_value_dict()
+            if using_pyside and isinstance(self._key, int):
+                # PySide6 >= 6.5 can't send dicts with integer keys
+                value = {'PySide6_wrap': value}
+            self.new_value.emit(value)
 
     def get_value_dict(self):
         if self.is_valid():
@@ -111,8 +115,7 @@ class CompoundWidgetMixin(WidgetMixin):
     def set_value(self, value):
         value = value or {}
         if self.dynamic:
-            keys = [k for k in value if value[k]]
-            self.set_subwidgets(keys)
+            self.set_subwidgets(value)
         for widget in self.sub_widgets():
             widget.set_value_dict(value)
         self.after_load()
@@ -120,10 +123,10 @@ class CompoundWidgetMixin(WidgetMixin):
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
         if self.dynamic:
-            keys = set()
+            values = {}
             for md in md_list:
-                keys |= {k for k in md if md[k]}
-            self.set_subwidgets(keys)
+                values.update(md)
+            self.set_subwidgets(values)
         for widget in self.sub_widgets():
             widget._load_data(md_list)
         self.after_load()
@@ -147,7 +150,13 @@ class CompoundWidgetMixin(WidgetMixin):
     @QtSlot(dict)
     @catch_all()
     def sw_new_value(self, value):
-        self.new_value.emit({self._key: value})
+        if using_pyside and 'PySide6_wrap' in value:
+            # PySide6 >= 6.5 can't send dicts with integer keys
+            value = value['PySide6_wrap']
+        value = {self._key: value}
+        if using_pyside and isinstance(self._key, int):
+            value = {'PySide6_wrap': value}
+        self.new_value.emit(value)
 
 
 class ListWidgetMixin(CompoundWidgetMixin):
@@ -168,8 +177,10 @@ class ListWidgetMixin(CompoundWidgetMixin):
     def _load_data(self, md_list):
         md_list = [md[self._key] for md in md_list]
         if self.dynamic:
-            count = max(len(x) for x in md_list)
-            self.set_subwidgets(list(range(count)))
+            values = {}
+            for md in md_list:
+                values.update(dict(enumerate(md)))
+            self.set_subwidgets(values)
         copy_list = [list(md) for md in md_list]
         for widget in self.sub_widgets():
             for md in copy_list:

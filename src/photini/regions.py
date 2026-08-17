@@ -24,7 +24,9 @@ import re
 import exiv2
 
 from photini.pyqt import *
-from photini.types import ImageRegionItem, MD_LangAlt, RegionBoundary
+from photini.pyqt import qt_version_info
+from photini.types import (
+    ImageRegionItem, MD_LangAlt, MD_MultiString, RegionBoundary)
 from photini.vocab import IPTCRoleCV, IPTCTypeCV, MWGTypeCV
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, ListWidgetMixin,
@@ -710,9 +712,9 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
         self.ensureVisible(boundary)
 
 
-class EntityConceptWidget(SingleLineEdit):
+class EntityConceptWidget(TextEdit):
     def __init__(self, key, vocab, *arg, **kw):
-        super(EntityConceptWidget, self).__init__(key, *arg, **kw)
+        super(EntityConceptWidget, self).__init__(key, *arg, height=1, **kw)
         self.setReadOnly(True)
         self._updating = False
         self.menu = QtWidgets.QMenu(parent=self)
@@ -722,7 +724,11 @@ class EntityConceptWidget(SingleLineEdit):
         self.add_menu_items(vocab)
 
     def mousePressEvent(self, event):
-        self.menu.popup(self.mapToGlobal(event.pos()))
+        if qt_version_info >= (6, 0):
+            pos = event.position().toPoint()
+        else:
+            pos = event.pos()
+        self.menu.popup(self.mapToGlobal(pos))
 
     def add_menu_items(self, items, add_separator=True, exclusive=False):
         if self.add_separator:
@@ -915,22 +921,22 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         # name
         key = 'Iptc4xmpExt:Name'
         self.widgets[key] = LangAltWidget(
-            key, multi_line=False, label=translate('RegionsTab', 'Region name'))
+            key, height=1, label=translate('RegionsTab', 'Region name'))
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
-        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets[key].setToolTip(translate(
             'RegionsTab', 'Free-text name of the region. Should be unique among'
-            ' all Region Names of an image.')))
+            ' all Region Names of an image.'))
         layout.addRow(self.widgets[key])
         # identifier
         key = 'Iptc4xmpExt:rId'
-        self.widgets[key] = SingleLineEdit(key)
+        self.widgets[key] = TextEdit(key, height=1)
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
-        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets[key].setToolTip(translate(
             'RegionsTab', 'Identifier of the region. Must be unique among all'
             ' Region Identifiers of an image. Does not have to be unique beyond'
-            ' the metadata of this image.')))
+            ' the metadata of this image.'))
         layout.addRow(translate('RegionsTab', 'Identifier'), self.widgets[key])
         # units & boundary graphic
         key = 'Iptc4xmpExt:RegionBoundary'
@@ -944,10 +950,10 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         # roles
         key = 'Iptc4xmpExt:rRole'
         self.widgets[key] = EntityConceptWidget(key, IPTCRoleCV.vocab.values())
-        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets[key].setToolTip(translate(
             'RegionsTab', 'Role of this region among all regions of this image'
             ' or of other images. The value SHOULD be taken from a Controlled'
-            ' Vocabulary.')))
+            ' Vocabulary.'))
         self.widgets[key].new_value.connect(
             self.widgets['Iptc4xmpExt:RegionBoundary'].set_role)
         layout.addRow(translate('RegionsTab', 'Role'), self.widgets[key])
@@ -956,20 +962,19 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
         self.widgets[key] = EntityConceptWidget(key, IPTCTypeCV.vocab.values())
         self.widgets[key].add_menu_items(
             MWGTypeCV.vocab.values(), exclusive=True)
-        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets[key].setToolTip(translate(
             'RegionsTab', 'The semantic type of what is shown inside the'
             ' region. The value SHOULD be taken from a Controlled'
-            ' Vocabulary.')))
+            ' Vocabulary.'))
         layout.addRow(
             translate('RegionsTab', 'Content type'), self.widgets[key])
         # person im image
         key = 'Iptc4xmpExt:PersonInImage'
-        self.widgets[key] = MultiStringEdit(key)
+        self.widgets[key] = MultiTextEdit(key, height=1)
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
-        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
-            'RegionsTab', 'Enter the names of people shown in this region.'
-            ' Separate multiple entries with ";" characters.')))
+        self.widgets[key].setToolTip(translate(
+            'RegionsTab', 'Enter the names of people shown in this region.'))
         self.widgets[key].new_value.connect(self.new_person)
         layout.addRow(
             translate('RegionsTab', 'Person shown'), self.widgets[key])
@@ -979,9 +984,9 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
             key, label=translate('RegionsTab', 'Description'))
         self.widgets[key].setMinimumWidth(
             width_for_text(self.widgets[key], 'x' * 15))
-        self.widgets[key].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets[key].setToolTip(translate(
             'RegionsTab', 'Enter a "caption" describing the who, what, and why'
-            ' of what is happening in this region.')))
+            ' of what is happening in this region.'))
         layout.addRow(self.widgets[key])
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
@@ -999,15 +1004,16 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
     def region_clicked(self):
         self.owner.setCurrentIndex(self._key)
 
-    def set_subwidgets(self, keys):
+    def set_subwidgets(self, values):
+        values = dict((k, v) for k, v in values.items() if v)
         # shrink or extend form if needed
         layout = self.widget().layout()
         for key in self.extra_keys:
-            if key not in keys:
+            if key not in values:
                 layout.removeRow(self.widgets[key])
                 self.extra_keys.remove(key)
                 del self.widgets[key]
-        for key in keys:
+        for key in values:
             if key in self.widgets:
                 continue
             self.extra_keys.append(key)
@@ -1025,22 +1031,21 @@ class RegionForm(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin):
                     'RegionsTab', 'The Image Region Structure includes'
                     ' optionally any metadata property which is related to'
                     ' the region.'))
-                if isinstance(value, dict):
+                if isinstance(values[key], dict):
                     type_id = exiv2.TypeId.langAlt
-                elif isinstance(value, list):
+                elif isinstance(values[key], list):
                     type_id = exiv2.TypeId.xmpBag
                 else:
                     type_id = exiv2.TypeId.xmpText
             if type_id == exiv2.TypeId.langAlt:
-                self.widgets[key] = LangAltWidget(
-                    key, multi_line=False, label=label)
+                self.widgets[key] = LangAltWidget(key, height=1, label=label)
             elif type_id == exiv2.TypeId.xmpText:
-                self.widgets[key] = SingleLineEdit(key)
+                self.widgets[key] = TextEdit(key, height=1)
             else:
-                self.widgets[key] = MultiStringEdit(key)
+                self.widgets[key] = MultiTextEdit(key, height=1)
             self.widgets[key].setMinimumWidth(
                 width_for_text(self.widgets[key], 'x' * 15))
-            self.widgets[key].setToolTip('<p>{}</p>'.format(desc))
+            self.widgets[key].setToolTip(desc)
             self.widgets[key].new_value.connect(self.sw_new_value)
             if type_id == exiv2.TypeId.langAlt:
                 layout.addRow(self.widgets[key])
@@ -1093,12 +1098,9 @@ class RegionTabs(TabWidgetEx, ContextMenuMixin, ListWidgetMixin):
         widget.paste_value(region)
         widget.set_active(True)
 
-    def set_subwidgets(self, keys):
-        data_len = 0
-        if keys:
-            data_len = max(keys) + 1
+    def set_subwidgets(self, values):
         # always have one extra tab to paste into
-        count = data_len + 1
+        count = len(values) + 1
         # add tabs if needed
         idx = self.count()
         while idx < count:
@@ -1192,6 +1194,7 @@ class TabWidget(QtWidgets.QWidget, CompoundWidgetMixin, TopLevelWidgetMixin):
     @catch_all()
     def new_person(self, value):
         value, = value.values()
+        value = MD_MultiString(value)
         images = self.app.image_list.get_selected_images()
         for image in images:
             people = list(image.metadata.people)

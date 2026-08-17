@@ -76,8 +76,10 @@ class RatingWidget(QtWidgets.QWidget):
                                  (chr(0x2606) * (5 - value)))
 
 
-class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
-                      ContextMenuMixin, CompoundWidgetMixin):
+# Linguist update can't parse if parent classes on same line
+class DescriptiveData(
+        QtWidgets.QWidget, TopLevelWidgetMixin, ContextMenuMixin,
+        CompoundWidgetMixin):
     clipboard_key = 'DescriptiveTab'
 
     def __init__(self, *arg, **kw):
@@ -88,76 +90,70 @@ class DescriptiveData(QtWidgets.QWidget, TopLevelWidgetMixin,
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = LangAltWidget('title', multi_line=False)
-        self.widgets['title'].add_length_check(
-            ImageMetadata.max_bytes('title'))
-        self.widgets['title'].add_spell_check()
-        self.widgets['title'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['title'] = LangAltWidget(
+            'title', height=1, spell_check=True,
+            length_check={'length': ImageMetadata.max_bytes('title')})
+        self.widgets['title'].setToolTip(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
-            ' for the image, this may be the file name.')))
+            ' for the image, this may be the file name.'))
         self.widgets['title'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Title / Object Name'),
                       self.widgets['title'])
         # headline
-        self.widgets['headline'] = MultiLineEdit('headline')
-        self.widgets['headline'].add_length_check(
-            ImageMetadata.max_bytes('headline'))
-        self.widgets['headline'].add_spell_check()
-        self.widgets['headline'].set_height(3)
-        self.widgets['headline'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['headline'] = TextEdit(
+            'headline', height=3, spell_check=True,
+            length_check={'length': ImageMetadata.max_bytes('headline')})
+        self.widgets['headline'].setToolTip(translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
-            ' of the contents of the image.')))
+            ' of the contents of the image.'))
         self.widgets['headline'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Headline'),
                       self.widgets['headline'])
         # description
-        self.widgets['description'] = LangAltWidget('description')
-        self.widgets['description'].add_length_check(
-            ImageMetadata.max_bytes('description'))
-        self.widgets['description'].add_spell_check()
-        self.widgets['description'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['description'] = LangAltWidget(
+            'description', spell_check=True,
+            length_check={'length': ImageMetadata.max_bytes('description')})
+        self.widgets['description'].setToolTip(translate(
             'DescriptiveTab', 'Enter a "caption" describing the who, what,'
             ' and why of what is happening in this image, this might include'
             ' names of people, and/or their role in the action that is taking'
-            ' place within the image.')))
+            ' place within the image.'))
         self.widgets['description'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Description / Caption'),
                       self.widgets['description'])
         # alt text
-        self.widgets['alt_text'] = LangAltWidget('alt_text')
-        self.widgets['alt_text'].add_length_check(
-            250, length_always=True, length_bytes=False)
-        self.widgets['alt_text'].add_spell_check()
-        self.widgets['alt_text'].set_height(3)
-        self.widgets['alt_text'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['alt_text'] = LangAltWidget(
+            'alt_text', height=3, spell_check=True, length_check={
+                'length': 250, 'length_always': True, 'length_bytes': False})
+        self.widgets['alt_text'].setToolTip(translate(
             'DescriptiveTab', 'Enter text describing the appearance of the'
             ' image from a visual perspective, focusing on details that are'
-            ' relevant to the purpose and meaning of the image.')))
+            ' relevant to the purpose and meaning of the image.'))
         self.widgets['alt_text'].new_value.connect(self.save_data)
         layout.addRow(
             Label(translate('DescriptiveTab', 'Alt Text (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text'])
         # extended alt text
-        self.widgets['alt_text_ext'] = LangAltWidget('alt_text_ext')
-        self.widgets['alt_text_ext'].add_spell_check()
-        self.widgets['alt_text_ext'].setToolTip('<p>{}</p>'.format(translate(
+        self.widgets['alt_text_ext'] = LangAltWidget(
+            'alt_text_ext', spell_check=True)
+        self.widgets['alt_text_ext'].setToolTip(translate(
             'DescriptiveTab', 'A more detailed textual description of the'
             ' purpose and meaning of an image that elaborates on the'
             ' information provided by the Alt Text (Accessibility) property.'
             ' This property does not have a character limitation and is not'
             ' required if the Alt Text (Accessibility) field sufficiently'
-            ' describes the image..')))
+            ' describes the image..'))
         self.widgets['alt_text_ext'].new_value.connect(self.save_data)
         layout.addRow(
             Label(translate('DescriptiveTab',
                             'Extended Description (Accessibility)'),
                   lines=2, layout=layout), self.widgets['alt_text_ext'])
         # people
-        self.widgets['people'] = SingleLineEdit('people')
-        self.widgets['people'].add_spell_check()
-        self.widgets['people'].setToolTip('<p>{}</p>'.format(translate(
-            'DescriptiveTab', 'Enter the name(s) of the person(s) shown in this'
-            ' image. Separate them with ";" characters.')))
+        self.widgets['people'] = MultiTextEdit(
+            'people', height=1, spell_check=True)
+        self.widgets['people'].setToolTip(translate(
+            'DescriptiveTab',
+            'Enter the name(s) of the person(s) shown in this image.'))
         self.widgets['people'].new_value.connect(self.save_data)
         layout.addRow(translate('DescriptiveTab', 'Person(s) shown'),
                       self.widgets['people'])

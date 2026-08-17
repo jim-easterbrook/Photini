@@ -650,7 +650,7 @@ class Metadata(object):
         'camera_model'   : MD_CameraModel,
         'contact_info'   : MD_ContactInformation,
         'copyright'      : MD_LangAlt,
-        'creator'        : MD_MultiString,
+        'creator'        : MD_Creator,
         'creator_title'  : MD_String,
         'credit_line'    : MD_String,
         'date_digitised' : MD_DateTime,

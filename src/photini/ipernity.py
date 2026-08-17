@@ -31,7 +31,7 @@ from photini.pyqt import *
 from photini.types import MD_ImageRegion
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import DropDownSelector, Label
-from photini.widgets.text import MultiLineEdit, SingleLineEdit
+from photini.widgets.text import TextEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -46,6 +46,9 @@ class IpernitySession(UploaderSession):
     def sign_request(self, method, params):
         params = dict(params)
         params['api_key'] = self.client_data['api_key']
+        params['lg'] = 'en'
+        if 'lang' in self.user_data:
+            params['lg'] = self.user_data['lang']
         if 'auth_token' in self.user_data:
             params['auth_token'] = self.user_data['auth_token']
         string = ''
@@ -609,11 +612,9 @@ class TabWidget(PhotiniUploader):
     @catch_all()
     def new_album(self):
         dialog = self.new_album_dialog()
-        title = SingleLineEdit('title')
-        title.add_spell_check()
+        title = TextEdit('title', height=1, spell_check=True)
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
-        description = MultiLineEdit('description')
-        description.add_spell_check()
+        description = TextEdit('description', spell_check=True)
         dialog.layout().addRow(
             translate('IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget('comment')

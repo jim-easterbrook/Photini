@@ -56,6 +56,10 @@
         <translation>Skriv inn navet på landet.</translation>
     </message>
     <message>
+        <source>Enter globally unique identifier(s) of the location.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Address</source>
         <comment>Shortest possible name used as tab label</comment>
         <translation>&amp;Adresse</translation>
@@ -98,10 +102,6 @@
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -180,6 +180,10 @@
         <translation>&lt;favoritter&gt;</translation>
     </message>
     <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Descriptive metadata</source>
         <translation type="vanished">&amp;Beskrivende metadata</translation>
     </message>
@@ -216,19 +220,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Person(s) shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <source>Enter the name(s) of the person(s) shown in this image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -327,6 +327,10 @@
     <message>
         <source>GPX importer</source>
         <translation>GPX-importør</translation>
+    </message>
+    <message>
+        <source>List separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>location pin (selected)</source>
@@ -1039,6 +1043,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>What language would you like to change to? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All languages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1052,10 +1060,6 @@
     </message>
     <message>
         <source>Change language to other.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1765,7 +1769,7 @@
         <translation>Innholdstype</translation>
     </message>
     <message>
-        <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
+        <source>Enter the names of people shown in this region.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2233,6 +2237,14 @@
     <message>
         <source>Spelling</source>
         <translation type="unfinished">Stavekontroll</translation>
+    </message>
+    <message>
+        <source>Separate them with &quot;{sep}&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Item separator</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

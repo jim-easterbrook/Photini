@@ -26,8 +26,7 @@ from photini.types import MD_LangAlt
 from photini.widgets import (ChoicesContextMenu, ComboBox, CompoundWidgetMixin,
                              ContextMenuMixin, WidgetMixin)
 
-__all__ = (
-    'LangAltWidget', 'MultiLineEdit', 'MultiStringEdit', 'SingleLineEdit')
+__all__ = ('LangAltWidget', 'MultiTextEdit', 'TextEdit')
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -62,14 +61,14 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
         self.setUnderlineColor(Qt.GlobalColor.red)
         self.setUnderlineStyle(self.UnderlineStyle.SpellCheckUnderline)
         self.spell_check = QtWidgets.QApplication.instance().spell_check
-        self.spell_check.new_dict.connect(highlighter.rehighlight)
-        self._lang = None
+        self.set_lang(MD_LangAlt.DEFAULT)
+        self.spell_check.rehighlight.connect(highlighter.rehighlight)
         highlighter.add_formatter(self)
 
     def add_spelling_context_menu(self, menu, cursor, callback):
         block = cursor.block()
         block_pos = block.position()
-        for word, start, end in self.spell_check.find_words(block.text()):
+        for word, start, end in self._dict.find_words(block.text()):
             if start > cursor.positionInBlock():
                 break
             if end <= cursor.positionInBlock():
@@ -77,8 +76,7 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
             cursor.setPosition(block_pos + start)
             cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
             break
-        suggestions = self.spell_check.suggest(
-            cursor.selectedText(), lang=self._lang)
+        suggestions = self._dict.suggest(cursor.selectedText())
         if not suggestions:
             return None
         sub_menu = QtWidgets.QMenu(translate(
@@ -92,15 +90,12 @@ class SpellCheckFormatter(QtGui.QTextCharFormat):
         return sub_menu
 
     def highlight_block(self, text, highlighter):
-        for word, start, end in self.spell_check.find_words(text):
-            if not self.spell_check.check(word, lang=self._lang):
+        for word, start, end in self._dict.find_words(text):
+            if not self._dict.check(word):
                 highlighter.setFormat(start, end - start, self)
 
     def set_lang(self, lang):
-        if lang == MD_LangAlt.DEFAULT:
-            lang = None
-        self._lang = lang
-        self.spell_check.load_dict(lang)
+        self._dict = self.spell_check.get_dict(lang)
 
 
 class SpellCheckMixin(TextHighlighterMixin):
@@ -125,8 +120,8 @@ class SpellCheckMixin(TextHighlighterMixin):
 
 
 class LengthFormatter(QtGui.QTextCharFormat):
-    def __init__(self, highlighter, length,
-                 length_always=True, length_bytes=True, multi_string=False):
+    def __init__(self, highlighter, length=None,
+                 length_always=False, length_bytes=True, multi_string=False):
         super(LengthFormatter, self).__init__()
         self.setUnderlineColor(Qt.GlobalColor.blue)
         self.setUnderlineStyle(self.UnderlineStyle.SingleUnderline)
@@ -136,7 +131,7 @@ class LengthFormatter(QtGui.QTextCharFormat):
         self.length_bytes = length_bytes
         if multi_string:
             # treat each keyword separately
-            self.regex = re.compile(r'\s*(.+?)(;|$)')
+            self.set_separator(';')
         else:
             # treat the entire block as one
             self.regex = re.compile(r'(.+)')
@@ -169,25 +164,30 @@ class LengthFormatter(QtGui.QTextCharFormat):
     def set_length(self, length):
         self.length = length
 
+    def set_separator(self, sep):
+        self.regex = re.compile(
+            r'\s*(.+?)\s*(\{sep}|$)'.format(sep=sep.strip()))
+
 
 class LengthCheckMixin(TextHighlighterMixin):
     _length_check = None
 
-    def add_length_check(self, length, length_always=True, length_bytes=True,
-                         multi_string=False):
-        if not length:
+    def add_length_check(self, options={}):
+        if not options['length']:
             return
-        self._length_check = LengthFormatter(
-            self.highlighter(), length, length_always=length_always,
-            length_bytes=length_bytes, multi_string=multi_string)
+        self._length_check = LengthFormatter(self.highlighter(), **options)
 
     def set_length(self, length):
         if self._length_check:
             self._length_check.set_length(length)
 
 
-class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
-    def __init__(self, key, *arg, **kw):
+class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin,
+               SpellCheckMixin, LengthCheckMixin):
+    _no_return = False
+
+    def __init__(self, key, *arg, height=None,
+                 spell_check=False, length_check=None, **kw):
         super(TextEdit, self).__init__(*arg, **kw)
         self._key = key
         self._multiple_values = multiple_values()
@@ -195,13 +195,12 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self.setTabChangesFocus(True)
-        if self._single_line:
-            self.set_height(1)
-            self.setLineWrapMode(self.LineWrapMode.NoWrap)
-            self.setHorizontalScrollBarPolicy(
-                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            self.setVerticalScrollBarPolicy(
-                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        if height:
+            self.set_height(height)
+        if length_check:
+            self.add_length_check(options=length_check)
+        if spell_check:
+            self.add_spell_check()
 
     @catch_all()
     def contextMenuEvent(self, event):
@@ -222,13 +221,13 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
     @catch_all()
     def insertFromMimeData(self, source):
         text = source.text()
-        if self._single_line:
+        if self._no_return:
             text = text.replace('\n', ' ')
         self.insertPlainText(text)
 
     @catch_all()
     def keyPressEvent(self, event):
-        if self._single_line and event.key() in (
+        if self._no_return and event.key() in (
                 Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
         self.handle_delete_key(event)
@@ -236,6 +235,9 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         if self.placeholderText() and self.toPlainText():
             # user has typed something over <multiple values>
             self.setPlaceholderText('')
+
+    def setToolTip(self, text):
+        super(TextEdit, self).setToolTip('<p>{}</p>'.format(text))
 
     def get_value(self):
         if qt_version_info < (5, 9):
@@ -255,6 +257,12 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
         height += (rows - 1) * self.fontMetrics().lineSpacing()
         if rows == 1:
             self.setFixedHeight(height)
+            self.setLineWrapMode(self.LineWrapMode.NoWrap)
+            self.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self._no_return = True
         else:
             self.setMaximumHeight(height)
 
@@ -272,42 +280,108 @@ class TextEdit(QtWidgets.QTextEdit, ChoicesContextMenu, WidgetMixin):
     def set_value(self, value, html=False):
         self.setPlaceholderText('')
         if value:
+            assert(isinstance(value, str))
             if html:
                 self.setHtml(value)
             else:
-                self.setPlainText(str(value))
+                self.setPlainText(value)
         else:
             self.clear()
 
     def value_to_text(self, value):
-        if self._single_line:
+        if self._no_return:
             return str(value).replace('\n', ' ')
         return str(value)
 
 
-class MultiLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
-    _single_line = False
+class MultiTextEdit(TextEdit):
+    separators = [', ', '; ', ' / ', ' * ']
+    default_sep = separators[1]
+    _no_return = True
 
+    def __init__(self, *arg, **kw):
+        self.current_sep = self.default_sep
+        super(MultiTextEdit, self).__init__(*arg, **kw)
+        self.context_menus['C'] = self.add_separators_context_menu
 
-class SingleLineEdit(TextEdit, SpellCheckMixin, LengthCheckMixin):
-    _single_line = True
+    @catch_all()
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            self.insertPlainText(self.current_sep)
+            return
+        super(MultiTextEdit, self).keyPressEvent(event)
 
+    def setToolTip(self, text):
+        self.tooltip_text = text
+        text += ' ' + translate(
+            'Widgets', 'Separate them with "{sep}" characters.').format(
+                sep=self.current_sep.strip())
+        super(MultiTextEdit, self).setToolTip(text)
 
-class MultiStringEdit(SingleLineEdit):
-    def set_value(self, value):
-        if isinstance(value, (list, tuple)):
-            value = '; '.join(value)
-        super(MultiStringEdit, self).set_value(value)
+    @classmethod
+    def sep_list(cls):
+        for sep in cls.separators:
+            yield '"{}"'.format(sep.strip()), sep
+
+    def add_separators_context_menu(self, menu, event):
+        sub_menu = QtWidgets.QMenu(translate(
+            'Widgets', 'Item separator'), parent=menu)
+        group = QtGui2.QActionGroup(sub_menu)
+        for text, data in self.sep_list():
+            action = QtGui2.QAction(text, parent=group)
+            action.setData(data)
+            sub_menu.addAction(action)
+        group.triggered.connect(self.ctx_set_separator)
+        return sub_menu
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all()
+    def ctx_set_separator(self, action):
+        sep = action.data()
+        if self.default_sep == sep:
+            return
+        # change default for this instance only
+        value = self.get_value()
+        self.default_sep = sep
+        self.set_separator(sep)
+        self.set_value(value)
+
+    def set_separator(self, sep):
+        self.current_sep = sep
+        if self._length_check:
+            self._length_check.set_separator(sep)
+        self.setToolTip(self.tooltip_text)
+
+    def add_length_check(self, options={}):
+        options['multi_string'] = True
+        super(MultiTextEdit, self).add_length_check(options)
+        if self._length_check:
+            self._length_check.set_separator(self.current_sep)
 
     def get_value(self):
-        value = super(MultiStringEdit, self).get_value().split(';')
-        value = [x.strip() for x in value]
-        return [x for x in value if x]
+        value = super(MultiTextEdit, self).get_value()
+        value = [x.strip() for x in value.split(self.current_sep.strip())]
+        value = [x for x in value if x]
+        self.set_value(value)
+        return value
+
+    def set_value(self, value):
+        if value:
+            for sep in [self.default_sep] + self.separators:
+                sep_char = sep.strip()
+                if not any(sep_char in x for x in value):
+                    if self.current_sep != sep:
+                        self.set_separator(sep)
+                    break
+            else:
+                logger.error(
+                    '%s: all separators in value %s', self._key, value)
+            value = self.current_sep.join(value)
+        super(MultiTextEdit, self).set_value(value)
 
 
-class LangAltWidgetText(TextEdit, SpellCheckMixin, LengthCheckMixin):
-    def __init__(self, owner, single_line=True, **kw):
-        self._single_line = single_line
+class LangAltWidgetText(TextEdit):
+    def __init__(self, owner, **kw):
         super(LangAltWidgetText, self).__init__('', **kw)
         self._owner = owner
         self.set_lang(None)
@@ -356,7 +430,6 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
         super(LangAltEditStack, self).__init__(*arg, **kw)
         self._owner = owner
         self._widget_kw = widget_kw
-        self._widget_options = []
 
     def add_lang(self, lang):
         # find unused text edit
@@ -368,17 +441,9 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
         else:
             # create new text edit
             widget = LangAltWidgetText(self._owner, **self._widget_kw)
-            for func, arg, kw in self._widget_options:
-                getattr(widget, func)(*arg, **kw)
             widget.new_value.connect(self.sw_new_value)
             self.addWidget(widget)
         widget.set_lang(lang)
-
-    def add_length_check(self, *arg, **kw):
-        self._widget_options.append(('add_length_check', arg, kw))
-
-    def add_spell_check(self, *arg, **kw):
-        self._widget_options.append(('add_spell_check', arg, kw))
 
     def find_lang(self, lang):
         for idx in range(self.count()):
@@ -409,9 +474,6 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
                 else:
                     widget.set_default(lang == default_lang)
 
-    def set_height(self, *arg, **kw):
-        self._widget_options.append(('set_height', arg, kw))
-
     def set_langs(self, langs):
         for idx in range(self.count()):
             widget = self.widget(idx)
@@ -433,6 +495,55 @@ class LangAltEditStack(QtWidgets.QStackedLayout):
             widget = self.widget(idx)
             if widget.lang():
                 yield widget
+
+
+class LangAltLangValidator(QtGui.QRegularExpressionValidator):
+    def __init__(self, *arg, **kw):
+        super(LangAltLangValidator, self).__init__(*arg, **kw)
+        self.setRegularExpression(
+            QtCore.QRegularExpression(
+                r'x-default|[a-zA-Z]{2}(-([a-zA-Z]{2}|[a-zA-Z0-9]{3,8}))?'))
+
+    @catch_all(exc_return='')
+    def fixup(self, text):
+        # delete last character until string matches
+        while text and self.validate(text, 0)[0] != self.State.Acceptable:
+            text = text[:-1]
+        return text
+
+
+class LangAltLangDialog(QtWidgets.QDialog):
+    def __init__(self, *arg, change=False, prompt=None, **kw):
+        super(LangAltLangDialog, self).__init__(*arg, **kw)
+        self.setWindowTitle(translate('LangAltWidget', 'New language'))
+        self.setLayout(FormLayout(wrapped=True))
+        # main dialog area
+        self.edit = QtWidgets.QLineEdit()
+        if prompt:
+            self.edit.setText(prompt)
+        self.edit.setValidator(LangAltLangValidator(parent=self.edit))
+        if change:
+            label = translate(
+                'LangAltWidget', 'What language would you like to change to?'
+                ' Please enter an RFC3066 language tag.')
+        else:
+            label = translate(
+                'LangAltWidget', 'What language would you like to add?'
+                ' Please enter an RFC3066 language tag.')
+        self.layout().addRow(wrap_text(self, label, 2), self.edit)
+        # OK & cancel buttons
+        self.button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        button = self.button_box.button(self.button_box.StandardButton.Ok)
+        self.layout().addRow(self.button_box)
+
+    def execute(self):
+        if execute(self) != self.DialogCode.Accepted:
+            return None
+        return self.edit.text()
 
 
 class LangAltSelector(ComboBox):
@@ -471,17 +582,14 @@ class LangAltSelector(ComboBox):
             self.add_lang.emit('')
             return
         # user selected <new>
-        prompt = self.locale().uiLanguages()[0]
+        prompt = self._owner.app.langs[0]
         if self.findData(prompt) >= 0:
             prompt = None
-        lang, OK = QtWidgets.QInputDialog.getText(
-            self, translate('LangAltWidget', 'New language'),
-            wrap_text(self, translate(
-                'LangAltWidget', 'What language would you like to add?'
-                ' Please enter an RFC3066 language tag.'), 2), text=prompt)
-        if not (OK and lang):
+        lang = LangAltLangDialog(prompt=prompt, parent=self).execute()
+        if not lang:
             self.setCurrentIndex(0)
             return
+        lang = MD_LangAlt.normalise_key(lang)
         self.add_lang.emit(lang)
 
     def set_langs(self, langs, default_lang):
@@ -512,11 +620,10 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
     clipboard_key = 'LangAltWidget'
     dynamic = True
 
-    def __init__(self, key, multi_line=True, label=None, **widget_kw):
+    def __init__(self, key, label=None, **widget_kw):
         super(LangAltWidget, self).__init__()
         self.app = QtWidgets.QApplication.instance()
         self._key = key
-        widget_kw['single_line'] = not multi_line
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(
@@ -546,14 +653,15 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         self.lang.add_lang.connect(self.add_lang)
         layout.addWidget(self.lang, 0, 2)
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
-        if not multi_line:
+        if 'height' in widget_kw:
             self.edit_stack.add_lang('')
             self.setFixedHeight(layout.minimumSize().height())
+            self.edit_stack.removeWidget(self.edit_stack.widget(0))
         # adopt some child methods
-        self.add_length_check = self.edit_stack.add_length_check
-        self.add_spell_check = self.edit_stack.add_spell_check
-        self.set_height = self.edit_stack.set_height
         self.sub_widgets = self.edit_stack.sub_widgets
+
+    def setToolTip(self, text):
+        super(LangAltWidget, self).setToolTip('<p>{}</p>'.format(text))
 
     @QtSlot(str)
     @catch_all()
@@ -586,13 +694,13 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         menu.addAction(action)
         group.triggered.connect(self.set_default_lang)
         # change language
-        new_lang = self.locale().uiLanguages()[0]
         group = QtGui2.QActionGroup(menu)
-        action = QtGui2.QAction(translate(
-            'LangAltWidget', 'Change language to "{language}".'
-            ).format(language=new_lang), parent=group)
-        action.setData((old_lang, new_lang))
-        menu.addAction(action)
+        for new_lang in self.app.langs:
+            action = QtGui2.QAction(translate(
+                'LangAltWidget', 'Change language to "{language}".'
+                ).format(language=new_lang), parent=group)
+            action.setData((old_lang, new_lang))
+            menu.addAction(action)
         action = QtGui2.QAction(translate(
             'LangAltWidget', 'Change language to other.'), parent=group)
         action.setData((old_lang, None))
@@ -613,15 +721,17 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
     def set_text_lang(self, action):
         old_lang, new_lang = action.data()
         if not new_lang:
-            new_lang, OK = QtWidgets.QInputDialog.getText(
-                self, translate('LangAltWidget', 'New language'),
-                wrap_text(self, translate(
-                    'LangAltWidget', 'What language would you like to change'
-                    'to? Please enter an RFC3066 language tag.'), 2))
-            if not (OK and new_lang):
+            new_lang = LangAltLangDialog(change=True, parent=self).execute()
+            if not new_lang:
                 return
+            new_lang = MD_LangAlt.normalise_key(new_lang)
         self.sw_new_value({'change_lang': (old_lang, new_lang)})
         self.lang.setCurrentIndex(self.lang.findData(new_lang))
+
+    def get_value(self):
+        if self.has_value():
+            return super(LangAltWidget, self).get_value()
+        return {}
 
     def _save_data(self, metadata, value):
         if self._key in value and 'change_lang' in value[self._key]:
@@ -629,10 +739,11 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
             if old_lang == new_lang:
                 return False
             old_value = dict(metadata[self._key])
-            new_value = {new_lang: old_value[old_lang]}
-            if old_value[MD_LangAlt.DEFAULT] == old_value[old_lang]:
-                del old_value[MD_LangAlt.DEFAULT]
+            new_value = {new_lang: ''}
             if old_lang in old_value:
+                new_value[new_lang] = old_value[old_lang]
+                if old_value[MD_LangAlt.DEFAULT] == old_value[old_lang]:
+                    new_value[MD_LangAlt.DEFAULT] = old_value[old_lang]
                 del old_value[old_lang]
             old_value = MD_LangAlt(old_value)
             metadata[self._key] = old_value.merge(
@@ -668,8 +779,13 @@ class LangAltWidget(QtWidgets.QWidget, CompoundWidgetMixin, ContextMenuMixin):
         for idx in range(self.edit_stack.count()):
             self.edit_stack.widget(idx).set_default(idx == default_idx)
 
-    def set_subwidgets(self, keys):
-        keys = keys or [self.locale().uiLanguages()[0]]
+    def set_subwidgets(self, values):
+        keys = list(values.keys()) or [self.app.langs[0]]
+        for lang in keys:
+            if lang.lower() in [x.lower() for x in self.app.langs]:
+                continue
+            if MD_LangAlt.rfc_tag.match(lang):
+                self.app.langs.append(lang)
         self.edit_stack.set_langs(keys)
 
     def set_enabled(self, enabled):

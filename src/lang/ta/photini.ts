@@ -65,7 +65,11 @@
     </message>
     <message>
         <source>Enter globally unique identifier(s) of the location. Separate them with &quot;;&quot; characters.</source>
-        <translation>இருப்பிடத்தின் உலகளாவிய தனித்துவமான அடையாளங்காட்டி (களை) உள்ளிடவும். அவற்றை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
+        <translation type="vanished">இருப்பிடத்தின் உலகளாவிய தனித்துவமான அடையாளங்காட்டி (களை) உள்ளிடவும். அவற்றை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
+    </message>
+    <message>
+        <source>Enter globally unique identifier(s) of the location.</source>
+        <translation>இருப்பிடத்தின் உலகளாவிய தனித்துவமான அடையாளங்காட்டி (களை) உள்ளிடவும்.</translation>
     </message>
     <message>
         <source>Name</source>
@@ -168,6 +172,10 @@
         <translation>&lt;பிடித்தவை&gt;</translation>
     </message>
     <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.</source>
+        <translation>படத்தில் உள்ள விசயத்தை வெளிப்படுத்த பயன்படுத்தப்படும் எந்தவொரு முக்கிய வார்த்தைகள், விதிமுறைகள் அல்லது சொற்றொடர்களை உள்ளிடவும்.</translation>
+    </message>
+    <message>
         <source>Descriptive metadata</source>
         <comment>Full name of tab shown as a tooltip</comment>
         <translation>விளக்க மேனிலை தரவு</translation>
@@ -198,8 +206,12 @@
         <translation>விளக்கம் / தலைப்பு</translation>
     </message>
     <message>
+        <source>Enter the name(s) of the person(s) shown in this image.</source>
+        <translation>இந்த படத்தில் காட்டப்பட்டுள்ள நபரின் (கள்) பெயர் (கள்) உள்ளிடவும்.</translation>
+    </message>
+    <message>
         <source>Enter the name(s) of the person(s) shown in this image. Separate them with &quot;;&quot; characters.</source>
-        <translation>இந்த படத்தில் காட்டப்பட்டுள்ள நபரின் (கள்) பெயர் (கள்) உள்ளிடவும். அவற்றை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
+        <translation type="vanished">இந்த படத்தில் காட்டப்பட்டுள்ள நபரின் (கள்) பெயர் (கள்) உள்ளிடவும். அவற்றை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
     </message>
     <message>
         <source>Person(s) shown</source>
@@ -219,7 +231,7 @@
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
-        <translation>படத்தில் உள்ள விசயத்தை வெளிப்படுத்த பயன்படுத்தப்படும் எந்தவொரு முக்கிய வார்த்தைகள், விதிமுறைகள் அல்லது சொற்றொடர்களை உள்ளிடவும். அவற்றை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
+        <translation type="vanished">படத்தில் உள்ள விசயத்தை வெளிப்படுத்த பயன்படுத்தப்படும் எந்தவொரு முக்கிய வார்த்தைகள், விதிமுறைகள் அல்லது சொற்றொடர்களை உள்ளிடவும். அவற்றை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
@@ -311,6 +323,10 @@
     <message>
         <source>GPX importer</source>
         <translation>சிபிஎக்ச் இறக்குமதியாளர்</translation>
+    </message>
+    <message>
+        <source>List separator</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>location pin (selected)</source>
@@ -983,6 +999,10 @@
         <translation>புதிய மொழி</translation>
     </message>
     <message>
+        <source>What language would you like to change to? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Language</source>
         <translation>மொழி</translation>
     </message>
@@ -1013,7 +1033,7 @@
     </message>
     <message>
         <source>What language would you like to changeto? Please enter an RFC3066 language tag.</source>
-        <translation>எந்த மொழியை மாற்ற விரும்புகிறீர்கள்? தயவுசெய்து RFC 3066 மொழிக் குறிச்சொல்லை உள்ளிடவும்.</translation>
+        <translation type="vanished">எந்த மொழியை மாற்ற விரும்புகிறீர்கள்? தயவுசெய்து RFC 3066 மொழிக் குறிச்சொல்லை உள்ளிடவும்.</translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -1715,8 +1735,12 @@
         <translation>உள்ளடக்க வகை</translation>
     </message>
     <message>
+        <source>Enter the names of people shown in this region.</source>
+        <translation>இந்த பிராந்தியத்தில் காட்டப்பட்டுள்ளவர்களின் பெயர்களை உள்ளிடவும்.</translation>
+    </message>
+    <message>
         <source>Enter the names of people shown in this region. Separate multiple entries with &quot;;&quot; characters.</source>
-        <translation>இந்த பிராந்தியத்தில் காட்டப்பட்டுள்ளவர்களின் பெயர்களை உள்ளிடவும். பல உள்ளீடுகளை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
+        <translation type="vanished">இந்த பிராந்தியத்தில் காட்டப்பட்டுள்ளவர்களின் பெயர்களை உள்ளிடவும். பல உள்ளீடுகளை &quot;&quot;; &quot; எழுத்துக்கள்.</translation>
     </message>
     <message>
         <source>Person shown</source>
@@ -2171,6 +2195,14 @@
     <message>
         <source>Spelling</source>
         <translation type="unfinished">எழுத்துப்பிழை</translation>
+    </message>
+    <message>
+        <source>Separate them with &quot;{sep}&quot; characters.</source>
+        <translation type="unfinished">அவற்றை &quot;&quot;{sep} &quot; எழுத்துக்கள்.</translation>
+    </message>
+    <message>
+        <source>Item separator</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

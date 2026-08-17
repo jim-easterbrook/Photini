@@ -48,7 +48,10 @@ translate = QtCore.QCoreApplication.translate
 def fetch_key(section):
     result = None
     if keyring:
-        result = keyring.get_password('photini', section)
+        try:
+            result = keyring.get_password('photini', section)
+        except Exception as ex:
+            logger.warning('Cannot read keyring entry "%s": %s', section, ex)
     if not result:
         result = key_store.get(section, 'api_key')
     app = QtWidgets.QApplication.instance()
@@ -283,13 +286,15 @@ class MapWebView(QtWebEngineWidgets.QWebEngineView):
             event.acceptProposedAction()
 
 
-class PhotiniMap(QtWidgets.QWidget, TopLevelWidgetMixin,
-                 ContextMenuMixin, CompoundWidgetMixin):
+# Linguist update can't parse if parent classes on same line
+class PhotiniMap(
+        QtWidgets.QWidget, TopLevelWidgetMixin, ContextMenuMixin,
+        CompoundWidgetMixin):
     clipboard_key = 'PhotiniMap'
     use_layout_direction = True
 
-    def __init__(self, parent=None):
-        super(PhotiniMap, self).__init__(parent)
+    def __init__(self, *arg, **kw):
+        super(PhotiniMap, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.script_dir = os.path.join(os.path.dirname(__file__), 'data', 'map')
         self.drag_icon = self.app.map_icon_factory.get_pin_as_pixmap(

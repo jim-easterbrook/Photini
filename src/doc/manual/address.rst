@@ -60,6 +60,11 @@ In this case most of the data is the same, but I changed ``street`` to the subje
 Copy and paste
 --------------
 
+.. image:: ../images/screenshot_299.png
+
+Any single location, ``camera`` or ``subject``, can be copied by right-clicking within the tab area.
+The data can then be pasted into any other ``camera`` or ``subject`` tab, typically the empty "place holder" ``subject`` tab.
+
 .. image:: ../images/screenshot_297.png
 
 All of the ``subject`` locations can be copied by right-clicking on the tab bar.

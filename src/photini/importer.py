@@ -309,8 +309,8 @@ class ImporterTab(QtWidgets.QWidget):
         return translate('ImporterTab', '&Import',
                          'Shortest possible name used as tab label')
 
-    def __init__(self, parent=None):
-        super(ImporterTab, self).__init__(parent)
+    def __init__(self, *arg, **kw):
+        super(ImporterTab, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.app.aboutToQuit.connect(self.stop_copy)
         if gp and self.app.options.test:

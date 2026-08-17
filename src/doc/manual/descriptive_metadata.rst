@@ -38,7 +38,8 @@ The word "Château-Gontier" is not in the British English dictionary, as indicat
 
 .. image:: ../images/screenshot_025.png
 
-Right-clicking on a misspelled word shows any suggested alternatives, one of which can be chosen by clicking on it.
+Right-clicking on a misspelled word invokes a context menu with a ``spelling`` sub-menu.
+This shows any suggested alternatives, one of which can be chosen by clicking on it.
 
 .. |hazard| unicode:: U+026A1
 
@@ -60,6 +61,7 @@ There are probably only one or two photographs that share the same description, 
 If you select several images you may see ``<multiple values>`` displayed in some of the text boxes.
 You can right-click on the box to bring up a context menu from which you can choose a value to be copied to all the selected photographs.
 Very long texts are elided with ``...`` replacing some of the text.
+(If only one choice is shown it means some of the images have no text in that field.)
 
 .. image:: ../images/screenshot_029.png
 
@@ -70,6 +72,7 @@ These are a recent addition to the `IPTC standard`_ - in future image display pr
   The ``Keywords`` field has been moved to the :doc:`keywords` tab.
 
 The ``Person(s) shown`` box can be used to record the names of any people in the photograph.
+This is a list of values, see :ref:`descriptive-list-values` below.
 This also shows any people named in the :doc:`regions` tab.
 
 .. image:: ../images/screenshot_030.png
@@ -81,6 +84,27 @@ Good pictures can be given a one to five star rating.
 
 Bad pictures can be given a ``reject`` rating.
 This is stored in the metadata as a rating value of -1.
+
+.. _descriptive-list-values:
+
+List values
+-----------
+
+.. versionadded:: 2026.08
+  Before version 2026.08 the list item separator was a semicolon (``;``) and could not be changed.
+
+.. image:: ../images/screenshot_041.png
+
+Some metadata, such as keywords or the people in an image, is a list of values.
+When entering values they must be separated by a delimiter character.
+Photini's default separator is a semicolon (``;``), but this can be changed in the :doc:`configuration settings <configuration>`.
+If a value in the list contains the current separator character (e.g. "Fred Bloggs, Esq." contains a comma) then Photini will choose a different separator for the list.
+When typing in values you can enter the current separator with the ``Return`` or ``Enter`` key.
+
+.. image:: ../images/screenshot_042.png
+
+If you need to enter a value that contains the current separator then you can over-ride the default separator with the right-click context menu.
+The new separator only applies to one data field and remains in place until you restart Photini.
 
 .. _alternative-languages:
 

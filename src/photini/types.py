@@ -35,12 +35,13 @@ logger = logging.getLogger(__name__)
 
 # photini.metadata imports these classes
 __all__ = (
-    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
-    'MD_Dimensions', 'MD_FocalLength', 'MD_GPSinfo', 'MD_HierarchicalTags',
-    'MD_ImageRegion', 'MD_Int', 'MD_Keywords', 'MD_LangAlt', 'MD_LensModel',
-    'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation', 'MD_Rating',
-    'MD_Rational', 'MD_Rights', 'MD_SingleLocation', 'MD_Software', 'MD_String',
-    'MD_Thumbnail', 'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
+    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_Creator',
+    'MD_DateTime', 'MD_Dimensions', 'MD_FocalLength', 'MD_GPSinfo',
+    'MD_HierarchicalTags', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
+    'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
+    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
+    'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
+    'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -148,6 +149,26 @@ class MD_String(MD_UnmergableString):
         return this + ' // ' + other, True, False
 
 
+class MD_Creator(MD_String):
+    # XMP and IPTC values are lists, but Photini assumes only one creator
+    # Merge list data with ' // ' separators, then treat as a single value
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, str):
+            # Photini used to write multiple values separated by ';'
+            file_value = file_value.split(';')
+        return super(MD_Creator, cls).from_exiv2(file_value, tag)
+
+    def merge(self, info, tag, other):
+        if not other:
+            return self
+        # merge each component of a list separately
+        result = self.__class__(self)
+        for item in other.split(' // '):
+            result = super(MD_Creator, result).merge(info, tag, item)
+        return result
+
+
 class MD_Software(MD_String):
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -228,7 +249,7 @@ class MD_DateTime(MD_Dict):
     _tz_re = re.compile(r'(.*?[T ].*?)([+-])(\d{1,2}):?(\d{1,2})$')
     _subsec_re = re.compile(r'(.*?)\.(\d+)$')
     _time_re = re.compile(r'(.*?)[T ](\d{1,2}):?(\d{1,2})?:?(\d{1,2})?$')
-    _date_re = re.compile(r'(\d{1,4})[:-]?(\d{1,2})?[:-]?(\d{1,2})?$')
+    _date_re = re.compile(r'(\d{1,4})[:/-]?(\d{1,2})?[:/-]?(\d{1,2})?$')
 
     @classmethod
     def from_ISO_8601(cls, datetime_string, sub_sec_string=None):
@@ -361,6 +382,8 @@ class MD_DateTime(MD_Dict):
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
+        while offset_string and offset_string[-2:] == '  ':
+            offset_string = offset_string[:-3]
         # do conversion
         if offset_string and len(datetime_string) > 11:
             datetime_string += offset_string
@@ -506,6 +529,12 @@ class MD_LensSpec(MD_Dict):
     # simple class to store lens "specification"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
     _quiet = True
+
+    def contains(self, this, other):
+        for key in self._keys:
+            if this[key] and other[key] and other[key] != this[key]:
+                return False
+        return True
 
     @staticmethod
     def convert(value):
@@ -892,9 +921,10 @@ class MD_LangAlt(MD_Value, dict):
     # text values. The sequence can have a single default value, but if
     # it has more than one value, the default should be repeated with a
     # language tag. See
-    # https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
+    # https://developer.adobe.com/xmp/docs/xmp-namespaces/xmp-data-types/#derived-types
 
     DEFAULT = 'x-default'
+    rfc_tag = re.compile(r'[a-zA-Z]{2,3}-[a-zA-Z]{2,3}$')
 
     def __init__(self, value=None, strip=True):
         if isinstance(value, str):
@@ -929,7 +959,7 @@ class MD_LangAlt(MD_Value, dict):
         if lang:
             langs = [lang]
         else:
-            langs = QtCore.QLocale.system().uiLanguages()
+            langs = QtWidgets.QApplication.instance().langs
         langs = [cls.norm_key(lang).split('-') for lang in langs]
         best_match = (0, None)
         for key in keys:
@@ -941,6 +971,15 @@ class MD_LangAlt(MD_Value, dict):
                 if match > best_match[0]:
                     best_match = match, key
         return best_match[1]
+
+    @staticmethod
+    def normalise_key(key):
+        # the XMP toolkit makes keys lower case, but if the region subtag
+        # has two letters it is made upper case
+        parts = key.lower().split('-')
+        if len(parts) > 1 and len(parts[1]) == 2:
+            parts[1] = parts[1].upper()
+        return '-'.join(parts)
 
     @staticmethod
     def norm_key(key):
@@ -1111,22 +1150,17 @@ class MD_LensModel(MD_Collection):
 class MD_MultiString(MD_Value, tuple):
     def __new__(cls, value=None):
         value = value or []
-        if isinstance(value, str):
-            value = value.split(';')
+        assert(isinstance(value, (list, tuple)))
         value = filter(bool, [x.strip() for x in value])
         return super(MD_MultiString, cls).__new__(cls, value)
 
-    def to_exif(self):
-        return ';'.join(self)
+    to_exif = None
 
     def to_iptc(self):
         return tuple(self)
 
     def to_xmp(self):
         return tuple(self)
-
-    def __str__(self):
-        return '; '.join(self)
 
     def merge(self, info, tag, other):
         merged = False
@@ -1143,7 +1177,7 @@ class MD_MultiString(MD_Value, tuple):
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
-            return MD_MultiString(result)
+            return self.__class__(result)
         return self
 
 
@@ -2046,8 +2080,10 @@ class ImageRegionItem(MD_Structure):
                                           str(boundary['Iptc4xmpExt:rbY']),
                                           str(boundary['Iptc4xmpExt:rbW']),
                                           str(boundary['Iptc4xmpExt:rbH']))),
-            'MPReg:PersonDisplayName': str(self['Iptc4xmpExt:PersonInImage']),
             }
+        people = self['Iptc4xmpExt:PersonInImage']
+        if people:
+            region['MPReg:PersonDisplayName'] = people[0]
         for key in ('MPReg:PersonEmailDigest', 'MPReg:PersonLiveIdCID'):
             if key in self:
                 region[key] = self[key]
