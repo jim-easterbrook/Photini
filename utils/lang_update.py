@@ -87,6 +87,7 @@ def extract_program_strings(root):
         cmd += ['-ts', path]
         result = subprocess.call(cmd)
         if result:
+            print('pyside6-lupdate returned', result)
             return result
     if not args.transifex:
         return 0
@@ -173,6 +174,7 @@ def extract_doc_strings(root):
                 cmd.append('--ignore-obsolete')
             result = subprocess.call(cmd)
             if result:
+                print('pybabel returned', result)
                 return result
     return 0
 
