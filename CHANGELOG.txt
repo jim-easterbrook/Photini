@@ -16,6 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2026.8.0:
+  1/ Allow list item separator (e.g. ';') to be changed in settings.
+  2/ Fix problem with Ipernity uploader since their API change.
+  3/ Fix clash between GIMP metadata and MS person in region metadata.
+  4/ Improved handling of "LangAlt" values when no system language set.
+  5/ Fix problem with some Canon scanners putting '/' in Exif dates.
+  6/ Fix bug with empty Exif timezone offset values from some cameras.
+  7/ Allow Photini to run if python-keyring not installed.
+  8/ Fix localisation of "editable builds".
+     (Thanks to Michal Josef Špaček for the last 2.)
+
 Changes in v2026.3.4:
   1/ Fix bug in image regions with Apple face information metadata.
     (This was fixed in v2025.10.0 but recent changes allowed it to reappear.)
