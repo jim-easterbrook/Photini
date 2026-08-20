@@ -423,7 +423,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.loggerwindow = LoggerWindow(options)
         self.app.loggerwindow.setWindowIcon(icon)
         self.app.config_store = ConfigStore('editor', parent=self)
-        self.app.user_keys = UserKeys()
+        self.app.user_keys = UserKeys(self.app.config_store)
         self.app.spell_check = SpellCheck(parent=self)
         if GpxImporter:
             self.app.gpx_importer = GpxImporter(parent=self)

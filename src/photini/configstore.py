@@ -237,28 +237,38 @@ class UserKeys(object):
 
     Uses python-keyring if installed, otherwise does not store anything.
     """
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         if keyring:
             logger.debug('using %s', keyring.get_keyring().__module__)
 
     def delete_password(self, name):
         if keyring:
             keyring.delete_password('photini', name)
+        self.config.delete('user_keys', name)
 
     def get_password(self, name):
-        if not keyring:
-            return None
-        try:
-            return keyring.get_password('photini', name)
-        except Exception as ex:
-            logger.error("cannot read '%s' password: %s", name, str(ex))
+        if keyring:
+            try:
+                result = keyring.get_password('photini', name)
+                self.config.set('user_keys', name, bool(result))
+                return result
+            except Exception as ex:
+                reason = str(ex)
+        else:
+            reason = "'keyring' not installed"
+        if self.config.get('user_keys', name, False):
+            logger.error("cannot read '%s' password: %s", name, reason)
+        return None
 
     def set_password(self, name, value):
-        if not keyring:
-            logger.error(
-                "cannot store '%s' password: 'keyring' not installed", name)
-            return
-        try:
-            keyring.set_password('photini', name, value)
-        except Exception as ex:
-            logger.error("cannot store '%s' password: %s", name, str(ex))
+        if keyring:
+            try:
+                keyring.set_password('photini', name, value)
+                self.config.set('user_keys', name, True)
+                return
+            except Exception as ex:
+                reason = str(ex)
+        else:
+            reason = "'keyring' not installed"
+        logger.error("cannot store '%s' password: %s", name, reason)
