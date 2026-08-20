@@ -18,11 +18,6 @@
 
 import logging
 
-try:
-    import keyring
-except ImportError:
-    keyring = None
-
 from photini.pyqt import (
     available_packages, catch_all, execute, FormLayout, qt_lib, QtCore, QtGui,
     QtSlot, QtWidgets, width_for_text)
@@ -338,7 +333,7 @@ class EditMapKeys(QtWidgets.QDialog):
             self.widgets[section].setMinimumWidth(
                 width_for_text(self.widgets[section], 'x' * 60))
             self.widgets[section].set_value(
-                keyring.get_password('photini', section))
+                self.app.user_keys.get_password(section))
             panel.layout().addRow(
                 Label(title, lines=lines), self.widgets[section])
         # apply & cancel buttons
@@ -360,7 +355,7 @@ class EditMapKeys(QtWidgets.QDialog):
         for section, widget in self.widgets.items():
             value = widget.get_value()
             if value:
-                keyring.set_password('photini', section, value)
-            elif keyring.get_password('photini', section):
-                keyring.delete_password('photini', section)
+                self.app.user_keys.set_password(section, value)
+            elif self.app.user_keys.get_password(section):
+                self.app.user_keys.delete_password(section)
         return self.accept()
