@@ -46,15 +46,9 @@ translate = QtCore.QCoreApplication.translate
 
 
 def fetch_key(section):
-    result = None
-    if keyring:
-        try:
-            result = keyring.get_password('photini', section)
-        except Exception as ex:
-            logger.warning('Cannot read keyring entry "%s": %s', section, ex)
-    if not result:
-        result = key_store.get(section, 'api_key')
     app = QtWidgets.QApplication.instance()
+    result = app.user_keys.get_password(section)
+    result = result or key_store.get(section, 'api_key')
     app.loggerwindow.hide_word(result)
     return result
 

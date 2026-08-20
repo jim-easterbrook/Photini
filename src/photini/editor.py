@@ -34,7 +34,7 @@ import platformdirs
 
 from photini import __version__
 from photini.configstore import (
-    BaseConfigStore, ConfigFileHandler, get_config_dir)
+    BaseConfigStore, ConfigFileHandler, get_config_dir, UserKeys)
 from photini.editsettings import EditMapKeys, EditSettings
 from photini.imagelist import ImageList
 from photini.loggerwindow import full_version_info, LoggerWindow
@@ -423,6 +423,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.loggerwindow = LoggerWindow(options)
         self.app.loggerwindow.setWindowIcon(icon)
         self.app.config_store = ConfigStore('editor', parent=self)
+        self.app.user_keys = UserKeys(self.app.config_store)
         self.app.spell_check = SpellCheck(parent=self)
         if GpxImporter:
             self.app.gpx_importer = GpxImporter(parent=self)
