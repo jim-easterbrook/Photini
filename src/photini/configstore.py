@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-25  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -27,6 +27,10 @@ import re
 import shutil
 import stat
 
+try:
+    import keyring
+except ImportError:
+    keyring = None
 import platformdirs
 
 logger = logging.getLogger(__name__)
@@ -226,3 +230,35 @@ class KeyStore(object):
 
 # create single object for entire application
 key_store = KeyStore()
+
+
+class UserKeys(object):
+    """Store user's uploader tokens and map API keys.
+
+    Uses python-keyring if installed, otherwise does not store anything.
+    """
+    def __init__(self):
+        if keyring:
+            logger.debug('using %s', keyring.get_keyring().__module__)
+
+    def delete_password(self, name):
+        if keyring:
+            keyring.delete_password('photini', name)
+
+    def get_password(self, name):
+        if not keyring:
+            return None
+        try:
+            return keyring.get_password('photini', name)
+        except Exception as ex:
+            logger.error("cannot read '%s' password: %s", name, str(ex))
+
+    def set_password(self, name, value):
+        if not keyring:
+            logger.error(
+                "cannot store '%s' password: 'keyring' not installed", name)
+            return
+        try:
+            keyring.set_password('photini', name, value)
+        except Exception as ex:
+            logger.error("cannot store '%s' password: %s", name, str(ex))
