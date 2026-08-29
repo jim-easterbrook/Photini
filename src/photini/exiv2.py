@@ -437,10 +437,7 @@ class MetadataHandler(object):
                    'Exif.Sony1.LensID', 'Exif.Sony1.SonyModelID',
                    'Exif.Sony2.LensID', 'Exif.Sony2.SonyModelID'):
             # use Exiv2's "interpreted string"
-            if exiv2.__version_tuple__ >= (0, 16, 2):
-                return datum.print(self._exifData)
-            else:
-                return datum._print(self._exifData)
+            return datum.print(self._exifData)
         value = datum.value()
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
@@ -824,7 +821,8 @@ class MetadataHandler(object):
             self._xmpData[tag] = exiv2.XmpTextValue(str(value))
         elif not isinstance(value[0], dict):
             # simple array value
-            assert(type_id != exiv2.TypeId.xmpText)
+            if exiv2.__version_tuple__ < (0, 19, 1):
+                assert(type_id != exiv2.TypeId.xmpText)
             self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
         else:
             # clear any existing array elements
