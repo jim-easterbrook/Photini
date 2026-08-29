@@ -17,7 +17,7 @@
 #  <http://www.gnu.org/licenses/>.
 
 [build-system]
-requires = ["setuptools >= 77.0", "setuptools_scm[toml]>=6.2", "toml"]
+requires = ["setuptools >= 77.0", "setuptools_scm[toml]>=6.2, <10.0", "toml"]
 build-backend = "setuptools.build_meta"
 
 [project]
