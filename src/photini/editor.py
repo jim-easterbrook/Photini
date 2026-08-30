@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
+from contextlib import contextmanager
 import importlib
 import locale
 import logging
@@ -397,6 +398,42 @@ class Locale(QtCore.QLocale):
         return territory or ''
 
 
+class BusyProgress(QtWidgets.QProgressBar):
+    def __init__(self, *arg, **kw):
+        super(BusyProgress, self).__init__(*arg, **kw)
+        self.setFixedHeight(self.sizeHint().height())
+        self.setVisible(False)
+        self.setMinimum(0)
+        # timer to prevent quick actions from showing progress bar
+        self.timer = QtCore.QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(500)
+        self.timer.timeout.connect(self.show_progress)
+
+    @QtSlot()
+    @catch_all()
+    def show_progress(self):
+        if (self.value() * 4) < self.maximum():
+            self.setVisible(True)
+
+    @contextmanager
+    def busy(self):
+        QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        self.timer.start()
+        try:
+            yield self.progress
+        finally:
+            self.timer.stop()
+            QtWidgets.QApplication.restoreOverrideCursor()
+            self.setVisible(False)
+
+    def progress(self, value=None, target=None):
+        if target:
+            self.setMaximum(target)
+        if value:
+            self.setValue(value)
+
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, options, initial_files):
         super(MainWindow, self).__init__()
@@ -500,6 +537,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tab_info[module] = tab
         # menu bar
         self.setMenuBar(MenuBar(parent=self))
+        # progress bar, normally hidden
+        busy_progress = BusyProgress()
+        self.app.busy = busy_progress.busy
         # main application area
         self.central_widget = QtWidgets.QSplitter()
         self.central_widget.setOrientation(Qt.Orientation.Vertical)
@@ -510,10 +550,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.tabBar().tabMoved.connect(self.tab_moved)
         self.add_tabs()
         self.central_widget.addWidget(self.tabs)
+        self.central_widget.addWidget(busy_progress)
         self.central_widget.addWidget(self.app.image_list)
         size = self.central_widget.sizes()
-        self.central_widget.setSizes(
-            self.app.config_store.get('main_window', 'split', size))
+        size = self.app.config_store.get('main_window', 'split', size)
+        if len(size) < 3:
+            size.insert(1, 0)
+        self.central_widget.setSizes(size)
         self.central_widget.splitterMoved.connect(self.new_split)
         self.setCentralWidget(self.central_widget)
         # open files given on command line, after GUI is displayed

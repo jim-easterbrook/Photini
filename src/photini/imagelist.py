@@ -601,25 +601,36 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot(list)
     @catch_all()
     def open_file_list(self, path_list, select=True):
-        dir_list = []
-        opened_images = []
-        with Busy():
-            opened_images = self._open_file_list(path_list, dir_list)
-        if opened_images:
-            self.done_opening(opened_images[-1].path)
-            if select:
-                self.select_images(opened_images)
+        with self.app.busy() as progress:
+            # get list of files to open
+            path_list = self._get_file_list(path_list)
+            # open files
+            target = len(path_list)
+            progress(value=0, target=target)
+            opened_images = []
+            for path in path_list:
+                image = self.open_file(path)
+                if image:
+                    opened_images.append(image)
+                else:
+                    target -= 1
+                    progress(target=target)
+                progress(value=len(opened_images))
+            if opened_images:
+                self.done_opening(opened_images[-1].path)
+                if select:
+                    self.select_images(opened_images)
 
-    def _open_file_list(self, path_list, dir_list, types=None):
-        opened_images = []
+    def _get_file_list(self, path_list, dir_list=[], types=None):
+        result = []
         for path in path_list:
             if os.path.basename(path).startswith('.'):
                 # don't open .directory or .thumbs
                 continue
+            path = os.path.realpath(path)
             if os.path.isdir(path):
                 types = types or ['.' + x for x in
                                   (image_types_lower() + video_types_lower())]
-                path = os.path.realpath(path)
                 if path in dir_list:
                     # don't open directories we've already opened
                     continue
@@ -627,13 +638,10 @@ class ImageList(QtWidgets.QWidget):
                 files = [os.path.join(path, x) for x in os.listdir(path)]
                 files = [x for x in files if os.path.isdir(x) or
                          os.path.splitext(x)[1].lower() in types]
-                opened_images += self._open_file_list(
-                    files, dir_list, types=types)
-            else:
-                image = self.open_file(path)
-                if image:
-                    opened_images.append(image)
-        return opened_images
+                result += self._get_file_list(files, dir_list, types)
+            elif os.path.isfile(path):
+                result.append(path)
+        return result
 
     def open_file(self, path):
         path = os.path.realpath(path)
