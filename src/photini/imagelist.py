@@ -862,22 +862,29 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot()
     @catch_all()
     def regenerate_selected_thumbnails(self):
-        with Busy():
-            for image in self.get_selected_images():
+        with self.app.busy() as progress:
+            images = self.get_selected_images()
+            progress(value=0, target=len(images))
+            count = 0
+            for image in images:
                 if image.regenerate_thumbnail():
                     image.load_thumbnail()
-                    self.app.processEvents()
+                    count += 1
+                    progress(value=count)
 
     @QtSlot()
     @catch_all()
     def fix_missing_thumbs(self):
-        with Busy():
-            for image in self.get_images():
-                thumb = image.metadata.thumbnail
-                if not thumb or not thumb['image']:
-                    if image.regenerate_thumbnail():
-                        image.load_thumbnail()
-                        self.app.processEvents()
+        with self.app.busy() as progress:
+            images = self.get_images()
+            images = [x for x in images if not x.metadata.thumbnail]
+            progress(value=0, target=len(images))
+            count = 0
+            for image in images:
+                if image.regenerate_thumbnail():
+                    image.load_thumbnail()
+                count += 1
+                progress(value=count)
         self.image_list_changed.emit()
 
     @QtSlot()

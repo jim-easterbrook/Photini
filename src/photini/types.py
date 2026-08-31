@@ -635,6 +635,9 @@ class MD_Thumbnail(MD_Dict):
             'xmpGImg:image': data,
             }]
 
+    def __bool__(self):
+        return 'image' in self and bool(self['image'])
+
     def __str__(self):
         result = '{fmt} thumbnail, {w}x{h}'.format(**self)
         if self['data']:
