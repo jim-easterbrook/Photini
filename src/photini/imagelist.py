@@ -759,9 +759,14 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot()
     @catch_all()
     def reload_selected_metadata(self):
-        with Busy():
-            for image in self.get_selected_images():
+        with self.app.busy() as progress:
+            images = self.get_selected_images()
+            progress(value=0, target=len(images))
+            count = 0
+            for image in images:
                 image.reload_metadata()
+                count += 1
+                progress(value=count)
 
     @QtSlot()
     @catch_all()
@@ -924,7 +929,10 @@ class ImageList(QtWidgets.QWidget):
             keep_time = ('now', 'keep')[keep_time]
         if not images:
             images = self.images
-        with Busy():
+        images = [x for x in images if x.metadata.dirty]
+        with self.app.busy() as progress:
+            progress(value=0, target=len(images))
+            count = 0
             for image in images:
                 if keep_time == 'taken' and image.metadata.date_taken:
                     date_taken = image.metadata.date_taken['datetime']
@@ -944,6 +952,8 @@ class ImageList(QtWidgets.QWidget):
                 image.metadata.save(
                     if_mode=if_mode, sc_mode=sc_mode,
                     iptc_mode=iptc_mode, file_times=file_times)
+                count += 1
+                progress(value=count)
         unsaved = any([image.metadata.changed() for image in self.images])
         self.new_metadata.emit(unsaved)
 

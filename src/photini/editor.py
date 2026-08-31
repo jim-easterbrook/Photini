@@ -399,8 +399,9 @@ class Locale(QtCore.QLocale):
 
 
 class BusyProgress(QtWidgets.QProgressBar):
-    def __init__(self, *arg, **kw):
+    def __init__(self, app, *arg, **kw):
         super(BusyProgress, self).__init__(*arg, **kw)
+        self.app = app
         self.setFixedHeight(self.sizeHint().height())
         self.setVisible(False)
         self.setMinimum(0)
@@ -432,6 +433,7 @@ class BusyProgress(QtWidgets.QProgressBar):
             self.setMaximum(target)
         if value:
             self.setValue(value)
+        self.app.processEvents()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -538,7 +540,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # menu bar
         self.setMenuBar(MenuBar(parent=self))
         # progress bar, normally hidden
-        busy_progress = BusyProgress()
+        busy_progress = BusyProgress(self.app)
         self.app.busy = busy_progress.busy
         # main application area
         self.central_widget = QtWidgets.QSplitter()
