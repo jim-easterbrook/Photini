@@ -48,41 +48,34 @@ class FolderSource(object):
 
     def get_file_data(self):
         if not os.path.isdir(self.root):
-            return None
-        file_list = []
+            yield None
         for root, dirs, files in os.walk(self.root):
             # ignore special directories such as .thumbs
             dirs[:] = [x for x in dirs if x[0] != '.']
             for name in files:
                 base, ext = os.path.splitext(name)
-                if ext.lower() in self.image_types:
-                    file_list.append(os.path.join(root, name))
-        file_data = {}
-        for path in file_list:
-            metadata = Metadata(path)
-            timestamp = metadata.date_taken
-            if not timestamp:
-                timestamp = metadata.date_digitised
-            if not timestamp:
-                timestamp = metadata.date_modified
-            if not timestamp:
-                # use file date as last resort
-                timestamp = datetime.fromtimestamp(os.path.getmtime(path))
-            else:
-                timestamp = timestamp['datetime']
-            sc_path = metadata.find_sidecar()
-            name = os.path.basename(path)
-            camera = metadata.camera_model
-            if camera:
-                camera = camera['model']
-            file_data[name] = {
-                'camera'    : camera,
-                'path'      : path,
-                'sc_path'   : sc_path,
-                'name'      : name,
-                'timestamp' : timestamp,
-                }
-        return file_data
+                if ext.lower() not in self.image_types:
+                    continue
+                path = os.path.join(root, name)
+                metadata = Metadata(path)
+                timestamp = (metadata.date_taken or
+                             metadata.date_digitised or
+                             metadata.date_modified)
+                if not timestamp:
+                    # use file date as last resort
+                    timestamp = datetime.fromtimestamp(os.path.getmtime(path))
+                else:
+                    timestamp = timestamp['datetime']
+                sc_path = metadata.find_sidecar()
+                camera = metadata.camera_model
+                if camera:
+                    camera = camera['model']
+                yield {'camera'    : camera,
+                       'path'      : path,
+                       'sc_path'   : sc_path,
+                       'name'      : name,
+                       'timestamp' : timestamp}
+
 
     def copy_files(self, info_list, move):
         for info in info_list:
@@ -127,41 +120,32 @@ class CameraSource(object):
         finally:
             camera.exit()
 
-    def _list_files(self, camera, path='/'):
+    def _list_files(self, camera, folder='/'):
         # get files
-        result = [os.path.join(path, x)
-                  for x in camera.folder_list_files(path).keys()
-                  if os.path.splitext(x)[1].lower() in self.image_types]
-        # get folders
-        folders = list(camera.folder_list_folders(path).keys())
+        for name in camera.folder_list_files(folder).keys():
+            if os.path.splitext(name)[1].lower() not in self.image_types:
+                continue
+            try:
+                info = camera.file_get_info(folder, name)
+            except gp.GPhoto2Error:
+                yield None
+            timestamp = datetime.utcfromtimestamp(info.file.mtime)
+            yield {'camera'    : self.model,
+                   'folder'    : folder,
+                   'name'      : name,
+                   'size'      : info.file.size,
+                   'timestamp' : timestamp}
         # recurse over subfolders
-        for name in folders:
-            result.extend(self._list_files(camera, os.path.join(path, name)))
-        return result
+        for name in camera.folder_list_folders(folder).keys():
+            yield from self._list_files(camera, os.path.join(folder, name))
 
     def get_file_data(self):
         with self.session() as camera:
             try:
-                file_list = self._list_files(camera)
+                yield from self._list_files(camera)
             except gp.GPhoto2Error:
                 # camera is no longer visible
-                return None
-            file_data = {}
-            for path in file_list:
-                folder, name = os.path.split(path)
-                try:
-                    info = camera.file_get_info(str(folder), str(name))
-                except gp.GPhoto2Error:
-                    return None
-                timestamp = datetime.utcfromtimestamp(info.file.mtime)
-                file_data[name] = {
-                    'camera'    : self.model,
-                    'folder'    : folder,
-                    'name'      : name,
-                    'size'      : info.file.size,
-                    'timestamp' : timestamp,
-                    }
-        return file_data
+                yield None
 
     def copy_files(self, info_list, move):
         with self.session() as camera:
@@ -290,6 +274,34 @@ class SourceSelector(ComboBox):
         super(SourceSelector, self).showPopup()
 
 
+class ListItem(QtWidgets.QListWidgetItem):
+    def __init__(self, importer, file_data, *arg, **kw):
+        super(ListItem, self).__init__(*arg, **kw)
+        self.importer = importer
+        self.set_file_data(file_data)
+
+    def set_file_data(self, file_data):
+        self.setData(Qt.ItemDataRole.UserRole, file_data)
+        name = file_data['name']
+        dest_path = file_data['dest_path']
+        self.setText(name + ' -> ' + dest_path)
+        if os.path.exists(dest_path):
+            self.setFlags(Qt.ItemFlag.NoItemFlags)
+        else:
+            self.setFlags(Qt.ItemFlag.ItemIsSelectable |
+                          Qt.ItemFlag.ItemIsEnabled)
+
+    def __ge__(self, other):
+        return not self.__lt__(other)
+
+    def __lt__(self, other):
+        self_data = self.data(Qt.ItemDataRole.UserRole)
+        other_data = other.data(Qt.ItemDataRole.UserRole)
+        if self.importer._sort_date:
+            return self_data['timestamp'] < other_data['timestamp']
+        return self_data['name'] < other_data['name']
+
+
 class ImporterTab(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
@@ -311,8 +323,6 @@ class ImporterTab(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QGridLayout())
         form = FormLayout()
         self.nm = NameMangler()
-        self.file_data = {}
-        self.file_list = []
         self.source = None
         self.file_copier = None
         self.updating = QtCore.QMutex()
@@ -354,11 +364,11 @@ class ImporterTab(QtWidgets.QWidget):
         form.addRow('=>', self.path_example)
         self.layout().addLayout(form, 0, 0)
         # file list
-        self.file_list_widget = QtWidgets.QListWidget()
-        self.file_list_widget.setSelectionMode(
-            self.file_list_widget.SelectionMode.ExtendedSelection)
-        self.file_list_widget.itemSelectionChanged.connect(self.selection_changed)
-        self.layout().addWidget(self.file_list_widget, 1, 0)
+        self.file_list = QtWidgets.QListWidget()
+        self.file_list.setSelectionMode(
+            self.file_list.SelectionMode.ExtendedSelection)
+        self.file_list.itemSelectionChanged.connect(self.selection_changed)
+        self.layout().addWidget(self.file_list, 1, 0)
         # selection buttons
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
@@ -410,7 +420,7 @@ class ImporterTab(QtWidgets.QWidget):
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
         self.path_format.setText(path_format)
-        self.file_list_widget.clear()
+        self.file_list.clear()
         # allow 100ms for display to update before getting file list
         QtCore.QTimer.singleShot(100, self.list_files)
 
@@ -474,7 +484,14 @@ class ImporterTab(QtWidgets.QWidget):
         if self.source:
             self.config_store.set(
                 self.config_section, 'path_format', self.nm.format_string)
-        self.show_file_list()
+        for idx in range(self.file_list.count()):
+            item = self.file_list.item(idx)
+            file_data = item.data(Qt.ItemDataRole.UserRole)
+            dest_path = self.nm.transform(file_data)
+            file_data['dest_path'] = dest_path
+            item.set_file_data(file_data)
+        self._scroll_list()
+        self._update_example()
 
     @QtSlot()
     @catch_all()
@@ -486,10 +503,11 @@ class ImporterTab(QtWidgets.QWidget):
             old_item_text = self.source_selector.itemText(idx)
         else:
             old_item_text = None
-        # rebuild list
+        # rebuild source list
         self.source_selector.clear()
         self.source_selector.addItem(
-            translate('ImporterTab', '<select source>'), self._new_file_list)
+            translate('ImporterTab', '<select source>'),
+            self.file_list.clear)
         for model, port_name in get_camera_list():
             self.source_selector.addItem(
                 translate('ImporterTab', 'camera: {camera_name}'
@@ -548,34 +566,44 @@ class ImporterTab(QtWidgets.QWidget):
     @QtSlot()
     @catch_all()
     def list_files(self):
-        file_data = {}
-        if self.source:
-            with Busy():
-                file_data = self.source.get_file_data()
-                if file_data is None:
+        self.file_list.clear()
+        if not self.source:
+            return
+        with Busy():
+            for file_data in self.source.get_file_data():
+                if not file_data:
                     self._fail()
-                    return
-        self._new_file_list(file_data)
+                file_data['dest_path'] = self.nm.transform(file_data)
+                self.file_list.addItem(ListItem(self, file_data))
+            self.sort_file_list()
 
     def _fail(self):
         self.source_selector.setCurrentIndex(0)
         self.refresh()
 
-    def _new_file_list(self, file_data={}):
-        self.file_list = list(file_data.keys())
-        self.file_data = file_data
-        self.sort_file_list()
-
     @QtSlot()
     @catch_all()
     def sort_file_list(self):
-        if self.config_store.get('controls', 'sort_date', False):
-            self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])
-        else:
-            self.file_list.sort()
-        self.show_file_list()
-        if self.file_list:
-            example = self.file_data[self.file_list[-1]]
+        self._sort_date = self.config_store.get('controls', 'sort_date', False)
+        self.file_list.sortItems()
+        self._scroll_list()
+        self._update_example()
+
+    def _scroll_list(self):
+        count = self.file_list.count()
+        if count:
+            for idx in range(count):
+                item = self.file_list.item(idx)
+                if item.flags():
+                    break
+            self.file_list.scrollToItem(
+                item, self.file_list.ScrollHint.PositionAtTop)
+
+    def _update_example(self):
+        count = self.file_list.count()
+        if count:
+            item = self.file_list.item(count - 1)
+            example = item.data(Qt.ItemDataRole.UserRole)
         else:
             example = {
                 'camera'    : None,
@@ -584,33 +612,10 @@ class ImporterTab(QtWidgets.QWidget):
                 }
         self.nm.set_example(example)
 
-    def show_file_list(self):
-        self.file_list_widget.clear()
-        first_active = None
-        item = None
-        for name in self.file_list:
-            file_data = self.file_data[name]
-            dest_path = self.nm.transform(file_data)
-            file_data['dest_path'] = dest_path
-            item = QtWidgets.QListWidgetItem(name + ' -> ' + dest_path)
-            item.setData(Qt.ItemDataRole.UserRole, name)
-            if os.path.exists(dest_path):
-                item.setFlags(Qt.ItemFlag.NoItemFlags)
-            else:
-                if not first_active:
-                    first_active = item
-                item.setFlags(
-                    Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
-            self.file_list_widget.addItem(item)
-        if not first_active:
-            first_active = item
-        self.file_list_widget.scrollToItem(
-            first_active, self.file_list_widget.ScrollHint.PositionAtTop)
-
     @QtSlot()
     @catch_all()
     def selection_changed(self):
-        count = len(self.file_list_widget.selectedItems())
+        count = len(self.file_list.selectedItems())
         if qt_version_info >= (6, 0):
             # pyside6-lupdate doesn't recognise plurals with 'translate'
             string = ImporterTab.tr('%n file(s) selected', '', count)
@@ -641,25 +646,25 @@ class ImporterTab(QtWidgets.QWidget):
         self.select_files(since)
 
     def select_files(self, since):
-        count = self.file_list_widget.count()
+        count = self.file_list.count()
         if not count:
             return
-        self.file_list_widget.clearSelection()
+        self.file_list.clearSelection()
         first_active = None
-        for row in range(count):
-            item = self.file_list_widget.item(row)
-            if not (item.flags() & Qt.ItemFlag.ItemIsSelectable):
-                continue
-            name = item.data(Qt.ItemDataRole.UserRole)
-            timestamp = self.file_data[name]['timestamp']
-            if timestamp > since:
-                if not first_active:
-                    first_active = item
-                item.setSelected(True)
-        if not first_active:
-            first_active = item
-        self.file_list_widget.scrollToItem(
-            first_active, self.file_list_widget.ScrollHint.PositionAtTop)
+        with Busy():
+            for row in range(count):
+                item = self.file_list.item(row)
+                if not (item.flags() & Qt.ItemFlag.ItemIsSelectable):
+                    continue
+                file_data = item.data(Qt.ItemDataRole.UserRole)
+                if file_data['timestamp'] > since:
+                    if not first_active:
+                        first_active = item
+                    item.setSelected(True)
+            if not first_active:
+                first_active = item
+            self.file_list.scrollToItem(
+                first_active, self.file_list.ScrollHint.PositionAtTop)
 
     @QtSlot()
     @catch_all()
@@ -671,9 +676,8 @@ class ImporterTab(QtWidgets.QWidget):
     def copy_selected(self, move=False):
         with Busy():
             copy_list = []
-            for item in self.file_list_widget.selectedItems():
-                name = item.data(Qt.ItemDataRole.UserRole)
-                info = self.file_data[name]
+            for item in self.file_list.selectedItems():
+                info = item.data(Qt.ItemDataRole.UserRole)
                 if (move and 'path' in info and
                         self.app.image_list.get_image(info['path'])):
                     # don't rename an open file
@@ -715,13 +719,13 @@ class ImporterTab(QtWidgets.QWidget):
                     progress(value=count)
                     if last_file_copied[1] < info['timestamp']:
                         last_file_copied = info['dest_path'], info['timestamp']
-                    for n in range(self.file_list_widget.count()):
-                        item = self.file_list_widget.item(n)
-                        if item.data(Qt.ItemDataRole.UserRole) == info['name']:
+                    for n in range(self.file_list.count()):
+                        item = self.file_list.item(n)
+                        file_data = item.data(Qt.ItemDataRole.UserRole)
+                        if file_data['name'] == info['name']:
                             item.setFlags(Qt.ItemFlag.NoItemFlags)
-                            self.file_list_widget.scrollToItem(
-                                item,
-                                self.file_list_widget.ScrollHint.PositionAtTop)
+                            self.file_list.scrollToItem(
+                                item, self.file_list.ScrollHint.PositionAtTop)
                             self.selection_changed()
                             break
                     self.app.image_list.open_file(info['dest_path'])
