@@ -404,7 +404,8 @@ class ImporterTab(QtWidgets.QWidget):
             (item_data)()
             return
         # select new source
-        self.source, self.config_section = item_data
+        klass, args, self.config_section = item_data
+        self.source = klass(*args)
         path_format = self.path_format.text()
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
@@ -462,7 +463,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.source_selector.addItem(
             translate('ImporterTab', 'folder: {folder_name}'
                       ).format(folder_name=root),
-            (FolderSource(root), section))
+            (FolderSource, (root,), section))
         idx = self.source_selector.count() - 1
         self.source_selector.setCurrentIndex(idx)
         self.refresh()
@@ -493,7 +494,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.source_selector.addItem(
                 translate('ImporterTab', 'camera: {camera_name}'
                           ).format(camera_name=model),
-                (CameraSource(model, port_name), 'importer ' + model))
+                (CameraSource, (model, port_name), 'importer ' + model))
         roots = []
         for section in self.config_store.config.sections():
             if not section.startswith('importer folder '):
@@ -506,7 +507,7 @@ class ImporterTab(QtWidgets.QWidget):
                 self.source_selector.addItem(
                     translate('ImporterTab', 'folder: {folder_name}'
                               ).format(folder_name=root),
-                    (FolderSource(root), 'importer folder ' + root))
+                    (FolderSource, (root,), 'importer folder ' + root))
         self.source_selector.addItem(
             translate('ImporterTab', '<add a folder>'), self.add_folder)
         # restore saved selection
