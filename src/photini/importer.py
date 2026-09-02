@@ -129,19 +129,11 @@ class CameraSource(object):
 
     def _list_files(self, camera, path='/'):
         # get files
-        if gp_version_info >= (2, 4):
-            result = [os.path.join(path, x)
-                      for x in camera.folder_list_files(path).keys()
-                      if os.path.splitext(x)[1].lower() in self.image_types]
-        else:
-            result = [os.path.join(path, x)
-                      for x, y in camera.folder_list_files(path)
-                      if os.path.splitext(x)[1].lower() in self.image_types]
+        result = [os.path.join(path, x)
+                  for x in camera.folder_list_files(path).keys()
+                  if os.path.splitext(x)[1].lower() in self.image_types]
         # get folders
-        if gp_version_info >= (2, 4):
-            folders = list(camera.folder_list_folders(path).keys())
-        else:
-            folders = [x for x, y in camera.folder_list_folders(path)]
+        folders = list(camera.folder_list_folders(path).keys())
         # recurse over subfolders
         for name in folders:
             result.extend(self._list_files(camera, os.path.join(path, name)))
@@ -690,6 +682,8 @@ class ImporterTab(QtWidgets.QWidget):
                     copy_list.append(info)
             if not copy_list:
                 return
+        with self.app.busy() as progress:
+            progress(value=0, target=len(copy_list))
             if move:
                 self.move_button.set_checked(True)
                 self.copy_button.setEnabled(False)
@@ -706,6 +700,7 @@ class ImporterTab(QtWidgets.QWidget):
             copier_thread.started.connect(self.file_copier.start)
             copier_thread.start()
             # show files as they're copied
+            count = 0
             while self.file_copier.running:
                 if copier_result:
                     info, status = copier_result.popleft()
@@ -715,6 +710,8 @@ class ImporterTab(QtWidgets.QWidget):
                     if status != 'ok':
                         self._fail()
                         break
+                    count += 1
+                    progress(value=count)
                     if last_file_copied[1] < info['timestamp']:
                         last_file_copied = info['dest_path'], info['timestamp']
                     for n in range(self.file_list_widget.count()):
