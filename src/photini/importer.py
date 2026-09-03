@@ -185,16 +185,15 @@ class FileCopier(QtCore.QObject):
     @QtSlot()
     @catch_all()
     def start(self):
-        thread = QtCore.QThread.currentThread()
         try:
             for info in self.source.copy_files(self.copy_list, self.move):
                 self.copier_result.append(info)
-                if thread.isInterruptionRequested():
+                if self.thread().isInterruptionRequested():
                     break
         except Exception as ex:
             logger.error(str(ex))
             self.copier_result.append(None)
-        thread.quit()
+        self.thread().quit()
 
 
 def get_camera_list():
