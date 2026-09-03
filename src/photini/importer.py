@@ -573,6 +573,7 @@ class ImporterTab(QtWidgets.QWidget):
 
     def _fail(self):
         self.source_selector.setCurrentIndex(0)
+        self.source = None
         self.refresh()
 
     @QtSlot()
@@ -716,9 +717,9 @@ class ImporterTab(QtWidgets.QWidget):
                         file_data = item.data(Qt.ItemDataRole.UserRole)
                         if file_data['name'] == info['name']:
                             item.setFlags(Qt.ItemFlag.NoItemFlags)
+                            item.setSelected(False)
                             self.file_list.scrollToItem(
                                 item, self.file_list.ScrollHint.PositionAtTop)
-                            self.selection_changed()
                             break
                     self.app.image_list.open_file(info['dest_path'])
                 else:
@@ -734,7 +735,6 @@ class ImporterTab(QtWidgets.QWidget):
                 self.config_store.set(self.source.cfg_section, 'last_transfer',
                                       last_file_copied[1].isoformat(' '))
             self.app.image_list.done_opening(last_file_copied[0])
-        self.list_files()
 
     @QtSlot()
     @catch_all()
