@@ -45,6 +45,7 @@ class FolderSource(object):
 
     def __init__(self, root):
         self.root = root
+        self.cfg_section = 'importer folder ' + root
 
     def get_file_data(self):
         if not os.path.isdir(self.root):
@@ -101,6 +102,7 @@ class CameraSource(object):
     def __init__(self, model, port_name):
         self.model = model
         self.port_name = port_name
+        self.cfg_section = 'importer ' + model
 
     @contextmanager
     def session(self):
@@ -190,7 +192,7 @@ class FileCopier(QtCore.QObject):
                     break
         except Exception as ex:
             logger.error(str(ex))
-            self.copier_result.append({})
+            self.copier_result.append(None)
         thread.quit()
 
 
@@ -204,14 +206,29 @@ def get_camera_list():
     return camera_list
 
 
-class NameMangler(QtCore.QObject):
-    number_parser = re.compile(r'(\d+)')
-    new_example = QtSignal(str)
+class PathFormatValidator(QtGui.QValidator):
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
+    def validate(self, inp, pos):
+        if os.path.abspath(inp) == inp:
+            return self.State.Acceptable, inp, pos
+        return self.State.Intermediate, inp, pos
 
-    def __init__(self, parent=None):
-        super(NameMangler, self).__init__(parent)
+    @catch_all(exc_return='')
+    def fixup(self, inp):
+        return os.path.abspath(inp)
+
+
+class NameMangler(QtWidgets.QLineEdit):
+    number_parser = re.compile(r'(\d+)')
+
+    def __init__(self, *arg, **kw):
+        super(NameMangler, self).__init__(*arg, **kw)
         self.example = None
         self.format_string = None
+        self.setValidator(PathFormatValidator())
+        self.textChanged.connect(self.new_format)
+        # widget to display example result
+        self.path_example = QtWidgets.QLabel()
 
     @QtSlot(str)
     @catch_all()
@@ -225,7 +242,7 @@ class NameMangler(QtCore.QObject):
 
     def refresh_example(self):
         if self.format_string and self.example:
-            self.new_example.emit(self.transform(self.example))
+            self.path_example.setText(self.transform(self.example))
 
     def transform(self, file_data):
         name = file_data['name']
@@ -245,18 +262,6 @@ class NameMangler(QtCore.QObject):
             result = self.format_string
         # then do timestamp
         return file_data['timestamp'].strftime(result)
-
-
-class PathFormatValidator(QtGui.QValidator):
-    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
-    def validate(self, inp, pos):
-        if os.path.abspath(inp) == inp:
-            return self.State.Acceptable, inp, pos
-        return self.State.Intermediate, inp, pos
-
-    @catch_all(exc_return='')
-    def fixup(self, inp):
-        return os.path.abspath(inp)
 
 
 class SourceSelector(ComboBox):
@@ -318,7 +323,6 @@ class ImporterTab(QtWidgets.QWidget):
         self.config_store = self.app.config_store
         self.setLayout(QtWidgets.QGridLayout())
         form = FormLayout()
-        self.nm = NameMangler()
         self.source = None
         self.copier_thread = None
         self.updating = QtCore.QMutex()
@@ -349,15 +353,11 @@ class ImporterTab(QtWidgets.QWidget):
             path_format = path_format.replace('(', '{').replace(')', '}')
             self.config_store.set(section, 'path_format', path_format)
         # path format
-        self.path_format = QtWidgets.QLineEdit()
-        self.path_format.setValidator(PathFormatValidator())
-        self.path_format.textChanged.connect(self.nm.new_format)
+        self.path_format = NameMangler()
         self.path_format.editingFinished.connect(self.path_format_finished)
         form.addRow(translate('ImporterTab', 'Target format'), self.path_format)
         # path example
-        self.path_example = QtWidgets.QLabel()
-        self.nm.new_example.connect(self.path_example.setText)
-        form.addRow('=>', self.path_example)
+        form.addRow('=>', self.path_format.path_example)
         self.layout().addLayout(form, 0, 0)
         # file list
         self.file_list = QtWidgets.QListWidget()
@@ -395,8 +395,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.app.image_list.sort_order_changed.connect(self.sort_file_list)
         path = QtCore.QStandardPaths.writableLocation(
             QtCore.QStandardPaths.StandardLocation.PicturesLocation)
-        self.path_format.setText(
-            os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
+        self.path_format.setText(os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
 
     @QtSlot(int)
     @catch_all()
@@ -410,11 +409,11 @@ class ImporterTab(QtWidgets.QWidget):
             (item_data)()
             return
         # select new source
-        klass, args, self.config_section = item_data
+        klass, args = item_data
         self.source = klass(*args)
         path_format = self.path_format.text()
         path_format = self.config_store.get(
-            self.config_section, 'path_format', path_format)
+            self.source.cfg_section, 'path_format', path_format)
         self.path_format.setText(path_format)
         self.file_list.clear()
         # allow 100ms for display to update before getting file list
@@ -468,8 +467,7 @@ class ImporterTab(QtWidgets.QWidget):
             section, 'last_transfer', datetime.min.isoformat(' '))
         self.source_selector.addItem(
             translate('ImporterTab', 'folder: {folder_name}'
-                      ).format(folder_name=root),
-            (FolderSource, (root,), section))
+                      ).format(folder_name=root), (FolderSource, (root,)))
         idx = self.source_selector.count() - 1
         self.source_selector.setCurrentIndex(idx)
         self.refresh()
@@ -478,12 +476,12 @@ class ImporterTab(QtWidgets.QWidget):
     @catch_all()
     def path_format_finished(self):
         if self.source:
-            self.config_store.set(
-                self.config_section, 'path_format', self.nm.format_string)
+            self.config_store.set(self.source.cfg_section, 'path_format',
+                                  self.path_format.format_string)
         for idx in range(self.file_list.count()):
             item = self.file_list.item(idx)
             file_data = item.data(Qt.ItemDataRole.UserRole)
-            dest_path = self.nm.transform(file_data)
+            dest_path = self.path_format.transform(file_data)
             file_data['dest_path'] = dest_path
             item.set_file_data(file_data)
         self._scroll_list()
@@ -508,7 +506,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.source_selector.addItem(
                 translate('ImporterTab', 'camera: {camera_name}'
                           ).format(camera_name=model),
-                (CameraSource, (model, port_name), 'importer ' + model))
+                (CameraSource, (model, port_name)))
         roots = []
         for section in self.config_store.config.sections():
             if not section.startswith('importer folder '):
@@ -521,7 +519,7 @@ class ImporterTab(QtWidgets.QWidget):
                 self.source_selector.addItem(
                     translate('ImporterTab', 'folder: {folder_name}'
                               ).format(folder_name=root),
-                    (FolderSource, (root,), 'importer folder ' + root))
+                    (FolderSource, (root,)))
         self.source_selector.addItem(
             translate('ImporterTab', '<add a folder>'), self.add_folder)
         # restore saved selection
@@ -569,7 +567,7 @@ class ImporterTab(QtWidgets.QWidget):
             for file_data in self.source.get_file_data():
                 if not file_data:
                     self._fail()
-                file_data['dest_path'] = self.nm.transform(file_data)
+                file_data['dest_path'] = self.path_format.transform(file_data)
                 self.file_list.addItem(ListItem(self, file_data))
             self.sort_file_list()
 
@@ -606,7 +604,7 @@ class ImporterTab(QtWidgets.QWidget):
                 'name'      : 'IMG_9999.JPG',
                 'timestamp' : datetime.now(),
                 }
-        self.nm.set_example(example)
+        self.path_format.set_example(example)
 
     @QtSlot()
     @catch_all()
@@ -634,7 +632,7 @@ class ImporterTab(QtWidgets.QWidget):
         since = datetime.min
         if self.source:
             since = self.config_store.get(
-                self.config_section, 'last_transfer', since.isoformat(' '))
+                self.source.cfg_section, 'last_transfer', since.isoformat(' '))
             if len(since) > 19:
                 since = datetime.strptime(since, '%Y-%m-%d %H:%M:%S.%f')
             else:
@@ -732,8 +730,9 @@ class ImporterTab(QtWidgets.QWidget):
             self.copier_thread.wait()
             self.copier_thread = None
         if last_file_copied[0]:
-            self.config_store.set(self.config_section, 'last_transfer',
-                                  last_file_copied[1].isoformat(' '))
+            if self.source:
+                self.config_store.set(self.source.cfg_section, 'last_transfer',
+                                      last_file_copied[1].isoformat(' '))
             self.app.image_list.done_opening(last_file_copied[0])
         self.list_files()
 
