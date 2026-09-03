@@ -178,24 +178,20 @@ class FileCopier(QtCore.QObject):
         self.copy_list = copy_list
         self.move = move
         self.copier_result = copier_result
-        self.running = True
 
     @QtSlot()
     @catch_all()
     def start(self):
-        status = 'ok'
+        thread = QtCore.QThread.currentThread()
         try:
             for info in self.source.copy_files(self.copy_list, self.move):
-                self.copier_result.append((info, status))
-                # wait for image display to show previous image(s)
-                while self.running and len(self.copier_result) > 1:
-                    QtCore.QThread.yieldCurrentThread()
-                if not self.running:
+                self.copier_result.append(info)
+                if thread.isInterruptionRequested():
                     break
         except Exception as ex:
-            status = str(ex)
-            logger.error(status)
-        self.copier_result.append(({}, status))
+            logger.error(str(ex))
+            self.copier_result.append({})
+        thread.quit()
 
 
 def get_camera_list():
@@ -324,7 +320,7 @@ class ImporterTab(QtWidgets.QWidget):
         form = FormLayout()
         self.nm = NameMangler()
         self.source = None
-        self.file_copier = None
+        self.copier_thread = None
         self.updating = QtCore.QMutex()
         # source selector
         box = QtWidgets.QHBoxLayout()
@@ -542,7 +538,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.new_source(0)
 
     def do_not_close(self):
-        if not self.file_copier:
+        if not self.copier_thread:
             return False
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
@@ -623,7 +619,7 @@ class ImporterTab(QtWidgets.QWidget):
             # Qt5 doesn't handle ClassName.tr correctly
             string = translate('ImporterTab', '%n file(s) selected', '', count)
         self.selected_count.setText(wrap_text(self.selected_count, string, 2))
-        if not self.file_copier:
+        if not self.copier_thread:
             self.move_button.setEnabled(count > 0)
             self.copy_button.setEnabled(count > 0)
 
@@ -698,21 +694,19 @@ class ImporterTab(QtWidgets.QWidget):
             last_file_copied = None, datetime.min
             copier_result = deque()
             # start file copier in a separate thread
-            self.file_copier = FileCopier(
+            file_copier = FileCopier(
                 self.source, copy_list, move, copier_result)
-            copier_thread = QtCore.QThread(self)
-            self.file_copier.moveToThread(copier_thread)
-            copier_thread.started.connect(self.file_copier.start)
-            copier_thread.start()
+            self.copier_thread = QtCore.QThread(self)
+            file_copier.moveToThread(self.copier_thread)
+            self.copier_thread.started.connect(file_copier.start)
+            self.copier_thread.start()
             # show files as they're copied
             count = 0
-            while self.file_copier.running:
+            while self.copier_thread.isRunning():
                 if copier_result:
-                    info, status = copier_result.popleft()
+                    info = copier_result.popleft()
                     if not info:
-                        # copier thread has finished
-                        break
-                    if status != 'ok':
+                        # copy failed
                         self._fail()
                         break
                     count += 1
@@ -734,9 +728,9 @@ class ImporterTab(QtWidgets.QWidget):
                     self.app.processEvents()
             self.move_button.set_checked(False)
             self.copy_button.set_checked(False)
-            self.file_copier = None
-            copier_thread.quit()
-            copier_thread.wait()
+            self.copier_thread.quit()
+            self.copier_thread.wait()
+            self.copier_thread = None
         if last_file_copied[0]:
             self.config_store.set(self.config_section, 'last_transfer',
                                   last_file_copied[1].isoformat(' '))
@@ -746,11 +740,8 @@ class ImporterTab(QtWidgets.QWidget):
     @QtSlot()
     @catch_all()
     def stop_copy(self):
-        if self.file_copier:
-            self.file_copier.running = False
-            self.move_button.setEnabled(False)
-            self.copy_button.setEnabled(False)
-            self.app.processEvents()
+        if self.copier_thread:
+            self.copier_thread.requestInterruption()
 
 
 class TabWidget(ImporterTab):
