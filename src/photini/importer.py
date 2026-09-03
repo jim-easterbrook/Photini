@@ -133,6 +133,7 @@ class CameraSource(object):
                 yield None
             timestamp = datetime.utcfromtimestamp(info.file.mtime)
             yield {'camera'    : self.model,
+                   'path'      : os.path.join(folder, name),
                    'folder'    : folder,
                    'name'      : name,
                    'size'      : info.file.size,
@@ -276,6 +277,8 @@ class SourceSelector(ComboBox):
 
 
 class ListItem(QtWidgets.QListWidgetItem):
+    text_fmt = '{name} -> {dest_path}'
+
     def __init__(self, importer, file_data, *arg, **kw):
         super(ListItem, self).__init__(*arg, **kw)
         self.importer = importer
@@ -283,10 +286,8 @@ class ListItem(QtWidgets.QListWidgetItem):
 
     def set_file_data(self, file_data):
         self.setData(Qt.ItemDataRole.UserRole, file_data)
-        name = file_data['name']
-        dest_path = file_data['dest_path']
-        self.setText(name + ' -> ' + dest_path)
-        if os.path.exists(dest_path):
+        self.setText(self.text_fmt.format(**file_data))
+        if os.path.exists(file_data['dest_path']):
             self.setFlags(Qt.ItemFlag.NoItemFlags)
         else:
             self.setFlags(Qt.ItemFlag.ItemIsSelectable |
@@ -301,6 +302,16 @@ class ListItem(QtWidgets.QListWidgetItem):
         if self.importer._sort_date:
             return self_data['timestamp'] < other_data['timestamp']
         return self_data['name'] < other_data['name']
+
+
+class FileListWidget(QtWidgets.QListWidget):
+    def find_item(self, file_data):
+        text = ListItem.text_fmt.format(**file_data)
+        for item in self.findItems(text, Qt.MatchFlag.MatchFixedString):
+            data = item.data(Qt.ItemDataRole.UserRole)
+            if data['path'] == file_data['path']:
+                return item
+        return None
 
 
 class ImporterTab(QtWidgets.QWidget):
@@ -360,7 +371,7 @@ class ImporterTab(QtWidgets.QWidget):
         form.addRow('=>', self.path_format.path_example)
         self.layout().addLayout(form, 0, 0)
         # file list
-        self.file_list = QtWidgets.QListWidget()
+        self.file_list = FileListWidget()
         self.file_list.setSelectionMode(
             self.file_list.SelectionMode.ExtendedSelection)
         self.file_list.itemSelectionChanged.connect(self.selection_changed)
@@ -673,8 +684,7 @@ class ImporterTab(QtWidgets.QWidget):
             copy_list = []
             for item in self.file_list.selectedItems():
                 info = item.data(Qt.ItemDataRole.UserRole)
-                if (move and 'path' in info and
-                        self.app.image_list.get_image(info['path'])):
+                if move and self.app.image_list.get_image(info['path']):
                     # don't rename an open file
                     logger.warning(
                         'Please close image %s before moving it', info['name'])
@@ -712,15 +722,12 @@ class ImporterTab(QtWidgets.QWidget):
                     progress(value=count)
                     if last_file_copied[1] < info['timestamp']:
                         last_file_copied = info['dest_path'], info['timestamp']
-                    for n in range(self.file_list.count()):
-                        item = self.file_list.item(n)
-                        file_data = item.data(Qt.ItemDataRole.UserRole)
-                        if file_data['name'] == info['name']:
-                            item.setFlags(Qt.ItemFlag.NoItemFlags)
-                            item.setSelected(False)
-                            self.file_list.scrollToItem(
-                                item, self.file_list.ScrollHint.PositionAtTop)
-                            break
+                    item = self.file_list.find_item(info)
+                    if item:
+                        item.setFlags(Qt.ItemFlag.NoItemFlags)
+                        item.setSelected(False)
+                        self.file_list.scrollToItem(
+                            item, self.file_list.ScrollHint.PositionAtTop)
                     self.app.image_list.open_file(info['dest_path'])
                 else:
                     # wait for copier result
@@ -741,6 +748,9 @@ class ImporterTab(QtWidgets.QWidget):
     def stop_copy(self):
         if self.copier_thread:
             self.copier_thread.requestInterruption()
+            while self.copier_thread.isRunning():
+                self.app.processEvents()
+            self.copier_thread.wait()
 
 
 class TabWidget(ImporterTab):
