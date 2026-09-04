@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
+from collections import defaultdict
 from fractions import Fraction
 import logging
 import math
@@ -705,53 +706,50 @@ class Metadata(object):
                 'delete': False,
                 }
         # read Photini metadata items
-        for name in ['timezone', 'image_region'] + list(self._data_type):
-            # read data values from first file that has any
-            values = []
-            for handler in self._sc, video_md, self._if:
-                if not handler:
-                    continue
-                values += handler.read(name, self._data_type[name])
-                if values and handler == self._sc:
-                    break
-            # merge people in regions into people in image
-            if name == 'people':
-                if not values:
-                    values = [('Xmp.iptcExt.PersonInImage',
-                               self._data_type[name]())]
-                tag, value = values[0]
-                extras = []
-                for region in self.image_region:
-                    for person in region['Iptc4xmpExt:PersonInImage']:
-                        if person not in value and person not in extras:
-                            extras.append(person)
-                if extras:
-                    value = list(value) + extras
-                    values[0] = (tag, self._data_type[name](value))
-                    logger.info('%s(%s): merged image_region people',
-                                os.path.basename(self._path), name)
-            # merge in camera timezone
-            if (name in ('date_digitised', 'date_modified', 'date_taken')
-                    and self.timezone):
-                for n, (tag, value) in enumerate(values):
-                    if not (tag.startswith('Exif') or
-                            tag.startswith('Xmp.video')):
-                        continue
-                    if value['tz_offset'] is not None:
-                        continue
-                    value = dict(value)
-                    value['tz_offset'] = self.timezone
-                    values[n] = (tag, self._data_type[name](value))
-                    logger.info('%s: merged camera timezone offset', tag)
-            # choose result and merge in non-matching data so user can review it
+        values = defaultdict(list)
+        names = list(self._data_type)
+        for handler in self._sc, video_md, self._if:
+            if not handler:
+                continue
+            for name in names:
+                values[name] += handler.read(name, self._data_type[name])
+                if values[name] and handler == self._sc:
+                    # ignore values from image file
+                    names.remove(name)
+        # choose values and merge in non-matching data so user can review it
+        for name in self._data_type:
             value = self._data_type[name](None)
-            if values:
+            if values[name]:
                 info = '{}({})'.format(os.path.basename(self._path), name)
-                tag, value = values[0]
+                tag, value = values[name][0]
                 logger.debug('%s: set from %s', info, tag)
-            for tag2, value2 in values[1:]:
+            for tag2, value2 in values[name][1:]:
                 value = value.merge(info, tag2, value2)
             super(Metadata, self).__setattr__(name, value)
+        # merge people in regions into people in image
+        if self.image_region:
+            name = 'people'
+            value = list(self[name])
+            for region in self.image_region:
+                for person in region['Iptc4xmpExt:PersonInImage']:
+                    if person not in value:
+                        value.append(person)
+                        logger.info('%s(%s): merged "%s" from image region',
+                                    os.path.basename(self._path), name, person)
+            super(Metadata, self).__setattr__(
+                name, self._data_type[name](value))
+        # merge in camera timezone
+        if self.timezone:
+            for name in ('date_digitised', 'date_modified', 'date_taken'):
+                value = self[name]
+                if value['tz_offset'] is not None:
+                    continue
+                value = dict(value)
+                value['tz_offset'] = self.timezone
+                super(Metadata, self).__setattr__(
+                    name, self._data_type[name](value))
+                logger.info('%s(%s): merged camera timezone offset',
+                            os.path.basename(self._path), name)
 
     def find_sidecar(self):
         for base in (os.path.splitext(self._path)[0], self._path):
