@@ -316,23 +316,6 @@ class MetadataHandler(object):
         for datum in self._xmpData:
             yield datum.key()
 
-    @classmethod
-    def open_old(cls, path, *arg, quiet=False, **kw):
-        try:
-            return cls(path, *arg, **kw)
-        except exiv2.Exiv2Error as ex:
-            # expected if unrecognised file format
-            name = os.path.basename(path)
-            if quiet:
-                logger.info('%s: %s', name, str(ex))
-            else:
-                logger.warning('%s: %s', name, str(ex))
-            return None
-        except Exception as ex:
-            logger.error('Exception opening %s', path)
-            logger.exception(ex)
-            return None
-
     def set_exif_thumbnail_from_buffer(self, buffer):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
@@ -946,9 +929,9 @@ class MetadataHandler(object):
             image.setMetadata(image_md._image)
             image.writeMetadata()
 
-    def merge_sc(self, other):
+    def merge_sc(self, path):
         # open other image and read its metadata
-        image = exiv2.ImageFactory.open(other._path)
+        image = exiv2.ImageFactory.open(path)
         image.readMetadata()
         # copy Exif data inferred by libexiv2
         for o_datum in image.exifData():

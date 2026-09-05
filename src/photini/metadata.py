@@ -18,6 +18,7 @@
 
 import codecs
 from collections import defaultdict
+from contextlib import contextmanager
 from fractions import Fraction
 import logging
 import math
@@ -101,17 +102,6 @@ class FFMPEGMetadata(object):
         else:
             for sub_key, sub_value in value.items():
                 yield label + '/' + sub_key.lower(), sub_value
-
-    @classmethod
-    def open_old(cls, path):
-        try:
-            return cls(path)
-        except RuntimeError as ex:
-            logger.error(str(ex))
-        except Exception as ex:
-            logger.error('Exception opening %s', path)
-            logger.exception(ex)
-        return None
 
     def read(self, name, type_):
         if name not in self._tag_list:
@@ -235,7 +225,11 @@ class ImageMetadata(MetadataHandler):
             os.utime(self._path, file_times)
         # check that data really was saved
         OK = True
-        saved_tags = self.open_old(self._path).get_all_tags()
+        if exiv2.__version_tuple__ >= (0, 18):
+            buf = self._image.data()
+        else:
+            buf = memoryview(self._image.io())
+        saved_tags = self.__class__(buf=buf).get_all_tags()
         for tag in self.get_all_tags():
             if tag in saved_tags:
                 continue
@@ -603,43 +597,124 @@ class ImageMetadata(MetadataHandler):
 
 
 class SidecarMetadata(ImageMetadata):
-    @classmethod
-    def open_old(cls, path):
-        if not path:
-            return None
-        try:
-            return cls(path=path)
-        except Exception as ex:
-            logger.error('Exception opening %s', path)
-            logger.exception(ex)
-            return None
-
-    @classmethod
-    def open_new(cls, path, image_md):
-        sc_path = path + '.xmp'
-        try:
-            cls.create_sc(sc_path, image_md)
-            return cls(path=sc_path)
-        except Exception as ex:
-            logger.error('Exception opening %s', path)
-            logger.exception(ex)
-            return None
-
     def get_image_size(self):
         # sidecar files do not have an image
         return None
 
-    def delete(self):
-        os.unlink(self._path)
-        return None
 
-    def clear_dates(self):
-        if not exiv2.testVersion(1, 0, 0):
-            # workaround for bug in exiv2 xmp timestamp altering
-            # see https://github.com/Exiv2/exiv2/issues/1998
-            for name in ('date_digitised', 'date_modified', 'date_taken'):
-                self.write(name, None)
-            self.save()
+class MetadataOpener(object):
+    def __init__(self, path, *arg, **kw):
+        self.path = path
+        self.arg = arg
+        self.kw = kw
+        self.quiet = False
+
+    @contextmanager
+    def open(self, write=False):
+        result = None
+        if self.path:
+            try:
+                result = self.handler(self.path, *self.arg, **self.kw)
+            except exiv2.Exiv2Error as ex:
+                # expected if unrecognised file format
+                name = os.path.basename(self.path)
+                if self.quiet:
+                    logger.info('%s: %s', name, str(ex))
+                else:
+                    logger.warning('%s: %s', name, str(ex))
+                self.path = None
+            except Exception as ex:
+                logger.error('Exception opening %s', self.path)
+                logger.exception(ex)
+                self.path = None
+        try:
+            yield result
+        finally:
+            pass
+
+
+class VideoHandler(MetadataOpener):
+    handler = FFMPEGMetadata
+
+
+class SidecarHandler(MetadataOpener):
+    handler = SidecarMetadata
+
+    @contextmanager
+    def open(self, write=False):
+        # workaround for bug in exiv2 xmp timestamp altering
+        # see https://github.com/Exiv2/exiv2/issues/1998
+        if write and not exiv2.testVersion(0, 28, 0):
+            with super(SidecarHandler, self).open(write=write) as result:
+                if result:
+                    for name in ('date_digitised', 'date_modified',
+                                 'date_taken'):
+                        result.write(name, None)
+                    result.save()
+        with super(SidecarHandler, self).open(write=write) as result:
+            try:
+                yield result
+            finally:
+                pass
+
+    def create_sidecar(self, image_handler):
+        if self.path or not image_handler.path:
+            return
+        sc_path = image_handler.path + '.xmp'
+        try:
+            with image_handler.open() as image_md:
+                self.handler.create_sc(sc_path, image_md)
+            self.path = sc_path
+        except Exception as ex:
+            logger.error('Exception creating %s', sc_path)
+            logger.exception(ex)
+
+    def delete_sidecar(self):
+        if not self.path:
+            return
+        os.unlink(self.path)
+        self.path = None
+
+
+class ImageHandler(MetadataOpener):
+    handler = ImageMetadata
+
+    def __init__(self, path, *arg, **kw):
+        super(ImageHandler, self).__init__(path, *arg, **kw)
+        # guess mime type from file name
+        self.mime_type = mimetypes.guess_type(path, strict=False)[0]
+        # guess mime type from first few bytes of data
+        if not self.mime_type:
+            kind = filetype.guess(path)
+            if kind:
+                self.mime_type = kind.mime
+        # anything not recognised is assumed to be 'raw'
+        if not self.mime_type:
+            self.mime_type = 'image/raw'
+        self.quiet = self.mime_type and self.mime_type.split('/')[0] == 'video'
+        # other init
+        self.maker_note = {'make': '', 'delete': False}
+        self.iptc_in_file = False
+        self.unread = True
+
+    @contextmanager
+    def open(self, write=False):
+        with super(ImageHandler, self).open(write=write) as result:
+            if result and self.unread:
+                self.unread = False
+                # get some stuff from file now it's open
+                self.mime_type = result.mime_type
+                self.maker_note['make'] = (
+                    result.has_exif_tag('Exif.Photo.MakerNote') and
+                    result.get_value('Exif.Image.Make'))
+                self.iptc_in_file = result.has_iptc()
+            if result and write and self.maker_note['delete']:
+                result.clear_maker_note()
+                self.maker_note['delete'] = False
+            try:
+                yield result
+            finally:
+                pass
 
 
 class Metadata(object):
@@ -685,37 +760,26 @@ class Metadata(object):
         # create metadata handlers for image file, video file, and sidecar
         self._path = path
         self._notify = notify
-        video_md = None
-        self._if = None
-        self._sc = SidecarMetadata.open_old(self.find_sidecar())
-        # guess mime type from file name
-        self.mime_type = mimetypes.guess_type(self._path, strict=False)[0]
-        quiet = self.mime_type and self.mime_type.split('/')[0] == 'video'
-        self._if = ImageMetadata.open_old(path, quiet=quiet)
-        # get mime type from image data
-        self.mime_type = self.get_mime_type()
-        if self.mime_type.split('/')[0] == 'video':
-            video_md = FFMPEGMetadata.open_old(path)
+        self._if = ImageHandler(path)
+        self._sc = SidecarHandler(self.find_sidecar())
+        if self._if.mime_type.split('/')[0] == 'video':
+            video_md = VideoHandler(path)
+        else:
+            video_md = VideoHandler(None)
         self.dirty = False
-        self.iptc_in_file = self._if and self._if.has_iptc()
-        # get maker note info
-        if self._if:
-            self._maker_note = {
-                'make': (self._if.has_exif_tag('Exif.Photo.MakerNote') and
-                         self._if.get_value('Exif.Image.Make')),
-                'delete': False,
-                }
         # read Photini metadata items
         values = defaultdict(list)
         names = list(self._data_type)
-        for handler in self._sc, video_md, self._if:
-            if not handler:
-                continue
-            for name in names:
-                values[name] += handler.read(name, self._data_type[name])
-                if values[name] and handler == self._sc:
-                    # ignore values from image file
-                    names.remove(name)
+        for file_handler in self._sc, video_md, self._if:
+            with file_handler.open() as handler:
+                if not handler:
+                    continue
+                for name in list(names):
+                    values[name] += handler.read(name, self._data_type[name])
+                    if values[name] and file_handler == self._sc:
+                        # ignore values from image or video file
+                        names.remove(name)
+        self.mime_type = self._if.mime_type
         # choose values and merge in non-matching data so user can review it
         for name in self._data_type:
             value = self._data_type[name](None)
@@ -762,22 +826,23 @@ class Metadata(object):
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
     def camera_change_ok(self, camera_model):
-        if not (self._if and self._maker_note['make']):
+        if not (self._if.maker_note['make']):
             return True
         if not camera_model:
             return False
-        return self._maker_note['make'] == camera_model['make']
+        return self._if.maker_note['make'] == camera_model['make']
 
     def set_delete_makernote(self):
-        if self._if:
-            self._maker_note['delete'] = True
+        self._if.maker_note['delete'] = True
 
     def clone(self, data):
         image = ImageMetadata(buf=data)
-        if self._if:
-            image._image.setMetadata(self._if._image)
-        if self._sc:
-            image.merge_sc(self._sc)
+        with self._if.open() as handler:
+            if handler:
+                image._image.setMetadata(handler._image)
+        with self._sc.open() as handler:
+            if handler:
+                image.merge_sc(handler)
         image.save_file()
         if exiv2.__version_tuple__ >= (0, 18):
             data = image._image.data()
@@ -785,13 +850,16 @@ class Metadata(object):
             data = memoryview(image._image.io())
         return data
 
-    def _handler_save(self, handler, *arg, **kw):
-        # store Photini metadata items
-        for name in self._data_type:
-            value = getattr(self, name)
-            handler.write(name, value)
-        # save file
-        return handler.save(*arg, **kw)
+    def _handler_save(self, file_handler, *arg, **kw):
+        with file_handler.open(write=True) as handler:
+            if not handler:
+                return False
+            # store Photini metadata items
+            for name in self._data_type:
+                value = getattr(self, name)
+                handler.write(name, value)
+            # save file
+            return handler.save(*arg, **kw)
 
     def save(self, if_mode=True, sc_mode='auto',
              iptc_mode='preserve', file_times=None):
@@ -800,32 +868,29 @@ class Metadata(object):
         self.software = 'Photini editor v' + __version__
         OK = False
         write_iptc = (iptc_mode == 'create'
-                      or (iptc_mode == 'preserve' and self.iptc_in_file))
+                      or (iptc_mode == 'preserve' and self._if.iptc_in_file))
         try:
             # save to image file
-            if if_mode and self._if:
-                if self._maker_note['delete']:
-                    if not self.camera_change_ok(self.camera_model):
-                        self._if.clear_maker_note()
-                    self._maker_note['delete'] = False
+            if if_mode:
+                if (self._if.maker_note['delete'] and
+                        self.camera_change_ok(self.camera_model)):
+                    self._if.maker_note['delete'] = False
                 OK = self._handler_save(
                     self._if, file_times=file_times, write_iptc=write_iptc)
                 if OK:
-                    self.iptc_in_file = write_iptc
+                    self._if.iptc_in_file = write_iptc
             if not OK:
                 # can't write to image file so must create side car
                 sc_mode = 'always'
             # create side car
-            if sc_mode == 'always' and not self._sc:
-                self._sc = SidecarMetadata.open_new(self._path, self._if)
+            if not self._sc.path:
+                if sc_mode == 'always':
+                    self._sc.create_sidecar(self._if)
             # save or delete side car
-            if self._sc:
+            if self._sc.path:
                 if sc_mode == 'delete':
-                    self._if.merge_sc(self._sc)
-                    self._sc = self._sc.delete()
+                    self._sc.delete_sidecar()
                 else:
-                    # workaround for bug in exiv2 xmp timestamp altering
-                    self._sc.clear_dates()
                     OK = self._handler_save(self._sc, file_times=file_times)
         except Exception as ex:
             logger.exception(ex)
@@ -836,32 +901,40 @@ class Metadata(object):
                 self._notify(self.dirty)
 
     def get_image_pixmap(self):
-        if self._if:
-            return self._if.get_image_pixmap(self.orientation)
+        with self._if.open() as handler:
+            if handler:
+                return handler.get_image_pixmap(self.orientation)
         return None
 
     def get_crop_factor(self):
-        md = self._if or self._sc
-        if not md:
-            return None
         image_size = self.dimensions
         if not image_size:
             return None
-        # resolution data can be in Exif.Image, Exif.Photo, Exif.SubImageN ...
-        for key in md.get_all_tags():
-            family, group, tag = key.split('.', 2)
-            if tag == 'FocalPlaneXResolution':
-                break
+        for md in self._if, self._sc:
+            with md.open() as handler:
+                if not handler:
+                    continue
+                # resolution data can be in Exif.Image, Exif.Photo,
+                # Exif.SubImageN ...
+                for key in handler.get_all_tags():
+                    family, group, tag = key.split('.', 2)
+                    if tag == 'FocalPlaneXResolution':
+                        break
+                else:
+                    continue
+                # convert Exif values
+                resolution = {}
+                for tag in ('FocalPlaneXResolution', 'FocalPlaneYResolution',
+                            'FocalPlaneResolutionUnit'):
+                    resolution[tag] = handler.get_exif_value(
+                        '.'.join((family, group, tag)))
+                resolution['x'] = safe_fraction(
+                    resolution['FocalPlaneXResolution'])
+                resolution['y'] = safe_fraction(
+                    resolution['FocalPlaneYResolution'])
+                if resolution['x'] and resolution['y']:
+                    break
         else:
-            return None
-        # convert Exif values
-        resolution = {}
-        for tag in ('FocalPlaneXResolution', 'FocalPlaneYResolution',
-                    'FocalPlaneResolutionUnit'):
-            resolution[tag] = md.get_exif_value('.'.join((family, group, tag)))
-        resolution['x'] = safe_fraction(resolution['FocalPlaneXResolution'])
-        resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
-        if not (resolution['x'] and resolution['y']):
             return None
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # get sensor diagonal in mm
@@ -885,19 +958,6 @@ class Metadata(object):
             return None
         # 35 mm film diagonal is 43.27 mm
         return 43.27 / d
-
-    def get_mime_type(self):
-        result = None
-        if self._if:
-            result = self._if.mime_type
-        if not result:
-            kind = filetype.guess(self._path)
-            if kind:
-                result = kind.mime
-        # anything not recognised is assumed to be 'raw'
-        if not result:
-            result = 'image/raw'
-        return result
 
     # allow attributes to be accessed in dict like fashion
     def __getitem__(self, name):
