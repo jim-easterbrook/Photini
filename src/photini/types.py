@@ -1377,7 +1377,7 @@ class MD_Coordinate(MD_Rational):
         value = [safe_fraction(x, limit=False) for x in value]
         degrees, minutes, seconds = value
         degrees += (minutes / 60) + (seconds / 3600)
-        if ref in ('S', 'W'):
+        if ref == cls.ref_letters[0]:
             degrees = -degrees
         return cls(degrees)
 
@@ -1386,8 +1386,8 @@ class MD_Coordinate(MD_Rational):
         if not value:
             return None
         ref = value[-1]
-        if ref in ('N', 'E', 'S', 'W'):
-            negative = ref in ('S', 'W')
+        if ref in cls.ref_letters:
+            negative = ref == cls.ref_letters[0]
             value = value[:-1]
         else:
             logger.warning('no direction in XMP GPSCoordinate: %s', value)
@@ -1408,6 +1408,10 @@ class MD_Coordinate(MD_Rational):
             degrees = -degrees
         return cls(degrees)
 
+    def to_exif(self):
+        numbers, pstv = self.to_exif_part()
+        return numbers, self.ref_letters[pstv]
+
     def to_exif_part(self):
         degrees = self
         pstv = degrees >= 0
@@ -1422,6 +1426,10 @@ class MD_Coordinate(MD_Rational):
         minutes = Fraction(i)
         seconds = seconds.limit_denominator(1000000)
         return (degrees, minutes, seconds), pstv
+
+    def to_xmp(self):
+        string, pstv = self.to_xmp_part()
+        return string + self.ref_letters[pstv]
 
     def to_xmp_part(self):
         numbers, pstv = self.to_exif_part()
@@ -1455,23 +1463,11 @@ class MD_Coordinate(MD_Rational):
 
 
 class MD_Latitude(MD_Coordinate):
-    def to_exif(self):
-        numbers, pstv = self.to_exif_part()
-        return numbers, ('S', 'N')[pstv]
-
-    def to_xmp(self):
-        string, pstv = self.to_xmp_part()
-        return string + ('S', 'N')[pstv]
+    ref_letters = ('S', 'N')
 
 
 class MD_Longitude(MD_Coordinate):
-    def to_exif(self):
-        numbers, pstv = self.to_exif_part()
-        return numbers, ('W', 'E')[pstv]
-
-    def to_xmp(self):
-        string, pstv = self.to_xmp_part()
-        return string + ('W', 'E')[pstv]
+    ref_letters = ('W', 'E')
 
 
 class GPSVersionId(MD_Value, bytes):
