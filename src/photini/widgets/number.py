@@ -278,6 +278,7 @@ class LatLongDisplay(NumericalWidget):
         if self.lat_key in value and self.lng_key in value:
             metadata[self.lat_key] = value[self.lat_key]
             metadata[self.lng_key] = value[self.lng_key]
+            metadata['ProcessingMethod'] = None
         return False
 
 

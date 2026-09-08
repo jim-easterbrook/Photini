@@ -142,6 +142,19 @@ class FFMPEGMetadata(object):
 
 
 class ImageMetadata(MetadataHandler):
+    def clear_match(self, tag):
+        family = tag.split('.')[0]
+        data = {'Exif': self._exifData,
+                'Iptc': self._iptcData,
+                'Xmp': self._xmpData}[family]
+        regexp = self._match_tags[tag][0]
+        datum = data.begin()
+        while datum != data.end():
+            if regexp.match(datum.key()):
+                datum = data.erase(datum)
+            else:
+                next(datum)
+
     def clear_group(self, tag):
         for sub_tag in self._multi_tags[tag]:
             if sub_tag:
@@ -151,6 +164,23 @@ class ImageMetadata(MetadataHandler):
         {'Exif': self.clear_exif_tag,
          'Iptc': self.clear_iptc_tag,
          'Xmp': self.clear_xmp_tag}[tag.split('.')[0]](tag)
+
+    def get_match(self, tag):
+        result = {}
+        family = tag.split('.')[0]
+        data = {'Exif': self._exifData,
+                'Iptc': self._iptcData,
+                'Xmp': self._xmpData}[family]
+        decode = {'Exif': self.decode_exif_value,
+                  'Iptc': self.decode_iptc_value,
+                  'Xmp': self.decode_xmp_value}[family]
+        regexp = self._match_tags[tag][0]
+        for datum in data:
+            key = datum.key()
+            match = regexp.match(key)
+            if match:
+                result[match.group(1)] = decode(key, datum)
+        return result
 
     def get_group(self, tag):
         result = []
@@ -188,6 +218,12 @@ class ImageMetadata(MetadataHandler):
                 except Exception as ex:
                     logger.error('%s: %s: %s', self._name, label, str(ex))
         return None, None, None, None, None
+
+    def set_match(self, tag, value):
+        fmt = self._match_tags[tag][1]
+        for key in value:
+            sub_tag = fmt.format(key)
+            self.set_value(sub_tag, value[key])
 
     def set_group(self, tag, value):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
@@ -257,6 +293,14 @@ class ImageMetadata(MetadataHandler):
 
     # some tags are always read & written in groups, but are represented
     # by a single name
+    # these ones return a dict of matching keys and values
+    _match_tags = {
+        'Exif.GPSInfo.GPS': (
+            re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
+        'Xmp.exif.GPS': (
+            re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
+        }
+    # these ones return a list of values
     _multi_tags = {
         'Exif.Canon.LensModel*': ('', 'Exif.Canon.LensModel'),
         'Exif.Canon.ModelID*': (
@@ -266,11 +310,6 @@ class ImageMetadata(MetadataHandler):
         'Exif.CanonLe.LensSerialNumber*': (
             '', '', 'Exif.CanonLe.LensSerialNumber'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
-        'Exif.GPSInfo.GPS*': (
-            'Exif.GPSInfo.GPSVersionID', 'Exif.GPSInfo.GPSProcessingMethod',
-            'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef',
-            'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
-            'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime*': (
             'Exif.Image.DateTime', 'Exif.Photo.SubSecTime',
             'Exif.Photo.OffsetTime'),
@@ -345,10 +384,6 @@ class ImageMetadata(MetadataHandler):
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
         'Xmp.exif.FocalLength*': (
             'Xmp.exif.FocalLength', 'Xmp.exif.FocalLengthIn35mmFilm'),
-        'Xmp.exif.GPS*': (
-            'Xmp.exif.GPSVersionID', 'Xmp.exif.GPSProcessingMethod',
-            'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef',
-            'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
@@ -444,8 +479,8 @@ class ImageMetadata(MetadataHandler):
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength*'),
                             ('W0', 'Exif.Image.FocalLength*'),
                             ('WX', 'Xmp.exif.FocalLength*')),
-        'gps_info'       : (('WA', 'Exif.GPSInfo.GPS*'),
-                            ('WX', 'Xmp.exif.GPS*'),
+        'gps_info'       : (('WA', 'Exif.GPSInfo.GPS'),
+                            ('WX', 'Xmp.exif.GPS'),
                             ('W0', 'Xmp.video.GPSCoordinates')),
         'headline'       : (('WA', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.Headline')),
@@ -514,6 +549,8 @@ class ImageMetadata(MetadataHandler):
                     file_value = self.get_exif_thumbnail()
                 elif tag == 'Exif.Photo.Pixel*Dimension':
                     file_value = self.get_image_size()
+                elif tag in self._match_tags:
+                    file_value = self.get_match(tag)
                 elif tag in self._multi_tags:
                     file_value = self.get_group(tag)
                 else:
@@ -532,7 +569,7 @@ class ImageMetadata(MetadataHandler):
                 result.append((tag, value))
         return result
 
-    def write(self, name, value):
+    def write(self, name, value, changed):
         for mode, tag in self._tag_list[name]:
             if mode == 'WN':
                 continue
@@ -541,6 +578,8 @@ class ImageMetadata(MetadataHandler):
                 if tag == 'Xmp.xmp.Thumbnails':
                     # don't clear XMP thumbnails
                     pass
+                elif tag in self._match_tags:
+                    self.clear_match(tag)
                 elif tag in self._multi_tags:
                     self.clear_group(tag)
                 else:
@@ -551,7 +590,12 @@ class ImageMetadata(MetadataHandler):
                 # replace or append one thumbnail of the array
                 tag = '{}[{}]'.format(tag, self._xmp_thumb_idx)
                 file_value = file_value[0]
-            if tag in self._multi_tags:
+            if tag in self._match_tags:
+                if changed:
+                    # wipe any tags in the group that we don't save
+                    self.clear_match(tag)
+                self.set_match(tag, file_value)
+            elif tag in self._multi_tags:
                 self.set_group(tag, file_value)
             else:
                 self.set_value(tag, file_value)
@@ -649,7 +693,7 @@ class SidecarHandler(MetadataOpener):
                 if result:
                     for name in ('date_digitised', 'date_modified',
                                  'date_taken'):
-                        result.write(name, None)
+                        result.write(name, None, True)
                     result.save()
         with super(SidecarHandler, self).open(write=write) as result:
             try:
@@ -767,6 +811,7 @@ class Metadata(object):
         else:
             video_md = VideoHandler(None)
         self.dirty = False
+        self._changed = {}
         # read Photini metadata items
         values = defaultdict(list)
         names = list(self._data_type)
@@ -857,7 +902,7 @@ class Metadata(object):
             # store Photini metadata items
             for name in self._data_type:
                 value = getattr(self, name)
-                handler.write(name, value)
+                handler.write(name, value, self._changed.get(name))
             # save file
             return handler.save(*arg, **kw)
 
@@ -897,6 +942,7 @@ class Metadata(object):
             return
         if OK:
             self.dirty = False
+            self._changed = {}
             if self._notify:
                 self._notify(self.dirty)
 
@@ -981,13 +1027,8 @@ class Metadata(object):
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
-        if name == 'gps_info':
-            # erase other GPS stuff such as direction and speed
-            if self._if:
-                self._if.clear_gps()
-            if self._sc:
-                self._sc.clear_gps()
         self.set_changed(True)
+        self._changed[name] = True
 
     def set_changed(self, changed):
         if changed != self.dirty:

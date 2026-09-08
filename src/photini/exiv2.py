@@ -406,6 +406,9 @@ class MetadataHandler(object):
         datum = self._exifData.findKey(key)
         if datum == self._exifData.end():
             return None
+        return self.decode_exif_value(tag, datum)
+
+    def decode_exif_value(self, tag, datum):
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
                    'Exif.Canon.SerialNumber', 'Exif.CanonLe.LensSerialNumber',
                    'Exif.Image.XPTitle', 'Exif.Image.XPComment',
@@ -446,7 +449,7 @@ class MetadataHandler(object):
             '%s: %s: reading %s as string', self._name, tag, type(value))
         return value.toString()
 
-    def decode_iptc_value(self, datum):
+    def decode_iptc_value(self, tag, datum):
         type_id = datum.typeId()
         value = datum.value()
         if type_id == exiv2.TypeId.date:
@@ -462,13 +465,13 @@ class MetadataHandler(object):
         for datum in self._iptcData.findKey(exiv2.IptcKey(tag)):
             if result is None:
                 # first datum
-                result = self.decode_iptc_value(datum)
+                result = self.decode_iptc_value(tag, datum)
                 if not exiv2.IptcDataSets.dataSetRepeatable(
                                         datum.tag(), datum.record()):
                     break
                 result = [result]
             elif datum.key() == tag:
-                result.append(self.decode_iptc_value(datum))
+                result.append(self.decode_iptc_value(tag, datum))
         return result
 
     _re_key_parts = re.compile(r'(.*?)(\[(\d+)\])?(/(.*))?$')
@@ -488,6 +491,18 @@ class MetadataHandler(object):
             result[root].append(value)
         else:
             result[root] = value
+
+    def decode_xmp_value(self, tag, datum):
+        value = datum.value()
+        type_id = value.typeId()
+        if type_id == exiv2.TypeId.xmpText:
+            return str(value)
+        if type_id == exiv2.TypeId.langAlt:
+            return dict(value)
+        if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                       exiv2.TypeId.xmpSeq):
+            return list(value)
+        raise RuntimeError('unexpected type {}'.format(type_id))
 
     def get_xmp_value(self, tag, see_also_count=2):
         # XMP has a nested structure of arbitrary depth. Exiv2 converts

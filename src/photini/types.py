@@ -1499,19 +1499,16 @@ class GPSMethod(MD_UnmergableString):
 
 class MD_GPSinfo(MD_Structure):
     item_type = {
-        'version_id': GPSVersionId,
-        'method': GPSMethod,
+        'VersionID': GPSVersionId,
+        'ProcessingMethod': GPSMethod,
         'exif:GPSAltitude': MD_Altitude,
         'exif:GPSLatitude': MD_Latitude,
         'exif:GPSLongitude': MD_Longitude,
         }
-    legacy_keys = (
-        'version_id', 'method',
-        'exif:GPSAltitude', 'exif:GPSLatitude', 'exif:GPSLongitude')
 
     @classmethod
     def from_gpx(cls, value, set_altitude=False):
-        result = {'method': 'GPS'}
+        result = {'ProcessingMethod': 'GPS'}
         result['exif:GPSLatitude'] = value.latitude
         result['exif:GPSLongitude'] = value.longitude
         if set_altitude and value.elevation is not None:
@@ -1532,45 +1529,55 @@ class MD_GPSinfo(MD_Structure):
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Xmp.video'):
             return cls.from_ffmpeg(file_value, tag)
-        version_id = file_value[0]
-        method = file_value[1]
-        alt = file_value[2:4]
+        value = {
+            'exif:GPSAltitude': MD_Altitude.from_exiv2(
+                (file_value.get('Altitude'), file_value.get('AltitudeRef')),
+                tag),
+            'ProcessingMethod': GPSMethod.from_exiv2(
+                file_value.get('ProcessingMethod'), tag),
+            'VersionID': GPSVersionId.from_exiv2(
+                file_value.get('VersionID'), tag),
+            }
         if tag.startswith('Exif'):
-            lat = file_value[4:6]
-            lon = file_value[6:8]
+            value['exif:GPSLatitude'] = MD_Latitude.from_exif(
+                (file_value.get('Latitude'), file_value.get('LatitudeRef')))
+            value['exif:GPSLongitude'] = MD_Longitude.from_exif(
+                (file_value.get('Longitude'), file_value.get('LongitudeRef')))
         else:
-            lat = file_value[4]
-            lon = file_value[5]
-        file_value = version_id, method, alt, lat, lon
-        return super(MD_GPSinfo, cls).from_exiv2(file_value, tag)
+            value['exif:GPSLatitude'] = MD_Latitude.from_xmp(
+                file_value.get('Latitude'))
+            value['exif:GPSLongitude'] = MD_Longitude.from_xmp(
+                file_value.get('Longitude'))
+        return cls(value)
 
     def to_exif(self):
         if not self:
             return None
-        result = []
-        for k in self.legacy_keys:
-            if k in ('exif:GPSAltitude', 'exif:GPSLatitude',
-                     'exif:GPSLongitude'):
-                if self[k]:
-                    result += self[k].to_exif()
-                else:
-                    result += [None, None]
-            else:
-                result.append(self[k] and self[k].to_exif())
+        result = {
+            'ProcessingMethod': self['ProcessingMethod'].to_exif(),
+            'VersionID': self['VersionID'].to_exif(),
+            }
+        result['Altitude'], result['AltitudeRef'] = self[
+            'exif:GPSAltitude'].to_exif()
+        result['Latitude'], result['LatitudeRef'] = self[
+            'exif:GPSLatitude'].to_exif()
+        result['Longitude'], result['LongitudeRef'] = self[
+            'exif:GPSLongitude'].to_exif()
         return result
+
+    to_iptc = None
 
     def to_xmp(self):
         if not self:
             return None
-        result = []
-        for k in self.legacy_keys:
-            if k == 'exif:GPSAltitude':
-                if self[k]:
-                    result += self[k].to_xmp()
-                else:
-                    result += [None, None]
-            else:
-                result.append(self[k] and self[k].to_xmp())
+        result = {
+            'Latitude': self['exif:GPSLatitude'].to_xmp(),
+            'Longitude': self['exif:GPSLongitude'].to_xmp(),
+            'ProcessingMethod': self['ProcessingMethod'].to_xmp(),
+            'VersionID': self['VersionID'].to_xmp(),
+            }
+        result['Altitude'], result['AltitudeRef'] = self[
+            'exif:GPSAltitude'].to_xmp()
         return result
 
     def __bool__(self):
