@@ -19,6 +19,7 @@
 
 import logging
 
+from photini.types import MD_GPSinfo
 from photini.pyqt import *
 from photini.widgets import (
     ChoicesContextMenu, CompoundWidgetMixin, Label, WidgetMixin)
@@ -278,7 +279,6 @@ class LatLongDisplay(NumericalWidget):
         if self.lat_key in value and self.lng_key in value:
             metadata[self.lat_key] = value[self.lat_key]
             metadata[self.lng_key] = value[self.lng_key]
-            metadata['ProcessingMethod'] = None
         return False
 
 
@@ -306,3 +306,8 @@ class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
 
     def sub_widgets(self):
         return (self.latlon, self.alt)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            metadata[self._key] = MD_GPSinfo(self.get_value())
+        return False

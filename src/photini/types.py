@@ -1557,12 +1557,14 @@ class MD_GPSinfo(MD_Structure):
             'ProcessingMethod': self['ProcessingMethod'].to_exif(),
             'VersionID': self['VersionID'].to_exif(),
             }
-        result['Altitude'], result['AltitudeRef'] = self[
-            'exif:GPSAltitude'].to_exif()
-        result['Latitude'], result['LatitudeRef'] = self[
-            'exif:GPSLatitude'].to_exif()
-        result['Longitude'], result['LongitudeRef'] = self[
-            'exif:GPSLongitude'].to_exif()
+        if self['exif:GPSAltitude']:
+            result['Altitude'], result['AltitudeRef'] = self[
+                'exif:GPSAltitude'].to_exif()
+        if self['exif:GPSLatitude']:
+            result['Latitude'], result['LatitudeRef'] = self[
+                'exif:GPSLatitude'].to_exif()
+            result['Longitude'], result['LongitudeRef'] = self[
+                'exif:GPSLongitude'].to_exif()
         return result
 
     to_iptc = None
