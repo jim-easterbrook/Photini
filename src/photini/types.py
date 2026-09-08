@@ -39,7 +39,7 @@ __all__ = (
     'MD_DateTime', 'MD_Dimensions', 'MD_FocalLength', 'MD_GPSinfo',
     'MD_HierarchicalTags', 'MD_ImageRegion', 'MD_Int', 'MD_Keywords',
     'MD_LangAlt', 'MD_LensModel', 'MD_MultiLocation', 'MD_MultiString',
-    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights',
+    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Resolution', 'MD_Rights',
     'MD_SingleLocation', 'MD_Software', 'MD_String', 'MD_Thumbnail',
     'MD_Timezone', 'MD_VideoDuration', 'safe_fraction')
 
@@ -1699,6 +1699,25 @@ class MD_Dimensions(MD_Collection):
     def __bool__(self):
         return (bool(self['width']) and bool(self['height'])
                 and self['width'] > 0 and self['height'] > 0)
+
+
+class MD_Resolution(MD_Collection):
+    _keys = ('x', 'y', 'unit')
+    _default_type = MD_Rational
+    _type = {'unit': MD_Int}
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not any(file_value.values()):
+            return cls({})
+        value = {}
+        for file_key in file_value:
+            key = file_key.split('.')[-1].lower()
+            key = key.replace('focalplane', '').replace('resolution', '')
+            value[key] = file_value[file_key]
+        return cls(value)
+
+    to_exiv2 = None
 
 
 class MD_FocalLength(MD_Collection):

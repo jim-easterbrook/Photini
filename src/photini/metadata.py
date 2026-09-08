@@ -295,6 +295,8 @@ class ImageMetadata(MetadataHandler):
     # by a single name
     # these ones return a dict of matching keys and values
     _match_tags = {
+        'Exif.FocalPlaneResolution': (
+            re.compile(r'(Exif\..*?\.FocalPlane.*Resolution.*)'),),
         'Exif.GPSInfo.GPS': (
             re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
         'Exif.ImageWidthLength': (
@@ -533,6 +535,7 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.Rating'),
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
+        'resolution'     : (('WN', 'Exif.FocalPlaneResolution'),),
         'rights'         : (('WA', 'Xmp.xmpRights.*'),),
         'software'       : (('WA', 'Exif.Image.Software'),
                             ('WA', 'Iptc.Application2.Program*'),
@@ -762,6 +765,7 @@ class Metadata(object):
         'orientation'    : MD_Orientation,
         'people'         : MD_MultiString,
         'rating'         : MD_Rating,
+        'resolution'     : MD_Resolution,
         'rights'         : MD_Rights,
         'software'       : MD_Software,
         'thumbnail'      : MD_Thumbnail,
@@ -925,35 +929,9 @@ class Metadata(object):
 
     def get_crop_factor(self):
         image_size = self.dimensions
-        if not image_size:
+        resolution = self.resolution
+        if not (image_size and resolution):
             return None
-        for md in self._if, self._sc:
-            with md.open() as handler:
-                if not handler:
-                    continue
-                # resolution data can be in Exif.Image, Exif.Photo,
-                # Exif.SubImageN ...
-                for key in handler.get_all_tags():
-                    family, group, tag = key.split('.', 2)
-                    if tag == 'FocalPlaneXResolution':
-                        break
-                else:
-                    continue
-                # convert Exif values
-                resolution = {}
-                for tag in ('FocalPlaneXResolution', 'FocalPlaneYResolution',
-                            'FocalPlaneResolutionUnit'):
-                    resolution[tag] = handler.get_exif_value(
-                        '.'.join((family, group, tag)))
-                resolution['x'] = safe_fraction(
-                    resolution['FocalPlaneXResolution'])
-                resolution['y'] = safe_fraction(
-                    resolution['FocalPlaneYResolution'])
-                if resolution['x'] and resolution['y']:
-                    break
-        else:
-            return None
-        resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # get sensor diagonal in mm
         w = image_size['width'] / resolution['x']
         h = image_size['height'] / resolution['y']
