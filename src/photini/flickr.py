@@ -606,7 +606,7 @@ class TabWidget(PhotiniUploader):
                     params['dates']['date_taken_granularity'] = '4'
             # location
             gps = image.metadata.gps_info
-            if gps and gps['exif:GPSLatitude']:
+            if gps['exif:GPSLatitude']:
                 params['location'] = {
                     'lat': '{:.6f}'.format(float(gps['exif:GPSLatitude'])),
                     'lon': '{:.6f}'.format(float(gps['exif:GPSLongitude'])),
