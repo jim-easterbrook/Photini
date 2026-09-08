@@ -297,8 +297,15 @@ class ImageMetadata(MetadataHandler):
     _match_tags = {
         'Exif.GPSInfo.GPS': (
             re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
+        'Exif.ImageWidthLength': (
+            re.compile(r'(Exif\..*?Image.*?\.Image(Width|Length))'),),
+        'Exif.PixelXYDimension': (
+            re.compile(r'(Exif\..*?\.Pixel(X|Y)Dimension)'),),
         'Xmp.exif.GPS': (
             re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
+        'Xmp.PixelXYDimension': (
+            re.compile(r'(Xmp\.exif\.Pixel(X|Y)Dimension)'),),
+        'Xmp.video.WidthHeight': (re.compile(r'Xmp\.video\.(Width|Height)'),),
         }
     # these ones return a list of values
     _multi_tags = {
@@ -390,7 +397,6 @@ class ImageMetadata(MetadataHandler):
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.video.Dims*': ('Xmp.video.Width', 'Xmp.video.Height'),
         'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
@@ -474,8 +480,11 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.tiff.ImageDescription'),
                             ('WA', 'Iptc.Application2.Caption'),
                             ('W0', 'Xmp.video.Information')),
-        'dimensions'     : (('W0', 'Xmp.video.Dims*'),
-                            ('WN', 'Exif.Photo.Pixel*Dimension')),
+        'dimensions'     : (('W0', 'Xmp.video.WidthHeight'),
+                            ('WN', 'exiv2.pixelWidthHeight'),
+                            ('WN', 'Exif.ImageWidthLength'),
+                            ('WN', 'Exif.PixelXYDimension'),
+                            ('WN', 'Xmp.PixelXYDimension')),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength*'),
                             ('W0', 'Exif.Image.FocalLength*'),
                             ('WX', 'Xmp.exif.FocalLength*')),
@@ -547,8 +556,11 @@ class ImageMetadata(MetadataHandler):
             try:
                 if tag.startswith('Exif.Thumbnail'):
                     file_value = self.get_exif_thumbnail()
-                elif tag == 'Exif.Photo.Pixel*Dimension':
-                    file_value = self.get_image_size()
+                elif tag == 'exiv2.pixelWidthHeight':
+                    file_value = {
+                        'width': self._image.pixelWidth(),
+                        'height': self._image.pixelHeight(),
+                        }
                 elif tag in self._match_tags:
                     file_value = self.get_match(tag)
                 elif tag in self._multi_tags:
@@ -600,50 +612,9 @@ class ImageMetadata(MetadataHandler):
             else:
                 self.set_value(tag, file_value)
 
-    def get_image_size(self):
-        # try exiv2's header decoding first
-        w = self._image.pixelWidth()
-        h = self._image.pixelHeight()
-        if w and h:
-            return w, h
-        # get preview sizes
-        candidates = set(self.get_preview_imagedims())
-        # search metadata for image / subimage / sensor sizes
-        widths = {}
-        heights = {}
-        for key in self.get_all_tags():
-            family, group, tag = key.split('.', 2)
-            if tag in ('PixelXDimension', 'ImageWidth'):
-                value = self.get_value(key)
-                if value:
-                    widths[key] = int(value)
-            elif tag in ('PixelYDimension', 'ImageLength'):
-                value = self.get_value(key)
-                if value:
-                    heights[key] = int(value)
-        for kx in widths:
-            if 'ImageWidth' in kx:
-                ky = kx.replace('ImageWidth', 'ImageLength')
-            else:
-                ky = kx.replace('PixelXDimension', 'PixelYDimension')
-            if ky in heights:
-                candidates.add((widths[kx], heights[ky]))
-        if not candidates:
-            return None
-        candidates = list(candidates)
-        candidates.sort()
-        if len(candidates) > 1:
-            # some cameras report a sensor size that's slightly bigger
-            # than the actual image
-            if candidates[-1][0] < 1.03 * candidates[-2][0]:
-                return candidates[-2]
-        return candidates[-1]
-
 
 class SidecarMetadata(ImageMetadata):
-    def get_image_size(self):
-        # sidecar files do not have an image
-        return None
+    pass
 
 
 class MetadataOpener(object):

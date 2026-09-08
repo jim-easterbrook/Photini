@@ -1658,12 +1658,47 @@ class MD_Dimensions(MD_Collection):
     _keys = ('width', 'height')
     _default_type = MD_Int
 
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not any(file_value.values()):
+            return cls({})
+        if tag == 'Xmp.video.WidthHeight':
+            file_value = dict((k.lower(), v) for k, v in file_value.items())
+        elif tag == 'Exif.ImageWidthLength':
+            file_value = {
+                'width': max(
+                    file_value[k] for k in file_value if 'Width' in k),
+                'height': max(
+                    file_value[k] for k in file_value if 'Length' in k),
+                }
+        elif tag == 'Exif.PixelXYDimension':
+            assert(len(file_value) == 2)
+            assert('Exif.Photo.PixelXDimension' in file_value)
+            file_value = {
+                'width': file_value['Exif.Photo.PixelXDimension'],
+                'height': file_value['Exif.Photo.PixelYDimension'],
+                }
+        return cls(file_value)
+
+    to_exiv2 = None
+
+    def merge(self, info, tag, other):
+        # ignore all values after the first one
+        return self
+
+    def portrait_format(self):
+        return bool(self) and self['height'] > self['width']
+
     def scaled_to(self, target_size):
         w = float(self['width'])
         h = float(self['height'])
         if w > h:
             return target_size, int((float(target_size) * h / w) + 0.5)
         return int((float(target_size) * w / h) + 0.5), target_size
+
+    def __bool__(self):
+        return (bool(self['width']) and bool(self['height'])
+                and self['width'] > 0 and self['height'] > 0)
 
 
 class MD_FocalLength(MD_Collection):
