@@ -479,7 +479,6 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         super(FocalLengthCompound, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.crop_factor = None
-        self.image_crop_factor = None
         self.camera_name = None
         suffix = translate('TechnicalTab', ' mm', 'millimetres focal length')
         # actual focal length
@@ -525,7 +524,6 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
             self.crop_factor = crop_factor
             self.config_store.set('crop factor', self.camera_name, crop_factor)
         else:
-            self.crop_factor = self.image_crop_factor
             self.config_store.delete('crop factor', self.camera_name)
         self.after_load()
 
@@ -535,14 +533,11 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         self.crop_factor = None
         if self.fl.has_value() and bool(self.fl35.get_value()):
             self.crop_factor = self.fl35.get_value() / self.fl.get_value()
-            self.image_crop_factor = self.crop_factor
-        if not self.image_crop_factor:
-            self.image_crop_factor = md.get_crop_factor()
-        if not self.crop_factor and self.camera_name:
+        elif self.camera_name:
             self.crop_factor = self.config_store.get(
                 'crop factor', self.camera_name)
         if not self.crop_factor:
-            self.crop_factor = self.image_crop_factor
+            self.crop_factor = md.get_crop_factor()
         self.after_load()
 
 
