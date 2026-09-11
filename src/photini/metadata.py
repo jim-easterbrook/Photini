@@ -302,11 +302,11 @@ class ImageMetadata(MetadataHandler):
         'Exif.ImageWidthLength': (
             re.compile(r'(Exif\..*?Image.*?\.Image(Width|Length))'),),
         'Exif.PixelXYDimension': (
-            re.compile(r'(Exif\..*?\.Pixel(X|Y)Dimension)'),),
+            re.compile(r'Exif\..*?\.(Pixel(X|Y)Dimension)'),),
         'Xmp.exif.GPS': (
             re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
         'Xmp.PixelXYDimension': (
-            re.compile(r'(Xmp\.exif\.Pixel(X|Y)Dimension)'),),
+            re.compile(r'Xmp\.exif\.(Pixel(X|Y)Dimension)'),),
         'Xmp.video.WidthHeight': (re.compile(r'Xmp\.video\.(Width|Height)'),),
         }
     # these ones return a list of values
@@ -933,8 +933,10 @@ class Metadata(object):
         if not (image_size and resolution):
             return None
         # get sensor diagonal in mm
-        w = image_size['width'] / resolution['x']
-        h = image_size['height'] / resolution['y']
+        w = image_size['sensor_width'] or image_size['width']
+        h = image_size['sensor_height'] or image_size['height']
+        w /= resolution['x']
+        h /= resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))
         if resolution['unit'] == 3:
             # unit is cm

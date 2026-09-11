@@ -1657,7 +1657,9 @@ class MD_VideoDuration(MD_Rational):
 
 
 class MD_Dimensions(MD_Collection):
-    _keys = ('width', 'height')
+    # width & height - actual image
+    # sensor_width & sensor_height - best guess at original size
+    _keys = ('width', 'height', 'sensor_width', 'sensor_height')
     _default_type = MD_Int
 
     @classmethod
@@ -1667,26 +1669,34 @@ class MD_Dimensions(MD_Collection):
         if tag == 'Xmp.video.WidthHeight':
             file_value = dict((k.lower(), v) for k, v in file_value.items())
         elif tag == 'Exif.ImageWidthLength':
-            file_value = {
-                'width': max(
-                    file_value[k] for k in file_value if 'Width' in k),
-                'height': max(
-                    file_value[k] for k in file_value if 'Length' in k),
-                }
-        elif tag == 'Exif.PixelXYDimension':
-            assert(len(file_value) == 2)
-            assert('Exif.Photo.PixelXDimension' in file_value)
-            file_value = {
-                'width': file_value['Exif.Photo.PixelXDimension'],
-                'height': file_value['Exif.Photo.PixelYDimension'],
-                }
+            widths = [file_value[k] for k in file_value if 'Width' in k]
+            heights = [file_value[k] for k in file_value if 'Length' in k]
+            widths.sort(reverse=True)
+            heights.sort(reverse=True)
+            idx = 0
+            if len(widths) > 1 and widths[0] < 1.03 * widths[1]:
+                # largest is raw image that's slightly bigger than final image
+                idx = 1
+            file_value = {'sensor_width': widths[idx],
+                          'sensor_height': heights[idx]}
+        elif tag in ('Exif.PixelXYDimension', 'Xmp.PixelXYDimension'):
+            file_value = {'sensor_width': file_value.get('PixelXDimension'),
+                          'sensor_height': file_value.get('PixelYDimension')}
         return cls(file_value)
 
     to_exiv2 = None
 
     def merge(self, info, tag, other):
-        # ignore all values after the first one
-        return self
+        if other == self:
+            return self
+        result = dict(self)
+        # choose largest dimensions
+        for key in other:
+            if not result[key]:
+                result[key] = other[key]
+            elif other[key]:
+                result[key] = max(result[key], other[key])
+        return self.__class__(result)
 
     def portrait_format(self):
         return bool(self) and self['height'] > self['width']
@@ -1699,8 +1709,8 @@ class MD_Dimensions(MD_Collection):
         return int((float(target_size) * w / h) + 0.5), target_size
 
     def __bool__(self):
-        return (bool(self['width']) and bool(self['height'])
-                and self['width'] > 0 and self['height'] > 0)
+        return bool((self['width'] and self['height']) or
+                    (self['sensor_width'] and self['sensor_height']))
 
 
 class MD_Resolution(MD_Collection):

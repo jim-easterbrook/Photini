@@ -715,7 +715,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         mime_type = image.file_type
         if mime_type.startswith('video'):
             dims = image.metadata.dimensions
-            if dims:
+            if dims['width'] and dims['height']:
                 convert.update(self.ask_resize_image(
                     image, state, pixels=dims['width'] * dims['height']))
             if not any(convert.values()):
