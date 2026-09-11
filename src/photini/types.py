@@ -1205,6 +1205,12 @@ class MD_HierarchicalTags(MD_Value, tuple):
 class MD_Keywords(MD_MultiString):
     _machine_tag = re.compile(r'^(.+):(.+)=(.+)$')
 
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if file_value and tag == 'Exif.Image.XPKeywords':
+            file_value = file_value.split(';')
+        return cls(file_value)
+
     def human_tags(self):
         return [x for x in self if not self._machine_tag.match(x)]
 
