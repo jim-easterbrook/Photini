@@ -1739,16 +1739,34 @@ class MD_Resolution(MD_Collection):
 
 
 class MD_FocalLength(MD_Collection):
-    _keys = ('fl', 'fl35')
+    _keys = ('FocalLength', 'FocalLengthIn35mmFilm')
     _default_type = MD_Int
-    _type = {'fl': MD_Rational}
+    _type = {'FocalLength': MD_Rational}
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        return cls(file_value)
+
+    def to_exif(self):
+        if not self:
+            return None
+        return dict((k, v.to_exif()) for k, v in self.items() if v)
+
+    to_iptc = None
+
+    def to_xmp(self):
+        if not self:
+            return None
+        return dict((k, v.to_xmp()) for k, v in self.items() if v)
 
     def reset_focal_length(self, new_fl):
-        if self['fl35'] and self['fl']:
-            new_fl35 = new_fl * self['fl35'] / self['fl']
+        if self['FocalLengthIn35mmFilm'] and self['FocalLength']:
+            new_fl35 = (new_fl *
+                        self['FocalLengthIn35mmFilm'] / self['FocalLength'])
         else:
             new_fl35 = None
-        return MD_FocalLength({'fl': new_fl, 'fl35': new_fl35})
+        return MD_FocalLength({'FocalLength': new_fl,
+                               'FocalLengthIn35mmFilm': new_fl35})
 
 
 class CountryCode(MD_UnmergableString):

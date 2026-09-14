@@ -299,12 +299,18 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'(Exif\..*?\.FocalPlane.*Resolution.*)'),),
         'Exif.GPSInfo.GPS': (
             re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
+        'Exif.Image.FocalLength': (
+            re.compile(r'Exif\.Image\.(FocalLength.*)'), 'Exif.Image.{}'),
         'Exif.ImageWidthLength': (
             re.compile(r'(Exif\..*?Image.*?\.Image(Width|Length))'),),
+        'Exif.Photo.FocalLength': (
+            re.compile(r'Exif\.Photo\.(FocalLength.*)'), 'Exif.Photo.{}'),
         'Exif.PixelXYDimension': (
             re.compile(r'Exif\..*?\.(Pixel(X|Y)Dimension)'),),
         'Xmp.exif.GPS': (
             re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
+        'Xmp.exif.FocalLength': (
+            re.compile(r'Xmp\.exif\.(FocalLength.*)'), 'Xmp.exif.{}'),
         'Xmp.PixelXYDimension': (
             re.compile(r'Xmp\.exif\.(Pixel(X|Y)Dimension)'),),
         'Xmp.video.WidthHeight': (re.compile(r'Xmp\.video\.(Width|Height)'),),
@@ -325,7 +331,6 @@ class ImageMetadata(MetadataHandler):
         'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
         'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
-        'Exif.Image.FocalLength*': ('Exif.Image.FocalLength',),
         'Exif.Image.Lens*': ('', '', '', 'Exif.Image.LensInfo'),
         'Exif.Image.Make*': (
             'Exif.Image.Make', 'Exif.Image.Model',
@@ -363,8 +368,6 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.OffsetTimeOriginal'),
         'Exif.Photo.FNumber*': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
-        'Exif.Photo.FocalLength*': (
-            'Exif.Photo.FocalLength', 'Exif.Photo.FocalLengthIn35mmFilm'),
         'Exif.Photo.Lens*': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber', 'Exif.Photo.LensSpecification'),
@@ -391,8 +394,6 @@ class ImageMetadata(MetadataHandler):
         'Xmp.aux.Lens*': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
-        'Xmp.exif.FocalLength*': (
-            'Xmp.exif.FocalLength', 'Xmp.exif.FocalLengthIn35mmFilm'),
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
@@ -487,9 +488,9 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.ImageWidthLength'),
                             ('WN', 'Exif.PixelXYDimension'),
                             ('WN', 'Xmp.PixelXYDimension')),
-        'focal_length'   : (('WA', 'Exif.Photo.FocalLength*'),
-                            ('W0', 'Exif.Image.FocalLength*'),
-                            ('WX', 'Xmp.exif.FocalLength*')),
+        'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
+                            ('W0', 'Exif.Image.FocalLength'),
+                            ('WX', 'Xmp.exif.FocalLength')),
         'gps_info'       : (('WA', 'Exif.GPSInfo.GPS'),
                             ('WX', 'Xmp.exif.GPS'),
                             ('W0', 'Xmp.video.GPSCoordinates')),

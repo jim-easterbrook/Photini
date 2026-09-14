@@ -483,10 +483,10 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         suffix = translate('TechnicalTab', ' mm', 'millimetres focal length')
         # actual focal length
         self.fl = NumericalWidget(
-            'fl', DoubleValidator(minimum=0.0, suffix=suffix))
+            'FocalLength', DoubleValidator(minimum=0.0, suffix=suffix))
         # 35mm equivalent focal length
         self.fl35 = FL35Widget(
-            'fl35', IntValidator(minimum=0, suffix=suffix))
+            'FocalLengthIn35mmFilm', IntValidator(minimum=0, suffix=suffix))
         self.fl35._owner = self
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
