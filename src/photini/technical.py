@@ -74,8 +74,13 @@ class CameraList(DropdownEdit):
             if not section.startswith('camera '):
                 continue
             camera = {}
-            for key in 'make', 'model', 'serial_no':
-                camera[key] = self.app.config_store.get(section, key)
+            for old_key, new_key in (('make', 'Make'),
+                                     ('model', 'Model'),
+                                     ('serial_no', 'SerialNumber')):
+                camera[new_key] = self.app.config_store.get(section, new_key)
+                if not camera[new_key]:
+                    camera[new_key] = self.app.config_store.get(section, old_key)
+                self.app.config_store.delete(section, old_key)
             camera = MD_CameraModel(camera)
             name = camera.get_name()
             if name != section[7:]:
@@ -116,10 +121,14 @@ class LensList(DropdownEdit):
             if not section.startswith('lens '):
                 continue
             lens_model = {}
-            for old_key, new_key in (('lens_make', 'make'),
-                                     ('lens_model', 'model'),
-                                     ('lens_serial', 'serial_no'),
-                                     ('lens_spec', 'spec')):
+            for old_key, new_key in (('lens_make', 'Make'),
+                                     ('lens_model', 'Model'),
+                                     ('lens_serial', 'SerialNumber'),
+                                     ('lens_spec', 'Specification'),
+                                     ('make', 'Make'),
+                                     ('model', 'Model'),
+                                     ('serial_no', 'SerialNumber'),
+                                     ('spec', 'Specification')):
                 lens_model[new_key] = self.app.config_store.get(section, new_key)
                 if not lens_model[new_key]:
                     lens_model[new_key] = self.app.config_store.get(section, old_key)
@@ -155,10 +164,12 @@ class LensList(DropdownEdit):
 
     def set_value(self, value):
         super(LensList, self).set_value(value)
-        if not (value and value['spec'] and value['spec']['min_fl']):
+        if not (value and
+                value['Specification'] and value['Specification']['min_fl']):
             self.setToolTip('')
             return
-        spec = dict((k, float(v) or '') for k, v in value['spec'].items())
+        spec = dict((k, float(v) or '')
+                    for k, v in value['Specification'].items())
         tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
                     '<th width="70">{th_max}</th></tr>'
                     '<tr><th align="right">{th_fl}</th>'
@@ -353,9 +364,9 @@ class NewItemDialog(QtWidgets.QDialog):
         # common data items
         self.model_widgets = {}
         for key, label in (
-                ('make', translate('TechnicalTab', "Maker's name")),
-                ('model', translate('TechnicalTab', 'Model name')),
-                ('serial_no', translate('TechnicalTab', 'Serial number')),
+                ('Make', translate('TechnicalTab', "Maker's name")),
+                ('Model', translate('TechnicalTab', 'Model name')),
+                ('SerialNumber', translate('TechnicalTab', 'Serial number')),
                 ):
             self.model_widgets[key] = QtWidgets.QLineEdit()
             self.model_widgets[key].setMinimumWidth(

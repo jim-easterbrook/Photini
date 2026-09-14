@@ -1082,13 +1082,13 @@ class MD_Rights(MD_Collection):
 
 
 class MD_CameraModel(MD_Collection):
-    _keys = ('make', 'model', 'serial_no')
+    _keys = ('Make', 'Model', 'SerialNumber')
     _default_type = MD_UnmergableString
     _quiet = True
 
     def convert(self, value):
-        if value['model'] == 'unknown':
-            value['model'] = None
+        if value['Model'] == 'unknown':
+            value['Model'] = None
         return super(MD_CameraModel, self).convert(value)
 
     def __str__(self):
@@ -1096,51 +1096,52 @@ class MD_CameraModel(MD_Collection):
 
     def get_name(self, inc_serial=True):
         result = []
-        # start with 'model'
-        if self['model']:
-            result.append(self['model'])
-        # only add 'make' if it's not part of model
-        if self['make']:
+        # start with model
+        if self['Model']:
+            result.append(self['Model'])
+        # only add make if it's not part of model
+        if self['Make']:
             if not (result
-                    and self['make'].split()[0].lower() in result[0].lower()):
-                result = [self['make']] + result
+                    and self['Make'].split()[0].lower() in result[0].lower()):
+                result = [self['Make']] + result
         # add serial no if a unique answer is needed
-        if inc_serial and self['serial_no']:
-            result.append('(S/N: ' + self['serial_no'] + ')')
+        if inc_serial and self['SerialNumber']:
+            result.append('(S/N: ' + self['SerialNumber'] + ')')
         return ' '.join(result)
 
 
 class MD_LensModel(MD_Collection):
-    _keys = ('make', 'model', 'serial_no', 'spec')
+    _keys = ('Make', 'Model', 'SerialNumber', 'Specification')
     _default_type = MD_UnmergableString
-    _type = {'spec': MD_LensSpec}
+    _type = {'Specification': MD_LensSpec}
     _quiet = True
 
     def convert(self, value):
-        if value['model'] in ('n/a', '(0)', '65535'):
-            value['model'] = None
-        if value['serial_no'] == '0000000000':
-            value['serial_no'] = None
+        if value['Model'] in ('n/a', '(0)', '65535'):
+            value['Model'] = None
+        if value['SerialNumber'] == '0000000000':
+            value['SerialNumber'] = None
         return super(MD_LensModel, self).convert(value)
 
     def get_name(self, inc_serial=True):
         result = []
-        # start with 'model'
-        if self['model']:
-            result.append(self['model'])
-        # only add 'make' if it's not part of model
-        if self['make']:
+        # start with model
+        if self['Model']:
+            result.append(self['Model'])
+        # only add make if it's not part of model
+        if self['Make']:
             if not (result
-                    and self['make'].split()[0].lower() in result[0].lower()):
-                result = [self['make']] + result
-        if inc_serial and self['serial_no']:
-            result.append('(S/N: ' + self['serial_no'] + ')')
-        if self['spec'] and not result:
-            # generic name based on spec
-            fl = [float(self['spec']['min_fl']), float(self['spec']['max_fl'])]
+                    and self['Make'].split()[0].lower() in result[0].lower()):
+                result = [self['Make']] + result
+        if inc_serial and self['SerialNumber']:
+            result.append('(S/N: ' + self['SerialNumber'] + ')')
+        if self['Specification'] and not result:
+            # generic name based on Specification
+            fl = [float(self['Specification']['min_fl']),
+                  float(self['Specification']['max_fl'])]
             fl = '–'.join(['{:g}'.format(x) for x in fl if x])
-            fn = [float(self['spec']['min_fl_fn']),
-                  float(self['spec']['max_fl_fn'])]
+            fn = [float(self['Specification']['min_fl_fn']),
+                  float(self['Specification']['max_fl_fn'])]
             fn = '–'.join(['{:g}'.format(x) for x in fn if x])
             if fl:
                 model = fl + ' mm'
