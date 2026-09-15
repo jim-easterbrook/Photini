@@ -414,7 +414,7 @@ class NewLensDialog(NewItemDialog):
             for key in self.model_widgets:
                 if model[key]:
                     self.model_widgets[key].setText(model[key])
-            spec = model['spec']
+            spec = model['Specification']
             if not spec:
                 continue
             for key in self.lens_spec:
@@ -452,7 +452,7 @@ class NewLensDialog(NewItemDialog):
         max_fl = self.lens_spec['max_fl'].get_value() or min_fl
         min_fl_fn = self.lens_spec['min_fl_fn'].get_value() or 0
         max_fl_fn = self.lens_spec['max_fl_fn'].get_value() or min_fl_fn
-        lens_model['spec'] = (min_fl, max_fl, min_fl_fn, max_fl_fn)
+        lens_model['Specification'] = (min_fl, max_fl, min_fl_fn, max_fl_fn)
         return MD_LensModel(lens_model) or None
 
 
@@ -727,7 +727,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def update_focal_length_aperture(self, images):
         value = self.widgets['lens_model'].get_value()
-        spec = value['spec']
+        spec = value['Specification']
         if not (spec and spec['min_fl']):
             return
         make_changes = False
