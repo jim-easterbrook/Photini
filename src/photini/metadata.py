@@ -295,35 +295,43 @@ class ImageMetadata(MetadataHandler):
     # by a single name
     # these ones return a dict of matching keys and values
     _match_tags = {
+        'Exif.Canon.Lens': (re.compile(r'Exif\.Canon(?:|Cs|Le)\.(Lens.*)'),),
         'Exif.FocalPlaneResolution': (
             re.compile(r'(Exif\..*?\.FocalPlane.*Resolution.*)'),),
         'Exif.GPSInfo.GPS': (
             re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
         'Exif.Image.FocalLength': (
             re.compile(r'Exif\.Image\.(FocalLength.*)'), 'Exif.Image.{}'),
+        'Exif.Image.Lens': (re.compile(r'Exif\.Image\.(Lens.*)'),),
         'Exif.ImageWidthLength': (
             re.compile(r'(Exif\..*?Image.*?\.Image(Width|Length))'),),
+        'Exif.Minolta.Lens': (re.compile(r'Exif\.Minolta\.(Lens.*)'),),
+        'Exif.Nikon.Lens': (
+            re.compile(r'Exif\.Nikon(?:Ld.|3)\.(Lens(?:|ID.*)$)'),),
+        'Exif.Olympus.Lens': (re.compile(r'Exif\.OlympusEq\.(Lens.*)'),),
+        'Exif.Pentax.Lens': (re.compile(r'Exif\.Pentax.*?\.(LensType)'),),
         'Exif.Photo.FocalLength': (
             re.compile(r'Exif\.Photo\.(FocalLength.*)'), 'Exif.Photo.{}'),
+        'Exif.Photo.Lens': (
+            re.compile(r'Exif\.Photo\.Lens(.*)'), 'Exif.Photo.Lens{}'),
         'Exif.PixelXYDimension': (
             re.compile(r'Exif\..*?\.(Pixel(X|Y)Dimension)'),),
+        'Exif.Sony.Lens': (re.compile(r'Exif\.Sony\d\.(Lens.*)'),),
+        'Xmp.aux.Lens': (re.compile(r'Xmp\.aux\.(Lens.*)'),),
         'Xmp.exif.GPS': (
             re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
         'Xmp.exif.FocalLength': (
             re.compile(r'Xmp\.exif\.(FocalLength.*)'), 'Xmp.exif.{}'),
+        'Xmp.exifEX.Lens': (
+            re.compile(r'Xmp\.exifEX\.Lens(.*)'), 'Xmp.exifEX.Lens{}'),
         'Xmp.PixelXYDimension': (
             re.compile(r'Xmp\.exif\.(Pixel(X|Y)Dimension)'),),
         'Xmp.video.WidthHeight': (re.compile(r'Xmp\.video\.(Width|Height)'),),
         }
     # these ones return a list of values
     _multi_tags = {
-        'Exif.Canon.LensModel*': ('', 'Exif.Canon.LensModel'),
         'Exif.Canon.ModelID*': (
             '', 'Exif.Canon.ModelID', 'Exif.Canon.SerialNumber'),
-        'Exif.CanonCs.Lens*': ('', 'Exif.CanonCs.LensType',
-                               '', 'Exif.CanonCs.Lens'),
-        'Exif.CanonLe.LensSerialNumber*': (
-            '', '', 'Exif.CanonLe.LensSerialNumber'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.Image.DateTime*': (
             'Exif.Image.DateTime', 'Exif.Photo.SubSecTime',
@@ -331,34 +339,20 @@ class ImageMetadata(MetadataHandler):
         'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
         'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
-        'Exif.Image.Lens*': ('', '', '', 'Exif.Image.LensInfo'),
         'Exif.Image.Make*': (
             'Exif.Image.Make', 'Exif.Image.Model',
             'Exif.Photo.BodySerialNumber'),
         'Exif.Image.UniqueCameraModel*': (
             '', 'Exif.Image.UniqueCameraModel', 'Exif.Image.CameraSerialNumber'),
-        'Exif.Minolta.LensID*': ('', 'Exif.Minolta.LensID'),
-        'Exif.Nikon3.Lens*': (
-            '', 'Exif.Nikon3.LensType', '', 'Exif.Nikon3.Lens'),
         'Exif.Nikon3.SerialNumber*': ('', '', 'Exif.Nikon3.SerialNumber'),
-        'Exif.NikonLd1.LensIDNumber*': ('', 'Exif.NikonLd1.LensIDNumber'),
-        'Exif.NikonLd2.LensIDNumber*': ('', 'Exif.NikonLd2.LensIDNumber'),
-        'Exif.NikonLd3.LensIDNumber*': ('', 'Exif.NikonLd3.LensIDNumber'),
-        'Exif.NikonLd4.LensIDNumber*': ('', 'Exif.NikonLd4.LensIDNumber'),
         'Exif.OlympusEq.Camera*': (
             '', 'Exif.OlympusEq.CameraType', 'Exif.OlympusEq.SerialNumber'),
-        'Exif.OlympusEq.LensModel*': (
-            '', 'Exif.OlympusEq.LensModel', 'Exif.OlympusEq.LensSerialNumber'),
-        'Exif.OlympusEq.Lens2*': (
-            '', 'Exif.OlympusEq.LensType', ''),
         'Exif.Olympus2.Camera*': (
             '', 'Exif.Olympus2.CameraID', ''),
         'Exif.Panasonic.InternalSerialNumber*': (
             '', '', 'Exif.Panasonic.InternalSerialNumber'),
-        'Exif.Pentax.LensType*': ('', 'Exif.Pentax.LensType'),
         'Exif.Pentax.ModelID*': (
             '', 'Exif.Pentax.ModelID', 'Exif.Pentax.SerialNumber'),
-        'Exif.PentaxDng.LensType*': ('', 'Exif.PentaxDng.LensType'),
         'Exif.PentaxDng.ModelID*': ('', 'Exif.PentaxDng.ModelID'),
         'Exif.Photo.DateTimeDigitized*': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized',
@@ -368,14 +362,9 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.OffsetTimeOriginal'),
         'Exif.Photo.FNumber*': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
-        'Exif.Photo.Lens*': (
-            'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
-            'Exif.Photo.LensSerialNumber', 'Exif.Photo.LensSpecification'),
         'Exif.Sigma.SerialNumber*': (
             '', '', 'Exif.Sigma.SerialNumber'),
-        'Exif.Sony1.LensID*': ('', 'Exif.Sony1.LensID'),
         'Exif.Sony1.SonyModelID*': ('', 'Exif.Sony1.SonyModelID'),
-        'Exif.Sony2.LensID*': ('', 'Exif.Sony2.LensID'),
         'Exif.Sony2.SonyModelID*': ('', 'Exif.Sony2.SonyModelID'),
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
@@ -391,12 +380,8 @@ class ImageMetadata(MetadataHandler):
             'Iptc.Application2.CountryCode'),
         'Iptc.Application2.Program*': (
             'Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion'),
-        'Xmp.aux.Lens*': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
-        'Xmp.exifEX.Lens*': (
-            'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
-            'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
@@ -504,25 +489,16 @@ class ImageMetadata(MetadataHandler):
         'keywords'       : (('WA', 'Xmp.dc.subject'),
                             ('WA', 'Iptc.Application2.Keywords'),
                             ('W0', 'Exif.Image.XPKeywords')),
-        'lens_model'     : (('WA', 'Exif.Photo.Lens*'),
-                            ('WX', 'Xmp.exifEX.Lens*'),
-                            ('W0', 'Exif.Image.Lens*'),
-                            ('WN', 'Exif.Canon.LensModel*'),
-                            ('WN', 'Exif.CanonCs.Lens*'),
-                            ('WN', 'Exif.CanonLe.LensSerialNumber*'),
-                            ('WN', 'Exif.Minolta.LensID*'),
-                            ('WN', 'Exif.NikonLd1.LensIDNumber*'),
-                            ('WN', 'Exif.NikonLd2.LensIDNumber*'),
-                            ('WN', 'Exif.NikonLd3.LensIDNumber*'),
-                            ('WN', 'Exif.NikonLd4.LensIDNumber*'),
-                            ('WN', 'Exif.Nikon3.Lens*'),
-                            ('WN', 'Exif.OlympusEq.LensModel*'),
-                            ('WN', 'Exif.OlympusEq.Lens2*'),
-                            ('WN', 'Exif.Pentax.LensType*'),
-                            ('WN', 'Exif.PentaxDng.LensType*'),
-                            ('WN', 'Exif.Sony1.LensID*'),
-                            ('WN', 'Exif.Sony2.LensID*'),
-                            ('W0', 'Xmp.aux.Lens*')),
+        'lens_model'     : (('WA', 'Exif.Photo.Lens'),
+                            ('WX', 'Xmp.exifEX.Lens'),
+                            ('W0', 'Exif.Image.Lens'),
+                            ('WN', 'Exif.Canon.Lens'),
+                            ('WN', 'Exif.Minolta.Lens'),
+                            ('WN', 'Exif.Nikon.Lens'),
+                            ('WN', 'Exif.Olympus.Lens'),
+                            ('WN', 'Exif.Pentax.Lens'),
+                            ('WN', 'Exif.Sony.Lens'),
+                            ('W0', 'Xmp.aux.Lens')),
         'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
                             ('WA', 'Iptc.Legacy.Location*'),

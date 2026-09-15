@@ -548,16 +548,23 @@ class MD_LensSpec(MD_Dict):
             return cls([])
         if isinstance(file_value, str):
             file_value = file_value.split()
-        if 'CanonCs' in tag:
+        if tag == 'Exif.Canon.Lens':
             long_focal, short_focal, focal_units = [int(x) for x in file_value]
             if focal_units == 0:
                 return cls([])
             file_value = [(short_focal, focal_units), (long_focal, focal_units)]
+        elif tag == 'Exif.Sony.Lens':
+            file_value = [int(x) for x in file_value[2:-1]]
+            file_value = [((x >> 4) * 10) + (x & 0xf) for x in file_value]
+            file_value[1:3] = [(file_value[1] * 100) + file_value[2]]
         return cls(file_value)
 
     def to_xmp(self):
         return ' '.join(['{}/{}'.format(x.numerator, x.denominator)
                          for x in self.to_exif()])
+
+    def __bool__(self):
+        return bool(self['min_fl'])
 
     def __str__(self):
         return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])
@@ -685,9 +692,9 @@ class MD_Collection(MD_Dict):
             return self
         result = dict(self)
         for key in other:
-            if other[key] is None:
+            if not other[key]:
                 continue
-            if key in result and result[key] is not None:
+            if key in result and result[key]:
                 result[key], merged, ignored = result[key].merge_item(
                                                         result[key], other[key])
             else:
@@ -1116,12 +1123,32 @@ class MD_LensModel(MD_Collection):
     _type = {'Specification': MD_LensSpec}
     _quiet = True
 
-    def convert(self, value):
-        if value['Model'] in ('n/a', '(0)', '65535'):
-            value['Model'] = None
-        if value['SerialNumber'] == '0000000000':
-            value['SerialNumber'] = None
-        return super(MD_LensModel, self).convert(value)
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        for key, value in list(file_value.items()):
+            if (isinstance(value, str)
+                and (value in ('', 'n/a', '(0)', '0000000000')
+                     or value.startswith('Unknown'))):
+                del file_value[key]
+        if tag == 'Exif.Photo.Lens':
+            return cls(file_value)
+        if tag == 'Exif.Canon.Lens' and 'Lens' in file_value:
+            file_value['LensSpec'] = file_value['Lens']
+            del file_value['Lens']
+        value = {}
+        for key, aliases in (('Model', ('LensType', 'LensModel', 'LensID',
+                                        'LensIDNumber', 'Lens')),
+                             ('SerialNumber', ('LensSerialNumber',)),
+                             ('Specification', ('LensSpec', 'LensInfo'))):
+            for alias in aliases:
+                if alias in file_value:
+                    value[key] = file_value[alias]
+                    break
+        for key in value:
+            value[key] = cls.get_type(key).from_exiv2(value[key], tag)
+        return cls(value)
 
     def get_name(self, inc_serial=True):
         result = []

@@ -409,20 +409,19 @@ class MetadataHandler(object):
         return self.decode_exif_value(tag, datum)
 
     def decode_exif_value(self, tag, datum):
-        if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
-                   'Exif.Canon.SerialNumber', 'Exif.CanonLe.LensSerialNumber',
-                   'Exif.Image.XPTitle', 'Exif.Image.XPComment',
-                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
-                   'Exif.Image.XPSubject', 'Exif.NikonLd1.LensIDNumber',
-                   'Exif.Minolta.LensID', 'Exif.Nikon3.LensType',
-                   'Exif.NikonLd2.LensIDNumber', 'Exif.NikonLd3.LensIDNumber',
-                   'Exif.NikonLd4.LensIDNumber', 'Exif.OlympusEq.LensType',
-                   'Exif.Olympus2.CameraID',
-                   'Exif.Panasonic.InternalSerialNumber',
-                   'Exif.Pentax.LensType', 'Exif.Pentax.ModelID',
-                   'Exif.PentaxDng.LensType', 'Exif.PentaxDng.ModelID',
-                   'Exif.Sony1.LensID', 'Exif.Sony1.SonyModelID',
-                   'Exif.Sony2.LensID', 'Exif.Sony2.SonyModelID'):
+        if (tag.startswith('Exif.Image.XP') or
+            tag.startswith('Exif.NikonLd') or
+            tag.startswith('Exif.Nikon3.') or
+            tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
+                    'Exif.Canon.SerialNumber', 'Exif.CanonLe.LensSerialNumber',
+                    'Exif.Minolta.LensID',
+                    'Exif.OlympusEq.LensType',
+                    'Exif.Olympus2.CameraID',
+                    'Exif.Panasonic.InternalSerialNumber',
+                    'Exif.Pentax.LensType', 'Exif.Pentax.ModelID',
+                    'Exif.PentaxDng.LensType', 'Exif.PentaxDng.ModelID',
+                    'Exif.Sony1.LensID', 'Exif.Sony1.SonyModelID',
+                    'Exif.Sony2.LensID', 'Exif.Sony2.SonyModelID')):
             # use Exiv2's "interpreted string"
             return datum.print(self._exifData)
         value = datum.value()
