@@ -1150,6 +1150,18 @@ class MD_LensModel(MD_Collection):
             value[key] = cls.get_type(key).from_exiv2(value[key], tag)
         return cls(value)
 
+    def to_exif(self):
+        if not self:
+            return None
+        return dict((k, v.to_exif()) for k, v in self.items() if v)
+
+    to_iptc = None
+
+    def to_xmp(self):
+        if not self:
+            return None
+        return dict((k, v.to_xmp()) for k, v in self.items() if v)
+
     def get_name(self, inc_serial=True):
         result = []
         # start with model

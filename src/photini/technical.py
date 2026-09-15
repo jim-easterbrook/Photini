@@ -734,7 +734,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
         for image in images:
             md = image.metadata
             new_aperture = md.aperture or 0
-            new_fl = md.focal_length['fl'] or 0
+            new_fl = md.focal_length['FocalLength'] or 0
             if not (new_aperture or new_fl):
                 continue
             if new_fl <= spec['min_fl']:
@@ -747,7 +747,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                 new_aperture = max(new_aperture,
                                    min(spec['min_fl_fn'], spec['max_fl_fn']))
             if (new_aperture == md.aperture and
-                      new_fl == md.focal_length['fl']):
+                      new_fl == md.focal_length['FocalLength']):
                 continue
             if make_changes:
                 pass
