@@ -304,10 +304,14 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'Exif\.Fujifilm\.(SerialNumber)'),),
         'Exif.GPSInfo.GPS': (
             re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
+        'Exif.Image.ApertureValue': (
+            re.compile(r'Exif\.Image\.(ApertureValue)'),),
         'Exif.Image.Camera1': (
             re.compile(r'Exif\.Image\.(Make|Model|CameraSerialNumber)'),
             'Exif.Image.{}'),
         'Exif.Image.Camera2': (re.compile(r'Exif\.Image\.(.*CameraModel)'),),
+        'Exif.Image.FNumber': (
+            re.compile(r'Exif\.Image\.(ApertureValue|FNumber)'),),
         'Exif.Image.FocalLength': (
             re.compile(r'Exif\.Image\.(FocalLength.*)'), 'Exif.Image.{}'),
         'Exif.Image.Lens': (re.compile(r'Exif\.Image\.(Lens.*)'),),
@@ -325,7 +329,11 @@ class ImageMetadata(MetadataHandler):
         'Exif.Pentax.Camera': (re.compile(
             r'Exif\.Pentax.*?\.(ModelID|SerialNumber)'),),
         'Exif.Pentax.Lens': (re.compile(r'Exif\.Pentax.*?\.(LensType)'),),
+        'Exif.Photo.ApertureValue': (
+            re.compile(r'Exif\.Photo\.(ApertureValue)'),),
         'Exif.Photo.Camera': (re.compile(r'Exif\.Photo\.(BodySerialNumber)'),),
+        'Exif.Photo.FNumber': (re.compile(
+            r'Exif\.Photo\.(ApertureValue|FNumber)'), 'Exif.Photo.{}'),
         'Exif.Photo.FocalLength': (
             re.compile(r'Exif\.Photo\.(FocalLength.*)'), 'Exif.Photo.{}'),
         'Exif.Photo.Lens': (
@@ -338,6 +346,9 @@ class ImageMetadata(MetadataHandler):
         'Exif.Sony.Lens': (re.compile(r'Exif\.Sony\d\.(Lens.*)'),),
         'Xmp.aux.Camera': (re.compile(r'Xmp\.aux\.(SerialNumber)'),),
         'Xmp.aux.Lens': (re.compile(r'Xmp\.aux\.(Lens.*)'),),
+        'Xmp.exif.ApertureValue': (re.compile(r'Xmp\.exif\.(ApertureValue)'),),
+        'Xmp.exif.FNumber': (re.compile(
+            r'Xmp\.exif\.(ApertureValue|FNumber)'), 'Xmp.exif.{}'),
         'Xmp.exif.GPS': (
             re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
         'Xmp.exif.FocalLength': (
@@ -355,16 +366,12 @@ class ImageMetadata(MetadataHandler):
             'Exif.Image.DateTime', 'Exif.Photo.SubSecTime',
             'Exif.Photo.OffsetTime'),
         'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
-        'Exif.Image.FNumber*': (
-            'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
         'Exif.Photo.DateTimeDigitized*': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized',
             'Exif.Photo.OffsetTimeDigitized'),
         'Exif.Photo.DateTimeOriginal*': (
             'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal',
             'Exif.Photo.OffsetTimeOriginal'),
-        'Exif.Photo.FNumber*': (
-            'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
@@ -379,7 +386,6 @@ class ImageMetadata(MetadataHandler):
             'Iptc.Application2.CountryCode'),
         'Iptc.Application2.Program*': (
             'Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion'),
-        'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
@@ -400,9 +406,12 @@ class ImageMetadata(MetadataHandler):
     _tag_list = {
         'alt_text'       : (('WA', 'Xmp.iptc.AltTextAccessibility'),),
         'alt_text_ext'   : (('WA', 'Xmp.iptc.ExtDescrAccessibility'),),
-        'aperture'       : (('WA', 'Exif.Photo.FNumber*'),
-                            ('W0', 'Exif.Image.FNumber*'),
-                            ('WX', 'Xmp.exif.FNumber*')),
+        'aperture'       : (('WA', 'Exif.Photo.FNumber'),
+                            ('WN', 'Exif.Photo.ApertureValue'),
+                            ('W0', 'Exif.Image.FNumber'),
+                            ('WN', 'Exif.Image.ApertureValue'),
+                            ('WX', 'Xmp.exif.FNumber'),
+                            ('WN', 'Xmp.exif.ApertureValue')),
         'camera_model'   : (('WA', 'Exif.Image.Camera1'),
                             ('W0', 'Exif.Image.Camera2'),
                             ('W0', 'Exif.Photo.Camera'),

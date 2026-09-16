@@ -1428,7 +1428,7 @@ class MD_Rational(MD_Value, Fraction):
         return self.numerator, self.denominator
 
     def to_xmp(self):
-        return '{}/{}'.format(self.to_exif())
+        return '{}/{}'.format(*self.to_exif())
 
     def compact_form(self):
         return float(self)
@@ -1709,36 +1709,31 @@ class MD_GPSinfo(MD_Structure):
             'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
 
 
-class MD_Aperture(MD_Rational):
-    # store FNumber and APEX aperture as fractions
-    # only FNumber is presented to the user, either is computed if missing
+class MD_Aperture(MD_RationalEx):
+    # FNumber and ApertureValue are read separately, to ensure merging
+    # errors are logged, but written as a pair
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not any(file_value):
-            return None
-        f_number, apex = file_value
-        if apex:
-            apex = safe_fraction(apex)
-        if not f_number:
-            f_number = 2.0 ** (apex / 2.0)
-        self = cls(f_number)
-        if apex:
-            self.apex = apex
-        return self
+        if not file_value:
+            return cls()
+        if 'FNumber' in file_value:
+            return cls(file_value['FNumber'])
+        # convert from APEX
+        value = MD_RationalEx(file_value['ApertureValue'])
+        return cls(2.0 ** (value / 2.0))
 
     def to_exif(self):
-        file_value = [(self.numerator, self.denominator)]
-        if float(self) != 0:
-            apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
-            file_value.append((apex.numerator, apex.denominator))
-        return file_value
+        apex = Fraction(math.log(self, 2) * 2.0).limit_denominator(100000)
+        value = {'FNumber': self, 'ApertureValue': apex}
+        return dict((k, (v.numerator, v.denominator)) for k, v in value.items())
+
+    to_iptc = None
 
     def to_xmp(self):
-        return ['{}/{}'.format(x) for x in self.to_exif()]
+        return dict((k, '{}/{}'.format(*v)) for k, v in self.to_exif().items())
 
     def contains(self, this, other):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
-
 
 class MD_VideoDuration(MD_Rational):
     @classmethod
