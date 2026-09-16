@@ -1398,17 +1398,18 @@ class MD_Orientation(MD_IntEx):
         return transform
 
 
-class MD_Timezone(MD_Int):
+class MD_Timezone(MD_IntEx):
     _quiet = True
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if file_value is None:
-            return None
-        if tag == 'Exif.Image.TimeZoneOffset':
-            # convert hours to minutes
-            file_value = file_value * 60
-        return cls(file_value)
+        for key in file_value:
+            if key == 'Exif.Image.TimeZoneOffset':
+                # convert hours to minutes
+                return cls(file_value[key] * 60)
+            if key in ('Exif.CanonTi.TimeZone', 'Exif.NikonWt.Timezone'):
+                return cls(file_value[key])
+        return cls()
 
 
 class MD_Float(MD_Value, float):

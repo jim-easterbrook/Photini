@@ -295,6 +295,7 @@ class ImageMetadata(MetadataHandler):
     # by a single name
     # these ones return a dict of matching keys and values
     _match_tags = {
+        'Exif.Any.Timezone': (re.compile(r'(.*[Tt]ime[Zz]one.*)'),),
         'Exif.Canon.Camera': (
             re.compile(r'Exif\.Canon\.(ModelID|SerialNumber)'),),
         'Exif.Canon.Lens': (re.compile(r'Exif\.Canon(?:|Cs|Le)\.(Lens.*)'),),
@@ -523,10 +524,7 @@ class ImageMetadata(MetadataHandler):
                             ('WX', 'Xmp.xmp.CreatorTool')),
         'thumbnail'      : (('WA', 'Exif.Thumbnail.*'),
                             ('WX', 'Xmp.xmp.Thumbnails')),
-        'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
-                            ('WN', 'Exif.CanonTi.TimeZone'),
-                            ('WN', 'Exif.NikonWt.Timezone'),
-                            ('WN', 'Xmp.video.TimeZone')),
+        'timezone'       : (('WN', 'Exif.Any.Timezone'),),
         'title'          : (('WA', 'Xmp.dc.title'),
                             ('WA', 'Iptc.Application2.ObjectName'),
                             ('W0', 'Exif.Image.XPTitle'),
