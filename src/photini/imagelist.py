@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from collections import deque
 from datetime import datetime
 import io
 import logging
@@ -92,7 +93,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
         self.app.image_list.emit_selection()
 
     def transform(self, pixmap, orientation):
-        transform = orientation and orientation.get_transform()
+        transform = orientation.get_transform()
         if not transform:
             return pixmap
         return pixmap.transformed(transform)
@@ -122,16 +123,11 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
 
     def make_thumb_ffmpeg(self):
         # get input dimensions
-        dims = self.metadata.dimensions
-        if not dims:
-            return None
-        width = dims['width']
-        height = dims['height']
         duration = self.metadata.video_duration or 0
         skip = int(min(duration / 2, 10.0))
         # target dimensions
         w, h = 160, 120
-        if width < height:
+        if self.metadata.dimensions.portrait_format():
             w, h = h, w
         # use ffmpeg to make scaled, padded, single frame JPEG
         quality = 1
@@ -936,29 +932,36 @@ class ImageList(QtWidgets.QWidget):
             keep_time = ('now', 'keep')[keep_time]
         if not images:
             images = self.images
-        images = [x for x in images if x.metadata.dirty]
+        # make list of images and parameters
+        params = {'if_mode': if_mode, 'sc_mode': sc_mode,
+                  'iptc_mode': iptc_mode, 'file_times': None}
+        in_queue = deque()
+        for image in images:
+            if not image.metadata.changed():
+                continue
+            save_params = dict(params)
+            if keep_time == 'taken' and image.metadata.date_taken:
+                date_taken = image.metadata.date_taken['datetime']
+                try:
+                    date_taken = date_taken.timestamp()
+                except Exception:
+                    # probably a negative value on Windows
+                    epoch = time.gmtime(0)
+                    epoch = datetime(
+                        epoch.tm_year, epoch.tm_mon, epoch.tm_mday)
+                    date_taken = (date_taken - epoch).total_seconds()
+                save_params['file_times'] = image.file_times[0], date_taken
+            elif keep_time == 'keep':
+                save_params['file_times'] = image.file_times
+            in_queue.append((image, save_params))
+        if not in_queue:
+            return
         with self.app.busy() as progress:
-            progress(value=0, target=len(images))
+            progress(value=0, target=len(in_queue))
             count = 0
-            for image in images:
-                if keep_time == 'taken' and image.metadata.date_taken:
-                    date_taken = image.metadata.date_taken['datetime']
-                    try:
-                        date_taken = date_taken.timestamp()
-                    except Exception:
-                        # probably a negative value on Windows
-                        epoch = time.gmtime(0)
-                        epoch = datetime(
-                            epoch.tm_year, epoch.tm_mon, epoch.tm_mday)
-                        date_taken = (date_taken - epoch).total_seconds()
-                    file_times = image.file_times[0], date_taken
-                elif keep_time == 'keep':
-                    file_times = image.file_times
-                else:
-                    file_times = None
-                image.metadata.save(
-                    if_mode=if_mode, sc_mode=sc_mode,
-                    iptc_mode=iptc_mode, file_times=file_times)
+            while in_queue:
+                image, save_params = in_queue.popleft()
+                image.metadata.save(**save_params)
                 count += 1
                 progress(value=count)
         unsaved = any([image.metadata.changed() for image in self.images])
