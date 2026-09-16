@@ -725,7 +725,7 @@ class TabWidget(PhotiniUploader):
         if not md.image_region:
             return None
         portrait_format = md.dimensions.portrait_format()
-        transform = md.orientation and md.orientation.get_transform()
+        transform = md.orientation.get_transform()
         if transform and transform.isRotating():
             portrait_format = not portrait_format
         if portrait_format:

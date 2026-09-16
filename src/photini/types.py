@@ -1328,6 +1328,21 @@ class MD_Keywords(MD_MultiString):
                 yield keyword, match.groups()
 
 
+class MD_IntEx(MD_Value, int):
+    def __new__(cls, value=None):
+        unknown = value is None
+        value = value or 0
+        result = super(MD_IntEx, cls).__new__(cls, value)
+        result.unknown = unknown
+        return result
+
+    def to_exif(self):
+        return self
+
+    def __bool__(self):
+        return not self.unknown
+
+
 class MD_Int(MD_Value, int):
     def __new__(cls, value=None):
         if value is None:
@@ -1342,7 +1357,13 @@ class MD_Int(MD_Value, int):
         return True
 
 
-class MD_Orientation(MD_Int):
+class MD_Orientation(MD_IntEx):
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if isinstance(file_value, int) and file_value >= 1 and file_value <= 8:
+            return cls(file_value)
+        return cls()
+
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
         mapping = {'0': 1, '90': 6, '180': 3, '-90': 8}
@@ -1351,12 +1372,12 @@ class MD_Orientation(MD_Int):
         return cls(mapping[file_value])
 
     def get_transform(self, inverted=False):
-        bits = self - 1
-        if not bits:
+        if self <= 1:
             return None
         # need to rotate and or reflect image
         # translation is set so a unit rectangle maps to a unit rectangle
         transform = QtGui.QTransform()
+        bits = self - 1
         if bits & 0b001:
             # reflect left-right
             transform = transform.scale(-1.0, 1.0)
@@ -1367,6 +1388,7 @@ class MD_Orientation(MD_Int):
             # rotate 90° then reflect left-right
             transform = transform.rotate(-90.0)
             transform = transform.scale(-1.0, 1.0)
+        # reset translation
         if transform.m11() + transform.m12() < 0:
             transform = transform.translate(-1, 0)
         if transform.m21() + transform.m22() < 0:
