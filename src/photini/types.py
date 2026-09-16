@@ -410,16 +410,17 @@ class MD_DateTime(MD_Dict):
     # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#date-created
     @classmethod
     def from_iptc(cls, file_value):
-        date_value, time_value = file_value
-        if not date_value:
-            return cls([])
+        if 'Date' not in file_value:
+            return cls()
+        date_value = file_value['Date']
+        time_value = file_value.get('Time')
         if isinstance(date_value, str):
             # Exiv2 couldn't read malformed date, let our parser have a go
             if isinstance(time_value, str):
                 date_value += 'T' + time_value
             return cls.from_ISO_8601(date_value)
         if date_value['year'] == 0:
-            return cls([])
+            return cls()
         precision = 3
         if not time_value or isinstance(time_value, str):
             # missing or malformed time
@@ -465,7 +466,7 @@ class MD_DateTime(MD_Dict):
                 tz_hr, tz_min = tz_offset // 60, tz_offset % 60
             time_value = (
                 datetime.hour, datetime.minute, datetime.second, tz_hr, tz_min)
-        return date_value, time_value
+        return {'Date': date_value, 'Time': time_value}
 
     # XMP uses extended ISO 8601, but the time cannot be hours only. See
     # p75 of

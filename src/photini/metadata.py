@@ -345,6 +345,12 @@ class ImageMetadata(MetadataHandler):
         'Exif.Sony.Camera': (re.compile(
             r'Exif\.Sony\d\.(SonyModelID|SerialNumber)'),),
         'Exif.Sony.Lens': (re.compile(r'Exif\.Sony\d\.(Lens.*)'),),
+        'Iptc.Application2.DateCreated': (
+            re.compile(r'Iptc\.Application2\.(.*)Created'),
+            'Iptc.Application2.{}Created'),
+        'Iptc.Application2.DigitizationDate': (
+            re.compile(r'Iptc\.Application2\.Digitization(.*)'),
+            'Iptc.Application2.Digitization{}'),
         'Xmp.aux.Camera': (re.compile(r'Xmp\.aux\.(SerialNumber)'),),
         'Xmp.aux.Lens': (re.compile(r'Xmp\.aux\.(Lens.*)'),),
         'Xmp.exif.ApertureValue': (re.compile(r'Xmp\.exif\.(ApertureValue)'),),
@@ -376,11 +382,6 @@ class ImageMetadata(MetadataHandler):
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
-        'Iptc.Application2.DateCreated*': (
-            'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
-        'Iptc.Application2.DigitizationDate*': (
-            'Iptc.Application2.DigitizationDate',
-            'Iptc.Application2.DigitizationTime'),
         'Iptc.Application2.Location*': (
             'Iptc.Application2.SubLocation', 'Iptc.Application2.City',
             'Iptc.Application2.ProvinceState', 'Iptc.Application2.CountryName',
@@ -446,7 +447,7 @@ class ImageMetadata(MetadataHandler):
         'date_digitised' : (('WA', 'Exif.Photo.DateTimeDigitized*'),
                             ('WA', 'Xmp.xmp.CreateDate'),
                             ('W0', 'Xmp.exif.DateTimeDigitized'),
-                            ('WA', 'Iptc.Application2.DigitizationDate*')),
+                            ('WA', 'Iptc.Application2.DigitizationDate')),
         'date_modified'  : (('WA', 'Exif.Image.DateTime*'),
                             ('WA', 'Xmp.xmp.ModifyDate'),
                             ('W0', 'Xmp.tiff.DateTime'),
@@ -457,7 +458,7 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.DateTimeOriginal*'),
                             ('WA', 'Xmp.photoshop.DateCreated'),
                             ('W0', 'Xmp.exif.DateTimeOriginal'),
-                            ('WA', 'Iptc.Application2.DateCreated*'),
+                            ('WA', 'Iptc.Application2.DateCreated'),
                             ('W0', 'Xmp.video.DateTimeOriginal'),
                             ('W0', 'Xmp.video.CreateDate'),
                             ('W0', 'Xmp.video.CreationDate'),
