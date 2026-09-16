@@ -907,13 +907,13 @@ class Metadata(object):
         return None
 
     def get_crop_factor(self):
-        image_size = self.dimensions
+        image_size = self.dimensions.sensor_dims()
         resolution = self.resolution
         if not (image_size and resolution):
             return None
         # get sensor diagonal in mm
-        w = image_size['sensor_width'] or image_size['width']
-        h = image_size['sensor_height'] or image_size['height']
+        w = image_size['w']
+        h = image_size['h']
         w /= resolution['x']
         h /= resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))

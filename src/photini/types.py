@@ -1790,12 +1790,12 @@ class MD_Dimensions(MD_Collection):
     # width & height - actual image
     # sensor_width & sensor_height - best guess at original size
     _keys = ('width', 'height', 'sensor_width', 'sensor_height')
-    _default_type = MD_Int
+    _default_type = MD_IntEx
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not any(file_value.values()):
-            return cls({})
+            return cls()
         if tag == 'Xmp.video.WidthHeight':
             file_value = dict((k.lower(), v) for k, v in file_value.items())
         elif tag == 'Exif.ImageWidthLength':
@@ -1814,8 +1814,6 @@ class MD_Dimensions(MD_Collection):
                           'sensor_height': file_value.get('PixelYDimension')}
         return cls(file_value)
 
-    to_exiv2 = None
-
     def merge(self, info, tag, other):
         if other == self:
             return self
@@ -1829,7 +1827,7 @@ class MD_Dimensions(MD_Collection):
         return self.__class__(result)
 
     def portrait_format(self):
-        return bool(self) and self['height'] > self['width']
+        return self['height'] > self['width']
 
     def scaled_to(self, target_size):
         w = float(self['width'])
@@ -1838,9 +1836,12 @@ class MD_Dimensions(MD_Collection):
             return target_size, int((float(target_size) * h / w) + 0.5)
         return int((float(target_size) * w / h) + 0.5), target_size
 
-    def __bool__(self):
-        return bool((self['width'] and self['height']) or
-                    (self['sensor_width'] and self['sensor_height']))
+    def sensor_dims(self):
+        if self['sensor_width'] and self['sensor_height']:
+            return {'w': self['sensor_width'], 'h': self['sensor_height']}
+        if self['width'] and self['height']:
+            return {'w': self['width'], 'h': self['height']}
+        return None
 
 
 class MD_Resolution(MD_Collection):
