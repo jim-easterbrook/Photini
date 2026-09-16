@@ -1105,28 +1105,35 @@ class MD_CameraModel(MD_Collection):
         return ' '.join(result)
 
 
-class MD_RationalEx(MD_Value, Fraction):
+class MD_Rational(MD_Value, Fraction):
     # Exif values can use (0, 0) to represent an unknown value
     def __new__(cls, value=None):
-        unknown = value is None
-        value = value or 0
-        try:
-            if isinstance(value, tuple):
-                value = Fraction(*value)
-            else:
-                value = Fraction(value)
-            value = value.limit_denominator(1000000)
-        except ZeroDivisionError:
-            value = 0
-            unknown = True
-        result = super(MD_RationalEx, cls).__new__(cls, value)
-        result.unknown = unknown
+        if isinstance(value, MD_Rational):
+            valid = value._valid
+        else:
+            valid = value is not None
+            value = value or 0
+            try:
+                if isinstance(value, tuple):
+                    value = Fraction(*value)
+                else:
+                    value = Fraction(value)
+                value = value.limit_denominator(1000000)
+            except ZeroDivisionError:
+                value = 0
+                valid = False
+        result = super(MD_Rational, cls).__new__(cls, value)
+        result._valid = valid and cls.valid_value(result)
         return result
 
+    @staticmethod
+    def valid_value(value):
+        return value > 0
+
     def to_exif(self):
-        if self.unknown:
-            return 0, 0
-        return self.numerator, self.denominator
+        if self:
+            return self.numerator, self.denominator
+        return 0, 0
 
     def to_xmp(self):
         return '{}/{}'.format(self.to_exif())
@@ -1135,7 +1142,7 @@ class MD_RationalEx(MD_Value, Fraction):
         return float(self)
 
     def __bool__(self):
-        return not self.unknown
+        return self._valid
 
     def __str__(self):
         return str(float(self))
@@ -1144,7 +1151,7 @@ class MD_RationalEx(MD_Value, Fraction):
 class MD_LensSpec(MD_Collection):
     # simple class to store lens "specification"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
-    _default_type = MD_RationalEx
+    _default_type = MD_Rational
     _quiet = True
 
     def contains(self, this, other):
@@ -1328,41 +1335,32 @@ class MD_Keywords(MD_MultiString):
                 yield keyword, match.groups()
 
 
-class MD_IntEx(MD_Value, int):
-    def __new__(cls, value=None):
-        unknown = value is None
-        value = value or 0
-        result = super(MD_IntEx, cls).__new__(cls, value)
-        result.unknown = unknown
-        return result
-
-    def to_exif(self):
-        return self
-
-    def __bool__(self):
-        return not self.unknown
-
-
 class MD_Int(MD_Value, int):
     def __new__(cls, value=None):
-        if value is None:
-            return None
-        return super(MD_Int, cls).__new__(cls, value)
+        if isinstance(value, MD_Int):
+            valid = value._valid
+        else:
+            valid = value is not None
+            value = value or 0
+        result = super(MD_Int, cls).__new__(cls, value)
+        result._valid = valid and cls.valid_value(result)
+        return result
+
+    @staticmethod
+    def valid_value(value):
+        return value > 0
 
     def to_exif(self):
         return self
 
     def __bool__(self):
-        # reinterpret to mean "has a value", even if the value is zero
-        return True
+        return self._valid
 
 
-class MD_Orientation(MD_IntEx):
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if isinstance(file_value, int) and file_value >= 1 and file_value <= 8:
-            return cls(file_value)
-        return cls()
+class MD_Orientation(MD_Int):
+    @staticmethod
+    def valid_value(value):
+        return value >= 1 and value <= 8
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -1398,8 +1396,12 @@ class MD_Orientation(MD_IntEx):
         return transform
 
 
-class MD_Timezone(MD_IntEx):
+class MD_Timezone(MD_Int):
     _quiet = True
+
+    @staticmethod
+    def valid_value(value):
+        return True
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1441,34 +1443,15 @@ class MD_Rating(MD_Float):
         return str(int(self))
 
 
-class MD_Rational(MD_Value, Fraction):
-    def __new__(cls, value=None):
-        if value is None:
-            return None
-        return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
-
-    def to_exif(self):
-        return self.numerator, self.denominator
-
-    def to_xmp(self):
-        return '{}/{}'.format(*self.to_exif())
-
-    def compact_form(self):
-        return float(self)
-
-    def __bool__(self):
-        # reinterpret to mean "has a value", even if the value is zero
+class MD_Altitude(MD_Rational):
+    @staticmethod
+    def valid_value(value):
         return True
 
-    def __str__(self):
-        return str(float(self))
-
-
-class MD_Altitude(MD_Rational):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not all(file_value):
-            return None
+            return cls()
         altitude, ref = file_value
         altitude = safe_fraction(altitude)
         if ref in (b'\x01', '1'):
@@ -1498,6 +1481,10 @@ class MD_Altitude(MD_Rational):
 
 
 class MD_Coordinate(MD_Rational):
+    @staticmethod
+    def valid_value(value):
+        return True
+
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Exif'):
@@ -1507,7 +1494,7 @@ class MD_Coordinate(MD_Rational):
     @classmethod
     def from_exif(cls, value):
         if not all(value):
-            return None
+            return cls()
         value, ref = value
         value = [safe_fraction(x, limit=False) for x in value]
         degrees, minutes, seconds = value
@@ -1519,7 +1506,7 @@ class MD_Coordinate(MD_Rational):
     @classmethod
     def from_xmp(cls, value):
         if not value:
-            return None
+            return cls()
         ref = value[-1]
         if ref in cls.ref_letters:
             negative = ref == cls.ref_letters[0]
@@ -1732,7 +1719,7 @@ class MD_GPSinfo(MD_Structure):
             'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
 
 
-class MD_Aperture(MD_RationalEx):
+class MD_Aperture(MD_Rational):
     # FNumber and ApertureValue are read separately, to ensure merging
     # errors are logged, but written as a pair
     @classmethod
@@ -1742,7 +1729,7 @@ class MD_Aperture(MD_RationalEx):
         if 'FNumber' in file_value:
             return cls(file_value['FNumber'])
         # convert from APEX
-        value = MD_RationalEx(file_value['ApertureValue'])
+        value = MD_Rational(file_value['ApertureValue'])
         return cls(2.0 ** (value / 2.0))
 
     def to_exif(self):
@@ -1771,7 +1758,7 @@ class MD_VideoDuration(MD_Rational):
             frames, frame_rate = file_value
             if frames and frame_rate:
                 return cls((int(frames) / Fraction(frame_rate)))
-        return None
+        return cls()
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1790,7 +1777,7 @@ class MD_Dimensions(MD_Collection):
     # width & height - actual image
     # sensor_width & sensor_height - best guess at original size
     _keys = ('width', 'height', 'sensor_width', 'sensor_height')
-    _default_type = MD_IntEx
+    _default_type = MD_Int
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1846,8 +1833,8 @@ class MD_Dimensions(MD_Collection):
 
 class MD_Resolution(MD_Collection):
     _keys = ('x', 'y', 'unit')
-    _default_type = MD_RationalEx
-    _type = {'unit': MD_IntEx}
+    _default_type = MD_Rational
+    _type = {'unit': MD_Int}
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1861,7 +1848,7 @@ class MD_Resolution(MD_Collection):
         return cls(value)
 
     def __bool__(self):
-        return all(x > 0 for x in self.values())
+        return all(self.values())
 
 
 class MD_FocalLength(MD_Collection):
@@ -1874,16 +1861,10 @@ class MD_FocalLength(MD_Collection):
         return cls(file_value)
 
     def to_exif(self):
-        if not self:
-            return None
-        return dict((k, v.to_exif()) for k, v in self.items() if v)
-
-    to_iptc = None
+        return dict((k, v and v.to_exif()) for k, v in self.items())
 
     def to_xmp(self):
-        if not self:
-            return None
-        return dict((k, v.to_xmp()) for k, v in self.items() if v)
+        return dict((k, v and v.to_xmp()) for k, v in self.items())
 
     def reset_focal_length(self, new_fl):
         if self['FocalLengthIn35mmFilm'] and self['FocalLength']:

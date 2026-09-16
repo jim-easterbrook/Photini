@@ -149,7 +149,7 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         return self.placeholderText() == ''
 
     def set_multiple(self, choices=[]):
-        self.choices = [x for x in choices if x is not None]
+        self.choices = [x for x in choices if x]
         self.setPlaceholderText(self._multiple_values)
         self.clear()
 
@@ -162,7 +162,7 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         return None
 
     def set_value(self, value, faint=False):
-        if value is None:
+        if not value:
             self.setPlaceholderText('')
             self.clear()
             return
@@ -231,7 +231,7 @@ class LatLongValidator(QtGui.QValidator):
 
     def value_to_text(self, value):
         return ' '.join(self.locale().toString(float(x), 'f', 6)
-                        for x in value if x is not None)
+                        for x in value if x)
 
 
 class LatLongDisplay(NumericalWidget):
