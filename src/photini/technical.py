@@ -74,12 +74,14 @@ class CameraList(DropdownEdit):
             if not section.startswith('camera '):
                 continue
             camera = {}
-            for old_key, new_key in (('serial_no', 'SerialNumber'),):
+            for old_key, new_key in (('serial_no', 'CameraSerialNumber'),
+                                     ('SerialNumber', 'CameraSerialNumber')):
                 camera[new_key] = self.app.config_store.get(section, old_key)
                 if camera[new_key]:
                     self.app.config_store.delete(section, old_key)
                     self.app.config_store.set(section, new_key, camera[new_key])
-                camera[new_key] = self.app.config_store.get(section, new_key)
+            for key in MD_CameraModel._keys:
+                camera[key] = self.app.config_store.get(section, key)
             camera = MD_CameraModel(camera)
             name = camera.get_name()
             if name != section[7:]:
@@ -132,8 +134,8 @@ class LensList(DropdownEdit):
                     self.app.config_store.delete(section, old_key)
                     self.app.config_store.set(
                         section, new_key, lens_model[new_key])
-                lens_model[new_key] = self.app.config_store.get(
-                    section, new_key)
+            for key in MD_LensModel._keys:
+                lens_model[key] = self.app.config_store.get(section, key)
             lens_model = MD_LensModel(lens_model)
             name = lens_model.get_name()
             if name != section[5:]:
@@ -378,9 +380,6 @@ class NewItemDialog(QtWidgets.QDialog):
         # add panel to scroll area now its size is known
         scroll_area.setWidget(self.panel)
 
-    def extend_data(self):
-        pass
-
     def get_value(self):
         result = {}
         for key in self.model_widgets:
@@ -400,6 +399,11 @@ class NewCameraDialog(NewItemDialog):
             for key in self.model_widgets:
                 if camera[key]:
                     self.model_widgets[key].setText(camera[key])
+
+    def extend_data(self):
+        self.model_widgets[
+            'CameraSerialNumber'] = self.model_widgets['SerialNumber']
+        del self.model_widgets['SerialNumber']
 
 
 class NewLensDialog(NewItemDialog):

@@ -1089,14 +1089,47 @@ class MD_Rights(MD_Collection):
 
 
 class MD_CameraModel(MD_Collection):
-    _keys = ('Make', 'Model', 'SerialNumber')
+    _keys = ('Make', 'Model', 'CameraSerialNumber')
     _default_type = MD_UnmergableString
     _quiet = True
 
-    def convert(self, value):
-        if value['Model'] == 'unknown':
-            value['Model'] = None
-        return super(MD_CameraModel, self).convert(value)
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        for key, value in list(file_value.items()):
+            if isinstance(value, str) and value in ('unknown', '*******'):
+                del file_value[key]
+        if tag == 'Exif.Image.Camera1':
+            return cls(file_value)
+        value = {}
+        for key, aliases in (
+                ('Make', ('CameraID', 'Make')),
+                ('Model', (
+                    'UniqueCameraModel', 'LocalizedCameraModel', 'ModelID',
+                    'CameraType', 'SonyModelID', 'Model')),
+                ('CameraSerialNumber', (
+                    'BodySerialNumber', 'SerialNumber', 'SerialNumber2',
+                    'InternalSerialNumber'))):
+            for alias in aliases:
+                if alias in file_value:
+                    value[key] = file_value[alias]
+                    break
+        for key in value:
+            value[key] = cls.get_type(key).from_exiv2(value[key], tag)
+        return cls(value)
+
+    def to_exif(self):
+        if not self:
+            return None
+        return dict((k, v.to_exif()) for k, v in self.items() if v)
+
+    to_iptc = None
+
+    def to_xmp(self):
+        if not self:
+            return None
+        return dict((k, v.to_xmp()) for k, v in self.items() if v)
 
     def __str__(self):
         return str(dict([(x, y) for x, y in self.items() if y]))
@@ -1112,8 +1145,8 @@ class MD_CameraModel(MD_Collection):
                     and self['Make'].split()[0].lower() in result[0].lower()):
                 result = [self['Make']] + result
         # add serial no if a unique answer is needed
-        if inc_serial and self['SerialNumber']:
-            result.append('(S/N: ' + self['SerialNumber'] + ')')
+        if inc_serial and self['CameraSerialNumber']:
+            result.append('(S/N: ' + self['CameraSerialNumber'] + ')')
         return ' '.join(result)
 
 

@@ -295,28 +295,48 @@ class ImageMetadata(MetadataHandler):
     # by a single name
     # these ones return a dict of matching keys and values
     _match_tags = {
+        'Exif.Canon.Camera': (
+            re.compile(r'Exif\.Canon\.(ModelID|SerialNumber)'),),
         'Exif.Canon.Lens': (re.compile(r'Exif\.Canon(?:|Cs|Le)\.(Lens.*)'),),
         'Exif.FocalPlaneResolution': (
             re.compile(r'(Exif\..*?\.FocalPlane.*Resolution.*)'),),
+        'Exif.Fujifilm.Camera': (
+            re.compile(r'Exif\.Fujifilm\.(SerialNumber)'),),
         'Exif.GPSInfo.GPS': (
             re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
+        'Exif.Image.Camera1': (
+            re.compile(r'Exif\.Image\.(Make|Model|CameraSerialNumber)'),
+            'Exif.Image.{}'),
+        'Exif.Image.Camera2': (re.compile(r'Exif\.Image\.(.*CameraModel)'),),
         'Exif.Image.FocalLength': (
             re.compile(r'Exif\.Image\.(FocalLength.*)'), 'Exif.Image.{}'),
         'Exif.Image.Lens': (re.compile(r'Exif\.Image\.(Lens.*)'),),
         'Exif.ImageWidthLength': (
             re.compile(r'(Exif\..*?Image.*?\.Image(Width|Length))'),),
         'Exif.Minolta.Lens': (re.compile(r'Exif\.Minolta\.(Lens.*)'),),
+        'Exif.Nikon.Camera': (re.compile(r'Exif\.Nikon3\.(Serial.*)'),),
         'Exif.Nikon.Lens': (
             re.compile(r'Exif\.Nikon(?:Ld.|3)\.(Lens(?:|ID.*)$)'),),
+        'Exif.Olympus.Camera': (re.compile(
+            r'Exif\.Olympus.*?\.(CameraID|CameraType|SerialNumber.*)'),),
         'Exif.Olympus.Lens': (re.compile(r'Exif\.OlympusEq\.(Lens.*)'),),
+        'Exif.Panasonic.Camera': (re.compile(
+            r'Exif\.Panasonic\.(InternalSerialNumber)'),),
+        'Exif.Pentax.Camera': (re.compile(
+            r'Exif\.Pentax.*?\.(ModelID|SerialNumber)'),),
         'Exif.Pentax.Lens': (re.compile(r'Exif\.Pentax.*?\.(LensType)'),),
+        'Exif.Photo.Camera': (re.compile(r'Exif\.Photo\.(BodySerialNumber)'),),
         'Exif.Photo.FocalLength': (
             re.compile(r'Exif\.Photo\.(FocalLength.*)'), 'Exif.Photo.{}'),
         'Exif.Photo.Lens': (
             re.compile(r'Exif\.Photo\.Lens(.*)'), 'Exif.Photo.Lens{}'),
         'Exif.PixelXYDimension': (
             re.compile(r'Exif\..*?\.(Pixel(X|Y)Dimension)'),),
+        'Exif.Sigma.Camera': (re.compile(r'Exif\.Sigma\.(SerialNumber)'),),
+        'Exif.Sony.Camera': (re.compile(
+            r'Exif\.Sony\d\.(SonyModelID|SerialNumber)'),),
         'Exif.Sony.Lens': (re.compile(r'Exif\.Sony\d\.(Lens.*)'),),
+        'Xmp.aux.Camera': (re.compile(r'Xmp\.aux\.(SerialNumber)'),),
         'Xmp.aux.Lens': (re.compile(r'Xmp\.aux\.(Lens.*)'),),
         'Xmp.exif.GPS': (
             re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
@@ -326,34 +346,17 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'Xmp\.exifEX\.Lens(.*)'), 'Xmp.exifEX.Lens{}'),
         'Xmp.PixelXYDimension': (
             re.compile(r'Xmp\.exif\.(Pixel(X|Y)Dimension)'),),
+        'Xmp.video.Camera': (re.compile(r'Xmp\.video\.(Make|Model)'),),
         'Xmp.video.WidthHeight': (re.compile(r'Xmp\.video\.(Width|Height)'),),
         }
     # these ones return a list of values
     _multi_tags = {
-        'Exif.Canon.ModelID*': (
-            '', 'Exif.Canon.ModelID', 'Exif.Canon.SerialNumber'),
-        'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.Image.DateTime*': (
             'Exif.Image.DateTime', 'Exif.Photo.SubSecTime',
             'Exif.Photo.OffsetTime'),
         'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
         'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
-        'Exif.Image.Make*': (
-            'Exif.Image.Make', 'Exif.Image.Model',
-            'Exif.Photo.BodySerialNumber'),
-        'Exif.Image.UniqueCameraModel*': (
-            '', 'Exif.Image.UniqueCameraModel', 'Exif.Image.CameraSerialNumber'),
-        'Exif.Nikon3.SerialNumber*': ('', '', 'Exif.Nikon3.SerialNumber'),
-        'Exif.OlympusEq.Camera*': (
-            '', 'Exif.OlympusEq.CameraType', 'Exif.OlympusEq.SerialNumber'),
-        'Exif.Olympus2.Camera*': (
-            '', 'Exif.Olympus2.CameraID', ''),
-        'Exif.Panasonic.InternalSerialNumber*': (
-            '', '', 'Exif.Panasonic.InternalSerialNumber'),
-        'Exif.Pentax.ModelID*': (
-            '', 'Exif.Pentax.ModelID', 'Exif.Pentax.SerialNumber'),
-        'Exif.PentaxDng.ModelID*': ('', 'Exif.PentaxDng.ModelID'),
         'Exif.Photo.DateTimeDigitized*': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized',
             'Exif.Photo.OffsetTimeDigitized'),
@@ -362,10 +365,6 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.OffsetTimeOriginal'),
         'Exif.Photo.FNumber*': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
-        'Exif.Sigma.SerialNumber*': (
-            '', '', 'Exif.Sigma.SerialNumber'),
-        'Exif.Sony1.SonyModelID*': ('', 'Exif.Sony1.SonyModelID'),
-        'Exif.Sony2.SonyModelID*': ('', 'Exif.Sony2.SonyModelID'),
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
@@ -380,12 +379,10 @@ class ImageMetadata(MetadataHandler):
             'Iptc.Application2.CountryCode'),
         'Iptc.Application2.Program*': (
             'Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion'),
-        'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
         }
@@ -406,21 +403,19 @@ class ImageMetadata(MetadataHandler):
         'aperture'       : (('WA', 'Exif.Photo.FNumber*'),
                             ('W0', 'Exif.Image.FNumber*'),
                             ('WX', 'Xmp.exif.FNumber*')),
-        'camera_model'   : (('WA', 'Exif.Image.Make*'),
-                            ('WN', 'Exif.Image.UniqueCameraModel*'),
-                            ('WN', 'Exif.Canon.ModelID*'),
-                            ('WN', 'Exif.Fujifilm.SerialNumber*'),
-                            ('WN', 'Exif.Nikon3.SerialNumber*'),
-                            ('WN', 'Exif.OlympusEq.Camera*'),
-                            ('WN', 'Exif.Olympus2.Camera*'),
-                            ('WN', 'Exif.Panasonic.InternalSerialNumber*'),
-                            ('WN', 'Exif.PentaxDng.ModelID*'),
-                            ('WN', 'Exif.Pentax.ModelID*'),
-                            ('WN', 'Exif.Sigma.SerialNumber*'),
-                            ('WN', 'Exif.Sony1.SonyModelID*'),
-                            ('WN', 'Exif.Sony2.SonyModelID*'),
-                            ('WN', 'Xmp.aux.SerialNumber*'),
-                            ('W0', 'Xmp.video.Make*')),
+        'camera_model'   : (('WA', 'Exif.Image.Camera1'),
+                            ('W0', 'Exif.Image.Camera2'),
+                            ('W0', 'Exif.Photo.Camera'),
+                            ('WN', 'Exif.Canon.Camera'),
+                            ('WN', 'Exif.Fujifilm.Camera'),
+                            ('WN', 'Exif.Nikon.Camera'),
+                            ('WN', 'Exif.Olympus.Camera'),
+                            ('WN', 'Exif.Panasonic.Camera'),
+                            ('WN', 'Exif.Pentax.Camera'),
+                            ('WN', 'Exif.Sigma.Camera'),
+                            ('WN', 'Exif.Sony.Camera'),
+                            ('WN', 'Xmp.aux.Camera'),
+                            ('W0', 'Xmp.video.Camera')),
         'contact_info'   : (('WA', 'Xmp.plus.Licensor'),
                             ('W0', 'Xmp.iptc.CreatorContactInfo')),
         'copyright'      : (('WA', 'Xmp.dc.rights'),
@@ -827,7 +822,7 @@ class Metadata(object):
             return True
         if not camera_model:
             return False
-        return self._if.maker_note['make'] == camera_model['make']
+        return self._if.maker_note['make'] == camera_model['Make']
 
     def set_delete_makernote(self):
         self._if.maker_note['delete'] = True

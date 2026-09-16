@@ -416,6 +416,7 @@ class MetadataHandler(object):
                     'Exif.Canon.SerialNumber', 'Exif.CanonLe.LensSerialNumber',
                     'Exif.Minolta.LensID',
                     'Exif.OlympusEq.LensType',
+                    'Exif.Olympus.CameraID',
                     'Exif.Olympus2.CameraID',
                     'Exif.Panasonic.InternalSerialNumber',
                     'Exif.Pentax.LensType', 'Exif.Pentax.ModelID',
