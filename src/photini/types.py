@@ -525,51 +525,6 @@ class MD_DateTime(MD_Dict):
         return self
 
 
-class MD_LensSpec(MD_Dict):
-    # simple class to store lens "specification"
-    _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
-    _quiet = True
-
-    def contains(self, this, other):
-        for key in self._keys:
-            if this[key] and other[key] and other[key] != this[key]:
-                return False
-        return True
-
-    @staticmethod
-    def convert(value):
-        for key in value:
-            value[key] = safe_fraction(value[key] or 0)
-        return value
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return cls([])
-        if isinstance(file_value, str):
-            file_value = file_value.split()
-        if tag == 'Exif.Canon.Lens':
-            long_focal, short_focal, focal_units = [int(x) for x in file_value]
-            if focal_units == 0:
-                return cls([])
-            file_value = [(short_focal, focal_units), (long_focal, focal_units)]
-        elif tag == 'Exif.Sony.Lens':
-            file_value = [int(x) for x in file_value[2:-1]]
-            file_value = [((x >> 4) * 10) + (x & 0xf) for x in file_value]
-            file_value[1:3] = [(file_value[1] * 100) + file_value[2]]
-        return cls(file_value)
-
-    def to_xmp(self):
-        return ' '.join(['{}/{}'.format(x.numerator, x.denominator)
-                         for x in self.to_exif()])
-
-    def __bool__(self):
-        return bool(self['min_fl'])
-
-    def __str__(self):
-        return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])
-
-
 class MD_Thumbnail(MD_Dict):
     _keys = ('w', 'h', 'fmt', 'data', 'image')
     _quiet = True
@@ -1150,6 +1105,84 @@ class MD_CameraModel(MD_Collection):
         return ' '.join(result)
 
 
+class MD_RationalEx(MD_Value, Fraction):
+    # Exif values can use (0, 0) to represent an unknown value
+    def __new__(cls, value=None):
+        unknown = value is None
+        value = value or 0
+        try:
+            if isinstance(value, tuple):
+                value = Fraction(*value)
+            else:
+                value = Fraction(value)
+            value = value.limit_denominator(1000000)
+        except ZeroDivisionError:
+            value = 0
+            unknown = True
+        result = super(MD_RationalEx, cls).__new__(cls, value)
+        result.unknown = unknown
+        return result
+
+    def to_exif(self):
+        if self.unknown:
+            return 0, 0
+        return self.numerator, self.denominator
+
+    def to_xmp(self):
+        return '{}/{}'.format(self.to_exif())
+
+    def compact_form(self):
+        return float(self)
+
+    def __bool__(self):
+        return not self.unknown
+
+    def __str__(self):
+        return str(float(self))
+
+
+class MD_LensSpec(MD_Collection):
+    # simple class to store lens "specification"
+    _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
+    _default_type = MD_RationalEx
+    _quiet = True
+
+    def contains(self, this, other):
+        for key in self._keys:
+            if this[key] and other[key] and other[key] != this[key]:
+                return False
+        return True
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        if tag == 'Exif.Canon.Lens':
+            long_focal, short_focal, focal_units = [int(x) for x in file_value]
+            if focal_units == 0:
+                return cls()
+            file_value = [(short_focal, focal_units), (long_focal, focal_units)]
+        elif tag == 'Exif.Sony.Lens':
+            file_value = [int(x) for x in file_value[2:-1]]
+            file_value = [((x >> 4) * 10) + (x & 0xf) for x in file_value]
+            file_value[1:3] = [(file_value[1] * 100) + file_value[2]]
+        elif tag.startswith('Xmp'):
+            file_value = file_value.split()
+        return cls(file_value)
+
+    def to_exif(self):
+        return [self[k].to_exif() for k in self._keys]
+
+    def to_xmp(self):
+        return ' '.join(self[k].to_xmp() for k in self._keys)
+
+    def __bool__(self):
+        return bool(self['min_fl'])
+
+    def __str__(self):
+        return ','.join(['{:g}'.format(float(self[k])) for k in self._keys])
+
+
 class MD_LensModel(MD_Collection):
     _keys = ('Make', 'Model', 'SerialNumber', 'Specification')
     _default_type = MD_UnmergableString
@@ -1392,10 +1425,10 @@ class MD_Rational(MD_Value, Fraction):
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
 
     def to_exif(self):
-        return self
+        return self.numerator, self.denominator
 
     def to_xmp(self):
-        return '{}/{}'.format(self.numerator, self.denominator)
+        return '{}/{}'.format(self.to_exif())
 
     def compact_form(self):
         return float(self)
@@ -1426,7 +1459,7 @@ class MD_Altitude(MD_Rational):
             ref = b'\x01'
         else:
             ref = b'\x00'
-        return altitude, ref
+        return (altitude.numerator, altitude.denominator), ref
 
     def to_xmp(self):
         altitude = self
@@ -1489,6 +1522,7 @@ class MD_Coordinate(MD_Rational):
 
     def to_exif(self):
         numbers, pstv = self.to_exif_part()
+        numbers = [(x.numerator, x.denominator) for x in numbers]
         return numbers, self.ref_letters[pstv]
 
     def to_exif_part(self):
@@ -1693,15 +1727,14 @@ class MD_Aperture(MD_Rational):
         return self
 
     def to_exif(self):
-        file_value = [self]
+        file_value = [(self.numerator, self.denominator)]
         if float(self) != 0:
             apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
-            file_value.append(apex)
+            file_value.append((apex.numerator, apex.denominator))
         return file_value
 
     def to_xmp(self):
-        return ['{}/{}'.format(x.numerator, x.denominator)
-                for x in self.to_exif()]
+        return ['{}/{}'.format(x) for x in self.to_exif()]
 
     def contains(self, this, other):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)

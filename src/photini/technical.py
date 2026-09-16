@@ -167,8 +167,7 @@ class LensList(DropdownEdit):
 
     def set_value(self, value):
         super(LensList, self).set_value(value)
-        if not (value and
-                value['Specification'] and value['Specification']['min_fl']):
+        if not (value and value['Specification']):
             self.setToolTip('')
             return
         spec = dict((k, float(v) or '')

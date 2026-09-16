@@ -719,12 +719,7 @@ class MetadataHandler(object):
         elif type_id == exiv2.TypeId.unsignedLong:
             value = exiv2.ULongValue(value)
         elif type_id == exiv2.TypeId.unsignedRational:
-            if isinstance(value, (list, tuple)):
-                value = exiv2.URationalValue(
-                    [(x.numerator, x.denominator) for x in value])
-            else:
-                value = exiv2.URationalValue(
-                    [(value.numerator, value.denominator)])
+            value = exiv2.URationalValue(value)
         else:
             # unhandled type, use the string representation
             logger.warning('%s: %s: writing %s type as string',
