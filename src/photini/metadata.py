@@ -926,7 +926,7 @@ class Metadata(object):
         elif resolution['unit'] == 5:
             # unit is µm
             d /= 1000.0
-        elif resolution['unit'] in (None, 1, 2):
+        elif resolution['unit'] in (1, 2):
             # unit is (assumed to be) inches
             d *= 25.4
         else:

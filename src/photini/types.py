@@ -1846,13 +1846,13 @@ class MD_Dimensions(MD_Collection):
 
 class MD_Resolution(MD_Collection):
     _keys = ('x', 'y', 'unit')
-    _default_type = MD_Rational
-    _type = {'unit': MD_Int}
+    _default_type = MD_RationalEx
+    _type = {'unit': MD_IntEx}
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not any(file_value.values()):
-            return cls({})
+        if not file_value:
+            return cls()
         value = {}
         for file_key in file_value:
             key = file_key.split('.')[-1].lower()
@@ -1860,7 +1860,8 @@ class MD_Resolution(MD_Collection):
             value[key] = file_value[file_key]
         return cls(value)
 
-    to_exiv2 = None
+    def __bool__(self):
+        return all(x > 0 for x in self.values())
 
 
 class MD_FocalLength(MD_Collection):
