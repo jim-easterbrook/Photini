@@ -1923,15 +1923,10 @@ class MD_Location(MD_Structure):
         'Iptc4xmpExt:Sublocation': MD_String,
         'Iptc4xmpExt:WorldRegion': MD_String,
         }
-    legacy_keys = (
-        'Iptc4xmpExt:Sublocation', 'Iptc4xmpExt:City',
-        'Iptc4xmpExt:ProvinceState', 'Iptc4xmpExt:CountryName',
-        'Iptc4xmpExt:CountryCode',
-        )
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if isinstance(file_value, dict) and 'exif:GPSAltitude' in file_value:
+        if 'exif:GPSAltitude' in file_value:
             if 'exif:GPSAltitudeRef' in file_value:
                 file_value['exif:GPSAltitude'] = (
                     file_value['exif:GPSAltitude'],
@@ -1993,6 +1988,44 @@ class MD_MultiLocation(MD_StructArray):
 
 
 class MD_SingleLocation(MD_MultiLocation):
+    iptc_key_map = {
+        'SubLocation':   'Iptc4xmpExt:Sublocation',
+        'City':          'Iptc4xmpExt:City',
+        'ProvinceState': 'Iptc4xmpExt:ProvinceState',
+        'CountryName':   'Iptc4xmpExt:CountryName',
+        'CountryCode':   'Iptc4xmpExt:CountryCode',
+        }
+    legacy_iptc_key_map = {
+        'iptc.Location':     'Iptc4xmpExt:Sublocation',
+        'photoshop.City':    'Iptc4xmpExt:City',
+        'photoshop.State':   'Iptc4xmpExt:ProvinceState',
+        'photoshop.Country': 'Iptc4xmpExt:CountryName',
+        'iptc.CountryCode':  'Iptc4xmpExt:CountryCode',
+        }
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return cls()
+        if tag == 'Iptc.Application2.Location':
+            file_value = [dict((cls.iptc_key_map[k], v)
+                               for k, v in file_value.items())]
+        elif tag == 'Xmp.IPTCLegacy.Location':
+            file_value = [dict((cls.legacy_iptc_key_map[k], v)
+                               for k, v in file_value.items())]
+        return cls(file_value)
+
+    def to_exiv2(self, tag):
+        if not self:
+            return {}
+        if tag == 'Iptc.Application2.Location':
+            return dict((k1, self[0][k2].to_iptc())
+                        for k1, k2 in self.iptc_key_map.items())
+        if tag == 'Xmp.IPTCLegacy.Location':
+            return dict((k1, self[0][k2].to_xmp())
+                        for k1, k2 in self.legacy_iptc_key_map.items())
+        return self.to_xmp()
+
     def find(self, other):
         return 0
 

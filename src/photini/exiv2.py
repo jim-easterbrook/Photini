@@ -737,12 +737,8 @@ class MetadataHandler(object):
         result = []
         for mode, tag in cls._tag_list[name]:
             if mode == 'WA' and tag.split('.')[0] == 'Iptc':
-                if tag in cls._multi_tags:
-                    for sub_tag in cls._multi_tags[tag]:
-                        if sub_tag:
-                            result.append(cls.iptc_max_len(sub_tag))
-                else:
-                    result.append(cls.iptc_max_len(tag))
+                assert(tag not in cls._match_tags)
+                result.append(cls.iptc_max_len(tag))
         result = [x for x in result if x]
         if result:
             return min(result)

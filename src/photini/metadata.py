@@ -155,11 +155,6 @@ class ImageMetadata(MetadataHandler):
             else:
                 next(datum)
 
-    def clear_group(self, tag):
-        for sub_tag in self._multi_tags[tag]:
-            if sub_tag:
-                self.clear_value(sub_tag)
-
     def clear_value(self, tag):
         {'Exif': self.clear_exif_tag,
          'Iptc': self.clear_iptc_tag,
@@ -180,12 +175,6 @@ class ImageMetadata(MetadataHandler):
             match = regexp.match(key)
             if match:
                 result[match.group(1)] = decode(key, datum)
-        return result
-
-    def get_group(self, tag):
-        result = []
-        for x in self._multi_tags[tag]:
-            result.append(self.get_value(x))
         return result
 
     def get_value(self, tag):
@@ -248,11 +237,6 @@ class ImageMetadata(MetadataHandler):
         for key in value:
             sub_tag = fmt.format(key)
             self.set_value(sub_tag, value[key])
-
-    def set_group(self, tag, value):
-        for sub_tag, sub_value in zip(self._multi_tags[tag], value):
-            if sub_tag:
-                self.set_value(sub_tag, sub_value)
 
     def set_value(self, tag, value):
         if not tag:
@@ -319,9 +303,8 @@ class ImageMetadata(MetadataHandler):
         'Xmp.Thumbnail': (get_xmp_thumbnail, set_xmp_thumbnail),
         'exiv2.pixelWidthHeight': (get_image_size, ),
         }
-    # some tags are always read & written in groups, but are represented
-    # by a single name
-    # these ones return a dict of matching keys and values
+    # Some tags are always read & written in groups, but are represented
+    # by a single name. These return a dict of matching keys and values
     _match_tags = {
         'Exif.Any.Timezone': (re.compile(r'(.*[Tt]ime[Zz]one.*)'),),
         'Exif.Canon.Camera': (
@@ -385,6 +368,10 @@ class ImageMetadata(MetadataHandler):
         'Iptc.Application2.DigitizationDate': (
             re.compile(r'Iptc\.Application2\.Digitization(.*)'),
             'Iptc.Application2.Digitization{}'),
+        'Iptc.Application2.Location': (
+            re.compile(r'Iptc\.Application2\.(SubLocation|City|ProvinceState'
+                       '|CountryName|CountryCode)'),
+            'Iptc.Application2.{}'),
         'Iptc.Application2.Program': (re.compile(
             r'Iptc\.Application2\.(Program.*)'), 'Iptc.Application2.{}'),
         'Xmp.aux.Camera': (re.compile(r'Xmp\.aux\.(SerialNumber)'),),
@@ -398,6 +385,9 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'Xmp\.exif\.(FocalLength.*)'), 'Xmp.exif.{}'),
         'Xmp.exifEX.Lens': (
             re.compile(r'Xmp\.exifEX\.Lens(.*)'), 'Xmp.exifEX.Lens{}'),
+        'Xmp.IPTCLegacy.Location': (
+            re.compile(r'Xmp\.(iptc.Location|photoshop.City|photoshop.State'
+                       '|photoshop.Country|iptc.CountryCode)'), 'Xmp.{}'),
         'Xmp.PixelXYDimension': (
             re.compile(r'Xmp\.exif\.(Pixel(X|Y)Dimension)'),),
         'Xmp.xmpRights': (
@@ -405,17 +395,6 @@ class ImageMetadata(MetadataHandler):
         'Xmp.video.Camera': (re.compile(r'Xmp\.video\.(Make|Model)'),),
         'Xmp.video.WidthHeight': (re.compile(r'Xmp\.video\.(Width|Height)'),),
         }
-    # these ones return a list of values
-    _multi_tags = {
-        'Iptc.Application2.Location*': (
-            'Iptc.Application2.SubLocation', 'Iptc.Application2.City',
-            'Iptc.Application2.ProvinceState', 'Iptc.Application2.CountryName',
-            'Iptc.Application2.CountryCode'),
-        'Iptc.Legacy.Location*': (
-            'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
-            'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        }
-
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs. The mode is a string containing the write mode
     # (WA (always), WX (if Exif not supported), W0 (clear the tag), or
@@ -522,8 +501,8 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.aux.Lens')),
         'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
-                            ('WA', 'Iptc.Legacy.Location*'),
-                            ('WA', 'Iptc.Application2.Location*')),
+                            ('WA', 'Xmp.IPTCLegacy.Location'),
+                            ('WA', 'Iptc.Application2.Location')),
         'nested_tags'    : (('WA', 'Xmp.lr.hierarchicalSubject'),
                             ('WA', 'Xmp.digiKam.TagsList')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
@@ -556,8 +535,6 @@ class ImageMetadata(MetadataHandler):
                     file_value = self._function_tags[tag][0](self)
                 elif tag in self._match_tags:
                     file_value = self.get_match(tag)
-                elif tag in self._multi_tags:
-                    file_value = self.get_group(tag)
                 else:
                     file_value = self.get_value(tag)
                 value = type_.from_exiv2(file_value, tag)
@@ -582,8 +559,6 @@ class ImageMetadata(MetadataHandler):
                     file_value = self._function_tags[tag][1](self, None)
                 elif tag in self._match_tags:
                     self.clear_match(tag)
-                elif tag in self._multi_tags:
-                    self.clear_group(tag)
                 else:
                     self.clear_value(tag)
                 continue
@@ -595,8 +570,6 @@ class ImageMetadata(MetadataHandler):
                     # wipe any tags in the group that we don't save
                     self.clear_match(tag)
                 self.set_match(tag, file_value)
-            elif tag in self._multi_tags:
-                self.set_group(tag, file_value)
             else:
                 self.set_value(tag, file_value)
 
