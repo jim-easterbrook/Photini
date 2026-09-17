@@ -370,6 +370,8 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'Xmp\.exifEX\.Lens(.*)'), 'Xmp.exifEX.Lens{}'),
         'Xmp.PixelXYDimension': (
             re.compile(r'Xmp\.exif\.(Pixel(X|Y)Dimension)'),),
+        'Xmp.xmpRights': (
+            re.compile(r'Xmp\.xmpRights\.(.*)'), 'Xmp.xmpRights.{}'),
         'Xmp.video.Camera': (re.compile(r'Xmp\.video\.(Make|Model)'),),
         'Xmp.video.WidthHeight': (re.compile(r'Xmp\.video\.(Width|Height)'),),
         }
@@ -387,8 +389,6 @@ class ImageMetadata(MetadataHandler):
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.xmpRights.*': (
-            'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
         }
 
     # Mapping of tags to Photini data fields Each field has a list of
@@ -509,7 +509,7 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
         'resolution'     : (('WN', 'Exif.FocalPlaneResolution'),),
-        'rights'         : (('WA', 'Xmp.xmpRights.*'),),
+        'rights'         : (('WA', 'Xmp.xmpRights'),),
         'software'       : (('WA', 'Exif.Image.Software'),
                             ('WA', 'Iptc.Application2.Program*'),
                             ('WX', 'Xmp.xmp.CreatorTool')),

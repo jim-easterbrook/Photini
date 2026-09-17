@@ -1055,11 +1055,12 @@ class MD_LangAlt(MD_Value, dict):
         return self.__class__(result)
 
 
-class MD_Rights(MD_Collection):
+class MD_Rights(MD_Structure):
     # stores IPTC rights information
-    _keys = ('UsageTerms', 'WebStatement')
-    _default_type = MD_UnmergableString
-    _type = {'UsageTerms': MD_LangAlt}
+    item_type = {
+        'UsageTerms': MD_LangAlt,
+        'WebStatement': MD_UnmergableString,
+        }
 
 
 class MD_CameraModel(MD_Collection):
