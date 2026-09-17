@@ -364,6 +364,18 @@ class MD_DateTime(MD_Dict):
             return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
         return cls.from_ISO_8601(file_value)
 
+    def to_exiv2(self, tag):
+        result = super(MD_DateTime, self).to_exiv2(tag)
+        if tag == 'Exif.Image.DateTime':
+            # 'Exif.Photo.DateTime' is not a valid tag
+            result['Image.DateTime'] = result['Photo.DateTime']
+            del result['Photo.DateTime']
+        elif tag == 'Exif.Photo.DateTimeOriginal':
+            # many cameras duplicate 'Exif.Photo.DateTimeOriginal'
+            # in 'Exif.Image.DateTimeOriginal'
+            result['Image.DateTime'] = result['Photo.DateTime']
+        return result
+
     # From the Exif spec: "The format is "YYYY:MM:DD HH:MM:SS" with time
     # shown in 24-hour format, and the date and time separated by one
     # blank character [20.H]. When the date and time are unknown, all
@@ -376,9 +388,11 @@ class MD_DateTime(MD_Dict):
     # resolution datetime and get the precision from the Xmp value.
     @classmethod
     def from_exif(cls, file_value):
-        datetime_string, sub_sec_string, offset_string = file_value
-        if not datetime_string:
-            return cls([])
+        if 'DateTime' not in file_value:
+            return cls()
+        datetime_string = file_value['DateTime']
+        sub_sec_string = file_value.get('SubSecTime')
+        offset_string = file_value.get('OffsetTime')
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
@@ -399,7 +413,11 @@ class MD_DateTime(MD_Dict):
         else:
             sub_sec_string = datetime_string[20:-6]
             offset_string = datetime_string[-6:]
-        return date_string + ' ' + time_string, sub_sec_string, offset_string
+        return {
+            'Photo.DateTime': date_string + ' ' + time_string,
+            'Photo.SubSecTime': sub_sec_string,
+            'Photo.OffsetTime': offset_string,
+            }
 
     # The exiv2 library parses correctly formatted IPTC date & time and
     # gives us integer values for each element. If the date or time is

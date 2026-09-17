@@ -311,6 +311,8 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'Exif\.Image\.(Make|Model|CameraSerialNumber)'),
             'Exif.Image.{}'),
         'Exif.Image.Camera2': (re.compile(r'Exif\.Image\.(.*CameraModel)'),),
+        'Exif.Image.DateTime': (
+            re.compile(r'Exif\..*\.((Date|SubSec|Offset)Time)'), 'Exif.{}'),
         'Exif.Image.FNumber': (
             re.compile(r'Exif\.Image\.(ApertureValue|FNumber)'),),
         'Exif.Image.FocalLength': (
@@ -333,6 +335,10 @@ class ImageMetadata(MetadataHandler):
         'Exif.Photo.ApertureValue': (
             re.compile(r'Exif\.Photo\.(ApertureValue)'),),
         'Exif.Photo.Camera': (re.compile(r'Exif\.Photo\.(BodySerialNumber)'),),
+        'Exif.Photo.DateTimeDigitized': (
+            re.compile(r'Exif\..*\.(.*Time)Digitized'), 'Exif.{}Digitized'),
+        'Exif.Photo.DateTimeOriginal': (
+            re.compile(r'Exif\..*\.(.*Time)Original'), 'Exif.{}Original'),
         'Exif.Photo.FNumber': (re.compile(
             r'Exif\.Photo\.(ApertureValue|FNumber)'), 'Exif.Photo.{}'),
         'Exif.Photo.FocalLength': (
@@ -369,16 +375,6 @@ class ImageMetadata(MetadataHandler):
         }
     # these ones return a list of values
     _multi_tags = {
-        'Exif.Image.DateTime*': (
-            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime',
-            'Exif.Photo.OffsetTime'),
-        'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', '', ''),
-        'Exif.Photo.DateTimeDigitized*': (
-            'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized',
-            'Exif.Photo.OffsetTimeDigitized'),
-        'Exif.Photo.DateTimeOriginal*': (
-            'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal',
-            'Exif.Photo.OffsetTimeOriginal'),
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
@@ -394,11 +390,6 @@ class ImageMetadata(MetadataHandler):
         'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms', 'Xmp.xmpRights.WebStatement'),
         }
-    if not exiv2.testVersion(0, 27, 4):
-        for key in ('Exif.Image.DateTime*', 'Exif.Photo.DateTimeDigitized*',
-                    'Exif.Photo.DateTimeOriginal*'):
-            _multi_tags[key] = list(_multi_tags[key])
-            _multi_tags[key][2] = ''
 
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs. The mode is a string containing the write mode
@@ -444,18 +435,17 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.BylineTitle')),
         'credit_line'    : (('WA', 'Xmp.photoshop.Credit'),
                             ('WA', 'Iptc.Application2.Credit')),
-        'date_digitised' : (('WA', 'Exif.Photo.DateTimeDigitized*'),
+        'date_digitised' : (('WA', 'Exif.Photo.DateTimeDigitized'),
                             ('WA', 'Xmp.xmp.CreateDate'),
                             ('W0', 'Xmp.exif.DateTimeDigitized'),
                             ('WA', 'Iptc.Application2.DigitizationDate')),
-        'date_modified'  : (('WA', 'Exif.Image.DateTime*'),
+        'date_modified'  : (('WA', 'Exif.Image.DateTime'),
                             ('WA', 'Xmp.xmp.ModifyDate'),
                             ('W0', 'Xmp.tiff.DateTime'),
                             ('W0', 'Xmp.video.ModificationDate'),
                             ('W0', 'Xmp.video.MediaModifyDate'),
                             ('W0', 'Xmp.video.TrackModifyDate')),
-        'date_taken'     : (('WA', 'Exif.Photo.DateTimeOriginal*'),
-                            ('W0', 'Exif.Image.DateTimeOriginal*'),
+        'date_taken'     : (('WA', 'Exif.Photo.DateTimeOriginal'),
                             ('WA', 'Xmp.photoshop.DateCreated'),
                             ('W0', 'Xmp.exif.DateTimeOriginal'),
                             ('WA', 'Iptc.Application2.DateCreated'),
