@@ -555,7 +555,7 @@ class MD_Thumbnail(MD_Dict):
     _quiet = True
 
     @staticmethod
-    def image_from_data(data):
+    def from_data(data):
         # PySide insists on bytes, can't use memoryview or buffer interface
         if qbuffer_needs_bytes and not isinstance(data, bytes):
             data = bytes(data)
@@ -568,15 +568,14 @@ class MD_Thumbnail(MD_Dict):
         if image.isNull():
             raise RuntimeError(reader.errorString())
         image.buf = buf
-        return fmt, image
+        return {'fmt': fmt, 'data': data, 'image': image}
 
-    @staticmethod
-    def data_from_image(image, max_size=60000):
+    def to_data(self, max_size=60000):
         buf = QtCore.QBuffer()
         buf.open(buf.OpenModeFlag.WriteOnly)
         quality = 95
         while quality > 10:
-            image.save(buf, 'JPEG', quality)
+            self['image'].save(buf, 'JPEG', quality)
             data = buf.data().data()
             if len(data) < max_size:
                 return data
@@ -587,7 +586,7 @@ class MD_Thumbnail(MD_Dict):
     def convert(cls, value):
         value['fmt'] = value['fmt'] or 'JPEG'
         if value['data'] and not value['image']:
-            value['fmt'], value['image'] = cls.image_from_data(value['data'])
+            value.update(cls.from_data(value['data']))
         if not value['image']:
             return {}
         value['w'] = value['image'].width()
@@ -598,14 +597,12 @@ class MD_Thumbnail(MD_Dict):
         return value
 
     def to_exif(self):
-        fmt, data = self['fmt'], self['data']
+        data = self['data'] or self.to_data()
         if not data:
-            fmt = 'JPEG'
-            data = self.data_from_image(self['image'])
-        if not data:
-            return None, None, None, None
-        fmt = (None, 6)[fmt == 'JPEG']
-        return self['w'], self['h'], fmt, data
+            return {}
+        return {'ImageWidth': self['w'],
+                'ImageLength': self['h'],
+                'ImageData': data}
 
     def to_xmp(self):
         fmt, data = self['fmt'], self['data']
@@ -613,7 +610,7 @@ class MD_Thumbnail(MD_Dict):
             data = None
         if not data:
             fmt = 'JPEG'
-            data = self.data_from_image(self['image'], max_size=2**32)
+            data = self.to_data(max_size=2**32)
         data = codecs.encode(memoryview(data), 'base64_codec').decode('ascii')
         return [{
             'xmpGImg:width': str(self['w']),
@@ -1162,7 +1159,7 @@ class MD_Rational(MD_Value, Fraction):
         return 0, 0
 
     def to_xmp(self):
-        return '{}/{}'.format(self.to_exif())
+        return '{}/{}'.format(*self.to_exif())
 
     def compact_form(self):
         return float(self)

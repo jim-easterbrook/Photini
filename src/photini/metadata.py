@@ -198,26 +198,50 @@ class ImageMetadata(MetadataHandler):
             return self.get_iptc_value(tag)
         return self.get_xmp_value(tag)
 
+    def get_image_size(self):
+        return {'width': self._image.pixelWidth(),
+                'height': self._image.pixelHeight()}
+
     def get_exif_thumbnail(self):
         for data, label in self.select_exif_thumbnail():
             if data:
                 try:
-                    fmt, image = MD_Thumbnail.image_from_data(data)
-                    return None, None, fmt, data, image
+                    return MD_Thumbnail.from_data(data)
                 except Exception as ex:
                     logger.error('%s: %s: %s', self._name, label, str(ex))
-        return None, None, None, None, None
+        return {}
 
-    def get_xmp_thumbnail(self, file_value):
+    def set_exif_thumbnail(self, file_value):
+        thumb = exiv2.ExifThumb(self._exifData)
+        if not file_value:
+            thumb.erase()
+        thumb.setJpegThumbnail(file_value['ImageData'], (72, 1), (72, 1), 2)
+        self.set_exif_value('Exif.Thumbnail.ImageWidth',
+                            file_value['ImageWidth'])
+        self.set_exif_value('Exif.Thumbnail.ImageLength',
+                            file_value['ImageLength'])
+
+    def get_xmp_thumbnail(self):
+        file_value = self.get_xmp_value('Xmp.xmp.Thumbnails')
         for data, label in self.select_xmp_thumbnail(file_value):
             if data:
                 try:
                     data = codecs.decode(data, 'base64_codec')
-                    fmt, image = MD_Thumbnail.image_from_data(data)
-                    return None, None, fmt, data, image
+                    return MD_Thumbnail.from_data(data)
                 except Exception as ex:
                     logger.error('%s: %s: %s', self._name, label, str(ex))
-        return None, None, None, None, None
+        return {}
+
+    def set_xmp_thumbnail(self, file_value):
+        if not file_value:
+            # don't clear XMP thumbnails
+            return
+        tag = 'Xmp.xmp.Thumbnails'
+        if self._xmp_thumb_idx:
+            # replace or append one thumbnail of the array
+            tag = '{}[{}]'.format(tag, self._xmp_thumb_idx)
+            file_value = file_value[0]
+        self.set_xmp_value(tag, file_value)
 
     def set_match(self, tag, value):
         fmt = self._match_tags[tag][1]
@@ -229,8 +253,6 @@ class ImageMetadata(MetadataHandler):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
             if sub_tag:
                 self.set_value(sub_tag, sub_value)
-        if tag == 'Exif.Thumbnail.*' and value[3]:
-            self.set_exif_thumbnail_from_buffer(value[3])
 
     def set_value(self, tag, value):
         if not tag:
@@ -291,6 +313,12 @@ class ImageMetadata(MetadataHandler):
         result += self.get_xmp_tags()
         return result
 
+    # some data requires dedicated functions to read and write it
+    _function_tags = {
+        'Exif.Thumbnail': (get_exif_thumbnail, set_exif_thumbnail),
+        'Xmp.Thumbnail': (get_xmp_thumbnail, set_xmp_thumbnail),
+        'exiv2.pixelWidthHeight': (get_image_size, ),
+        }
     # some tags are always read & written in groups, but are represented
     # by a single name
     # these ones return a dict of matching keys and values
@@ -379,9 +407,6 @@ class ImageMetadata(MetadataHandler):
         }
     # these ones return a list of values
     _multi_tags = {
-        'Exif.Thumbnail.*': (
-            'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
-            'Exif.Thumbnail.Compression'),
         'Iptc.Application2.Location*': (
             'Iptc.Application2.SubLocation', 'Iptc.Application2.City',
             'Iptc.Application2.ProvinceState', 'Iptc.Application2.CountryName',
@@ -513,8 +538,8 @@ class ImageMetadata(MetadataHandler):
         'software'       : (('WA', 'Exif.Image.Software'),
                             ('WA', 'Iptc.Application2.Program'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
-        'thumbnail'      : (('WA', 'Exif.Thumbnail.*'),
-                            ('WX', 'Xmp.xmp.Thumbnails')),
+        'thumbnail'      : (('WA', 'Exif.Thumbnail'),
+                            ('WX', 'Xmp.Thumbnail')),
         'timezone'       : (('WN', 'Exif.Any.Timezone'),),
         'title'          : (('WA', 'Xmp.dc.title'),
                             ('WA', 'Iptc.Application2.ObjectName'),
@@ -527,21 +552,14 @@ class ImageMetadata(MetadataHandler):
         result = []
         for mode, tag in self._tag_list[name]:
             try:
-                if tag.startswith('Exif.Thumbnail'):
-                    file_value = self.get_exif_thumbnail()
-                elif tag == 'exiv2.pixelWidthHeight':
-                    file_value = {
-                        'width': self._image.pixelWidth(),
-                        'height': self._image.pixelHeight(),
-                        }
+                if tag in self._function_tags:
+                    file_value = self._function_tags[tag][0](self)
                 elif tag in self._match_tags:
                     file_value = self.get_match(tag)
                 elif tag in self._multi_tags:
                     file_value = self.get_group(tag)
                 else:
                     file_value = self.get_value(tag)
-                if tag == 'Xmp.xmp.Thumbnails':
-                    file_value = self.get_xmp_thumbnail(file_value)
                 value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
@@ -560,9 +578,8 @@ class ImageMetadata(MetadataHandler):
                 continue
             if ((not value) or (mode == 'W0')
                     or (mode == 'WX' and not self.xmp_only)):
-                if tag == 'Xmp.xmp.Thumbnails':
-                    # don't clear XMP thumbnails
-                    pass
+                if tag in self._function_tags:
+                    file_value = self._function_tags[tag][1](self, None)
                 elif tag in self._match_tags:
                     self.clear_match(tag)
                 elif tag in self._multi_tags:
@@ -571,11 +588,9 @@ class ImageMetadata(MetadataHandler):
                     self.clear_value(tag)
                 continue
             file_value = value.to_exiv2(tag)
-            if tag == 'Xmp.xmp.Thumbnails' and self._xmp_thumb_idx:
-                # replace or append one thumbnail of the array
-                tag = '{}[{}]'.format(tag, self._xmp_thumb_idx)
-                file_value = file_value[0]
-            if tag in self._match_tags:
+            if tag in self._function_tags:
+                file_value = self._function_tags[tag][1](self, file_value)
+            elif tag in self._match_tags:
                 if changed:
                     # wipe any tags in the group that we don't save
                     self.clear_match(tag)

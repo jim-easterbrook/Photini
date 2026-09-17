@@ -316,10 +316,6 @@ class MetadataHandler(object):
         for datum in self._xmpData:
             yield datum.key()
 
-    def set_exif_thumbnail_from_buffer(self, buffer):
-        thumb = exiv2.ExifThumb(self._exifData)
-        thumb.setJpegThumbnail(buffer, (72, 1), (72, 1), 2)
-
     def get_exif_comment(self, tag, value):
         if (isinstance(value, exiv2.DataValue)
                 and exiv2.__version_tuple__ < (0, 18)):
