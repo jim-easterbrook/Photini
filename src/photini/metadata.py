@@ -357,6 +357,8 @@ class ImageMetadata(MetadataHandler):
         'Iptc.Application2.DigitizationDate': (
             re.compile(r'Iptc\.Application2\.Digitization(.*)'),
             'Iptc.Application2.Digitization{}'),
+        'Iptc.Application2.Program': (re.compile(
+            r'Iptc\.Application2\.(Program.*)'), 'Iptc.Application2.{}'),
         'Xmp.aux.Camera': (re.compile(r'Xmp\.aux\.(SerialNumber)'),),
         'Xmp.aux.Lens': (re.compile(r'Xmp\.aux\.(Lens.*)'),),
         'Xmp.exif.ApertureValue': (re.compile(r'Xmp\.exif\.(ApertureValue)'),),
@@ -384,8 +386,6 @@ class ImageMetadata(MetadataHandler):
             'Iptc.Application2.SubLocation', 'Iptc.Application2.City',
             'Iptc.Application2.ProvinceState', 'Iptc.Application2.CountryName',
             'Iptc.Application2.CountryCode'),
-        'Iptc.Application2.Program*': (
-            'Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion'),
         'Iptc.Legacy.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
@@ -511,7 +511,7 @@ class ImageMetadata(MetadataHandler):
         'resolution'     : (('WN', 'Exif.FocalPlaneResolution'),),
         'rights'         : (('WA', 'Xmp.xmpRights'),),
         'software'       : (('WA', 'Exif.Image.Software'),
-                            ('WA', 'Iptc.Application2.Program*'),
+                            ('WA', 'Iptc.Application2.Program'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
         'thumbnail'      : (('WA', 'Exif.Thumbnail.*'),
                             ('WX', 'Xmp.xmp.Thumbnails')),

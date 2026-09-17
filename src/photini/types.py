@@ -173,11 +173,17 @@ class MD_Software(MD_String):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Iptc'):
-            file_value = ' v'.join(x for x in file_value if x)
+            if 'Program' not in file_value:
+                return cls()
+            string = file_value['Program']
+            if 'ProgramVersion' in file_value:
+                string += ' v' + file_value['ProgramVersion']
+            file_value = string
         return cls(file_value)
 
     def to_iptc(self):
-        return self.split(' v')
+        program, version = self.split(' v')
+        return {'Program': program, 'ProgramVersion': version}
 
 
 class MD_Dict(MD_Value, dict):
