@@ -279,7 +279,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if self.metadata.gps_info['exif:GPSLatitude']:
+        if self.metadata.gps_info['GPSLatitude']:
             status += chr(0x2690)
         # set 'unsaved' status
         if changed:

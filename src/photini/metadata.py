@@ -315,7 +315,7 @@ class ImageMetadata(MetadataHandler):
         'Exif.Fujifilm.Camera': (
             re.compile(r'Exif\.Fujifilm\.(SerialNumber)'),),
         'Exif.GPSInfo.GPS': (
-            re.compile(r'Exif\.GPSInfo\.GPS(.*)'), 'Exif.GPSInfo.GPS{}'),
+            re.compile(r'Exif\.GPSInfo\.(GPS.*)'), 'Exif.GPSInfo.{}'),
         'Exif.Image.ApertureValue': (
             re.compile(r'Exif\.Image\.(ApertureValue)'),),
         'Exif.Image.Camera1': (
@@ -379,8 +379,7 @@ class ImageMetadata(MetadataHandler):
         'Xmp.exif.ApertureValue': (re.compile(r'Xmp\.exif\.(ApertureValue)'),),
         'Xmp.exif.FNumber': (re.compile(
             r'Xmp\.exif\.(ApertureValue|FNumber)'), 'Xmp.exif.{}'),
-        'Xmp.exif.GPS': (
-            re.compile(r'Xmp\.exif\.GPS(.*)'), 'Xmp.exif.GPS{}'),
+        'Xmp.exif.GPS': (re.compile(r'Xmp\.exif\.(GPS.*)'), 'Xmp.exif.{}'),
         'Xmp.exif.FocalLength': (
             re.compile(r'Xmp\.exif\.(FocalLength.*)'), 'Xmp.exif.{}'),
         'Xmp.exifEX.Lens': (
@@ -541,6 +540,7 @@ class ImageMetadata(MetadataHandler):
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
                     self._name, name, tag, str(ex)))
+                logger.exception(ex)
                 continue
             except Exception as ex:
                 logger.exception(ex)

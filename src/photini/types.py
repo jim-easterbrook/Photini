@@ -1464,7 +1464,7 @@ class MD_Rating(MD_Float):
 
 
 class MD_Altitude(MD_Rational):
-    key = 'Altitude'
+    key = 'GPSAltitude'
 
     @staticmethod
     def valid_value(value):
@@ -1615,16 +1615,16 @@ class MD_Coordinate(MD_Rational):
 
 class MD_Latitude(MD_Coordinate):
     ref_letters = ('S', 'N')
-    key = 'Latitude'
+    key = 'GPSLatitude'
 
 
 class MD_Longitude(MD_Coordinate):
     ref_letters = ('W', 'E')
-    key = 'Longitude'
+    key = 'GPSLongitude'
 
 
 class GPSVersionId(MD_Value, bytes):
-    key = 'VersionID'
+    key = 'GPSVersionID'
 
     def __new__(cls, value=None):
         value = value or b'\x02\x00\x00\x00'
@@ -1648,7 +1648,7 @@ class GPSVersionId(MD_Value, bytes):
 
 
 class GPSMethod(MD_UnmergableString):
-    key = 'ProcessingMethod'
+    key = 'GPSProcessingMethod'
 
     def __new__(cls, value=None):
         value = value or 'MANUAL'
@@ -1668,20 +1668,20 @@ class GPSMethod(MD_UnmergableString):
 
 class MD_GPSinfo(MD_Structure):
     item_type = {
-        'VersionID': GPSVersionId,
-        'ProcessingMethod': GPSMethod,
-        'exif:GPSAltitude': MD_Altitude,
-        'exif:GPSLatitude': MD_Latitude,
-        'exif:GPSLongitude': MD_Longitude,
+        'GPSVersionID': GPSVersionId,
+        'GPSProcessingMethod': GPSMethod,
+        'GPSAltitude': MD_Altitude,
+        'GPSLatitude': MD_Latitude,
+        'GPSLongitude': MD_Longitude,
         }
 
     @classmethod
     def from_gpx(cls, value, set_altitude=False):
-        result = {'ProcessingMethod': 'GPS',
-                  'exif:GPSLatitude': value.latitude,
-                  'exif:GPSLongitude': value.longitude}
+        result = {'GPSProcessingMethod': 'GPS',
+                  'GPSLatitude': value.latitude,
+                  'GPSLongitude': value.longitude}
         if set_altitude and value.elevation is not None:
-            result['exif:GPSAltitude'] = round(value.elevation, 1)
+            result['GPSAltitude'] = round(value.elevation, 1)
         return cls(result)
 
     @classmethod
@@ -1690,8 +1690,8 @@ class MD_GPSinfo(MD_Structure):
             match = re.match(
                 r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)?/', file_value)
             if match:
-                return cls(dict(zip(('exif:GPSLatitude', 'exif:GPSLongitude',
-                                     'exif:GPSAltitude'), match.groups())))
+                return cls(dict(zip(('GPSLatitude', 'GPSLongitude',
+                                     'GPSAltitude'), match.groups())))
         return cls()
 
     @classmethod
@@ -1722,8 +1722,8 @@ class MD_GPSinfo(MD_Structure):
         return result
 
     def __bool__(self):
-        return any(self[k] for k in ('exif:GPSLatitude', 'exif:GPSLongitude',
-                                     'exif:GPSAltitude'))
+        return any(self[k] for k in ('GPSLatitude', 'GPSLongitude',
+                                     'GPSAltitude'))
 
     def __eq__(self, other):
         return not self.__ne__(other)
@@ -1732,7 +1732,7 @@ class MD_GPSinfo(MD_Structure):
         if not isinstance(other, MD_GPSinfo):
             other = MD_GPSinfo(other)
         return any(self[k] != other[k] for k in (
-            'exif:GPSLatitude', 'exif:GPSLongitude', 'exif:GPSAltitude'))
+            'GPSLatitude', 'GPSLongitude', 'GPSAltitude'))
 
 
 class MD_Aperture(MD_Rational):
@@ -1923,9 +1923,9 @@ class MD_Location(MD_Structure):
             file_value = file_value[0]
         value = {}
         for key in cls.item_type:
-            if key.startswith('exif:GPS'):
+            if key.startswith('exif:'):
                 value[key] = cls.item_type[key].from_exiv2(
-                    file_value, tag, prefix='exif:GPS')
+                    file_value, tag, prefix='exif:')
             else:
                 value[key] = file_value.get(key)
         return cls(value)
@@ -1938,8 +1938,8 @@ class MD_Location(MD_Structure):
         for key, value in self.items():
             if not value:
                 continue
-            if key.startswith('exif:GPS'):
-                result.update(value.to_xmp(prefix='exif:GPS'))
+            if key.startswith('exif:'):
+                result.update(value.to_xmp(prefix='exif:'))
             else:
                 result[key] = value.to_xmp()
         return result
