@@ -729,9 +729,6 @@ class MD_Structure(MD_Value, dict):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         file_value = file_value or {}
-        if isinstance(file_value, (list, tuple)):
-            # "legacy" list of string values
-            file_value = dict(zip(cls.legacy_keys, file_value))
         new_value = {}
         for key, value in file_value.items():
             # some files have incorrect use of 'iptcExt' in structures
@@ -757,17 +754,17 @@ class MD_Structure(MD_Value, dict):
     def to_exif(self):
         if not self:
             return None
-        return [self[k] and self[k].to_exif() for k in self.legacy_keys]
+        return dict((k, v.to_exif()) for (k, v) in self.items())
 
     def to_iptc(self):
         if not self:
             return None
-        return [self[k] and self[k].to_iptc() for k in self.legacy_keys]
+        return dict((k, v.to_iptc()) for (k, v) in self.items())
 
     def to_xmp(self):
         if not self:
             return None
-        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
+        return dict((k, v.to_xmp()) for (k, v) in self.items())
 
     def compact_form(self):
         return dict((k.split(':')[-1], v.compact_form())
