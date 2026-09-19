@@ -2296,11 +2296,11 @@ class ImageRegionItem(MD_Structure):
                     area['stArea:w'] = w
                     area['stArea:h'] = h
                 elif boundary['Iptc4xmpExt:rbShape'] == 'circle':
-                    scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
                     area['stArea:x'] = boundary['Iptc4xmpExt:rbX']
                     area['stArea:y'] = boundary['Iptc4xmpExt:rbY']
-                    area['stArea:d'] = boundary[
-                        'Iptc4xmpExt:rbRx'] * 2 / scale_diameter
+                    area['stArea:d'] = boundary['Iptc4xmpExt:rbRx'] * 2
+                    if dims['stDim:w'] > dims['stDim:h']:
+                        area['stArea:d'] *= dims['stDim:w'] / dims['stDim:h']
                 elif (boundary['Iptc4xmpExt:rbShape'] == 'polygon' and
                       len(boundary['Iptc4xmpExt:rbVertices']) == 1):
                     point = boundary['Iptc4xmpExt:rbVertices'][0]
