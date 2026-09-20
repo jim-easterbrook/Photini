@@ -788,7 +788,7 @@ class Unused(object):
         return None
 
 
-class MD_ContactInformation(MD_Structure):
+class MD_ContactInfoRecord(MD_Structure):
     item_type = {
         'plus:LicensorID': Unused,
         'plus:LicensorName': Unused,
@@ -805,40 +805,6 @@ class MD_ContactInformation(MD_Structure):
         'plus:LicensorEmail': MD_String,
         'plus:LicensorURL': MD_String,
         }
-
-    _ci_map = {
-        'Iptc4xmpCore:CiAdrExtadr': 'plus:LicensorStreetAddress',
-        'Iptc4xmpCore:CiAdrCity':   'plus:LicensorCity',
-        'Iptc4xmpCore:CiAdrCtry':   'plus:LicensorCountry',
-        'Iptc4xmpCore:CiEmailWork': 'plus:LicensorEmail',
-        'Iptc4xmpCore:CiTelWork':   'plus:LicensorTelephone1',
-        'Iptc4xmpCore:CiAdrPcode':  'plus:LicensorPostalCode',
-        'Iptc4xmpCore:CiAdrRegion': 'plus:LicensorRegion',
-        'Iptc4xmpCore:CiUrlWork':   'plus:LicensorURL',
-        }
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if tag == 'Xmp.iptc.CreatorContactInfo':
-            file_value = file_value or {}
-            file_value = dict((cls._ci_map[k], v)
-                              for (k, v) in file_value.items())
-            if 'plus:LicensorStreetAddress' in file_value:
-                line1, sep, line2 = file_value[
-                    'plus:LicensorStreetAddress'].partition('\n')
-                if line2:
-                    file_value['plus:LicensorExtendedAddress'] = line1
-                    file_value['plus:LicensorStreetAddress'] = line2
-        elif file_value:
-            for value in file_value[1:]:
-                logger.warning(
-                    '%s: to be deleted when data is saved: %s', tag, value)
-            # Xmp.plus.Licensor is an XMP bag with up to 3 entries, use the 1st
-            file_value = file_value[0]
-        return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
-
-    def to_xmp(self):
-        return [super(MD_ContactInformation, self).to_xmp()]
 
 
 class MD_StructArray(MD_Value, tuple):
@@ -898,6 +864,30 @@ class MD_StructArray(MD_Value, tuple):
 
     def __str__(self):
         return '\n\n'.join(str(x) for x in self)
+
+
+class MD_ContactInformation(MD_StructArray):
+    item_type = MD_ContactInfoRecord
+    _ci_map = {
+        'Iptc4xmpCore:CiAdrExtadr': 'plus:LicensorStreetAddress',
+        'Iptc4xmpCore:CiAdrCity':   'plus:LicensorCity',
+        'Iptc4xmpCore:CiAdrCtry':   'plus:LicensorCountry',
+        'Iptc4xmpCore:CiEmailWork': 'plus:LicensorEmail',
+        'Iptc4xmpCore:CiTelWork':   'plus:LicensorTelephone1',
+        'Iptc4xmpCore:CiAdrPcode':  'plus:LicensorPostalCode',
+        'Iptc4xmpCore:CiAdrRegion': 'plus:LicensorRegion',
+        'Iptc4xmpCore:CiUrlWork':   'plus:LicensorURL',
+        }
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if tag == 'Xmp.iptc.CreatorContactInfo':
+            file_value = [dict((cls._ci_map[k], v)
+                               for k, v in file_value.items())]
+        return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
+
+    def find(self, other):
+        return 0
 
 
 class MD_LangAlt(MD_Value, dict):

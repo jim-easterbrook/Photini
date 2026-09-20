@@ -21,9 +21,10 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
+from photini.types import MD_ContactInfoRecord
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
-    PushButton, TopLevelWidgetMixin)
+    ListWidgetMixin, PushButton, TopLevelWidgetMixin)
 from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
@@ -216,6 +217,30 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         return self.widgets.values()
 
 
+class ContactInfoList(QtCore.QObject, ListWidgetMixin):
+    item_type = MD_ContactInfoRecord
+
+    def __init__(self, key, *arg, **kw):
+        super(ContactInfoList, self).__init__(*arg, **kw)
+        self._key = key
+        self.widget = ContactInfoGroup(0)
+        self.widget.new_value.connect(self.sw_new_value)
+
+    def sub_widgets(self):
+        return (self.widget,)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            # delete all but the first contact
+            md = list(metadata[self._key])
+            if len(md) > 1:
+                logger.warning(
+                    '%s: %d set(s) of licensor details will be deleted when'
+                    ' file is saved', self._key, len(md) - 1)
+                metadata[self._key] = md[:1]
+        return super(ContactInfoList, self)._save_data(metadata, value)
+
+
 class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
                ContextMenuMixin, CompoundWidgetMixin):
     clipboard_key = 'OwnerTab'
@@ -278,10 +303,10 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form.addRow(translate('OwnerTab', 'Instructions'),
                     self.widgets['instructions'])
         ## creator contact information
-        self.widgets['contact_info'] = ContactInfoGroup('contact_info')
+        self.widgets['contact_info'] = ContactInfoList('contact_info')
         form.addRow(Label(
             translate('OwnerTab', 'Creator / Licensor Contact Information'),
-            lines=3, layout=form), self.widgets['contact_info'])
+            lines=3, layout=form), self.widgets['contact_info'].widget)
         if active:
             for widget in self.sub_widgets():
                 widget.new_value.connect(self.save_data)
@@ -404,6 +429,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         template = {}
         for key, widget in self.widgets.items():
             if key in ('rights', 'contact_info'):
+                if key == 'contact_info':
+                    widget = widget.widget
                 value = {}
                 for w in widget.sub_widgets():
                     sub_key = w._key
@@ -412,6 +439,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                             key, sub_key.split(':')[-1]))
                     if sub_value:
                         value[sub_key] = sub_value
+                if key == 'contact_info':
+                    value = {0: value}
             else:
                 value = self.config_store.get('ownership', key)
             if value:
@@ -455,6 +484,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         template = self.remove_empty(template)
         for key, value in template.items():
             if key in ('rights', 'contact_info'):
+                if key == 'contact_info':
+                    value = value[0]
                 for k, v in value.items():
                     if v:
                         compound_key = '{}/{}'.format(
@@ -495,6 +526,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             value = template[key]
             if key in ('rights', 'contact_info'):
                 result[key] = self.process_template(value, date_taken)
+                if key == 'contact_info':
+                    result[key] = result[key].values()
             elif isinstance(value, dict):
                 result[key] = dict((k, date_taken.strftime(v))
                                    for (k, v) in value.items())
