@@ -204,6 +204,7 @@ class ImageMetadata(MetadataHandler):
         thumb = exiv2.ExifThumb(self._exifData)
         if not file_value:
             thumb.erase()
+            return
         thumb.setJpegThumbnail(file_value['ImageData'], (72, 1), (72, 1), 2)
         self.set_exif_value('Exif.Thumbnail.ImageWidth',
                             file_value['ImageWidth'])
