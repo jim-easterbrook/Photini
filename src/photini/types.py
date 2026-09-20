@@ -881,6 +881,7 @@ class MD_ContactInformation(MD_StructArray):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
+        file_value = file_value or {}
         if tag == 'Xmp.iptc.CreatorContactInfo':
             file_value = [dict((cls._ci_map[k], v)
                                for k, v in file_value.items())]
@@ -2052,6 +2053,8 @@ class RegionBoundaryNumber(MD_Float):
         return round(self, self.decimals)
 
     def __eq__(self, other):
+        if not other:
+            return False
         return round((other - self) / 2.0, self.decimals) == 0.0
 
     def __str__(self):
@@ -2361,6 +2364,8 @@ class ImageRegionItem(MD_Structure):
             boundary['Iptc4xmpExt:rbH'] = h
         elif 'stArea:d' in area:
             # circle
+            if not dims:
+                return None
             scale_diameter = min(dims['stDim:h'] / dims['stDim:w'], 1.0)
             d = float(area['stArea:d']) * scale_diameter
             boundary['Iptc4xmpExt:rbShape'] = 'circle'
@@ -2488,7 +2493,8 @@ class MD_ImageRegion(MD_Structure):
         if tag == 'Xmp.iptcExt.ImageRegion':
             value = {'RegionList': [ImageRegionItem(x) for x in file_value]}
         elif tag == 'Xmp.mwg-rs.Regions':
-            dims = AppliedToDimensions(file_value['mwg-rs:AppliedToDimensions'])
+            dims = AppliedToDimensions(
+                file_value.get('mwg-rs:AppliedToDimensions'))
             value = {
                 'AppliedToDimensions': dims,
                 'RegionList': [ImageRegionItem.from_MWG(x, dims)
