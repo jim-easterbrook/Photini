@@ -19,6 +19,8 @@
 from datetime import datetime
 import logging
 
+import exiv2
+
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.types import MD_ContactInfoRecord
@@ -134,6 +136,8 @@ class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
 
 
 class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
+    dynamic = True
+
     def __init__(self, key, *arg, **kw):
         super(ContactInfoGroup, self).__init__(*arg, **kw)
         self._key = key
@@ -144,14 +148,14 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.widgets['Email'].setToolTip(translate(
             'OwnerTab', 'Enter the work email address for the person that'
             ' created this image, such as name@domain.com.'))
-        self.layout().addRow(translate('OwnerTab', 'Email(s)'),
+        self.layout().addRow(translate('OwnerTab', 'Email'),
                              self.widgets['Email'])
         # URLs
         self.widgets['URL'] = TextEdit('plus:LicensorURL', height=1)
         self.widgets['URL'].setToolTip(translate(
             'OwnerTab', 'Enter the work Web URL for the person that created'
             ' this image, such as http://www.domain.com/.'))
-        self.layout().addRow(translate('OwnerTab', 'Web URL(s)'),
+        self.layout().addRow(translate('OwnerTab', 'Web URL'),
                              self.widgets['URL'])
         # phone numbers
         self.widgets['Telephone1'] = TextEdit(
@@ -160,7 +164,7 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
             'OwnerTab', 'Enter the work phone number for the person that'
             ' created this image, using the international format, such as'
             ' +1 (123) 456789.'))
-        self.layout().addRow(translate('OwnerTab', 'Phone(s)'),
+        self.layout().addRow(translate('OwnerTab', 'Phone'),
                              self.widgets['Telephone1'])
         # extended address
         self.widgets['ExtendedAddress'] = TextEdit(
@@ -212,6 +216,21 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
                              self.widgets['Country'])
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
+
+    def set_subwidgets(self, value):
+        for key in value:
+            name = key.replace('plus:Licensor', '')
+            if name not in self.widgets:
+                self.widgets[name] = TextEdit(key, height=1)
+                info = exiv2.XmpProperties.propertyInfo(
+                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+                if info:
+                    label = info.title
+                    self.widgets[name].setToolTip(info.desc)
+                else:
+                    label = name
+                self.layout().addRow(label, self.widgets[name])
+                self.widgets[name].new_value.connect(self.sw_new_value)
 
     def sub_widgets(self):
         return self.widgets.values()

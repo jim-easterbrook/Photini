@@ -777,31 +777,17 @@ class MD_Structure(MD_Value, dict):
         return any(self.values())
 
 
-class Unused(object):
-    def __new__(cls, value=None):
-        return None
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        logger.warning('%s: to be deleted when data is saved: %s',
-                       tag, file_value)
-        return None
-
-
 class MD_ContactInfoRecord(MD_Structure):
+    extendable = True
+
     item_type = {
-        'plus:LicensorID': Unused,
-        'plus:LicensorName': Unused,
         'plus:LicensorStreetAddress': MD_String,
         'plus:LicensorExtendedAddress': MD_String,
         'plus:LicensorCity': MD_String,
         'plus:LicensorRegion': MD_String,
         'plus:LicensorPostalCode': MD_String,
         'plus:LicensorCountry': MD_String,
-        'plus:LicensorTelephoneType1': Unused,
         'plus:LicensorTelephone1': MD_String,
-        'plus:LicensorTelephoneType2': Unused,
-        'plus:LicensorTelephone2': Unused,
         'plus:LicensorEmail': MD_String,
         'plus:LicensorURL': MD_String,
         }
