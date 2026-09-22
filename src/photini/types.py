@@ -58,6 +58,15 @@ def safe_fraction(value, limit=True):
         value = value.limit_denominator(1000000)
     return value
 
+# helper functions to convert dicts with different keys, e.g. "legacy" data
+def map_keys(key_map, value):
+    if not value:
+        return {}
+    return dict((key_map[k], v) for k, v in value.items())
+
+def unmap_keys(key_map, value):
+    return dict((k1, value[k2]) for k1, k2 in key_map.items() if k2 in value)
+
 
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
@@ -779,7 +788,6 @@ class MD_Structure(MD_Value, dict):
 
 class MD_ContactInfoRecord(MD_Structure):
     extendable = True
-
     item_type = {
         'plus:LicensorStreetAddress': MD_String,
         'plus:LicensorExtendedAddress': MD_String,
@@ -867,10 +875,8 @@ class MD_ContactInformation(MD_StructArray):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        file_value = file_value or {}
         if tag == 'Xmp.iptc.CreatorContactInfo':
-            file_value = [dict((cls._ci_map[k], v)
-                               for k, v in file_value.items())]
+            file_value = [map_keys(cls._ci_map, file_value)]
         return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
 
     def find(self, other):
@@ -1896,8 +1902,6 @@ class MD_Location(MD_Structure):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if tag == 'Iptc.Application2.Location':
-            file_value = file_value[0]
         value = {}
         for key in cls.item_type:
             if key.startswith('exif:'):
@@ -1979,28 +1983,21 @@ class MD_SingleLocation(MD_MultiLocation):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return cls()
         if tag == 'Iptc.Application2.Location':
-            file_value = [dict((cls.iptc_key_map[k], v)
-                               for k, v in file_value.items())]
+            file_value = map_keys(cls.iptc_key_map, file_value)
         elif tag == 'Xmp.IPTCLegacy.Location':
-            file_value = [dict((cls.legacy_iptc_key_map[k], v)
-                               for k, v in file_value.items())]
+            file_value = [map_keys(cls.legacy_iptc_key_map, file_value)]
         return super(MD_SingleLocation, cls).from_exiv2(file_value, tag)
 
     def to_exiv2(self, tag):
         if not self:
             return {}
-        if tag == 'Iptc.Application2.Location':
-            result = dict((k1, self[0][k2])
-                          for k1, k2 in self.iptc_key_map.items())
-            return dict((k, v.to_iptc()) for k, v in result.items() if v)
-        if tag == 'Xmp.IPTCLegacy.Location':
-            result = dict((k1, self[0][k2])
-                          for k1, k2 in self.legacy_iptc_key_map.items())
-            return dict((k, v.to_xmp()) for k, v in result.items() if v)
-        return self.to_xmp()
+        result = super(MD_SingleLocation, self).to_exiv2(tag)
+        if tag in 'Iptc.Application2.Location':
+            result = unmap_keys(self.iptc_key_map, result)
+        elif tag == 'Xmp.IPTCLegacy.Location':
+            result = unmap_keys(self.legacy_iptc_key_map, result[0])
+        return result
 
     def find(self, other):
         return 0
