@@ -931,17 +931,14 @@ class MetadataHandler(object):
             image.setMetadata(image_md._image)
             image.writeMetadata()
 
-    def merge_sc(self, path):
-        # open other image and read its metadata
-        image = exiv2.ImageFactory.open(path)
-        image.readMetadata()
+    def merge_sc(self, handler):
         # copy Exif data inferred by libexiv2
-        for o_datum in image.exifData():
+        for o_datum in handler._exifData:
             tag = o_datum.key()
             s_datum = self._exifData[tag]
             s_datum.setValue(o_datum.value())
         # copy Xmp data, except inferred Exif data
-        for o_datum in image.xmpData():
+        for o_datum in handler._xmpData:
             tag = o_datum.key()
             if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue
