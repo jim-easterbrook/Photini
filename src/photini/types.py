@@ -1818,6 +1818,9 @@ class MD_Dimensions(MD_Collection):
     def scaled_to(self, target_size):
         w = float(self['width'])
         h = float(self['height'])
+        if not (w and h):
+            w = float(self['sensor_width'])
+            h = float(self['sensor_height'])
         if w > h:
             return target_size, int((float(target_size) * h / w) + 0.5)
         return int((float(target_size) * w / h) + 0.5), target_size
