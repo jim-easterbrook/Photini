@@ -697,10 +697,12 @@ class MD_Structure(MD_Value, dict):
     extendable = False
     key_map = {}
 
-    def __init__(self, value=None):
+    def __init__(self, value=None, copy=True):
         value = value or {}
-        # deep copy initial values
-        value = dict((k, self.get_type(k, v)(v)) for (k, v) in value.items())
+        if copy:
+            # deep copy initial values
+            value = dict((k, self.get_type(k, v)(v))
+                         for (k, v) in value.items())
         # set missing values to empty
         for k in self.item_type:
             if k not in value:
@@ -745,7 +747,7 @@ class MD_Structure(MD_Value, dict):
                     file_value[k2] = file_value[k1]
                     del file_value[k1]
         return cls(dict((k, cls.get_type(k, v).from_exiv2(v, tag))
-                        for k, v in file_value.items()))
+                        for k, v in file_value.items()), copy=False)
 
     def merge(self, info, tag, other):
         if other == self:
@@ -805,15 +807,14 @@ class MD_ContactInfoRecord(MD_Structure):
 
 class MD_StructArray(MD_Value, tuple):
     # class for arrays of XMP structures such as locations or image regions
-    def __new__(cls, value=None):
+    def __new__(cls, value=None, copy=True):
         value = value or []
-        # deep copy initial values
-        temp = []
-        for item in value:
-            temp.append(cls.item_type(item))
+        if copy:
+            # deep copy initial values
+            value = [cls.item_type(x) for x in value]
         # remove empty values
-        temp = [x for x in temp if x]
-        return super(MD_StructArray, cls).__new__(cls, temp)
+        value = [x for x in value if x]
+        return super(MD_StructArray, cls).__new__(cls, value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -824,7 +825,7 @@ class MD_StructArray(MD_Value, tuple):
             file_value = [cls.item_type.from_exiv2(x, tag) for x in file_value]
         else:
             file_value = [cls.item_type.from_exiv2(file_value, tag)]
-        return cls(file_value)
+        return cls(file_value, copy=False)
 
     def to_exif(self):
         return self and self[0].to_exif()
