@@ -770,6 +770,12 @@ class Metadata(object):
             for tag2, value2 in values[name][1:]:
                 value = value.merge(info, tag2, value2)
             super(Metadata, self).__setattr__(name, value)
+        # merge image dimensions into image regions
+        if not self.image_region['AppliedToDimensions']:
+            dims = {'w': self.dimensions['width'],
+                    'h': self.dimensions['height']}
+            super(Metadata, self).__setattr__(
+                'image_region', self.image_region.set_dimensions(dims))
         # merge people in regions into people in image
         if self.image_region:
             name = 'people'
