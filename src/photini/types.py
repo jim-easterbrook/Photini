@@ -1056,6 +1056,11 @@ class MD_CameraModel(MD_Structure):
                  'CameraSerialNumber': MD_UnmergableString}
 
     @classmethod
+    def from_ffmpeg(cls, file_value, tag):
+        file_value = {'Make': file_value[0], 'Model': file_value[1]}
+        return cls(file_value)
+
+    @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return cls()
@@ -1752,6 +1757,11 @@ class MD_Dimensions(MD_Structure):
                  'height': MD_Int,
                  'sensor_width': MD_Int,
                  'sensor_height': MD_Int}
+
+    @classmethod
+    def from_ffmpeg(cls, file_value, tag):
+        file_value = {'width': file_value[0], 'height': file_value[1]}
+        return cls(file_value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
