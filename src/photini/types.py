@@ -1053,7 +1053,7 @@ class QuietString(MD_UnmergableString):
 class MD_CameraModel(MD_Structure):
     item_type = {'Make': MD_UnmergableString,
                  'Model': QuietString,
-                 'CameraSerialNumber': MD_UnmergableString}
+                 'SerialNumber': MD_UnmergableString}
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -1067,22 +1067,20 @@ class MD_CameraModel(MD_Structure):
         for key, value in list(file_value.items()):
             if isinstance(value, str) and value in ('unknown', '*******'):
                 del file_value[key]
-        if tag == 'Exif.Image.Camera1':
-            return cls(file_value)
         value = {}
         for key, aliases in (
                 ('Make', ('CameraID', 'Make')),
                 ('Model', (
                     'UniqueCameraModel', 'LocalizedCameraModel', 'ModelID',
                     'CameraType', 'SonyModelID', 'Model')),
-                ('CameraSerialNumber', (
-                    'BodySerialNumber', 'SerialNumber', 'SerialNumber2',
+                ('SerialNumber', (
+                    'BodySerialNumber', 'SerialNumber2',
                     'InternalSerialNumber'))):
             for alias in aliases:
                 if alias in file_value:
-                    value[key] = file_value[alias]
-                    break
-        return super(MD_CameraModel, cls).from_exiv2(value, tag)
+                    file_value[key] = file_value[alias]
+                    del file_value[alias]
+        return super(MD_CameraModel, cls).from_exiv2(file_value, tag)
 
     def get_name(self, inc_serial=True):
         result = []
@@ -1095,8 +1093,8 @@ class MD_CameraModel(MD_Structure):
                     and self['Make'].split()[0].lower() in result[0].lower()):
                 result = [self['Make']] + result
         # add serial no if a unique answer is needed
-        if inc_serial and self['CameraSerialNumber']:
-            result.append('(S/N: ' + self['CameraSerialNumber'] + ')')
+        if inc_serial and self['SerialNumber']:
+            result.append('(S/N: ' + self['SerialNumber'] + ')')
         return ' '.join(result)
 
 

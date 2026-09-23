@@ -74,8 +74,8 @@ class CameraList(DropdownEdit):
             if not section.startswith('camera '):
                 continue
             camera = {}
-            for old_key, new_key in (('serial_no', 'CameraSerialNumber'),
-                                     ('SerialNumber', 'CameraSerialNumber')):
+            for old_key, new_key in (('serial_no', 'SerialNumber'),
+                                     ('CameraSerialNumber', 'SerialNumber')):
                 camera[new_key] = self.app.config_store.get(section, old_key)
                 if camera[new_key]:
                     self.app.config_store.delete(section, old_key)
@@ -398,11 +398,6 @@ class NewCameraDialog(NewItemDialog):
             for key in self.model_widgets:
                 if camera[key]:
                     self.model_widgets[key].setText(camera[key])
-
-    def extend_data(self):
-        self.model_widgets[
-            'CameraSerialNumber'] = self.model_widgets['SerialNumber']
-        del self.model_widgets['SerialNumber']
 
 
 class NewLensDialog(NewItemDialog):

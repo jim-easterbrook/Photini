@@ -320,7 +320,7 @@ class ImageMetadata(MetadataHandler):
         'Exif.Image.ApertureValue': (
             re.compile(r'Exif\.Image\.(ApertureValue)'),),
         'Exif.Image.Camera1': (
-            re.compile(r'Exif\.Image\.(Make|Model|CameraSerialNumber)'),
+            re.compile(r'Exif\.Image\.(?:Camera)?(Make|Model|SerialNumber)'),
             'Exif.Image.{}'),
         'Exif.Image.Camera2': (re.compile(r'Exif\.Image\.(.*CameraModel)'),),
         'Exif.Image.DateTime': (
