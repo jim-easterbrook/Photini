@@ -320,9 +320,9 @@ class ImageMetadata(MetadataHandler):
         'Exif.Image.ApertureValue': (
             re.compile(r'Exif\.Image\.(ApertureValue)'),),
         'Exif.Image.Camera1': (
-            re.compile(r'Exif\.Image\.(?:Camera)?(Make|Model|SerialNumber)'),
+            re.compile(r'Exif\.Image\.(Make|Model|CameraSerialNumber)'),
             'Exif.Image.{}'),
-        'Exif.Image.Camera2': (re.compile(r'Exif\.Image\.(.*CameraModel)'),),
+        'Exif.Image.Camera2': (re.compile(r'Exif\.Image\.UniqueCamera(Model)'),),
         'Exif.Image.DateTime': (
             re.compile(r'Exif\..*\.((Date|SubSec|Offset)Time)'), 'Exif.{}'),
         'Exif.Image.FNumber': (
@@ -340,13 +340,13 @@ class ImageMetadata(MetadataHandler):
             r'Exif\.Olympus.*?\.(CameraID|CameraType|SerialNumber.*)'),),
         'Exif.Olympus.Lens': (re.compile(r'Exif\.OlympusEq\.(Lens.*)'),),
         'Exif.Panasonic.Camera': (re.compile(
-            r'Exif\.Panasonic\.(InternalSerialNumber)'),),
+            r'Exif\.Panasonic\.Internal(SerialNumber)'),),
         'Exif.Pentax.Camera': (re.compile(
             r'Exif\.Pentax.*?\.(ModelID|SerialNumber)'),),
         'Exif.Pentax.Lens': (re.compile(r'Exif\.Pentax.*?\.(LensType)'),),
         'Exif.Photo.ApertureValue': (
             re.compile(r'Exif\.Photo\.(ApertureValue)'),),
-        'Exif.Photo.Camera': (re.compile(r'Exif\.Photo\.(BodySerialNumber)'),),
+        'Exif.Photo.Camera': (re.compile(r'Exif\.Photo\.Body(SerialNumber)'),),
         'Exif.Photo.DateTimeDigitized': (
             re.compile(r'Exif\..*\.(.*Time)Digitized'), 'Exif.{}Digitized'),
         'Exif.Photo.DateTimeOriginal': (

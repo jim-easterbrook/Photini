@@ -1051,9 +1051,16 @@ class QuietString(MD_UnmergableString):
 
 
 class MD_CameraModel(MD_Structure):
-    item_type = {'Make': MD_UnmergableString,
+    item_type = {'Make': QuietString,
                  'Model': QuietString,
                  'SerialNumber': MD_UnmergableString}
+    key_map = {
+        'Exif.Canon.Camera': {'ModelID': 'Model'},
+        'Exif.Image.Camera1': {'CameraSerialNumber': 'SerialNumber'},
+        'Exif.Olympus.Camera': {'CameraID': 'Make', 'CameraType': 'Model'},
+        'Exif.Pentax.Camera': {'ModelID': 'Model'},
+        'Exif.Sony.Camera': {'SonyModelID': 'Model'},
+        }
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -1067,19 +1074,11 @@ class MD_CameraModel(MD_Structure):
         for key, value in list(file_value.items()):
             if isinstance(value, str) and value in ('unknown', '*******'):
                 del file_value[key]
-        value = {}
-        for key, aliases in (
-                ('Make', ('CameraID', 'Make')),
-                ('Model', (
-                    'UniqueCameraModel', 'LocalizedCameraModel', 'ModelID',
-                    'CameraType', 'SonyModelID', 'Model')),
-                ('SerialNumber', (
-                    'BodySerialNumber', 'SerialNumber2',
-                    'InternalSerialNumber'))):
-            for alias in aliases:
-                if alias in file_value:
-                    file_value[key] = file_value[alias]
-                    del file_value[alias]
+        if tag in cls.key_map:
+            for k1, k2 in cls.key_map[tag].items():
+                if k1 in file_value:
+                    file_value[k2] = file_value[k1]
+                    del file_value[k1]
         return super(MD_CameraModel, cls).from_exiv2(file_value, tag)
 
     def get_name(self, inc_serial=True):
