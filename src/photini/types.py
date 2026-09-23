@@ -1046,10 +1046,14 @@ class MD_Rights(MD_Structure):
         }
 
 
-class MD_CameraModel(MD_Collection):
-    _keys = ('Make', 'Model', 'CameraSerialNumber')
-    _default_type = MD_UnmergableString
+class QuietString(MD_UnmergableString):
     _quiet = True
+
+
+class MD_CameraModel(MD_Structure):
+    item_type = {'Make': MD_UnmergableString,
+                 'Model': QuietString,
+                 'CameraSerialNumber': MD_UnmergableString}
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1073,24 +1077,7 @@ class MD_CameraModel(MD_Collection):
                 if alias in file_value:
                     value[key] = file_value[alias]
                     break
-        for key in value:
-            value[key] = cls.get_type(key).from_exiv2(value[key], tag)
-        return cls(value)
-
-    def to_exif(self):
-        if not self:
-            return None
-        return dict((k, v.to_exif()) for k, v in self.items() if v)
-
-    to_iptc = None
-
-    def to_xmp(self):
-        if not self:
-            return None
-        return dict((k, v.to_xmp()) for k, v in self.items() if v)
-
-    def __str__(self):
-        return str(dict([(x, y) for x, y in self.items() if y]))
+        return super(MD_CameraModel, cls).from_exiv2(value, tag)
 
     def get_name(self, inc_serial=True):
         result = []
@@ -1193,11 +1180,11 @@ class MD_LensSpec(MD_Collection):
         return ','.join(['{:g}'.format(float(self[k])) for k in self._keys])
 
 
-class MD_LensModel(MD_Collection):
-    _keys = ('Make', 'Model', 'SerialNumber', 'Specification')
-    _default_type = MD_UnmergableString
-    _type = {'Specification': MD_LensSpec}
-    _quiet = True
+class MD_LensModel(MD_Structure):
+    item_type = {'Make': MD_UnmergableString,
+                 'Model': QuietString,
+                 'SerialNumber': MD_UnmergableString,
+                 'Specification': MD_LensSpec}
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1222,21 +1209,7 @@ class MD_LensModel(MD_Collection):
                 if alias in file_value:
                     value[key] = file_value[alias]
                     break
-        for key in value:
-            value[key] = cls.get_type(key).from_exiv2(value[key], tag)
-        return cls(value)
-
-    def to_exif(self):
-        if not self:
-            return None
-        return dict((k, v.to_exif()) for k, v in self.items() if v)
-
-    to_iptc = None
-
-    def to_xmp(self):
-        if not self:
-            return None
-        return dict((k, v.to_xmp()) for k, v in self.items() if v)
+        return super(MD_LensModel, cls).from_exiv2(value, tag)
 
     def get_name(self, inc_serial=True):
         result = []
@@ -1772,11 +1745,13 @@ class MD_VideoDuration(MD_Rational):
         return hi - lo < max(hi * 0.0001, 0.2)
 
 
-class MD_Dimensions(MD_Collection):
+class MD_Dimensions(MD_Structure):
     # width & height - actual image
     # sensor_width & sensor_height - best guess at original size
-    _keys = ('width', 'height', 'sensor_width', 'sensor_height')
-    _default_type = MD_Int
+    item_type = {'width': MD_Int,
+                 'height': MD_Int,
+                 'sensor_width': MD_Int,
+                 'sensor_height': MD_Int}
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1798,7 +1773,7 @@ class MD_Dimensions(MD_Collection):
         elif tag in ('Exif.PixelXYDimension', 'Xmp.PixelXYDimension'):
             file_value = {'sensor_width': file_value.get('PixelXDimension'),
                           'sensor_height': file_value.get('PixelYDimension')}
-        return cls(file_value)
+        return super(MD_Dimensions, cls).from_exiv2(file_value, tag)
 
     def merge(self, info, tag, other):
         if other == self:

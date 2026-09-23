@@ -80,7 +80,7 @@ class CameraList(DropdownEdit):
                 if camera[new_key]:
                     self.app.config_store.delete(section, old_key)
                     self.app.config_store.set(section, new_key, camera[new_key])
-            for key in MD_CameraModel._keys:
+            for key in MD_CameraModel.item_type:
                 camera[key] = self.app.config_store.get(section, key)
             camera = MD_CameraModel(camera)
             name = camera.get_name()
@@ -134,7 +134,7 @@ class LensList(DropdownEdit):
                     self.app.config_store.delete(section, old_key)
                     self.app.config_store.set(
                         section, new_key, lens_model[new_key])
-            for key in MD_LensModel._keys:
+            for key in MD_LensModel.item_type:
                 lens_model[key] = self.app.config_store.get(section, key)
             lens_model = MD_LensModel(lens_model)
             name = lens_model.get_name()
