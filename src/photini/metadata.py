@@ -755,7 +755,8 @@ class Metadata(object):
                     continue
                 for name in list(names):
                     values[name] += handler.read(name, self._data_type[name])
-                    if values[name] and file_handler == self._sc:
+                    if (name != 'dimensions' and values[name]
+                            and file_handler == self._sc):
                         # ignore values from image or video file
                         names.remove(name)
         self.mime_type = self._if.mime_type
