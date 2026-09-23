@@ -1187,6 +1187,19 @@ class MD_LensModel(MD_Structure):
                  'Model': QuietString,
                  'SerialNumber': MD_UnmergableString,
                  'Specification': MD_LensSpec}
+    key_map = {
+        'Exif.Canon.Lens': {'Lens': 'Specification',
+                            'LensModel': 'Model',
+                            'LensSerialNumber': 'SerialNumber',
+                            'LensType': 'Model'},
+        'Exif.Minolta.Lens': {'LensID': 'Model'},
+        'Exif.Nikon.Lens': {'Lens': 'Model',
+                            'LensIDNumber': 'Model'},
+        'Exif.Olympus.Lens': {'Type': 'Model'},
+        'Exif.Pentax.Lens': {'LensType': 'Model'},
+        'Exif.Sony.Lens': {'LensSpec': 'Specification'},
+        'Xmp.aux.Lens': {'Lens': 'Model'},
+        }
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1199,19 +1212,12 @@ class MD_LensModel(MD_Structure):
                 del file_value[key]
         if tag == 'Exif.Photo.Lens':
             return cls(file_value)
-        if tag == 'Exif.Canon.Lens' and 'Lens' in file_value:
-            file_value['LensSpec'] = file_value['Lens']
-            del file_value['Lens']
-        value = {}
-        for key, aliases in (('Model', ('LensType', 'LensModel', 'LensID',
-                                        'LensIDNumber', 'Lens')),
-                             ('SerialNumber', ('LensSerialNumber',)),
-                             ('Specification', ('LensSpec', 'LensInfo'))):
-            for alias in aliases:
-                if alias in file_value:
-                    value[key] = file_value[alias]
-                    break
-        return super(MD_LensModel, cls).from_exiv2(value, tag)
+        if tag in cls.key_map:
+            for k1, k2 in cls.key_map[tag].items():
+                if k1 in file_value:
+                    file_value[k2] = file_value[k1]
+                    del file_value[k1]
+        return super(MD_LensModel, cls).from_exiv2(file_value, tag)
 
     def get_name(self, inc_serial=True):
         result = []

@@ -338,7 +338,8 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'Exif\.Nikon(?:Ld.|3)\.(Lens(?:|ID.*)$)'),),
         'Exif.Olympus.Camera': (re.compile(
             r'Exif\.Olympus.*?\.(CameraID|CameraType|SerialNumber.*)'),),
-        'Exif.Olympus.Lens': (re.compile(r'Exif\.OlympusEq\.(Lens.*)'),),
+        'Exif.Olympus.Lens': (
+            re.compile(r'Exif\.OlympusEq\.Lens(Model|SerialNumber|Type)'),),
         'Exif.Panasonic.Camera': (re.compile(
             r'Exif\.Panasonic\.Internal(SerialNumber)'),),
         'Exif.Pentax.Camera': (re.compile(
