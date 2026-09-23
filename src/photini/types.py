@@ -1833,10 +1833,10 @@ class MD_Dimensions(MD_Collection):
         return None
 
 
-class MD_Resolution(MD_Collection):
-    _keys = ('x', 'y', 'unit')
-    _default_type = MD_Rational
-    _type = {'unit': MD_Int}
+class MD_Resolution(MD_Structure):
+    item_type = {'x': MD_Rational,
+                 'y': MD_Rational,
+                 'unit': MD_Int}
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1853,20 +1853,9 @@ class MD_Resolution(MD_Collection):
         return all(self.values())
 
 
-class MD_FocalLength(MD_Collection):
-    _keys = ('FocalLength', 'FocalLengthIn35mmFilm')
-    _default_type = MD_Int
-    _type = {'FocalLength': MD_Rational}
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        return cls(file_value)
-
-    def to_exif(self):
-        return dict((k, v and v.to_exif()) for k, v in self.items())
-
-    def to_xmp(self):
-        return dict((k, v and v.to_xmp()) for k, v in self.items())
+class MD_FocalLength(MD_Structure):
+    item_type = {'FocalLength': MD_Rational,
+                 'FocalLengthIn35mmFilm': MD_Int}
 
     def reset_focal_length(self, new_fl):
         if self['FocalLengthIn35mmFilm'] and self['FocalLength']:
