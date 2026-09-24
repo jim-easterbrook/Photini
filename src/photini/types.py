@@ -58,15 +58,6 @@ def safe_fraction(value, limit=True):
         value = value.limit_denominator(1000000)
     return value
 
-# helper functions to convert dicts with different keys, e.g. "legacy" data
-def map_keys(key_map, value):
-    if not value:
-        return {}
-    return dict((key_map[k], v) for k, v in value.items())
-
-def unmap_keys(key_map, value):
-    return dict((k1, value[k2]) for k1, k2 in key_map.items() if k2 in value)
-
 
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
@@ -743,11 +734,21 @@ class MD_Structure(MD_Value, dict):
         file_value = file_value or {}
         if tag in cls.key_map:
             for k1, k2 in cls.key_map[tag].items():
-                if k1 in file_value:
-                    file_value[k2] = file_value[k1]
-                    del file_value[k1]
+                if k2 and k2 in file_value:
+                    file_value[k1] = file_value[k2]
+                    del file_value[k2]
         return cls(dict((k, cls.get_type(k, v).from_exiv2(v, tag))
                         for k, v in file_value.items()), copy=False)
+
+    def to_exiv2(self, tag):
+        result = super(MD_Structure, self).to_exiv2(tag)
+        if tag in self.key_map:
+            for k1, k2 in self.key_map[tag].items():
+                if k1 in result:
+                    if k2:
+                        result[k2] = result[k1]
+                    del result[k1]
+        return result
 
     def merge(self, info, tag, other):
         if other == self:
@@ -803,6 +804,18 @@ class MD_ContactInfoRecord(MD_Structure):
         'plus:LicensorEmail': MD_String,
         'plus:LicensorURL': MD_String,
         }
+    key_map = {
+        'Xmp.iptc.CreatorContactInfo': {
+            'plus:LicensorStreetAddress': 'Iptc4xmpCore:CiAdrExtadr',
+            'plus:LicensorCity': 'Iptc4xmpCore:CiAdrCity',
+            'plus:LicensorRegion': 'Iptc4xmpCore:CiAdrRegion',
+            'plus:LicensorPostalCode': 'Iptc4xmpCore:CiAdrPcode',
+            'plus:LicensorCountry': 'Iptc4xmpCore:CiAdrCtry',
+            'plus:LicensorTelephone1': 'Iptc4xmpCore:CiTelWork',
+            'plus:LicensorEmail': 'Iptc4xmpCore:CiEmailWork',
+            'plus:LicensorURL': 'Iptc4xmpCore:CiUrlWork',
+            }
+        }
 
 
 class MD_StructArray(MD_Value, tuple):
@@ -827,14 +840,12 @@ class MD_StructArray(MD_Value, tuple):
             file_value = [cls.item_type.from_exiv2(file_value, tag)]
         return cls(file_value, copy=False)
 
-    def to_exif(self):
-        return self and self[0].to_exif()
-
-    def to_iptc(self):
-        return self and self[0].to_iptc()
-
-    def to_xmp(self):
-        return [x.to_xmp() for x in self]
+    def to_exiv2(self, tag):
+        if tag.startswith('Xmp'):
+            result = [x.to_exiv2(tag) for x in self]
+        else:
+            result = self[0].to_exiv2(tag)
+        return result
 
     def find(self, other):
         if other in self:
@@ -865,21 +876,11 @@ class MD_StructArray(MD_Value, tuple):
 
 class MD_ContactInformation(MD_StructArray):
     item_type = MD_ContactInfoRecord
-    _ci_map = {
-        'Iptc4xmpCore:CiAdrExtadr': 'plus:LicensorStreetAddress',
-        'Iptc4xmpCore:CiAdrCity':   'plus:LicensorCity',
-        'Iptc4xmpCore:CiAdrCtry':   'plus:LicensorCountry',
-        'Iptc4xmpCore:CiEmailWork': 'plus:LicensorEmail',
-        'Iptc4xmpCore:CiTelWork':   'plus:LicensorTelephone1',
-        'Iptc4xmpCore:CiAdrPcode':  'plus:LicensorPostalCode',
-        'Iptc4xmpCore:CiAdrRegion': 'plus:LicensorRegion',
-        'Iptc4xmpCore:CiUrlWork':   'plus:LicensorURL',
-        }
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if tag == 'Xmp.iptc.CreatorContactInfo':
-            file_value = [map_keys(cls._ci_map, file_value)]
+            file_value = [file_value]
         return super(MD_ContactInformation, cls).from_exiv2(file_value, tag)
 
     def find(self, other):
@@ -1058,11 +1059,11 @@ class MD_CameraModel(MD_Structure):
                  'Model': QuietString,
                  'SerialNumber': MD_UnmergableString}
     key_map = {
-        'Exif.Canon.Camera': {'ModelID': 'Model'},
-        'Exif.Image.Camera1': {'CameraSerialNumber': 'SerialNumber'},
-        'Exif.Olympus.Camera': {'CameraID': 'Make', 'CameraType': 'Model'},
-        'Exif.Pentax.Camera': {'ModelID': 'Model'},
-        'Exif.Sony.Camera': {'SonyModelID': 'Model'},
+        'Exif.Canon.Camera': {'Model': 'ModelID'},
+        'Exif.Image.Camera1': {'SerialNumber': 'CameraSerialNumber'},
+        'Exif.Olympus.Camera': {'Make': 'CameraID', 'Model': 'CameraType'},
+        'Exif.Pentax.Camera': {'Model': 'ModelID'},
+        'Exif.Sony.Camera': {'Model': 'SonyModelID'},
         }
 
     @classmethod
@@ -1186,17 +1187,17 @@ class MD_LensModel(MD_Structure):
                  'SerialNumber': MD_UnmergableString,
                  'Specification': MD_LensSpec}
     key_map = {
-        'Exif.Canon.Lens': {'Lens': 'Specification',
-                            'LensModel': 'Model',
-                            'LensSerialNumber': 'SerialNumber',
-                            'LensType': 'Model'},
-        'Exif.Minolta.Lens': {'LensID': 'Model'},
-        'Exif.Nikon.Lens': {'Lens': 'Model',
-                            'LensIDNumber': 'Model'},
-        'Exif.Olympus.Lens': {'Type': 'Model'},
-        'Exif.Pentax.Lens': {'LensType': 'Model'},
-        'Exif.Sony.Lens': {'LensSpec': 'Specification'},
-        'Xmp.aux.Lens': {'Lens': 'Model'},
+        'Exif.Canon.Lens': {'Model': 'LensModel'},
+        'Exif.CanonCs.Lens': {'Model': 'LensType',
+                              'SerialNumber': 'LensSerialNumber',
+                              'Specification': 'Lens'},
+        'Exif.Minolta.Lens': {'Model': 'LensID'},
+        'Exif.Nikon.Lens': {'Model': 'Lens'},
+        'Exif.NikonLd.Lens': {'Model': 'LensIDNumber'},
+        'Exif.OlympusEq.Lens': {'Model': 'Type'},
+        'Exif.Pentax.Lens': {'Model': 'LensType'},
+        'Exif.Sony.Lens': {'Specification': 'LensSpec'},
+        'Xmp.aux.Lens': {'Model': 'Lens'},
         }
 
     @classmethod
@@ -1426,10 +1427,10 @@ class MD_Altitude(MD_Rational):
         return True
 
     @classmethod
-    def from_exiv2(cls, file_value, tag, prefix=''):
-        altitude = file_value.get(prefix + cls.key)
-        ref = file_value.get(prefix + cls.key + 'Ref')
-        if not (altitude and ref):
+    def from_exiv2(cls, file_value, tag):
+        altitude = file_value.get(cls.key)
+        ref = file_value.get(cls.key + 'Ref')
+        if not altitude:
             return cls()
         altitude = safe_fraction(altitude)
         if ref in (b'\x01', '1'):
@@ -1446,16 +1447,16 @@ class MD_Altitude(MD_Rational):
         return {self.key: (altitude.numerator, altitude.denominator),
                 self.key + 'Ref': ref}
 
-    def to_xmp(self, prefix=''):
+    def to_xmp(self):
         altitude = self
         if altitude < 0:
             altitude = -altitude
             ref = '1'
         else:
             ref = '0'
-        return {prefix + self.key: '{}/{}'.format(altitude.numerator,
+        return {self.key: '{}/{}'.format(altitude.numerator,
                                                   altitude.denominator),
-                prefix + self.key + 'Ref': ref}
+                self.key + 'Ref': ref}
 
     def contains(self, this, other):
         return abs(float(other) - float(this)) < 0.001
@@ -1467,10 +1468,10 @@ class MD_Coordinate(MD_Rational):
         return True
 
     @classmethod
-    def from_exiv2(cls, file_value, tag, prefix=''):
+    def from_exiv2(cls, file_value, tag):
         if tag.startswith('Exif'):
             return cls.from_exif(file_value)
-        return cls.from_xmp(file_value, prefix)
+        return cls.from_xmp(file_value)
 
     @classmethod
     def from_exif(cls, value):
@@ -1486,8 +1487,8 @@ class MD_Coordinate(MD_Rational):
         return cls(degrees)
 
     @classmethod
-    def from_xmp(cls, value, prefix):
-        value = value.get(prefix + cls.key)
+    def from_xmp(cls, value):
+        value = value.get(cls.key)
         if not value:
             return cls()
         ref = value[-1]
@@ -1533,9 +1534,9 @@ class MD_Coordinate(MD_Rational):
         seconds = seconds.limit_denominator(1000000)
         return (degrees, minutes, seconds), pstv
 
-    def to_xmp(self, prefix = ''):
+    def to_xmp(self):
         string, pstv = self.to_xmp_part()
-        return {prefix + self.key: string + self.ref_letters[pstv]}
+        return {self.key: string + self.ref_letters[pstv]}
 
     def to_xmp_part(self):
         numbers, pstv = self.to_exif_part()
@@ -1858,42 +1859,80 @@ class CountryCode(MD_UnmergableString):
 class MD_Location(MD_Structure):
     # stores IPTC defined location hierarchy
     item_type = {
-        'Iptc4xmpExt:City': MD_String,
-        'Iptc4xmpExt:CountryCode': CountryCode,
-        'Iptc4xmpExt:CountryName': MD_String,
-        'exif:GPSAltitude': MD_Altitude,
-        'exif:GPSLatitude': MD_Latitude,
-        'exif:GPSLongitude': MD_Longitude,
-        'Iptc4xmpExt:LocationId': MD_MultiString,
-        'Iptc4xmpExt:LocationName': MD_LangAlt,
-        'Iptc4xmpExt:ProvinceState': MD_String,
-        'Iptc4xmpExt:Sublocation': MD_String,
-        'Iptc4xmpExt:WorldRegion': MD_String,
+        'City': MD_String,
+        'CountryCode': CountryCode,
+        'CountryName': MD_String,
+        'GPSAltitude': MD_Altitude,
+        'GPSLatitude': MD_Latitude,
+        'GPSLongitude': MD_Longitude,
+        'LocationId': MD_MultiString,
+        'LocationName': MD_LangAlt,
+        'ProvinceState': MD_String,
+        'Sublocation': MD_String,
+        'WorldRegion': MD_String,
         }
+    key_map = {
+        'Iptc.Application2.Location': {
+            'GPSAltitude': None,
+            'GPSAltitudeRef': None,
+            'GPSLatitude': None,
+            'GPSLongitude': None,
+            'LocationId': None,
+            'LocationName': None,
+            'Sublocation': 'SubLocation',
+            'WorldRegion': None,
+            },
+        'Xmp.iptcExt.LocationCreated': {
+            'City': 'Iptc4xmpExt:City',
+            'CountryCode': 'Iptc4xmpExt:CountryCode',
+            'CountryName': 'Iptc4xmpExt:CountryName',
+            'GPSAltitude': 'exif:GPSAltitude',
+            'GPSAltitudeRef': 'exif:GPSAltitudeRef',
+            'GPSLatitude': 'exif:GPSLatitude',
+            'GPSLongitude': 'exif:GPSLongitude',
+            'LocationId': 'Iptc4xmpExt:LocationId',
+            'LocationName': 'Iptc4xmpExt:LocationName',
+            'ProvinceState': 'Iptc4xmpExt:ProvinceState',
+            'Sublocation': 'Iptc4xmpExt:Sublocation',
+            'WorldRegion': 'Iptc4xmpExt:WorldRegion',
+            },
+        'Xmp.IPTCLegacy.Location': {
+            'City': 'photoshop.City',
+            'CountryCode': 'iptc.CountryCode',
+            'CountryName': 'photoshop.Country',
+            'GPSAltitude': None,
+            'GPSAltitudeRef': None,
+            'GPSLatitude': None,
+            'GPSLongitude': None,
+            'LocationId': None,
+            'LocationName': None,
+            'ProvinceState': 'photoshop.State',
+            'Sublocation': 'iptc.Location',
+            'WorldRegion': None,
+            },
+        }
+    key_map['Xmp.iptcExt.LocationShown'] = key_map[
+        'Xmp.iptcExt.LocationCreated']
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        value = {}
-        for key in cls.item_type:
-            if key.startswith('exif:'):
-                value[key] = cls.item_type[key].from_exiv2(
-                    file_value, tag, prefix='exif:')
-            else:
-                value[key] = file_value.get(key)
-        return cls(value)
+        gps_info = {}
+        for k1 in ('GPSAltitude', 'GPSAltitudeRef', 'GPSLatitude',
+                   'GPSLongitude'):
+            k2 = 'exif:' + k1
+            if k2 in file_value:
+                gps_info[k1] = file_value[k2]
+                del file_value[k2]
+        if gps_info:
+            for k1 in ('GPSAltitude', 'GPSLatitude', 'GPSLongitude'):
+                file_value[k1] = gps_info
+        return super(MD_Location, cls).from_exiv2(file_value, tag)
 
     def to_xmp(self):
-        if not self:
-            # need a place holder for empty values
-            return {'Iptc4xmpExt:City': ' '}
-        result = {}
-        for key, value in self.items():
-            if not value:
-                continue
-            if key.startswith('exif:'):
-                result.update(value.to_xmp(prefix='exif:'))
-            else:
-                result[key] = value.to_xmp()
+        result = super(MD_Location, self).to_xmp()
+        for key in list(result):
+            if key.startswith('GPS'):
+                result.update(result[key])
         return result
 
     @classmethod
@@ -1909,20 +1948,18 @@ class MD_Location(MD_Structure):
                     result[key].append(address[foreign_key])
                 del(address[foreign_key])
         # only use one country code
-        result['Iptc4xmpExt:CountryCode'] = result[
-            'Iptc4xmpExt:CountryCode'][:1]
+        result['CountryCode'] = result['CountryCode'][:1]
         # put unknown foreign keys in Sublocation
         for foreign_key in address:
-            if address[foreign_key] in ' '.join(
-                    result['Iptc4xmpExt:Sublocation']):
+            if address[foreign_key] in ' '.join(result['Sublocation']):
                 continue
-            result['Iptc4xmpExt:Sublocation'] = [
+            result['Sublocation'] = [
                 '{}: {}'.format(foreign_key, address[foreign_key])
-                ] + result['Iptc4xmpExt:Sublocation']
+                ] + result['Sublocation']
         for key in result:
             result[key] = ', '.join(result[key]) or None
-        result['exif:GPSLatitude'] = gps['lat']
-        result['exif:GPSLongitude'] = gps['lng']
+        result['GPSLatitude'] = gps['lat']
+        result['GPSLongitude'] = gps['lng']
         return cls(result)
 
 
@@ -1937,37 +1974,16 @@ class MD_MultiLocation(MD_StructArray):
 
 
 class MD_SingleLocation(MD_MultiLocation):
-    iptc_key_map = {
-        'SubLocation':   'Iptc4xmpExt:Sublocation',
-        'City':          'Iptc4xmpExt:City',
-        'ProvinceState': 'Iptc4xmpExt:ProvinceState',
-        'CountryName':   'Iptc4xmpExt:CountryName',
-        'CountryCode':   'Iptc4xmpExt:CountryCode',
-        }
-    legacy_iptc_key_map = {
-        'iptc.Location':     'Iptc4xmpExt:Sublocation',
-        'photoshop.City':    'Iptc4xmpExt:City',
-        'photoshop.State':   'Iptc4xmpExt:ProvinceState',
-        'photoshop.Country': 'Iptc4xmpExt:CountryName',
-        'iptc.CountryCode':  'Iptc4xmpExt:CountryCode',
-        }
-
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if tag == 'Iptc.Application2.Location':
-            file_value = map_keys(cls.iptc_key_map, file_value)
-        elif tag == 'Xmp.IPTCLegacy.Location':
-            file_value = [map_keys(cls.legacy_iptc_key_map, file_value)]
+        if tag == 'Xmp.IPTCLegacy.Location':
+            file_value = [file_value]
         return super(MD_SingleLocation, cls).from_exiv2(file_value, tag)
 
     def to_exiv2(self, tag):
-        if not self:
-            return {}
         result = super(MD_SingleLocation, self).to_exiv2(tag)
-        if tag in 'Iptc.Application2.Location':
-            result = unmap_keys(self.iptc_key_map, result)
-        elif tag == 'Xmp.IPTCLegacy.Location':
-            result = unmap_keys(self.legacy_iptc_key_map, result[0])
+        if tag == 'Xmp.IPTCLegacy.Location':
+            result = result[0]
         return result
 
     def find(self, other):

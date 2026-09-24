@@ -235,7 +235,10 @@ class LatLongValidator(QtGui.QValidator):
 
 
 class LatLongDisplay(NumericalWidget):
-    def __init__(self, *arg, prefix='exif:', **kw):
+    lat_key = 'GPSLatitude'
+    lng_key = 'GPSLongitude'
+
+    def __init__(self, *arg, **kw):
         validator = LatLongValidator()
         super(LatLongDisplay, self).__init__('', validator, *arg, **kw)
         self.label = Label(translate(
@@ -245,8 +248,6 @@ class LatLongDisplay(NumericalWidget):
         self.setToolTip('<p>{}</p>'.format(translate(
             'LatLongDisplay', 'Latitude and longitude (in degrees) as two'
             ' decimal numbers separated by a space.')))
-        self.lat_key = prefix + 'GPSLatitude'
-        self.lng_key = prefix + 'GPSLongitude'
 
     def get_value_dict(self):
         if self.is_valid():
@@ -281,11 +282,11 @@ class LatLongDisplay(NumericalWidget):
 
 
 class AltitudeDisplay(NumericalWidget):
-    def __init__(self, *args, prefix='exif:', **kwds):
+    def __init__(self, *args, **kwds):
         validator = DoubleValidator(
             suffix=translate('AltitudeDisplay', ' m', 'metres altitude'))
         super(AltitudeDisplay, self).__init__(
-            prefix + 'GPSAltitude', validator, *args, **kwds)
+            'GPSAltitude', validator, *args, **kwds)
         self.setToolTip('<p>{}</p>'.format(translate(
             'AltitudeDisplay', 'Altitude of the location in metres.')))
         self.label = Label(translate('AltitudeDisplay', 'Altitude'))
@@ -297,8 +298,8 @@ class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
     def __init__(self, *arg, **kw):
         super(GPSInfoWidgets, self).__init__(*arg, **kw)
         # child widgets
-        self.latlon = LatLongDisplay(prefix='')
-        self.alt = AltitudeDisplay(prefix='')
+        self.latlon = LatLongDisplay()
+        self.alt = AltitudeDisplay()
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
 

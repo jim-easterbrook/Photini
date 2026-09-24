@@ -310,7 +310,8 @@ class ImageMetadata(MetadataHandler):
         'Exif.Any.Timezone': (re.compile(r'(.*[Tt]ime[Zz]one.*)'),),
         'Exif.Canon.Camera': (
             re.compile(r'Exif\.Canon\.(ModelID|SerialNumber)'),),
-        'Exif.Canon.Lens': (re.compile(r'Exif\.Canon(?:|Cs|Le)\.(Lens.*)'),),
+        'Exif.Canon.Lens': (re.compile(r'Exif\.Canon\.(Lens.*)'),),
+        'Exif.CanonCs.Lens': (re.compile(r'Exif\.Canon(?:Cs|Le)\.(Lens.*)'),),
         'Exif.FocalPlaneResolution': (
             re.compile(r'(Exif\..*?\.FocalPlane.*Resolution.*)'),),
         'Exif.Fujifilm.Camera': (
@@ -334,12 +335,13 @@ class ImageMetadata(MetadataHandler):
             re.compile(r'(Exif\..*?Image.*?\.Image(Width|Length))'),),
         'Exif.Minolta.Lens': (re.compile(r'Exif\.Minolta\.(Lens.*)'),),
         'Exif.Nikon.Camera': (re.compile(r'Exif\.Nikon3\.(Serial.*)'),),
-        'Exif.Nikon.Lens': (
-            re.compile(r'Exif\.Nikon(?:Ld.|3)\.(Lens(?:|ID.*)$)'),),
+        'Exif.Nikon.Lens': (re.compile(r'Exif\.Nikon.\.(Lens)'),),
+        'Exif.NikonLd.Lens': (re.compile(r'Exif\.NikonLd.\.(LensIDNumber)'),),
         'Exif.Olympus.Camera': (re.compile(
             r'Exif\.Olympus.*?\.(CameraID|CameraType|SerialNumber.*)'),),
-        'Exif.Olympus.Lens': (
-            re.compile(r'Exif\.OlympusEq\.Lens(Model|SerialNumber|Type)'),),
+        'Exif.Olympus.Lens': (re.compile(r'Exif\.OlympusEq\.Lens(Model)'),),
+        'Exif.OlympusEq.Lens': (
+            re.compile(r'Exif\.OlympusEq\.Lens(SerialNumber|Type)'),),
         'Exif.Panasonic.Camera': (re.compile(
             r'Exif\.Panasonic\.Internal(SerialNumber)'),),
         'Exif.Pentax.Camera': (re.compile(
@@ -493,9 +495,12 @@ class ImageMetadata(MetadataHandler):
         'lens_model'     : (('WA', 'Exif.Photo.Lens'),
                             ('WX', 'Xmp.exifEX.Lens'),
                             ('W0', 'Exif.Image.Lens'),
+                            ('WN', 'Exif.CanonCs.Lens'),
                             ('WN', 'Exif.Canon.Lens'),
                             ('WN', 'Exif.Minolta.Lens'),
+                            ('WN', 'Exif.NikonLd.Lens'),
                             ('WN', 'Exif.Nikon.Lens'),
+                            ('WN', 'Exif.OlympusEq.Lens'),
                             ('WN', 'Exif.Olympus.Lens'),
                             ('WN', 'Exif.Pentax.Lens'),
                             ('WN', 'Exif.Sony.Lens'),
