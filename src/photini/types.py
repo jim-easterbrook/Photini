@@ -655,14 +655,8 @@ class MD_Collection(MD_Dict):
             value[key] = cls.get_type(key).from_exiv2(value[key], tag)
         return cls(value)
 
-    def to_exif(self):
-        return [(self[x] or None) and self[x].to_exif() for x in self._keys]
-
-    def to_iptc(self):
-        return [(self[x] or None) and self[x].to_iptc() for x in self._keys]
-
-    def to_xmp(self):
-        return [(self[x] or None) and self[x].to_xmp() for x in self._keys]
+    def to_exiv2(self, tag):
+        return [self[x].to_exiv2(tag) for x in self._keys]
 
     def merge(self, info, tag, other):
         if other == self:
@@ -1658,22 +1652,13 @@ class MD_GPSinfo(MD_Structure):
             value[key] = cls.item_type[key].from_exiv2(file_value, tag)
         return cls(value)
 
-    def to_exif(self):
+    def to_exiv2(self, tag):
         if not self:
             return None
         result = {}
         for value in self.values():
             if value:
-                result.update(value.to_exif())
-        return result
-
-    def to_xmp(self):
-        if not self:
-            return None
-        result = {}
-        for value in self.values():
-            if value:
-                result.update(value.to_xmp())
+                result.update(value.to_exiv2(tag))
         return result
 
     def __bool__(self):
