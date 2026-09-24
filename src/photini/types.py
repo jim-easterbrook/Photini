@@ -681,6 +681,7 @@ class MD_Collection(MD_Dict):
 class MD_Structure(MD_Value, dict):
     extendable = False
     key_map = {}
+    compound_keys = {}
 
     def __init__(self, value=None, copy=True):
         value = value or {}
@@ -689,9 +690,9 @@ class MD_Structure(MD_Value, dict):
             value = dict((k, self.get_type(k, v)(v))
                          for (k, v) in value.items())
         # set missing values to empty
-        for k in self.item_type:
-            if k not in value:
-                value[k] = self.item_type[k]()
+        for key in self.item_type:
+            if key not in value:
+                value[key] = self.item_type[key]()
         super(MD_Structure, self).__init__(value)
 
     @classmethod
@@ -731,11 +732,22 @@ class MD_Structure(MD_Value, dict):
                 if k2 and k2 in file_value:
                     file_value[k1] = file_value[k2]
                     del file_value[k2]
+        for key, sub_keys in cls.compound_keys.items():
+            sub_value = [file_value.get(k) for k in sub_keys]
+            for k in sub_keys:
+                if k in file_value:
+                    del file_value[k]
+            file_value[key] = sub_value
         return cls(dict((k, cls.get_type(k, v).from_exiv2(v, tag))
                         for k, v in file_value.items()), copy=False)
 
     def to_exiv2(self, tag):
-        result = super(MD_Structure, self).to_exiv2(tag)
+        result = dict((k, v.to_exiv2(tag)) for k, v in self.items() if v)
+        for key, sub_keys in self.compound_keys.items():
+            if key in result:
+                sub_value = dict(zip(sub_keys, result[key]))
+                del result[key]
+                result.update(sub_value)
         if tag in self.key_map:
             for k1, k2 in self.key_map[tag].items():
                 if k1 in result:
@@ -758,21 +770,6 @@ class MD_Structure(MD_Value, dict):
                 result[key] = other[key]
                 self.log_merged(info, '{}[{}]'.format(tag, key), other[key])
         return self.__class__(result)
-
-    def to_exif(self):
-        if not self:
-            return None
-        return dict((k, v.to_exif()) for (k, v) in self.items() if v)
-
-    def to_iptc(self):
-        if not self:
-            return None
-        return dict((k, v.to_iptc()) for (k, v) in self.items() if v)
-
-    def to_xmp(self):
-        if not self:
-            return None
-        return dict((k, v.to_xmp()) for (k, v) in self.items() if v)
 
     def compact_form(self):
         return dict((k.split(':')[-1], v.compact_form())
@@ -1414,16 +1411,13 @@ class MD_Rating(MD_Float):
 
 
 class MD_Altitude(MD_Rational):
-    key = 'GPSAltitude'
-
     @staticmethod
     def valid_value(value):
         return True
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        altitude = file_value.get(cls.key)
-        ref = file_value.get(cls.key + 'Ref')
+        altitude, ref = file_value
         if not altitude:
             return cls()
         altitude = safe_fraction(altitude)
@@ -1438,8 +1432,7 @@ class MD_Altitude(MD_Rational):
             ref = b'\x01'
         else:
             ref = b'\x00'
-        return {self.key: (altitude.numerator, altitude.denominator),
-                self.key + 'Ref': ref}
+        return (altitude.numerator, altitude.denominator), ref
 
     def to_xmp(self):
         altitude = self
@@ -1448,9 +1441,7 @@ class MD_Altitude(MD_Rational):
             ref = '1'
         else:
             ref = '0'
-        return {self.key: '{}/{}'.format(altitude.numerator,
-                                                  altitude.denominator),
-                self.key + 'Ref': ref}
+        return '{}/{}'.format(altitude.numerator, altitude.denominator), ref
 
     def contains(self, this, other):
         return abs(float(other) - float(this)) < 0.001
@@ -1469,10 +1460,9 @@ class MD_Coordinate(MD_Rational):
 
     @classmethod
     def from_exif(cls, value):
-        coords = value.get(cls.key)
-        ref = value.get(cls.key + 'Ref')
+        coords, ref = value
         if not (coords and ref):
-            return
+            return cls()
         coords = [safe_fraction(x, limit=False) for x in coords]
         degrees, minutes, seconds = coords
         degrees += (minutes / 60) + (seconds / 3600)
@@ -1482,7 +1472,7 @@ class MD_Coordinate(MD_Rational):
 
     @classmethod
     def from_xmp(cls, value):
-        value = value.get(cls.key)
+        value, ref = value
         if not value:
             return cls()
         ref = value[-1]
@@ -1511,7 +1501,7 @@ class MD_Coordinate(MD_Rational):
     def to_exif(self):
         numbers, pstv = self.to_exif_part()
         numbers = [(x.numerator, x.denominator) for x in numbers]
-        return {self.key: numbers, self.key + 'Ref': self.ref_letters[pstv]}
+        return numbers, self.ref_letters[pstv]
 
     def to_exif_part(self):
         degrees = self
@@ -1530,7 +1520,7 @@ class MD_Coordinate(MD_Rational):
 
     def to_xmp(self):
         string, pstv = self.to_xmp_part()
-        return {self.key: string + self.ref_letters[pstv]}
+        return (string + self.ref_letters[pstv],)
 
     def to_xmp_part(self):
         numbers, pstv = self.to_exif_part()
@@ -1565,52 +1555,31 @@ class MD_Coordinate(MD_Rational):
 
 class MD_Latitude(MD_Coordinate):
     ref_letters = ('S', 'N')
-    key = 'GPSLatitude'
 
 
 class MD_Longitude(MD_Coordinate):
     ref_letters = ('W', 'E')
-    key = 'GPSLongitude'
 
 
 class GPSVersionId(MD_UnmergableString):
-    key = 'GPSVersionID'
-
     def __new__(cls, value=None):
         value = value or '2.0.0.0'
         return super(GPSVersionId, cls).__new__(cls, value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        file_value = file_value.get(cls.key)
         if file_value and tag.startswith('Exif'):
             file_value = '.'.join(str(x) for x in file_value)
         return cls(file_value)
 
     def to_exif(self):
-        return {self.key: bytes(int(x) for x in self.split('.'))}
-
-    def to_xmp(self):
-        return {self.key: self}
+        return bytes(int(x) for x in self.split('.'))
 
 
 class GPSMethod(MD_UnmergableString):
-    key = 'GPSProcessingMethod'
-
     def __new__(cls, value=None):
         value = value or 'MANUAL'
         return super(GPSMethod, cls).__new__(cls, value)
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        file_value = file_value.get(cls.key)
-        return cls(file_value)
-
-    def to_exif(self):
-        return {self.key: self}
-
-    def to_xmp(self):
-        return {self.key: self}
 
 
 class MD_GPSinfo(MD_Structure):
@@ -1620,6 +1589,11 @@ class MD_GPSinfo(MD_Structure):
         'GPSAltitude': MD_Altitude,
         'GPSLatitude': MD_Latitude,
         'GPSLongitude': MD_Longitude,
+        }
+    compound_keys = {
+        'GPSAltitude': ('GPSAltitude', 'GPSAltitudeRef'),
+        'GPSLatitude': ('GPSLatitude', 'GPSLatitudeRef'),
+        'GPSLongitude': ('GPSLongitude', 'GPSLongitudeRef'),
         }
 
     @classmethod
@@ -1647,19 +1621,7 @@ class MD_GPSinfo(MD_Structure):
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Xmp.video'):
             return cls.from_ffmpeg(file_value, tag)
-        value = {}
-        for key in cls.item_type:
-            value[key] = cls.item_type[key].from_exiv2(file_value, tag)
-        return cls(value)
-
-    def to_exiv2(self, tag):
-        if not self:
-            return None
-        result = {}
-        for value in self.values():
-            if value:
-                result.update(value.to_exiv2(tag))
-        return result
+        return super(MD_GPSinfo, cls).from_exiv2(file_value, tag)
 
     def __bool__(self):
         return any(self[k] for k in ('GPSLatitude', 'GPSLongitude',
@@ -1855,12 +1817,15 @@ class MD_Location(MD_Structure):
         'Sublocation': MD_String,
         'WorldRegion': MD_String,
         }
+    compound_keys = MD_GPSinfo.compound_keys
     key_map = {
         'Iptc.Application2.Location': {
             'GPSAltitude': None,
             'GPSAltitudeRef': None,
             'GPSLatitude': None,
+            'GPSLatitudeRef': None,
             'GPSLongitude': None,
+            'GPSLongitudeRef': None,
             'LocationId': None,
             'LocationName': None,
             'Sublocation': 'SubLocation',
@@ -1887,7 +1852,9 @@ class MD_Location(MD_Structure):
             'GPSAltitude': None,
             'GPSAltitudeRef': None,
             'GPSLatitude': None,
+            'GPSLatitudeRef': None,
             'GPSLongitude': None,
+            'GPSLongitudeRef': None,
             'LocationId': None,
             'LocationName': None,
             'ProvinceState': 'photoshop.State',
@@ -1897,27 +1864,6 @@ class MD_Location(MD_Structure):
         }
     key_map['Xmp.iptcExt.LocationShown'] = key_map[
         'Xmp.iptcExt.LocationCreated']
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        gps_info = {}
-        for k1 in ('GPSAltitude', 'GPSAltitudeRef', 'GPSLatitude',
-                   'GPSLongitude'):
-            k2 = 'exif:' + k1
-            if k2 in file_value:
-                gps_info[k1] = file_value[k2]
-                del file_value[k2]
-        if gps_info:
-            for k1 in ('GPSAltitude', 'GPSLatitude', 'GPSLongitude'):
-                file_value[k1] = gps_info
-        return super(MD_Location, cls).from_exiv2(file_value, tag)
-
-    def to_xmp(self):
-        result = super(MD_Location, self).to_xmp()
-        for key in list(result):
-            if key.startswith('GPS'):
-                result.update(result[key])
-        return result
 
     @classmethod
     def from_address(cls, gps, address, key_map):

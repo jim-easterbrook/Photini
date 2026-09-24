@@ -708,7 +708,6 @@ class MetadataHandler(object):
         elif type_id == exiv2.TypeId.comment:
             # only comment value Photini writes is GPS processing method
             # which is certain to be ASCII
-            value = 'charset=Ascii ' + value
             value = exiv2.CommentValue(value)
         elif type_id == exiv2.TypeId.unsignedShort:
             value = exiv2.UShortValue(value)
