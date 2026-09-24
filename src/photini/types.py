@@ -1640,14 +1640,16 @@ class MD_GPSinfo(MD_Structure):
             result['GPSAltitude'] = round(value.elevation, 1)
         return cls(result)
 
+    ffmpeg_re = re.compile(r'(?P<GPSLatitude>[-+]\d+\.\d+)'
+                           '(?P<GPSLongitude>[-+]\d+\.\d+)'
+                           '(?P<GPSAltitude>[-+]\d+\.\d+)?/')
+
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
         if file_value:
-            match = re.match(
-                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)?/', file_value)
+            match = cls.ffmpeg_re.match(file_value)
             if match:
-                return cls(dict(zip(('GPSLatitude', 'GPSLongitude',
-                                     'GPSAltitude'), match.groups())))
+                return cls(match.groupdict())
         return cls()
 
     @classmethod
