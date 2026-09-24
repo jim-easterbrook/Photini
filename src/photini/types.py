@@ -629,55 +629,6 @@ class MD_Thumbnail(MD_Dict):
         return result
 
 
-class MD_Collection(MD_Dict):
-    # class for a group of independent items, each of which is an MD_Value
-    _type = {}
-    _default_type = MD_String
-
-    @classmethod
-    def get_type(cls, key):
-        if key in cls._type:
-            return cls._type[key]
-        return cls._default_type
-
-    @classmethod
-    def convert(cls, value):
-        for key in value:
-            value[key] = cls.get_type(key)(value[key])
-        return value
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not (file_value and any(file_value)):
-            return cls([])
-        value = dict(zip(cls._keys, file_value))
-        for key in value:
-            value[key] = cls.get_type(key).from_exiv2(value[key], tag)
-        return cls(value)
-
-    def to_exiv2(self, tag):
-        return [self[x].to_exiv2(tag) for x in self._keys]
-
-    def merge(self, info, tag, other):
-        if other == self:
-            return self
-        result = dict(self)
-        for key in other:
-            if not other[key]:
-                continue
-            if key in result and result[key]:
-                result[key], merged, ignored = result[key].merge_item(
-                                                        result[key], other[key])
-            else:
-                result[key] = other[key]
-                merged, ignored = True, False
-            if ignored:
-                self.log_ignored(info, tag, {key: str(other[key])})
-            elif merged:
-                self.log_merged(info, tag, {key: str(other[key])})
-        return self.__class__(result)
-
-
 class MD_Structure(MD_Value, dict):
     extendable = False
     key_map = {}
@@ -1130,17 +1081,16 @@ class MD_Rational(MD_Value, Fraction):
         return str(float(self))
 
 
-class MD_LensSpec(MD_Collection):
+class MD_LensSpec(MD_Dict):
     # simple class to store lens "specification"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
-    _default_type = MD_Rational
     _quiet = True
 
-    def contains(self, this, other):
-        for key in self._keys:
-            if this[key] and other[key] and other[key] != this[key]:
-                return False
-        return True
+    @classmethod
+    def convert(cls, value):
+        for key in value:
+            value[key] = MD_Rational(value[key])
+        return value
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1159,11 +1109,18 @@ class MD_LensSpec(MD_Collection):
             file_value = file_value.split()
         return cls(file_value)
 
-    def to_exif(self):
-        return [self[k].to_exif() for k in self._keys]
+    def to_exiv2(self, tag):
+        result = [self[k].to_exiv2(tag) for k in self._keys]
+        if tag.startswith('Xmp'):
+            result = ' '.join(result)
+        return result
 
-    def to_xmp(self):
-        return ' '.join(self[k].to_xmp() for k in self._keys)
+    def merge(self, info, tag, other):
+        if not self:
+            return other
+        elif other:
+            self.log_ignored(info, tag, other)
+        return self
 
     def __bool__(self):
         return bool(self['min_fl'])
@@ -1662,6 +1619,7 @@ class MD_Aperture(MD_Rational):
 
     def contains(self, this, other):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
+
 
 class MD_VideoDuration(MD_Rational):
     @classmethod
