@@ -1579,28 +1579,25 @@ class MD_Longitude(MD_Coordinate):
     key = 'GPSLongitude'
 
 
-class GPSVersionId(MD_Value, bytes):
+class GPSVersionId(MD_UnmergableString):
     key = 'GPSVersionID'
 
     def __new__(cls, value=None):
-        value = value or b'\x02\x00\x00\x00'
+        value = value or '2.0.0.0'
         return super(GPSVersionId, cls).__new__(cls, value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         file_value = file_value.get(cls.key)
-        if file_value and tag.startswith('Xmp'):
-            file_value = [int(x) for x in file_value.split('.')]
+        if file_value and tag.startswith('Exif'):
+            file_value = '.'.join(str(x) for x in file_value)
         return cls(file_value)
 
     def to_exif(self):
-        return {self.key: self}
+        return {self.key: bytes(int(x) for x in self.split('.'))}
 
     def to_xmp(self):
-        return {self.key: '.'.join(str(x) for x in self)}
-
-    def compact_form(self):
-        return self.to_xmp()
+        return {self.key: self}
 
 
 class GPSMethod(MD_UnmergableString):
