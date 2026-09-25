@@ -545,11 +545,12 @@ class MainWindow(QtWidgets.QMainWindow):
                            'photini.pixelfed',     'photini.importer']
         self.modules = self.app.config_store.get(
             'tabs', 'modules', default_modules)
-        for key in ('photini.openstreetmap', 'photini.bingmap',
-                    'photini.googlephotos'):
-            if key in self.modules:
-                self.modules.remove(key)
-                self.app.config_store.delete('tabs', key)
+        if self.app.config_store.version < (2026, 3, 0):
+            for key in ('photini.openstreetmap', 'photini.bingmap',
+                        'photini.googlephotos'):
+                if key in self.modules:
+                    self.modules.remove(key)
+                    self.app.config_store.delete('tabs', key)
         # insert any new tabs straight after first tab
         idx = min(1, len(self.modules))
         self.modules[idx:idx] = [x for x in default_modules
