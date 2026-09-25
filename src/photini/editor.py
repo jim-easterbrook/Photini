@@ -33,7 +33,7 @@ except ImportError:
     keyring = None
 import platformdirs
 
-from photini import __version__
+from photini import __version__, __version_tuple__
 from photini.configstore import (
     BaseConfigStore, ConfigFileHandler, get_config_dir, UserKeys)
 from photini.editsettings import EditMapKeys, EditSettings
@@ -67,6 +67,36 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
         self.timer.setSingleShot(True)
         self.timer.setInterval(3000)
         self.timer.timeout.connect(self.save)
+        # get config file version
+        self.version = self.get('config', 'version')
+        if not self.version:
+            # attempt to determine config file version
+            self.version = (1, 1)
+            for version, section, name in (
+                    ((2026, 8, 0), 'descriptive', 'list_separator'),
+                    ((2026, 3, 0), 'ownership', 'contact_info/licensoremail'),
+                    ((2025, 10, 0), 'user_keys', 'azuremap'),
+                    ((2025, 10, 0), 'user_keys', 'googlemap'),
+                    ((2025, 10, 0), 'user_keys', 'mapboxmap'),
+                    ((2024, 10, 0), 'tabs', 'photini.keywords'),
+                    ((2024, 9, 0), 'map', 'pin_colour_false'),
+                    ((2024, 8, 0), 'tabs', 'photini.azuremap'),
+                    ((2023, 5, 0), 'map', 'gpx_altitude'),
+                    ((2023, 4, 0), 'tabs', 'photini.regions'),
+                    ((2023, 2, 0), 'tabs', 'photini.pixelfed'),
+                    ((2022, 5, 1), 'files', 'iptc_iim'),
+                    ((2022, 2, 0), 'tabs', 'photini.ipernity'),
+                    ((2022, 1, 0), 'metadata', 'enable_bmff'),
+                    ((2021, 11, 0), 'pyqt', 'scale_factor'),
+                    ((2021, 7, 0), 'tabs', 'photini.ownership'),
+                    ((2021, 6, 0), 'files', 'length_warning'),
+                    ((2019, 8, 0), 'tabs', 'photini.googlephotos'),
+                    ((2018, 8, 0), 'tabs', 'map_mapbox'),
+                    ((2017, 8, 1), 'files', 'preserve_timestamps')):
+                if self.get(section, name) is not None:
+                    self.version = max(self.version, version)
+        # set config file version
+        self.set('config', 'version', __version_tuple__[:3])
 
     def set(self, section, option, value):
         super(ConfigStore, self).set(section, option, value)
