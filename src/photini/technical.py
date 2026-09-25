@@ -69,23 +69,24 @@ class CameraList(DropdownEdit):
         super(CameraList, self).__init__(*args, **kwds)
         values = [('', None)]
         # read cameras from config, updating if necessary
+        config = self.app.config_store
         sections = []
-        for section in self.app.config_store.config.sections():
+        for section in config.config.sections():
             if not section.startswith('camera '):
                 continue
+            if config.version <= (2026, 8, 0):
+                for old_key, new_key in (('serial_no', 'SerialNumber'),):
+                    value = config.get(section, old_key)
+                    if value:
+                        config.delete(section, old_key)
+                        config.set(section, new_key, value)
             camera = {}
-            for old_key, new_key in (('serial_no', 'SerialNumber'),
-                                     ('CameraSerialNumber', 'SerialNumber')):
-                camera[new_key] = self.app.config_store.get(section, old_key)
-                if camera[new_key]:
-                    self.app.config_store.delete(section, old_key)
-                    self.app.config_store.set(section, new_key, camera[new_key])
             for key in MD_CameraModel.item_type:
-                camera[key] = self.app.config_store.get(section, key)
+                camera[key] = config.get(section, key)
             camera = MD_CameraModel(camera)
             name = camera.get_name()
             if name != section[7:]:
-                self.app.config_store.remove_section(section)
+                config.remove_section(section)
             values.append((name, camera))
         self.set_values(values)
 
@@ -117,29 +118,30 @@ class LensList(DropdownEdit):
         super(LensList, self).__init__(*args, **kwds)
         values = [('', None)]
         # read lenses from config, updating if necessary
-        self.app.config_store.delete('technical', 'lenses')
-        for section in self.app.config_store.config.sections():
+        config = self.app.config_store
+        if config.version < (2021, 1, 0):
+            config.delete('technical', 'lenses')
+        for section in config.config.sections():
             if not section.startswith('lens '):
                 continue
+            if config.version <= (2026, 8, 0):
+                for old_key, new_key in (('lens_make', 'Make'),
+                                         ('lens_model', 'Model'),
+                                         ('lens_serial', 'SerialNumber'),
+                                         ('lens_spec', 'Specification'),
+                                         ('serial_no', 'SerialNumber'),
+                                         ('spec', 'Specification')):
+                    value = config.get(section, old_key)
+                    if value:
+                        config.delete(section, old_key)
+                        config.set(section, new_key, value)
             lens_model = {}
-            for old_key, new_key in (('lens_make', 'Make'),
-                                     ('lens_model', 'Model'),
-                                     ('lens_serial', 'SerialNumber'),
-                                     ('lens_spec', 'Specification'),
-                                     ('serial_no', 'SerialNumber'),
-                                     ('spec', 'Specification')):
-                lens_model[new_key] = self.app.config_store.get(
-                    section, old_key)
-                if lens_model[new_key]:
-                    self.app.config_store.delete(section, old_key)
-                    self.app.config_store.set(
-                        section, new_key, lens_model[new_key])
             for key in MD_LensModel.item_type:
-                lens_model[key] = self.app.config_store.get(section, key)
+                lens_model[key] = config.get(section, key)
             lens_model = MD_LensModel(lens_model)
             name = lens_model.get_name()
             if name != section[5:]:
-                self.app.config_store.remove_section(section)
+                config.remove_section(section)
             values.append((name, lens_model))
         self.set_values(values)
 
