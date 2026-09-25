@@ -377,31 +377,31 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         buttons.addWidget(apply_template)
         self.layout().addLayout(buttons)
         # update config
-        for (k1, k2) in (('CiAdrExtadr', 'StreetAddress'),
-                         ('CiAdrCity',   'City'),
-                         ('CiAdrCtry',   'Country'),
-                         ('CiEmailWork', 'Email'),
-                         ('CiTelWork',   'Telephone1'),
-                         ('CiAdrPcode',  'PostalCode'),
-                         ('CiAdrRegion', 'Region'),
-                         ('CiUrlWork',   'URL')):
-            value = self.config_store.get('ownership', 'contact_info/' + k1)
+        config = self.config_store
+        if config.version < (2026, 3, 0):
+            for (k1, k2) in (('CiAdrExtadr', 'StreetAddress'),
+                             ('CiAdrCity',   'City'),
+                             ('CiAdrCtry',   'Country'),
+                             ('CiEmailWork', 'Email'),
+                             ('CiTelWork',   'Telephone1'),
+                             ('CiAdrPcode',  'PostalCode'),
+                             ('CiAdrRegion', 'Region'),
+                             ('CiUrlWork',   'URL')):
+                if config.version < (2023, 4, 0):
+                    k1 = 'contact_info/' + k1
+                else:
+                    k1 = 'contact_info/' + k2
+                k2 = 'contact_info/Licensor' + k2
+                value = config.get('ownership', k1)
+                if value:
+                    config.set('ownership', k2, value)
+                    config.delete('ownership', k1)
+        if config.version < (2023, 4, 0):
+            value = config.get('ownership', 'rights/licensorurl')
             if value:
-                self.config_store.set(
-                    'ownership', 'contact_info/Licensor' + k2, value)
-                self.config_store.delete('ownership', 'contact_info/' + k1)
-            value = self.config_store.get('ownership', 'contact_info/' + k2)
-            if value:
-                self.config_store.set(
-                    'ownership', 'contact_info/Licensor' + k2, value)
-                self.config_store.delete('ownership', 'contact_info/' + k2)
-        value = self.config_store.get('ownership', 'rights/licensorurl')
-        if value:
-            if not self.config_store.get(
-                    'ownership', 'contact_info/LicensorURL'):
-                self.config_store.set(
-                    'ownership', 'contact_info/LicensorURL', value)
-            self.config_store.delete('ownership', 'rights/licensorurl')
+                if not config.get('ownership', 'contact_info/LicensorURL'):
+                    config.set('ownership', 'contact_info/LicensorURL', value)
+                config.delete('ownership', 'rights/licensorurl')
 
     @catch_all()
     def contextMenuEvent(self, event):
