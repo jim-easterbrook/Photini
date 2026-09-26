@@ -630,7 +630,6 @@ class MD_Thumbnail(MD_Dict):
 
 
 class MD_Structure(MD_Value, dict):
-    extendable = False
     key_map = {}
     compound_keys = {}
 
@@ -648,31 +647,6 @@ class MD_Structure(MD_Value, dict):
 
     @classmethod
     def get_type(cls, key, value):
-        if cls.extendable and key not in cls.item_type:
-            try:
-                result = exiv2.XmpProperties.propertyType(
-                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
-            except exiv2.Exiv2Error as ex:
-                if ex.code != exiv2.ErrorCode.kerNoNamespaceInfoForXmpPrefix:
-                    raise
-                prefix = key.split(':')[0]
-                exiv2.XmpProperties.registerNs(
-                    f'http://example.com/{prefix}/', prefix)
-                result = exiv2.TypeId.xmpText
-            if result in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
-                          exiv2.TypeId.xmpSeq):
-                result = MD_MultiString
-            elif result == exiv2.TypeId.langAlt:
-                result = MD_LangAlt
-            elif isinstance(value, (list, tuple, dict)):
-                logger.warning('Inferring type for %s', key)
-                if isinstance(value, dict):
-                    result = MD_LangAlt
-                else:
-                    result = MD_MultiString
-            else:
-                result = MD_String
-            cls.item_type[key] = result
         return cls.item_type[key]
 
     @classmethod
@@ -733,8 +707,38 @@ class MD_Structure(MD_Value, dict):
         return any(self.values())
 
 
-class MD_ContactInfoRecord(MD_Structure):
-    extendable = True
+class ExtendableStructure(MD_Structure):
+    @classmethod
+    def get_type(cls, key, value):
+        if key not in cls.item_type:
+            try:
+                result = exiv2.XmpProperties.propertyType(
+                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+            except exiv2.Exiv2Error as ex:
+                if ex.code != exiv2.ErrorCode.kerNoNamespaceInfoForXmpPrefix:
+                    raise
+                prefix = key.split(':')[0]
+                exiv2.XmpProperties.registerNs(
+                    f'http://example.com/{prefix}/', prefix)
+                result = exiv2.TypeId.xmpText
+            if result in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                          exiv2.TypeId.xmpSeq):
+                result = MD_MultiString
+            elif result == exiv2.TypeId.langAlt:
+                result = MD_LangAlt
+            elif isinstance(value, (list, tuple, dict)):
+                logger.warning('Inferring type for %s', key)
+                if isinstance(value, dict):
+                    result = MD_LangAlt
+                else:
+                    result = MD_MultiString
+            else:
+                result = MD_String
+            cls.item_type[key] = result
+        return cls.item_type[key]
+
+
+class MD_ContactInfoRecord(ExtendableStructure):
     item_type = {
         'plus:LicensorStreetAddress': MD_String,
         'plus:LicensorExtendedAddress': MD_String,
@@ -2081,8 +2085,7 @@ class RegionBoundary(MD_Structure):
         return RegionBoundary(boundary)
 
 
-class ImageRegionItem(MD_Structure):
-    extendable = True
+class ImageRegionItem(ExtendableStructure):
     item_type = {
         'Iptc4xmpExt:RegionBoundary': RegionBoundary,
         'Iptc4xmpExt:rId': MD_String,
