@@ -68,7 +68,7 @@ class MetadataHandler(object):
             exiv2.XmpParser.initialize()
         if exiv2.__version_tuple__ < (0, 17) and exiv2.testVersion(0, 27, 4):
             exiv2.enableBMFF(True)
-        if config_store:
+        if config_store and config_store.version < (2024, 8, 0):
             config_store.delete('metadata', 'enable_bmff')
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
