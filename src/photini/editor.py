@@ -87,7 +87,6 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
                     ((2022, 5, 1), 'files', 'iptc_iim'),
                     ((2022, 2, 0), 'tabs', 'photini.ipernity'),
                     ((2022, 1, 0), 'metadata', 'enable_bmff'),
-                    ((2021, 11, 0), 'pyqt', 'scale_factor'),
                     ((2021, 7, 0), 'tabs', 'photini.ownership'),
                     ((2021, 6, 0), 'files', 'length_warning'),
                     ((2019, 8, 0), 'tabs', 'photini.googlephotos'),

@@ -353,15 +353,16 @@ class ImporterTab(QtWidgets.QWidget):
         box.setStretch(0, 1)
         form.addRow(translate('ImporterTab', 'Source'), box)
         # update config
-        self.config_store.delete('importer', 'folders')
-        for section in self.config_store.config.sections():
-            if not section.startswith('importer'):
-                continue
-            path_format = self.config_store.get(section, 'path_format')
-            if not (path_format and '(' in path_format):
-                continue
-            path_format = path_format.replace('(', '{').replace(')', '}')
-            self.config_store.set(section, 'path_format', path_format)
+        if self.config_store.version < (2021, 4, 0):
+            self.config_store.delete('importer', 'folders')
+            for section in self.config_store.config.sections():
+                if not section.startswith('importer'):
+                    continue
+                path_format = self.config_store.get(section, 'path_format')
+                if not (path_format and '(' in path_format):
+                    continue
+                path_format = path_format.replace('(', '{').replace(')', '}')
+                self.config_store.set(section, 'path_format', path_format)
         # path format
         self.path_format = NameMangler()
         self.path_format.editingFinished.connect(self.path_format_finished)
