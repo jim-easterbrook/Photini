@@ -50,9 +50,6 @@ class EditSettings(QtWidgets.QDialog):
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
         # IPTC data
-        if self.config_store.get('files', 'force_iptc'):
-            self.config_store.set('files', 'iptc_iim', 'create')
-        self.config_store.delete('files', 'force_iptc')
         iptc_mode = self.config_store.get('files', 'iptc_iim', 'preserve')
         button_group = QtWidgets.QButtonGroup(parent=self)
         self.iptc_always = QtWidgets.QRadioButton(
@@ -112,9 +109,6 @@ class EditSettings(QtWidgets.QDialog):
             translate('EditSettings', 'Write to image file'), self.write_if)
         # preserve file timestamps
         keep_time = self.config_store.get('files', 'preserve_timestamps', 'now')
-        if isinstance(keep_time, bool):
-            # old config format
-            keep_time = ('now', 'keep')[keep_time]
         button_group = QtWidgets.QButtonGroup(parent=self)
         self.keep_time = QtWidgets.QRadioButton(
             translate('EditSettings', 'Keep original'))

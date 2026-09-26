@@ -553,6 +553,16 @@ class ImageList(QtWidgets.QWidget):
             width_for_text(self.size_slider, 'x' * 20))
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         bottom_bar.addWidget(self.size_slider)
+        # Update config. Not version qualified, as previously only
+        # updated when settings were edited.
+        if self.app.config_store.get('files', 'force_iptc'):
+            self.app.config_store.set('files', 'iptc_iim', 'create')
+        self.app.config_store.delete('files', 'force_iptc')
+        keep_time = self.app.config_store.get('files', 'preserve_timestamps')
+        if isinstance(keep_time, bool):
+            # old config format
+            keep_time = ('now', 'keep')[keep_time]
+            self.app.config_store.set('files', 'preserve_timestamps', keep_time)
 
     def set_drag_to_map(self, icon):
         self.drag_icon = icon
@@ -927,9 +937,6 @@ class ImageList(QtWidgets.QWidget):
         iptc_mode = self.app.config_store.get('files', 'iptc_iim', 'preserve')
         keep_time = self.app.config_store.get(
             'files', 'preserve_timestamps', 'now')
-        if isinstance(keep_time, bool):
-            # old config format
-            keep_time = ('now', 'keep')[keep_time]
         if not images:
             images = self.images
         # make list of images and parameters
