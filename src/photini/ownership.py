@@ -23,7 +23,7 @@ import exiv2
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.types import MD_ContactInfoRecord
+from photini.types import MD_ContactInfoRecord, MD_Rights
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
     ListWidgetMixin, PushButton, TopLevelWidgetMixin)
@@ -110,10 +110,14 @@ class RightsDropDown(DropDownSelector):
 
 
 class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
+    dynamic = True
+
     def __init__(self, key, *arg, **kw):
         super(RightsGroup, self).__init__(*arg, **kw)
         self._key = key
-        self.setLayout(FormLayout())
+        layout = FormLayout()
+        self.setLayout(layout)
+        layout.setSizeConstraint(layout.SizeConstraint.SetMinimumSize)
         self.widgets = {}
         # usage terms
         self.widgets['UsageTerms'] = LangAltWidget(
@@ -121,15 +125,28 @@ class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.widgets['UsageTerms'].setToolTip(translate(
             'OwnerTab', 'Enter instructions on how this image can legally'
             ' be used.'))
-        self.layout().addRow(translate('OwnerTab', 'Usage Terms'),
-                             self.widgets['UsageTerms'])
+        layout.addRow(translate('OwnerTab', 'Usage Terms'),
+                      self.widgets['UsageTerms'])
         # web statement of rights
         self.widgets['WebStatement'] = RightsDropDown('WebStatement')
-        self.layout().addRow(translate('OwnerTab', 'Web Statement'),
-                             self.widgets['WebStatement'])
+        layout.addRow(translate('OwnerTab', 'Web Statement'),
+                      self.widgets['WebStatement'])
         self.setFixedHeight(self.sizeHint().height())
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
+
+    def set_subwidgets(self, value):
+        for key in value:
+            if key not in self.widgets:
+                self.widgets[key] = TextEdit(key, height=1)
+                info = exiv2.XmpProperties.propertyInfo(MD_Rights.xmp_key(key))
+                if info:
+                    label = info.title
+                    self.widgets[key].setToolTip(info.desc)
+                else:
+                    label = key
+                self.layout().addRow(label, self.widgets[key])
+                self.widgets[key].new_value.connect(self.sw_new_value)
 
     def sub_widgets(self):
         return self.widgets.values()
@@ -141,22 +158,22 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
     def __init__(self, key, *arg, **kw):
         super(ContactInfoGroup, self).__init__(*arg, **kw)
         self._key = key
-        self.setLayout(FormLayout())
+        layout = FormLayout()
+        self.setLayout(layout)
+        layout.setSizeConstraint(layout.SizeConstraint.SetMinimumSize)
         self.widgets = {}
         # email addresses
         self.widgets['Email'] = TextEdit('plus:LicensorEmail', height=1)
         self.widgets['Email'].setToolTip(translate(
             'OwnerTab', 'Enter the work email address for the person that'
             ' created this image, such as name@domain.com.'))
-        self.layout().addRow(translate('OwnerTab', 'Email'),
-                             self.widgets['Email'])
+        layout.addRow(translate('OwnerTab', 'Email'), self.widgets['Email'])
         # URLs
         self.widgets['URL'] = TextEdit('plus:LicensorURL', height=1)
         self.widgets['URL'].setToolTip(translate(
             'OwnerTab', 'Enter the work Web URL for the person that created'
             ' this image, such as http://www.domain.com/.'))
-        self.layout().addRow(translate('OwnerTab', 'Web URL'),
-                             self.widgets['URL'])
+        layout.addRow(translate('OwnerTab', 'Web URL'), self.widgets['URL'])
         # phone numbers
         self.widgets['Telephone1'] = TextEdit(
             'plus:LicensorTelephone1', height=1)
@@ -164,56 +181,54 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
             'OwnerTab', 'Enter the work phone number for the person that'
             ' created this image, using the international format, such as'
             ' +1 (123) 456789.'))
-        self.layout().addRow(translate('OwnerTab', 'Phone'),
-                             self.widgets['Telephone1'])
+        layout.addRow(translate('OwnerTab', 'Phone'),
+                      self.widgets['Telephone1'])
         # extended address
         self.widgets['ExtendedAddress'] = TextEdit(
             'plus:LicensorExtendedAddress', height=1, spell_check=True)
         self.widgets['ExtendedAddress'].setToolTip(translate(
             'OwnerTab', 'Enter address detail (e.g. flat number or room'
             ' number) for the person that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Detail Address'),
-                             self.widgets['ExtendedAddress'])
+        layout.addRow(translate('OwnerTab', 'Detail Address'),
+                      self.widgets['ExtendedAddress'])
         # address
         self.widgets['StreetAddress'] = TextEdit(
             'plus:LicensorStreetAddress', spell_check=True)
         self.widgets['StreetAddress'].setToolTip(translate(
             'OwnerTab',
             'Enter street address for the person that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Street Address'),
-                             self.widgets['StreetAddress'])
+        layout.addRow(translate('OwnerTab', 'Street Address'),
+                      self.widgets['StreetAddress'])
         # city
         self.widgets['City'] = TextEdit(
             'plus:LicensorCity', height=1, spell_check=True)
         self.widgets['City'].setToolTip(translate(
             'OwnerTab', 'Enter the city for the address of the person that'
             ' created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'City'),
-                             self.widgets['City'])
+        layout.addRow(translate('OwnerTab', 'City'), self.widgets['City'])
         # postcode
         self.widgets['PostalCode'] = TextEdit(
             'plus:LicensorPostalCode', height=1)
         self.widgets['PostalCode'].setToolTip(translate(
             'OwnerTab', 'Enter the postal code for the address of the person'
             ' that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Postal Code'),
-                             self.widgets['PostalCode'])
+        layout.addRow(translate('OwnerTab', 'Postal Code'),
+                      self.widgets['PostalCode'])
         # region
         self.widgets['Region'] = TextEdit(
             'plus:LicensorRegion', height=1, spell_check=True)
         self.widgets['Region'].setToolTip(translate(
             'OwnerTab', 'Enter the state for the address of the person that'
             ' created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'State/Province'),
-                             self.widgets['Region'])
+        layout.addRow(translate('OwnerTab', 'State/Province'),
+                      self.widgets['Region'])
         # country
         self.widgets['Country'] = TextEdit(
             'plus:LicensorCountry', height=1, spell_check=True)
         self.widgets['Country'].setToolTip(translate(
             'OwnerTab', 'Enter the country name for the address of the person'
             ' that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Country'),
-                             self.widgets['Country'])
+        layout.addRow(translate('OwnerTab', 'Country'), self.widgets['Country'])
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
 
@@ -223,7 +238,7 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
             if name not in self.widgets:
                 self.widgets[name] = TextEdit(key, height=1)
                 info = exiv2.XmpProperties.propertyInfo(
-                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+                    MD_ContactInfoRecord.xmp_key(key))
                 if info:
                     label = info.title
                     self.widgets[name].setToolTip(info.desc)
