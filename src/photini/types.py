@@ -708,16 +708,20 @@ class MD_Structure(MD_Value, dict):
 
 
 class ExtendableStructure(MD_Structure):
+    @staticmethod
+    def xmp_key(key):
+        return exiv2.XmpKey('Xmp.' + key.replace(':', '.'))
+
     @classmethod
     def get_type(cls, key, value):
         if key not in cls.item_type:
+            xmp_key = cls.xmp_key(key)
             try:
-                result = exiv2.XmpProperties.propertyType(
-                    exiv2.XmpKey('Xmp.' + key.replace(':', '.')))
+                result = exiv2.XmpProperties.propertyType(xmp_key)
             except exiv2.Exiv2Error as ex:
                 if ex.code != exiv2.ErrorCode.kerNoNamespaceInfoForXmpPrefix:
                     raise
-                prefix = key.split(':')[0]
+                prefix = xmp_key.groupName()
                 exiv2.XmpProperties.registerNs(
                     f'http://example.com/{prefix}/', prefix)
                 result = exiv2.TypeId.xmpText
@@ -727,7 +731,7 @@ class ExtendableStructure(MD_Structure):
             elif result == exiv2.TypeId.langAlt:
                 result = MD_LangAlt
             elif isinstance(value, (list, tuple, dict)):
-                logger.warning('Inferring type for %s', key)
+                logger.warning('Inferring type for %s', str(xmp_key))
                 if isinstance(value, dict):
                     result = MD_LangAlt
                 else:
@@ -988,12 +992,16 @@ class MD_LangAlt(MD_Value, dict):
         return self.__class__(result)
 
 
-class MD_Rights(MD_Structure):
+class MD_Rights(ExtendableStructure):
     # stores IPTC rights information
     item_type = {
         'UsageTerms': MD_LangAlt,
         'WebStatement': MD_UnmergableString,
         }
+
+    @staticmethod
+    def xmp_key(key):
+        return exiv2.XmpKey('Xmp.xmpRights.' + key)
 
 
 class QuietString(MD_UnmergableString):
