@@ -229,20 +229,34 @@ class MD_Dict(MD_Value, dict):
         return '\n'.join('{}: {}'.format(k, v) for (k, v) in self.items() if v)
 
 
-class MD_DateTime(MD_Dict):
+class MD_DateTime(MD_Value, dict):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
     _keys = ('datetime', 'precision', 'tz_offset')
 
-    @classmethod
-    def convert(cls, value):
-        value['precision'] = value['precision'] or 7
-        if value['datetime']:
-            value['datetime'] = cls.truncate_datetime(
-                value['datetime'], value['precision'])
-        if value['precision'] <= 3:
-            value['tz_offset'] = None
-        return value
+    def __init__(self, value=None):
+        value = value or {}
+        assert(isinstance(value, dict))
+        # initialise all keys to None
+        result = dict.fromkeys(self._keys)
+        # update with any supplied values
+        if value:
+            result.update(value)
+        result['precision'] = result['precision'] or 7
+        if result['datetime']:
+            result['datetime'] = self.truncate_datetime(
+                result['datetime'], result['precision'])
+        if result['precision'] <= 3:
+            result['tz_offset'] = None
+        super(MD_DateTime, self).__init__(result)
+
+    def __setattr__(self, name, value):
+        raise TypeError(
+            "{} does not support item assignment".format(self.__class__))
+
+    def __setitem__(self, key, value):
+        raise TypeError(
+            "{} does not support item assignment".format(self.__class__))
 
     _replace = (('microsecond', 0), ('second', 0),
                 ('minute',      0), ('hour',   0),
@@ -265,7 +279,7 @@ class MD_DateTime(MD_Dict):
 
         """
         if not datetime_string:
-            return cls([])
+            return cls()
         unparsed = datetime_string.strip()
         precision = 7
         # extract time zone
@@ -317,9 +331,11 @@ class MD_DateTime(MD_Dict):
         else:
             raise ValueError(
                 'Cannot parse datetime "{}"'.format(datetime_string))
-        return cls((
-            datetime(year, month, day, hour, minute, second, microsecond),
-            precision, tz_offset))
+        return cls({
+            'datetime': datetime(year, month, day,
+                                 hour, minute, second, microsecond),
+            'precision': precision,
+            'tz_offset': tz_offset})
 
     _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
 
