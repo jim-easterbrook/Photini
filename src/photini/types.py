@@ -340,14 +340,16 @@ class MD_DateTime(MD_Value, dict):
     _timespec = {4: 'hours', 5: 'minutes', 6: 'seconds', 7: 'milliseconds'}
 
     def to_ISO_8601(self, precision=None):
-        date_time = self['datetime']
         precision = precision or self['precision']
         if precision < 4:
-            return date_time.date().isoformat()[:1+(3*precision)]
-        if self['tz_offset'] is not None:
-            date_time = date_time.replace(
-                tzinfo=timezone(timedelta(minutes=self['tz_offset'])))
-        return date_time.isoformat(timespec=self._timespec[precision])
+            return self['datetime'].date().isoformat()[:1+(3*precision)]
+        return self.tz_aware().isoformat(timespec=self._timespec[precision])
+
+    def tz_aware(self):
+        if self['tz_offset'] is None:
+            return self['datetime']
+        return self['datetime'].replace(
+            tzinfo=timezone(timedelta(minutes=self['tz_offset'])))
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -416,20 +418,20 @@ class MD_DateTime(MD_Value, dict):
         return cls.from_ISO_8601(datetime_string, sub_sec_string=sub_sec_string)
 
     def to_exif(self):
-        datetime_string = self.to_ISO_8601(precision=max(self['precision'], 6))
-        date_string = datetime_string[:10].replace('-', ':')
-        time_string = datetime_string[11:19]
-        if self['tz_offset'] is None:
-            sub_sec_string = datetime_string[20:]
-            offset_string = None
+        date_time = self['datetime']
+        datetime_string = date_time.strftime('%Y:%m:%d %H:%M:%S')
+        if self['precision'] > 6:
+            sub_sec_string = date_time.strftime('%f')[:3]
         else:
-            sub_sec_string = datetime_string[20:-6]
-            offset_string = datetime_string[-6:]
-        return {
-            'Photo.DateTime': date_string + ' ' + time_string,
-            'Photo.SubSecTime': sub_sec_string,
-            'Photo.OffsetTime': offset_string,
-            }
+            sub_sec_string = ''
+        if self['tz_offset'] is None:
+            offset_string = ''
+        else:
+            offset_string = self.tz_aware().strftime('%z')
+            offset_string = offset_string[:3] + ':' + offset_string[3:]
+        return {'Photo.DateTime': datetime_string,
+                'Photo.SubSecTime': sub_sec_string,
+                'Photo.OffsetTime': offset_string}
 
     # The exiv2 library parses correctly formatted IPTC date & time and
     # gives us integer values for each element. If the date or time is
