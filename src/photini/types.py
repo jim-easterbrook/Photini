@@ -17,7 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fractions import Fraction
 import logging
 import math
@@ -337,27 +337,17 @@ class MD_DateTime(MD_Value, dict):
             'precision': precision,
             'tz_offset': tz_offset})
 
-    _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
+    _timespec = {4: 'hours', 5: 'minutes', 6: 'seconds', 7: 'milliseconds'}
 
-    def to_ISO_8601(self, precision=None, time_zone=True):
-        if precision is None:
-            precision = self['precision']
-        fmt = ''.join(self._fmt_elements[:precision])
-        datetime_string = self['datetime'].strftime(fmt)
-        if precision > 6 and datetime_string[-3:] == '000':
-            # truncate subsecond to 3 digits
-            datetime_string = datetime_string[:-3]
-        if precision > 3 and time_zone and self['tz_offset'] is not None:
-            # add time zone
-            minutes = self['tz_offset']
-            if minutes >= 0:
-                datetime_string += '+'
-            else:
-                datetime_string += '-'
-                minutes = -minutes
-            datetime_string += '{:02d}:{:02d}'.format(
-                minutes // 60, minutes % 60)
-        return datetime_string
+    def to_ISO_8601(self, precision=None):
+        date_time = self['datetime']
+        precision = precision or self['precision']
+        if precision < 4:
+            return date_time.date().isoformat()[:1+(3*precision)]
+        if self['tz_offset'] is not None:
+            date_time = date_time.replace(
+                tzinfo=timezone(timedelta(minutes=self['tz_offset'])))
+        return date_time.isoformat(timespec=self._timespec[precision])
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
