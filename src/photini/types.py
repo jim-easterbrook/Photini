@@ -469,13 +469,19 @@ class MD_DateTime(MD_Value, dict):
             # missing or malformed time
             time_value = {}
             tz_offset = None
+            tzinfo = None
         else:
             time_value = dict(time_value)
             tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
+            tzinfo = timezone(timedelta(hours=time_value['tzHour'],
+                                        minutes=time_value['tzMinute']))
             del time_value['tzHour'], time_value['tzMinute']
             if tz_offset == 0:
                 # unknown offets are zero in IPTC
                 tz_offset = None
+            if tzinfo == timezone.utc:
+                # unknown offets are zero in IPTC
+                tzinfo = None
             # all-zero time is assumed to be no time info
             if any(time_value.values()):
                 precision = 6
@@ -485,7 +491,10 @@ class MD_DateTime(MD_Value, dict):
         if date_value['month'] == 0:
             date_value['month'] = 1
             precision = 1
-        return cls((datetime(**date_value, **time_value), precision, tz_offset))
+        return cls({
+            'datetime': datetime(**date_value, **time_value, tzinfo=tzinfo),
+            'precision': precision,
+            'tz_offset': tz_offset})
 
     def to_iptc(self):
         precision = self['precision']
