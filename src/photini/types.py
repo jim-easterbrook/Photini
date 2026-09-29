@@ -17,7 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fractions import Fraction
 import logging
 import math
@@ -289,11 +289,14 @@ class MD_DateTime(MD_Value, dict):
             tz_offset = (int(hours) * 60) + int(minutes)
             if sign == '-':
                 tz_offset = -tz_offset
+            tzinfo = timezone(timedelta(minutes=tz_offset))
         elif unparsed and unparsed[-1] == 'Z':
             tz_offset = 0
+            tzinfo = timezone.utc
             unparsed = unparsed[:-1]
         else:
             tz_offset = None
+            tzinfo = None
         # extract sub seconds
         if not sub_sec_string:
             match = cls._subsec_re.match(unparsed)
@@ -333,7 +336,7 @@ class MD_DateTime(MD_Value, dict):
                 'Cannot parse datetime "{}"'.format(datetime_string))
         return cls({
             'datetime': datetime(year, month, day,
-                                 hour, minute, second, microsecond),
+                                 hour, minute, second, microsecond, tzinfo),
             'precision': precision,
             'tz_offset': tz_offset})
 
@@ -529,9 +532,10 @@ class MD_DateTime(MD_Value, dict):
         return self.to_ISO_8601()
 
     def to_utc(self):
-        if self['tz_offset']:
-            return self['datetime'] - timedelta(minutes=self['tz_offset'])
-        return self['datetime']
+        result = self['datetime']
+        if result.tzinfo:
+            return result.astimezone(timezone.utc).replace(tzinfo=None)
+        return result
 
     def merge(self, info, tag, other):
         if other == self or not other:
