@@ -345,8 +345,10 @@ class MD_DateTime(MD_Value, dict):
             return self['datetime'].date().isoformat()[:1+(3*precision)]
         return self.tz_aware().isoformat(timespec=self._timespec[precision])
 
-    def tz_aware(self):
+    def tz_aware(self, force_tz=False):
         if self['tz_offset'] is None:
+            if force_tz:
+                return self['datetime'].replace(tzinfo=timezone.utc)
             return self['datetime']
         return self['datetime'].replace(
             tzinfo=timezone(timedelta(minutes=self['tz_offset'])))
@@ -523,9 +525,7 @@ class MD_DateTime(MD_Value, dict):
         return self.to_ISO_8601()
 
     def to_utc(self):
-        if self['tz_offset']:
-            return self['datetime'] - timedelta(minutes=self['tz_offset'])
-        return self['datetime']
+        return self.tz_aware(force_tz=True).astimezone(timezone.utc)
 
     def merge(self, info, tag, other):
         if other == self or not other:

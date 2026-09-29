@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-26  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import timedelta
+from datetime import timedelta, timezone
 import logging
 import os
 
@@ -76,8 +76,7 @@ class GpxImporter(QtCore.QObject):
             time_stamp = p.time
             if time_stamp.tzinfo is not None:
                 # convert timestamp to UTC
-                utc_offset = time_stamp.utcoffset()
-                time_stamp = (time_stamp - utc_offset).replace(tzinfo=None)
+                time_stamp = time_stamp.astimezone(timezone.utc)
             # add point to list
             point = time_stamp, p.latitude, p.longitude
             if point not in self.display_points:
