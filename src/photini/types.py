@@ -1165,7 +1165,7 @@ class MD_LensSpec(MD_Dict):
 class MD_LensModel(MD_Structure):
     item_type = {'Make': MD_UnmergableString,
                  'Model': QuietString,
-                 'SerialNumber': MD_UnmergableString,
+                 'SerialNumber': QuietString,
                  'Specification': MD_LensSpec}
     key_map = {
         'Exif.Canon.Lens': {'Model': 'LensModel'},
