@@ -434,17 +434,16 @@ class MD_DateTime(MD_Value, dict):
         return cls.from_ISO_8601(datetime_string, sub_sec_string=sub_sec_string)
 
     def to_exif(self):
-        datetime_string = self.to_ISO_8601(precision=max(self['precision'], 6))
-        date_string = datetime_string[:10].replace('-', ':')
-        time_string = datetime_string[11:19]
-        if self['tz_offset'] is None:
-            sub_sec_string = datetime_string[20:]
-            offset_string = None
+        datetime_string = self['datetime'].strftime('%Y:%m:%d %H:%M:%S')
+        if self['precision'] > 6:
+            sub_sec_string = self['datetime'].strftime('%f')[:3]
         else:
-            sub_sec_string = datetime_string[20:-6]
-            offset_string = datetime_string[-6:]
+            sub_sec_string = ''
+        offset_string = self['datetime'].strftime('%z')
+        if offset_string:
+            offset_string = offset_string[:3] + ':' + offset_string[3:]
         return {
-            'Photo.DateTime': date_string + ' ' + time_string,
+            'Photo.DateTime': datetime_string,
             'Photo.SubSecTime': sub_sec_string,
             'Photo.OffsetTime': offset_string,
             }
