@@ -257,13 +257,13 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, CompoundWidgetMixin):
     def sw_new_value(self, value):
         if 'datetime' in value:
             tz_offset = self.members['tz_offset'].get_value()
-            if tz_offset is not None:
+            if value['datetime'] and tz_offset is not None:
                 value['datetime'] = value['datetime'].replace(
                     tzinfo=timezone(timedelta(minutes=tz_offset)))
         elif 'tz_offset' in value:
             value['datetime'] = self.members['datetime'].get_value()
             tz_offset = value['tz_offset']
-            if tz_offset is not None:
+            if value['datetime'] and tz_offset is not None:
                 value['datetime'] = value['datetime'].replace(
                     tzinfo=timezone(timedelta(minutes=tz_offset)))
         value = {self._key: value}
