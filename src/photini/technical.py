@@ -252,22 +252,21 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, CompoundWidgetMixin):
             self.members[key].set_value(value)
             self.members[key].emit_value()
 
+    def get_value(self):
+        result = super(DateAndTimeWidget, self).get_value()
+        if not result['datetime']:
+            return {}
+        if result['precision'] < 4:
+            result['tz_offset'] = None
+        if result['tz_offset'] is not None:
+            result['datetime'] = result['datetime'].replace(
+                tzinfo=timezone(timedelta(minutes=result['tz_offset'])))
+        return result
+
     @QtSlot(dict)
     @catch_all()
     def sw_new_value(self, value):
-        if 'datetime' in value:
-            tz_offset = self.members['tz_offset'].get_value()
-            if value['datetime'] and tz_offset is not None:
-                value['datetime'] = value['datetime'].replace(
-                    tzinfo=timezone(timedelta(minutes=tz_offset)))
-        elif 'tz_offset' in value:
-            value['datetime'] = self.members['datetime'].get_value()
-            tz_offset = value['tz_offset']
-            if value['datetime'] and tz_offset is not None:
-                value['datetime'] = value['datetime'].replace(
-                    tzinfo=timezone(timedelta(minutes=tz_offset)))
-        value = {self._key: value}
-        self.new_value.emit(value)
+        self.emit_value()
 
 
 class OffsetWidget(QtWidgets.QWidget):
