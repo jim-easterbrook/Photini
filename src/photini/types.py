@@ -244,6 +244,11 @@ class MD_DateTime(MD_Value, dict):
             result.update(value)
         result['precision'] = result['precision'] or 7
         if result['datetime']:
+            if result['tz_offset'] is None:
+                assert(result['datetime'].tzinfo is None)
+            else:
+                assert(result['datetime'].tzinfo
+                       == timezone(timedelta(minutes=result['tz_offset'])))
             result['datetime'] = self.truncate_datetime(
                 result['datetime'], result['precision'])
         if result['precision'] <= 3:
@@ -584,6 +589,11 @@ class MD_DateTime(MD_Value, dict):
         result = dict(self)
         result['datetime'] += time_offset
         if tz_offset is not None:
+            utcoffset = timedelta(minutes=tz_offset)
+            if result['datetime'].tzinfo:
+                utcoffset += result['datetime'].tzinfo.utcoffset(None)
+            result['datetime'] = result['datetime'].replace(
+                tzinfo=timezone(utcoffset))
             tz = (result['tz_offset'] or 0) + tz_offset
             tz = min(max(tz, -14 * 60), 15 * 60)
             result['tz_offset'] = tz
