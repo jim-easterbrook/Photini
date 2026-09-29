@@ -565,6 +565,17 @@ class MD_DateTime(MD_Value, dict):
             return other
         return self
 
+    def add_offset(self, time_offset, tz_offset):
+        if not self:
+            return self
+        result = dict(self)
+        result['datetime'] += time_offset
+        if tz_offset is not None:
+            tz = (result['tz_offset'] or 0) + tz_offset
+            tz = min(max(tz, -14 * 60), 15 * 60)
+            result['tz_offset'] = tz
+        return MD_DateTime(result)
+
 
 class MD_Thumbnail(MD_Dict):
     _keys = ('w', 'h', 'fmt', 'data', 'image')

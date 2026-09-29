@@ -674,15 +674,11 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
     def apply_offset(self, offset, tz_offset):
         images = self.app.image_list.get_selected_images()
         for image in images:
-            date_taken = dict(image.metadata.date_taken)
+            date_taken = image.metadata.date_taken
             if not date_taken:
                 continue
-            date_taken['datetime'] += offset
-            if tz_offset is not None:
-                tz = (date_taken['tz_offset'] or 0) + tz_offset
-                tz = min(max(tz, -14 * 60), 15 * 60)
-                date_taken['tz_offset'] = tz
-            self._set_date_value(image, 'date_taken', date_taken)
+            self._set_date_value(image, 'date_taken',
+                                 date_taken.add_offset(offset, tz_offset))
         self.load_data(images)
 
     def _set_date_value(self, image, key, new_value):
