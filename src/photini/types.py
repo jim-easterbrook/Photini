@@ -482,7 +482,9 @@ class MD_DateTime(MD_Value, dict):
         if date_value['month'] == 0:
             date_value['month'] = 1
             precision = 1
-        return cls((datetime(**date_value, **time_value), precision, tz_offset))
+        return cls({'datetime': datetime(**date_value, **time_value),
+                   'precision': precision,
+                   'tz_offset': tz_offset})
 
     def to_iptc(self):
         precision = self['precision']
