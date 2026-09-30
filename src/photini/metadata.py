@@ -800,10 +800,8 @@ class Metadata(object):
                 value = self[name]
                 if value['tz_offset'] is not None:
                     continue
-                value = dict(value)
-                value['tz_offset'] = self.timezone
                 super(Metadata, self).__setattr__(
-                    name, self._data_type[name](value))
+                    name, value.update_value({'tz_offset': self.timezone}))
                 logger.info('%s(%s): merged camera timezone offset',
                             os.path.basename(self._path), name)
 
