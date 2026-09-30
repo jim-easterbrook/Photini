@@ -325,7 +325,7 @@ class ImageMetadata(MetadataHandler):
             'Exif.Image.{}'),
         'Exif.Image.Camera2': (re.compile(r'Exif\.Image\.UniqueCamera(Model)'),),
         'Exif.Image.DateTime': (
-            re.compile(r'Exif\..*\.((Date|SubSec|Offset)Time)'), 'Exif.{}'),
+            re.compile(r'Exif\..*\.((Date|SubSec|Offset)Time)$'), 'Exif.{}'),
         'Exif.Image.FNumber': (
             re.compile(r'Exif\.Image\.(ApertureValue|FNumber)'),),
         'Exif.Image.FocalLength': (
