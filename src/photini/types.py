@@ -570,6 +570,20 @@ class MD_DateTime(MD_Value, dict):
             result['tz_offset'] = tz
         return MD_DateTime(result)
 
+    def update_value(self, value):
+        date_time = self['datetime']
+        if 'datetime' in value:
+            date_time = value['datetime']
+        precision = self['precision']
+        if 'precision' in value:
+            precision = value['precision']
+        tz_offset = self['tz_offset']
+        if 'tz_offset' in value:
+            tz_offset = value['tz_offset']
+        return MD_DateTime({'datetime': date_time,
+                            'precision': precision,
+                            'tz_offset': tz_offset})
+
 
 class MD_Thumbnail(MD_Dict):
     _keys = ('w', 'h', 'fmt', 'data', 'image')

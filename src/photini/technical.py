@@ -252,6 +252,12 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, CompoundWidgetMixin):
             self.members[key].set_value(value)
             self.members[key].emit_value()
 
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            value = value[self._key]
+            metadata[self._key] = metadata[self._key].update_value(value)
+        return False
+
 
 class OffsetWidget(QtWidgets.QWidget):
     apply_offset = QtSignal(timedelta, object)
