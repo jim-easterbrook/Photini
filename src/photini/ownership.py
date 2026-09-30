@@ -436,7 +436,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             md = image.metadata
             date_taken = md.date_taken
             if date_taken:
-                date_taken = date_taken['datetime']
+                date_taken = date_taken.datetime
             else:
                 date_taken = datetime.now()
             year = str(date_taken.year)
@@ -546,7 +546,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             md = image.metadata
             date_taken = md.date_taken
             if date_taken:
-                date_taken = date_taken['datetime']
+                date_taken = date_taken.datetime
             else:
                 date_taken = datetime.now()
             value = self.process_template(template, date_taken)

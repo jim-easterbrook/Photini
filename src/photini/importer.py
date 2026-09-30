@@ -62,11 +62,11 @@ class FolderSource(object):
                 timestamp = (metadata.date_taken or
                              metadata.date_digitised or
                              metadata.date_modified)
-                if not timestamp:
+                if timestamp:
+                    timestamp = timestamp.datetime
+                else:
                     # use file date as last resort
                     timestamp = datetime.fromtimestamp(os.path.getmtime(path))
-                else:
-                    timestamp = timestamp['datetime']
                 sc_path = metadata.find_sidecar()
                 camera = metadata.camera_model
                 if camera:

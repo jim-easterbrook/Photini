@@ -683,7 +683,7 @@ class ImageList(QtWidgets.QWidget):
         result = (image.metadata.date_taken or image.metadata.date_digitised
                   or image.metadata.date_modified)
         if result:
-            result = result['datetime']
+            result = result.datetime
         else:
             # use file date as last resort
             result = datetime.fromtimestamp(os.path.getmtime(image.path))
@@ -948,7 +948,7 @@ class ImageList(QtWidgets.QWidget):
                 continue
             save_params = dict(params)
             if keep_time == 'taken' and image.metadata.date_taken:
-                date_taken = image.metadata.date_taken['datetime']
+                date_taken = image.metadata.date_taken.datetime
                 try:
                     date_taken = date_taken.timestamp()
                 except Exception:

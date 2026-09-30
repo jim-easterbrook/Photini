@@ -229,7 +229,7 @@ class MD_Dict(MD_Value, dict):
         return '\n'.join('{}: {}'.format(k, v) for (k, v) in self.items() if v)
 
 
-class MD_DateTime(MD_Value, dict):
+class MD_DateTime(MD_Value):
     # store date and time with "precision" to store how much is valid
     # tz_offset values are in minutes
 
@@ -237,23 +237,16 @@ class MD_DateTime(MD_Value, dict):
         value = value or {}
         assert(isinstance(value, dict))
         # get initial values
-        result = {
-            'datetime': value.get('datetime'),
-            'precision': value.get('precision', 7),
-            }
+        self.datetime = value.get('datetime')
+        self.precision = value.get('precision', 7)
         tz_offset = value.get('tz_offset')
         # regularise values
-        if result['datetime']:
-            result['datetime'] = self.truncate_datetime(
-                result['datetime'], result['precision'])
-            if result['precision'] > 3 and tz_offset is not None:
-                result['datetime'] = result['datetime'].replace(
+        if self.datetime:
+            self.datetime = self.truncate_datetime(
+                self.datetime, self.precision)
+            if self.precision > 3 and tz_offset is not None:
+                self.datetime = self.datetime.replace(
                     tzinfo=timezone(timedelta(minutes=tz_offset)))
-        super(MD_DateTime, self).__init__(result)
-
-    def __setattr__(self, name, value):
-        raise TypeError(
-            "{} does not support item assignment".format(self.__class__))
 
     def __setitem__(self, key, value):
         raise TypeError(
@@ -340,15 +333,15 @@ class MD_DateTime(MD_Value, dict):
     _timespec = {4: 'hours', 5: 'minutes', 6: 'seconds', 7: 'milliseconds'}
 
     def to_ISO_8601(self, precision=None):
-        precision = precision or self['precision']
+        precision = precision or self.precision
         if precision < 4:
-            return self['datetime'].date().isoformat()[:1+(3*precision)]
-        return self['datetime'].isoformat(timespec=self._timespec[precision])
+            return self.datetime.date().isoformat()[:1+(3*precision)]
+        return self.datetime.isoformat(timespec=self._timespec[precision])
 
     def tz_aware(self, force_tz=False):
-        if self['datetime'].tzinfo or not force_tz:
-            return self['datetime']
-        return self['datetime'].replace(tzinfo=timezone.utc)
+        if self.datetime.tzinfo or not force_tz:
+            return self.datetime
+        return self.datetime.replace(tzinfo=timezone.utc)
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -359,8 +352,6 @@ class MD_DateTime(MD_Value, dict):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if file_value:
-            print('from_exiv2', tag, file_value)
         if tag.startswith('Exif'):
             return cls.from_exif(file_value)
         if tag.startswith('Iptc'):
@@ -420,9 +411,9 @@ class MD_DateTime(MD_Value, dict):
         return cls.from_ISO_8601(datetime_string, sub_sec_string=sub_sec_string)
 
     def to_exif(self):
-        date_time = self['datetime']
+        date_time = self.datetime
         datetime_string = date_time.strftime('%Y:%m:%d %H:%M:%S')
-        if self['precision'] > 6:
+        if self.precision > 6:
             sub_sec_string = date_time.strftime('%f')[:3]
         else:
             sub_sec_string = ''
@@ -481,8 +472,8 @@ class MD_DateTime(MD_Value, dict):
                     'tz_offset': tz_offset})
 
     def to_iptc(self):
-        precision = self['precision']
-        date_time = self['datetime']
+        precision = self.precision
+        date_time = self.datetime
         year, month, day = date_time.year, date_time.month, date_time.day
         if precision < 2:
             month = 0
@@ -515,13 +506,23 @@ class MD_DateTime(MD_Value, dict):
     # processed. It also says the XMP standard has been revised to make
     # time zone information optional.
     def to_xmp(self):
-        precision = self['precision']
+        precision = self.precision
         if precision == 4:
             precision = 5
         return self.to_ISO_8601(precision=precision)
 
     def __bool__(self):
-        return bool(self['datetime'])
+        return bool(self.datetime)
+
+    def __eq__(self, other):
+        if not self:
+            return not other
+        return (self.datetime == other.datetime
+                and self.datetime.tzinfo == other.datetime.tzinfo
+                and self.precision == other.precision)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __str__(self):
         return self.to_ISO_8601()
@@ -533,9 +534,9 @@ class MD_DateTime(MD_Value, dict):
         if other == self or not other:
             return self
         verbose = (other.to_utc() != self.truncate_datetime(
-            self.to_utc(), other['precision']))
+            self.to_utc(), other.precision))
         if other.tz_offset() != self.tz_offset():
-            verbose = verbose and other['datetime'] != self['datetime']
+            verbose = verbose and other.datetime != self.datetime
             if self.tz_offset() is None:
                 # other has time zone info so choose it
                 if verbose:
@@ -544,8 +545,8 @@ class MD_DateTime(MD_Value, dict):
             if verbose:
                 self.log_ignored(info, tag, other)
             return self
-        if other['datetime'] != self['datetime']:
-            if other['precision'] > self['precision']:
+        if other.datetime != self.datetime:
+            if other.precision > self.precision:
                 # other has higher precision so choose it
                 if verbose:
                     self.log_replaced(info, tag, other)
@@ -557,7 +558,7 @@ class MD_DateTime(MD_Value, dict):
         if tag.startswith('Xmp'):
             # other's precision is trustworthy
             return other
-        if other['precision'] > self['precision']:
+        if other.precision > self.precision:
             return other
         return self
 
@@ -578,14 +579,14 @@ class MD_DateTime(MD_Value, dict):
         return MD_DateTime(result)
 
     def to_dict(self):
-        return {'datetime': self['datetime'],
-                'precision': self['precision'],
+        return {'datetime': self.datetime,
+                'precision': self.precision,
                 'tz_offset': self.tz_offset()}
 
     def tz_offset(self):
         if not self:
             return None
-        result = self['datetime'].utcoffset()
+        result = self.datetime.utcoffset()
         if result is not None:
             result = int(result.total_seconds() / 60)
         return result

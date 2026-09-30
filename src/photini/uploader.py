@@ -980,9 +980,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         return dict(self.upload_prefs), dict(self.replace_prefs), photo_id
 
     def date_range(self, image):
-        precision = min(image.metadata.date_taken['precision'], 6)
+        precision = min(image.metadata.date_taken.precision, 6)
         min_taken_date = image.metadata.date_taken.truncate_datetime(
-            image.metadata.date_taken['datetime'], precision)
+            image.metadata.date_taken.datetime, precision)
         if precision >= 6:
             max_taken_date = min_taken_date + timedelta(seconds=1)
         elif precision >= 5:
