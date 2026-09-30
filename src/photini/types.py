@@ -334,11 +334,6 @@ class MD_DateTime(MD_Value):
             return self.date().isoformat()[:1+(3*precision)]
         return self.isoformat(timespec=self._timespec[precision])
 
-    def tz_aware(self, force_tz=False):
-        if self.tzinfo or not force_tz:
-            return self.datetime
-        return self.replace(tzinfo=timezone.utc)
-
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
         return cls.from_ISO_8601(file_value)
@@ -527,16 +522,18 @@ class MD_DateTime(MD_Value):
         return self.to_ISO_8601()
 
     def to_utc(self):
-        return self.tz_aware(force_tz=True).astimezone(timezone.utc)
+        if self.tzinfo:
+            return self.astimezone(timezone.utc)
+        return self.replace(tzinfo=timezone.utc)
 
     def merge(self, info, tag, other):
         if other == self or not other:
             return self
         verbose = (other.to_utc() != self.truncate_datetime(
             self.to_utc(), other.precision))
-        if other.tz_offset() != self.tz_offset():
+        if other.tzinfo != self.tzinfo:
             verbose = verbose and other.datetime != self.datetime
-            if self.tz_offset() is None:
+            if self.tzinfo is None:
                 # other has time zone info so choose it
                 if verbose:
                     self.log_replaced(info, tag, other)
