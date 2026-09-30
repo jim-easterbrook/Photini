@@ -245,12 +245,8 @@ class MD_DateTime(MD_Value):
             self.datetime = self.truncate_datetime(
                 self.datetime, self.precision)
             if self.precision > 3 and tz_offset is not None:
-                self.datetime = self.datetime.replace(
+                self.datetime = self.replace(
                     tzinfo=timezone(timedelta(minutes=tz_offset)))
-
-    def __setitem__(self, key, value):
-        raise TypeError(
-            "{} does not support item assignment".format(self.__class__))
 
     _replace = (('microsecond', 0), ('second', 0),
                 ('minute',      0), ('hour',   0),
@@ -335,13 +331,13 @@ class MD_DateTime(MD_Value):
     def to_ISO_8601(self, precision=None):
         precision = precision or self.precision
         if precision < 4:
-            return self.datetime.date().isoformat()[:1+(3*precision)]
-        return self.datetime.isoformat(timespec=self._timespec[precision])
+            return self.date().isoformat()[:1+(3*precision)]
+        return self.isoformat(timespec=self._timespec[precision])
 
     def tz_aware(self, force_tz=False):
-        if self.datetime.tzinfo or not force_tz:
+        if self.tzinfo or not force_tz:
             return self.datetime
-        return self.datetime.replace(tzinfo=timezone.utc)
+        return self.replace(tzinfo=timezone.utc)
 
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
@@ -518,11 +514,14 @@ class MD_DateTime(MD_Value):
         if not self:
             return not other
         return (self.datetime == other.datetime
-                and self.datetime.tzinfo == other.datetime.tzinfo
+                and self.tzinfo == other.tzinfo
                 and self.precision == other.precision)
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __getattr__(self, name):
+        return getattr(self.datetime, name)
 
     def __str__(self):
         return self.to_ISO_8601()
@@ -586,7 +585,7 @@ class MD_DateTime(MD_Value):
     def tz_offset(self):
         if not self:
             return None
-        result = self.datetime.utcoffset()
+        result = self.utcoffset()
         if result is not None:
             result = int(result.total_seconds() / 60)
         return result

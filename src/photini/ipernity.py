@@ -529,10 +529,8 @@ class TabWidget(PhotiniUploader):
             # date_taken
             date_taken = image.metadata.date_taken
             if date_taken:
-                params['dates'] = {
-                    'created_at':
-                    date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S')
-                    }
+                params['dates'] = {'created_at':
+                                   date_taken.strftime('%Y-%m-%d %H:%M:%S')}
             # location
             gps = image.metadata.gps_info
             if gps['GPSLatitude']:

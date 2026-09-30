@@ -596,10 +596,8 @@ class TabWidget(PhotiniUploader):
             # date_taken
             date_taken = image.metadata.date_taken
             if date_taken:
-                params['dates'] = {
-                    'date_taken':
-                    date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S')
-                    }
+                params['dates'] = {'date_taken':
+                                   date_taken.strftime('%Y-%m-%d %H:%M:%S')}
                 if date_taken.precision <= 1:
                     params['dates']['date_taken_granularity'] = '6'
                 elif date_taken.precision <= 2:
