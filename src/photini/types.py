@@ -670,6 +670,7 @@ class MD_Thumbnail(MD_Dict):
 class MD_Structure(MD_Value, dict):
     key_map = {}
     compound_keys = {}
+    ignore_extras = False
 
     def __init__(self, value=None, copy=True):
         value = value or {}
@@ -701,6 +702,11 @@ class MD_Structure(MD_Value, dict):
                 if k in file_value:
                     del file_value[k]
             file_value[key] = sub_value
+        if cls.ignore_extras:
+            for key in list(file_value):
+                if key not in cls.item_type:
+                    logger.debug('Ignoring %s[%s]', tag, key)
+                    del file_value[key]
         return cls(dict((k, cls.get_type(k, v).from_exiv2(v, tag))
                         for k, v in file_value.items()), copy=False)
 
@@ -1602,6 +1608,7 @@ class MD_GPSinfo(MD_Structure):
         'GPSLatitude': ('GPSLatitude', 'GPSLatitudeRef'),
         'GPSLongitude': ('GPSLongitude', 'GPSLongitudeRef'),
         }
+    ignore_extras = True
 
     @classmethod
     def from_gpx(cls, value, set_altitude=False):
