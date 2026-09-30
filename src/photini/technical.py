@@ -252,6 +252,11 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, CompoundWidgetMixin):
             self.members[key].set_value(value)
             self.members[key].emit_value()
 
+    def _load_data(self, md_list):
+        md_list = [md[self._key].to_dict() for md in md_list]
+        for widget in self.sub_widgets():
+            widget._load_data(md_list)
+
     def _save_data(self, metadata, value):
         if self._key in value:
             value = value[self._key]

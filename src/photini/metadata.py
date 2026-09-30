@@ -798,7 +798,7 @@ class Metadata(object):
         if self.timezone:
             for name in ('date_digitised', 'date_modified', 'date_taken'):
                 value = self[name]
-                if value['tz_offset'] is not None:
+                if value.tz_offset() is not None:
                     continue
                 super(Metadata, self).__setattr__(
                     name, value.update_value({'tz_offset': self.timezone}))
