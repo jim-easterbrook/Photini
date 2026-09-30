@@ -232,17 +232,17 @@ class MD_Dict(MD_Value, dict):
 class MD_DateTime(MD_Value, dict):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
-    _keys = ('datetime', 'precision', 'tz_offset')
 
     def __init__(self, value=None):
         value = value or {}
         assert(isinstance(value, dict))
-        # initialise all keys to None
-        result = dict.fromkeys(self._keys)
-        # update with any supplied values
-        if value:
-            result.update(value)
-        result['precision'] = result['precision'] or 7
+        # get initial values
+        result = {
+            'datetime': value.get('datetime'),
+            'precision': value.get('precision', 7),
+            'tz_offset': value.get('tz_offset'),
+            }
+        # regularise values
         if result['datetime']:
             result['datetime'] = self.truncate_datetime(
                 result['datetime'], result['precision'])
@@ -371,13 +371,14 @@ class MD_DateTime(MD_Value, dict):
                 time_stamp = int(file_value)
             except Exception:
                 # not an integer timestamp
-                return cls([])
+                return cls()
             if not time_stamp:
-                return cls([])
+                return cls()
             # assume date should be in range 1970 to 2034
             if time_stamp > cls._qt_offset:
                 time_stamp -= cls._qt_offset
-            return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
+            return cls({'datetime': datetime.utcfromtimestamp(time_stamp),
+                        'precision': 6})
         return cls.from_ISO_8601(file_value)
 
     def to_exiv2(self, tag):
