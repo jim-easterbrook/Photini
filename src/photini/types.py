@@ -588,62 +588,64 @@ class MD_DateTime(MD_Value):
         return result
 
 
-class MD_Thumbnail(MD_Dict):
-    _keys = ('w', 'h', 'fmt', 'data', 'image')
+class MD_Thumbnail(MD_Value):
     _quiet = True
 
-    @staticmethod
-    def from_data(data):
+    def __init__(self, value=None):
+        value = value or {}
+        assert(isinstance(value, dict))
+        # get initial values
+        self.fmt = value.get('fmt', 'JPEG')
+        self.data = value.get('data')
+        self.image = value.get('image')
+        # regularise result
+        if self.data and not self.image:
+            self.decode_data()
+        if not self.image:
+            return
+        self.w = self.image.width()
+        self.h = self.image.height()
+        if self.data and len(self.data) >= 60000:
+            # don't keep unusably large amount of data
+            self.data = None
+
+    def decode_data(self):
         # PySide insists on bytes, can't use memoryview or buffer interface
-        if qbuffer_needs_bytes and not isinstance(data, bytes):
-            data = bytes(data)
+        if qbuffer_needs_bytes and not isinstance(self.data, bytes):
+            self.data = bytes(self.data)
         buf = QtCore.QBuffer()
-        buf.setData(data)
+        buf.setData(self.data)
         reader = QtGui.QImageReader(buf)
-        fmt = reader.format().data().decode().upper()
+        self.fmt = reader.format().data().decode().upper()
         reader.setAutoTransform(False)
-        image = reader.read()
-        if image.isNull():
-            raise RuntimeError(reader.errorString())
-        image.buf = buf
-        return {'fmt': fmt, 'data': data, 'image': image}
+        self.image = reader.read()
+        if self.image.isNull():
+            self.image = None
+            raise ValueError(reader.errorString())
+        self.image.buf = buf
 
     def to_data(self, max_size=60000):
         buf = QtCore.QBuffer()
         buf.open(buf.OpenModeFlag.WriteOnly)
         quality = 95
         while quality > 10:
-            self['image'].save(buf, 'JPEG', quality)
+            self.image.save(buf, 'JPEG', quality)
             data = buf.data().data()
             if len(data) < max_size:
                 return data
             quality -= 5
         return None
 
-    @classmethod
-    def convert(cls, value):
-        value['fmt'] = value['fmt'] or 'JPEG'
-        if value['data'] and not value['image']:
-            value.update(cls.from_data(value['data']))
-        if not value['image']:
-            return {}
-        value['w'] = value['image'].width()
-        value['h'] = value['image'].height()
-        if value['data'] and len(value['data']) >= 60000:
-            # don't keep unusably large amount of data
-            value['data'] = None
-        return value
-
     def to_exif(self):
-        data = self['data'] or self.to_data()
+        data = self.data or self.to_data()
         if not data:
             return {}
-        return {'ImageWidth': self['w'],
-                'ImageLength': self['h'],
+        return {'ImageWidth': self.w,
+                'ImageLength': self.h,
                 'ImageData': data}
 
     def to_xmp(self):
-        fmt, data = self['fmt'], self['data']
+        fmt, data = self.fmt, self.data
         if fmt != 'JPEG':
             data = None
         if not data:
@@ -651,19 +653,25 @@ class MD_Thumbnail(MD_Dict):
             data = self.to_data(max_size=2**32)
         data = codecs.encode(memoryview(data), 'base64_codec').decode('ascii')
         return [{
-            'xmpGImg:width': str(self['w']),
-            'xmpGImg:height': str(self['h']),
+            'xmpGImg:width': str(self.w),
+            'xmpGImg:height': str(self.h),
             'xmpGImg:format': fmt,
             'xmpGImg:image': data,
             }]
 
     def __bool__(self):
-        return 'image' in self and bool(self['image'])
+        return bool(self.image)
+
+    def __eq__(self, other):
+        return self.image == other.image
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __str__(self):
-        result = '{fmt} thumbnail, {w}x{h}'.format(**self)
-        if self['data']:
-            result += ', {} bytes'.format(len(self['data']))
+        result = f'{self.fmt} thumbnail, {self.w}x{self.h}'
+        if self.data:
+            result += ', {} bytes'.format(len(self.data))
         return result
 
 

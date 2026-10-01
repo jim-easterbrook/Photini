@@ -398,8 +398,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @catch_all()
     def new_image_list(self):
         for image in self.app.image_list.images:
-            thumb = image.metadata.thumbnail
-            if not thumb or not thumb['image']:
+            if not image.metadata.thumbnail:
                 self.fix_thumbs_action.setEnabled(True)
                 return
         self.fix_thumbs_action.setEnabled(False)

@@ -195,7 +195,7 @@ class ImageMetadata(MetadataHandler):
         for data, label in self.select_exif_thumbnail():
             if data:
                 try:
-                    return MD_Thumbnail.from_data(data)
+                    return {'data': data}
                 except Exception as ex:
                     logger.error('%s: %s: %s', self._name, label, str(ex))
         return {}
@@ -217,7 +217,7 @@ class ImageMetadata(MetadataHandler):
             if data:
                 try:
                     data = codecs.decode(data, 'base64_codec')
-                    return MD_Thumbnail.from_data(data)
+                    return {'data': data}
                 except Exception as ex:
                     logger.error('%s: %s: %s', self._name, label, str(ex))
         return {}
@@ -547,7 +547,6 @@ class ImageMetadata(MetadataHandler):
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
                     self._name, name, tag, str(ex)))
-                logger.exception(ex)
                 continue
             except Exception as ex:
                 logger.exception(ex)

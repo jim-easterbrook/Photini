@@ -307,7 +307,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
 
     def load_thumbnail(self, label=None):
         label = label or self.image
-        image = self.metadata.thumbnail and self.metadata.thumbnail['image']
+        image = self.metadata.thumbnail.image
         if not image:
             label.setText(wrap_text(
                 label, translate('ImageList', 'No thumbnail in file'), lines=4))
