@@ -186,49 +186,6 @@ class MD_Software(MD_String):
         return {'Program': program, 'ProgramVersion': version}
 
 
-class MD_Dict(MD_Value, dict):
-    def __init__(self, value=None):
-        value = value or {}
-        # can initialise from a string containing comma separated values
-        if isinstance(value, str):
-            value = value.split(',')
-        # or a list of values
-        if isinstance(value, (tuple, list)):
-            value = zip(self._keys, value)
-        # initialise all keys to None
-        result = dict.fromkeys(self._keys)
-        # update with any supplied values
-        if value:
-            result.update(value)
-        # let sub-classes do any data manipulation
-        result = self.convert(result)
-        super(MD_Dict, self).__init__(result)
-
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if isinstance(value[key], str):
-                value[key] = value[key].strip() or None
-        return value
-
-    def __setattr__(self, name, value):
-        raise TypeError(
-            "{} does not support item assignment".format(self.__class__))
-
-    def __setitem__(self, key, value):
-        raise TypeError(
-            "{} does not support item assignment".format(self.__class__))
-
-    def __bool__(self):
-        return any([x is not None for x in self.values()])
-
-    def to_exif(self):
-        return [self[x] for x in self._keys]
-
-    def __str__(self):
-        return '\n'.join('{}: {}'.format(k, v) for (k, v) in self.items() if v)
-
-
 class MD_DateTime(MD_Value):
     # store date and time with "precision" to store how much is valid
     # tz_offset values are in minutes
@@ -1145,22 +1102,27 @@ class MD_Rational(MD_Value, Fraction):
         return str(float(self))
 
 
-class MD_LensSpec(MD_Dict):
+class MD_LensSpec(MD_Value, dict):
     # simple class to store lens "specification"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
     _quiet = True
 
-    @classmethod
-    def convert(cls, value):
-        for key in value:
-            value[key] = MD_Rational(value[key])
-        return value
+    def __init__(self, value=None):
+        value = value or {}
+        if isinstance(value, str):
+            value = value.split(',')
+        if isinstance(value, (tuple, list)):
+            value = zip(self._keys, value)
+        result = dict.fromkeys(self._keys)
+        result.update(value)
+        result = dict((k, MD_Rational(v)) for k, v in result.items())
+        super(MD_LensSpec, self).__init__(result)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return cls()
-        if tag == 'Exif.Canon.Lens':
+        if tag in ('Exif.Canon.Lens', 'Exif.CanonCs.Lens'):
             long_focal, short_focal, focal_units = [int(x) for x in file_value]
             if focal_units == 0:
                 return cls()
@@ -1185,6 +1147,17 @@ class MD_LensSpec(MD_Dict):
         elif other:
             self.log_ignored(info, tag, other)
         return self
+
+    def compact_form(self):
+        result = '{:g}'.format(float(self['min_fl']))
+        if self['max_fl'] and self['max_fl'] != self['min_fl']:
+            result += '-{:g}'.format(float(self['max_fl']))
+        result += ' mm'
+        if self['min_fl_fn']:
+            result += ' ƒ/{:g}'.format(float(self['min_fl_fn']))
+            if self['max_fl_fn'] and '-' in result:
+                result += '-{:g}'.format(float(self['max_fl_fn']))
+        return result
 
     def __bool__(self):
         return bool(self['min_fl'])
@@ -1237,17 +1210,7 @@ class MD_LensModel(MD_Structure):
             result.append('(S/N: ' + self['SerialNumber'] + ')')
         if self['Specification'] and not result:
             # generic name based on Specification
-            fl = [float(self['Specification']['min_fl']),
-                  float(self['Specification']['max_fl'])]
-            fl = '–'.join(['{:g}'.format(x) for x in fl if x])
-            fn = [float(self['Specification']['min_fl_fn']),
-                  float(self['Specification']['max_fl_fn'])]
-            fn = '–'.join(['{:g}'.format(x) for x in fn if x])
-            if fl:
-                model = fl + ' mm'
-                if fn:
-                    model += ' ƒ/' + fn
-                result.append(model)
+            result.append(self['Specification'].compact_form())
         return ' '.join(result)
 
 
