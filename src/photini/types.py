@@ -855,6 +855,7 @@ class MD_LangAlt(MD_Value, dict):
 
     DEFAULT = 'x-default'
     rfc_tag = re.compile(r'[a-zA-Z]{2,3}-[a-zA-Z]{2,3}$')
+    _langs = None
 
     def __init__(self, value=None, strip=True):
         if isinstance(value, str):
@@ -883,13 +884,25 @@ class MD_LangAlt(MD_Value, dict):
         return value
 
     @classmethod
+    def get_langs(cls):
+        if cls._langs:
+            return cls._langs
+        locale = QtCore.QLocale.system()
+        # make list of user's preferred languages
+        cls._langs = [x for x in locale.uiLanguages() if cls.rfc_tag.match(x)]
+        cls._langs = [cls.normalise_key(x) for x in cls._langs]
+        # use US English if user doesn't have a preferred UI language
+        cls._langs = cls._langs or ['en-US']
+        return cls._langs
+
+    @classmethod
     def _best_match(cls, keys, lang=None):
         # find nearest match to a lang or the system's default language(s)
         # RFC3066 has optional parts between primary language and region
         if lang:
             langs = [lang]
         else:
-            langs = QtWidgets.QApplication.instance().langs
+            langs = cls.get_langs()
         langs = [cls.norm_key(lang).split('-') for lang in langs]
         best_match = (0, None)
         for key in keys:

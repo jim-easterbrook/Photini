@@ -694,12 +694,6 @@ def main(argv=None):
     # create locale object
     locale.setlocale(locale.LC_ALL, '')
     app.locale = Locale(QtCore.QLocale.system())
-    # make a list of languages for LangAltWidget
-    app.langs = [x for x in app.locale.uiLanguages()
-                 if MD_LangAlt.rfc_tag.match(x)]
-    app.langs = [MD_LangAlt.normalise_key(x) for x in app.langs]
-    # use US English if user doesn't have a preferred UI language
-    app.langs = app.langs or ['en-US']
     # install translations
     lang_dir = os.path.join(os.path.dirname(__file__), 'data', 'lang')
     langs = [x.replace('-', '_') for x in app.locale.uiLanguages()]
