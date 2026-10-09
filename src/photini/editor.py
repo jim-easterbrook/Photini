@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
+from contextlib import contextmanager
 import importlib
 import locale
 import logging
@@ -32,7 +33,7 @@ except ImportError:
     keyring = None
 import platformdirs
 
-from photini import __version__
+from photini import __version__, __version_tuple__
 from photini.configstore import (
     BaseConfigStore, ConfigFileHandler, get_config_dir, UserKeys)
 from photini.editsettings import EditMapKeys, EditSettings
@@ -66,6 +67,35 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
         self.timer.setSingleShot(True)
         self.timer.setInterval(3000)
         self.timer.timeout.connect(self.save)
+        # get config file version
+        self.version = self.get('config', 'version')
+        if not self.version:
+            # attempt to determine config file version
+            self.version = (1, 1)
+            for version, section, name in (
+                    ((2026, 8, 0), 'descriptive', 'list_separator'),
+                    ((2026, 3, 0), 'ownership', 'contact_info/licensoremail'),
+                    ((2025, 10, 0), 'user_keys', 'azuremap'),
+                    ((2025, 10, 0), 'user_keys', 'googlemap'),
+                    ((2025, 10, 0), 'user_keys', 'mapboxmap'),
+                    ((2024, 10, 0), 'tabs', 'photini.keywords'),
+                    ((2024, 9, 0), 'map', 'pin_colour_false'),
+                    ((2024, 8, 0), 'tabs', 'photini.azuremap'),
+                    ((2023, 5, 0), 'map', 'gpx_altitude'),
+                    ((2023, 4, 0), 'tabs', 'photini.regions'),
+                    ((2023, 2, 0), 'tabs', 'photini.pixelfed'),
+                    ((2022, 5, 1), 'files', 'iptc_iim'),
+                    ((2022, 2, 0), 'tabs', 'photini.ipernity'),
+                    ((2022, 1, 0), 'metadata', 'enable_bmff'),
+                    ((2021, 7, 0), 'tabs', 'photini.ownership'),
+                    ((2021, 6, 0), 'files', 'length_warning'),
+                    ((2019, 8, 0), 'tabs', 'photini.googlephotos'),
+                    ((2018, 8, 0), 'tabs', 'map_mapbox'),
+                    ((2017, 8, 1), 'files', 'preserve_timestamps')):
+                if self.get(section, name) is not None:
+                    self.version = max(self.version, version)
+        # set config file version
+        self.set('config', 'version', __version_tuple__[:3])
 
     def set(self, section, option, value):
         super(ConfigStore, self).set(section, option, value)
@@ -368,8 +398,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @catch_all()
     def new_image_list(self):
         for image in self.app.image_list.images:
-            thumb = image.metadata.thumbnail
-            if not thumb or not thumb['image']:
+            if not image.metadata.thumbnail:
                 self.fix_thumbs_action.setEnabled(True)
                 return
         self.fix_thumbs_action.setEnabled(False)
@@ -395,6 +424,44 @@ class Locale(QtCore.QLocale):
         # parse locale's short name
         language, sep, territory = self.name().partition('_')
         return territory or ''
+
+
+class BusyProgress(QtWidgets.QProgressBar):
+    def __init__(self, app, *arg, **kw):
+        super(BusyProgress, self).__init__(*arg, **kw)
+        self.app = app
+        self.setFixedHeight(self.sizeHint().height())
+        self.setVisible(False)
+        self.setMinimum(0)
+        # timer to prevent quick actions from showing progress bar
+        self.timer = QtCore.QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(500)
+        self.timer.timeout.connect(self.show_progress)
+
+    @QtSlot()
+    @catch_all()
+    def show_progress(self):
+        if (self.value() * 4) < self.maximum():
+            self.setVisible(True)
+
+    @contextmanager
+    def busy(self):
+        QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        self.timer.start()
+        try:
+            yield self.progress
+        finally:
+            self.timer.stop()
+            QtWidgets.QApplication.restoreOverrideCursor()
+            self.setVisible(False)
+
+    def progress(self, value=None, target=None):
+        if target:
+            self.setMaximum(target)
+        if value:
+            self.setValue(value)
+        self.app.processEvents()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -476,11 +543,12 @@ class MainWindow(QtWidgets.QMainWindow):
                            'photini.pixelfed',     'photini.importer']
         self.modules = self.app.config_store.get(
             'tabs', 'modules', default_modules)
-        for key in ('photini.openstreetmap', 'photini.bingmap',
-                    'photini.googlephotos'):
-            if key in self.modules:
-                self.modules.remove(key)
-                self.app.config_store.delete('tabs', key)
+        if self.app.config_store.version < (2026, 3, 0):
+            for key in ('photini.openstreetmap', 'photini.bingmap',
+                        'photini.googlephotos'):
+                if key in self.modules:
+                    self.modules.remove(key)
+                    self.app.config_store.delete('tabs', key)
         # insert any new tabs straight after first tab
         idx = min(1, len(self.modules))
         self.modules[idx:idx] = [x for x in default_modules
@@ -500,6 +568,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tab_info[module] = tab
         # menu bar
         self.setMenuBar(MenuBar(parent=self))
+        # progress bar, normally hidden
+        busy_progress = BusyProgress(self.app)
+        self.app.busy = busy_progress.busy
         # main application area
         self.central_widget = QtWidgets.QSplitter()
         self.central_widget.setOrientation(Qt.Orientation.Vertical)
@@ -510,10 +581,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.tabBar().tabMoved.connect(self.tab_moved)
         self.add_tabs()
         self.central_widget.addWidget(self.tabs)
+        self.central_widget.addWidget(busy_progress)
         self.central_widget.addWidget(self.app.image_list)
         size = self.central_widget.sizes()
-        self.central_widget.setSizes(
-            self.app.config_store.get('main_window', 'split', size))
+        size = self.app.config_store.get('main_window', 'split', size)
+        if len(size) < 3:
+            size.insert(1, 0)
+        self.central_widget.setSizes(size)
         self.central_widget.splitterMoved.connect(self.new_split)
         self.setCentralWidget(self.central_widget)
         # open files given on command line, after GUI is displayed
@@ -620,12 +694,6 @@ def main(argv=None):
     # create locale object
     locale.setlocale(locale.LC_ALL, '')
     app.locale = Locale(QtCore.QLocale.system())
-    # make a list of languages for LangAltWidget
-    app.langs = [x for x in app.locale.uiLanguages()
-                 if MD_LangAlt.rfc_tag.match(x)]
-    app.langs = [MD_LangAlt.normalise_key(x) for x in app.langs]
-    # use US English if user doesn't have a preferred UI language
-    app.langs = app.langs or ['en-US']
     # install translations
     lang_dir = os.path.join(os.path.dirname(__file__), 'data', 'lang')
     langs = [x.replace('-', '_') for x in app.locale.uiLanguages()]

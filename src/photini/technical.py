@@ -69,17 +69,24 @@ class CameraList(DropdownEdit):
         super(CameraList, self).__init__(*args, **kwds)
         values = [('', None)]
         # read cameras from config, updating if necessary
+        config = self.app.config_store
         sections = []
-        for section in self.app.config_store.config.sections():
+        for section in config.config.sections():
             if not section.startswith('camera '):
                 continue
+            if config.version <= (2026, 8, 0):
+                for old_key, new_key in (('serial_no', 'SerialNumber'),):
+                    value = config.get(section, old_key)
+                    if value:
+                        config.delete(section, old_key)
+                        config.set(section, new_key, value)
             camera = {}
-            for key in 'make', 'model', 'serial_no':
-                camera[key] = self.app.config_store.get(section, key)
+            for key in MD_CameraModel.item_type:
+                camera[key] = config.get(section, key)
             camera = MD_CameraModel(camera)
             name = camera.get_name()
             if name != section[7:]:
-                self.app.config_store.remove_section(section)
+                config.remove_section(section)
             values.append((name, camera))
         self.set_values(values)
 
@@ -111,23 +118,30 @@ class LensList(DropdownEdit):
         super(LensList, self).__init__(*args, **kwds)
         values = [('', None)]
         # read lenses from config, updating if necessary
-        self.app.config_store.delete('technical', 'lenses')
-        for section in self.app.config_store.config.sections():
+        config = self.app.config_store
+        if config.version < (2021, 1, 0):
+            config.delete('technical', 'lenses')
+        for section in config.config.sections():
             if not section.startswith('lens '):
                 continue
+            if config.version <= (2026, 8, 0):
+                for old_key, new_key in (('lens_make', 'Make'),
+                                         ('lens_model', 'Model'),
+                                         ('lens_serial', 'SerialNumber'),
+                                         ('lens_spec', 'Specification'),
+                                         ('serial_no', 'SerialNumber'),
+                                         ('spec', 'Specification')):
+                    value = config.get(section, old_key)
+                    if value:
+                        config.delete(section, old_key)
+                        config.set(section, new_key, value)
             lens_model = {}
-            for old_key, new_key in (('lens_make', 'make'),
-                                     ('lens_model', 'model'),
-                                     ('lens_serial', 'serial_no'),
-                                     ('lens_spec', 'spec')):
-                lens_model[new_key] = self.app.config_store.get(section, new_key)
-                if not lens_model[new_key]:
-                    lens_model[new_key] = self.app.config_store.get(section, old_key)
-                self.app.config_store.delete(section, old_key)
+            for key in MD_LensModel.item_type:
+                lens_model[key] = config.get(section, key)
             lens_model = MD_LensModel(lens_model)
             name = lens_model.get_name()
             if name != section[5:]:
-                self.app.config_store.remove_section(section)
+                config.remove_section(section)
             values.append((name, lens_model))
         self.set_values(values)
 
@@ -155,10 +169,11 @@ class LensList(DropdownEdit):
 
     def set_value(self, value):
         super(LensList, self).set_value(value)
-        if not (value and value['spec'] and value['spec']['min_fl']):
+        if not (value and value['Specification']):
             self.setToolTip('')
             return
-        spec = dict((k, float(v) or '') for k, v in value['spec'].items())
+        spec = dict((k, float(v) or '')
+                    for k, v in value['Specification'].items())
         tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
                     '<th width="70">{th_max}</th></tr>'
                     '<tr><th align="right">{th_fl}</th>'
@@ -236,6 +251,17 @@ class DateAndTimeWidget(QtWidgets.QGridLayout, CompoundWidgetMixin):
         for key, value in value.items():
             self.members[key].set_value(value)
             self.members[key].emit_value()
+
+    def _load_data(self, md_list):
+        md_list = [md[self._key].to_dict() for md in md_list]
+        for widget in self.sub_widgets():
+            widget._load_data(md_list)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            value = value[self._key]
+            metadata[self._key] = metadata[self._key].update_value(value)
+        return False
 
 
 class OffsetWidget(QtWidgets.QWidget):
@@ -353,9 +379,9 @@ class NewItemDialog(QtWidgets.QDialog):
         # common data items
         self.model_widgets = {}
         for key, label in (
-                ('make', translate('TechnicalTab', "Maker's name")),
-                ('model', translate('TechnicalTab', 'Model name')),
-                ('serial_no', translate('TechnicalTab', 'Serial number')),
+                ('Make', translate('TechnicalTab', "Maker's name")),
+                ('Model', translate('TechnicalTab', 'Model name')),
+                ('SerialNumber', translate('TechnicalTab', 'Serial number')),
                 ):
             self.model_widgets[key] = QtWidgets.QLineEdit()
             self.model_widgets[key].setMinimumWidth(
@@ -365,9 +391,6 @@ class NewItemDialog(QtWidgets.QDialog):
         self.extend_data()
         # add panel to scroll area now its size is known
         scroll_area.setWidget(self.panel)
-
-    def extend_data(self):
-        pass
 
     def get_value(self):
         result = {}
@@ -402,7 +425,7 @@ class NewLensDialog(NewItemDialog):
             for key in self.model_widgets:
                 if model[key]:
                     self.model_widgets[key].setText(model[key])
-            spec = model['spec']
+            spec = model['Specification']
             if not spec:
                 continue
             for key in self.lens_spec:
@@ -440,7 +463,7 @@ class NewLensDialog(NewItemDialog):
         max_fl = self.lens_spec['max_fl'].get_value() or min_fl
         min_fl_fn = self.lens_spec['min_fl_fn'].get_value() or 0
         max_fl_fn = self.lens_spec['max_fl_fn'].get_value() or min_fl_fn
-        lens_model['spec'] = (min_fl, max_fl, min_fl_fn, max_fl_fn)
+        lens_model['Specification'] = (min_fl, max_fl, min_fl_fn, max_fl_fn)
         return MD_LensModel(lens_model) or None
 
 
@@ -479,15 +502,14 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         super(FocalLengthCompound, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.crop_factor = None
-        self.image_crop_factor = None
         self.camera_name = None
         suffix = translate('TechnicalTab', ' mm', 'millimetres focal length')
         # actual focal length
         self.fl = NumericalWidget(
-            'fl', DoubleValidator(minimum=0.0, suffix=suffix))
+            'FocalLength', DoubleValidator(minimum=0.0, suffix=suffix))
         # 35mm equivalent focal length
         self.fl35 = FL35Widget(
-            'fl35', IntValidator(minimum=0, suffix=suffix))
+            'FocalLengthIn35mmFilm', IntValidator(minimum=0, suffix=suffix))
         self.fl35._owner = self
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
@@ -525,7 +547,6 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
             self.crop_factor = crop_factor
             self.config_store.set('crop factor', self.camera_name, crop_factor)
         else:
-            self.crop_factor = self.image_crop_factor
             self.config_store.delete('crop factor', self.camera_name)
         self.after_load()
 
@@ -535,14 +556,11 @@ class FocalLengthCompound(QtCore.QObject, CompoundWidgetMixin):
         self.crop_factor = None
         if self.fl.has_value() and bool(self.fl35.get_value()):
             self.crop_factor = self.fl35.get_value() / self.fl.get_value()
-            self.image_crop_factor = self.crop_factor
-        if not self.image_crop_factor:
-            self.image_crop_factor = md.get_crop_factor()
-        if not self.crop_factor and self.camera_name:
+        elif self.camera_name:
             self.crop_factor = self.config_store.get(
                 'crop factor', self.camera_name)
         if not self.crop_factor:
-            self.crop_factor = self.image_crop_factor
+            self.crop_factor = md.get_crop_factor()
         self.after_load()
 
 
@@ -667,15 +685,11 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
     def apply_offset(self, offset, tz_offset):
         images = self.app.image_list.get_selected_images()
         for image in images:
-            date_taken = dict(image.metadata.date_taken)
+            date_taken = image.metadata.date_taken
             if not date_taken:
                 continue
-            date_taken['datetime'] += offset
-            if tz_offset is not None:
-                tz = (date_taken['tz_offset'] or 0) + tz_offset
-                tz = min(max(tz, -14 * 60), 15 * 60)
-                date_taken['tz_offset'] = tz
-            self._set_date_value(image, 'date_taken', date_taken)
+            self._set_date_value(image, 'date_taken',
+                                 date_taken.add_offset(offset, tz_offset))
         self.load_data(images)
 
     def _set_date_value(self, image, key, new_value):
@@ -720,14 +734,14 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
 
     def update_focal_length_aperture(self, images):
         value = self.widgets['lens_model'].get_value()
-        spec = value['spec']
+        spec = value['Specification']
         if not (spec and spec['min_fl']):
             return
         make_changes = False
         for image in images:
             md = image.metadata
             new_aperture = md.aperture or 0
-            new_fl = md.focal_length['fl'] or 0
+            new_fl = md.focal_length['FocalLength'] or 0
             if not (new_aperture or new_fl):
                 continue
             if new_fl <= spec['min_fl']:
@@ -740,7 +754,7 @@ class TabWidget(QtWidgets.QWidget, TopLevelWidgetMixin):
                 new_aperture = max(new_aperture,
                                    min(spec['min_fl_fn'], spec['max_fl_fn']))
             if (new_aperture == md.aperture and
-                      new_fl == md.focal_length['fl']):
+                      new_fl == md.focal_length['FocalLength']):
                 continue
             if make_changes:
                 pass

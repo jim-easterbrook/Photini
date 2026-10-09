@@ -59,15 +59,16 @@ class MetadataHandler(object):
             cls.md_info[tag_name] = {}
         return cls.md_info[tag_name]
 
-    @classmethod
-    def initialise(cls, config_store, verbosity):
+    @staticmethod
+    def initialise(config_store, verbosity):
         level = min(exiv2.LogMsg.Level.error, 4 - verbosity)
         level = max(exiv2.LogMsg.Level.debug, level)
         exiv2.LogMsg.setLevel(exiv2.LogMsg.Level(level))
-        exiv2.XmpParser.initialize()
+        if exiv2.__version_tuple__ < (0, 20):
+            exiv2.XmpParser.initialize()
         if exiv2.__version_tuple__ < (0, 17) and exiv2.testVersion(0, 27, 4):
             exiv2.enableBMFF(True)
-        if config_store:
+        if config_store and config_store.version < (2024, 8, 0):
             config_store.delete('metadata', 'enable_bmff')
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
@@ -315,27 +316,6 @@ class MetadataHandler(object):
         for datum in self._xmpData:
             yield datum.key()
 
-    @classmethod
-    def open_old(cls, path, *arg, quiet=False, **kw):
-        try:
-            return cls(path, *arg, **kw)
-        except exiv2.Exiv2Error as ex:
-            # expected if unrecognised file format
-            name = os.path.basename(path)
-            if quiet:
-                logger.info('%s: %s', name, str(ex))
-            else:
-                logger.warning('%s: %s', name, str(ex))
-            return None
-        except Exception as ex:
-            logger.error('Exception opening %s', path)
-            logger.exception(ex)
-            return None
-
-    def set_exif_thumbnail_from_buffer(self, buffer):
-        thumb = exiv2.ExifThumb(self._exifData)
-        thumb.setJpegThumbnail(buffer)
-
     def get_exif_comment(self, tag, value):
         if (isinstance(value, exiv2.DataValue)
                 and exiv2.__version_tuple__ < (0, 18)):
@@ -422,25 +402,25 @@ class MetadataHandler(object):
         datum = self._exifData.findKey(key)
         if datum == self._exifData.end():
             return None
-        if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
-                   'Exif.Canon.SerialNumber', 'Exif.CanonLe.LensSerialNumber',
-                   'Exif.Image.XPTitle', 'Exif.Image.XPComment',
-                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
-                   'Exif.Image.XPSubject', 'Exif.NikonLd1.LensIDNumber',
-                   'Exif.Minolta.LensID', 'Exif.Nikon3.LensType',
-                   'Exif.NikonLd2.LensIDNumber', 'Exif.NikonLd3.LensIDNumber',
-                   'Exif.NikonLd4.LensIDNumber', 'Exif.OlympusEq.LensType',
-                   'Exif.Olympus2.CameraID',
-                   'Exif.Panasonic.InternalSerialNumber',
-                   'Exif.Pentax.LensType', 'Exif.Pentax.ModelID',
-                   'Exif.PentaxDng.LensType', 'Exif.PentaxDng.ModelID',
-                   'Exif.Sony1.LensID', 'Exif.Sony1.SonyModelID',
-                   'Exif.Sony2.LensID', 'Exif.Sony2.SonyModelID'):
+        return self.decode_exif_value(tag, datum)
+
+    def decode_exif_value(self, tag, datum):
+        if (tag.startswith('Exif.Image.XP') or
+            tag.startswith('Exif.NikonLd') or
+            tag.startswith('Exif.Nikon3.') or
+            tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
+                    'Exif.Canon.SerialNumber', 'Exif.CanonLe.LensSerialNumber',
+                    'Exif.Minolta.LensID',
+                    'Exif.OlympusEq.LensType',
+                    'Exif.Olympus.CameraID',
+                    'Exif.Olympus2.CameraID',
+                    'Exif.Panasonic.InternalSerialNumber',
+                    'Exif.Pentax.LensType', 'Exif.Pentax.ModelID',
+                    'Exif.PentaxDng.LensType', 'Exif.PentaxDng.ModelID',
+                    'Exif.Sony1.LensID', 'Exif.Sony1.SonyModelID',
+                    'Exif.Sony2.LensID', 'Exif.Sony2.SonyModelID')):
             # use Exiv2's "interpreted string"
-            if exiv2.__version_tuple__ >= (0, 16, 2):
-                return datum.print(self._exifData)
-            else:
-                return datum._print(self._exifData)
+            return datum.print(self._exifData)
         value = datum.value()
         if tag in ('Exif.Photo.UserComment',
                    'Exif.GPSInfo.GPSProcessingMethod'):
@@ -465,7 +445,7 @@ class MetadataHandler(object):
             '%s: %s: reading %s as string', self._name, tag, type(value))
         return value.toString()
 
-    def decode_iptc_value(self, datum):
+    def decode_iptc_value(self, tag, datum):
         type_id = datum.typeId()
         value = datum.value()
         if type_id == exiv2.TypeId.date:
@@ -481,13 +461,13 @@ class MetadataHandler(object):
         for datum in self._iptcData.findKey(exiv2.IptcKey(tag)):
             if result is None:
                 # first datum
-                result = self.decode_iptc_value(datum)
+                result = self.decode_iptc_value(tag, datum)
                 if not exiv2.IptcDataSets.dataSetRepeatable(
                                         datum.tag(), datum.record()):
                     break
                 result = [result]
             elif datum.key() == tag:
-                result.append(self.decode_iptc_value(datum))
+                result.append(self.decode_iptc_value(tag, datum))
         return result
 
     _re_key_parts = re.compile(r'(.*?)(\[(\d+)\])?(/(.*))?$')
@@ -507,6 +487,18 @@ class MetadataHandler(object):
             result[root].append(value)
         else:
             result[root] = value
+
+    def decode_xmp_value(self, tag, datum):
+        value = datum.value()
+        type_id = value.typeId()
+        if type_id == exiv2.TypeId.xmpText:
+            return str(value)
+        if type_id == exiv2.TypeId.langAlt:
+            return dict(value)
+        if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                       exiv2.TypeId.xmpSeq):
+            return list(value)
+        raise RuntimeError('unexpected type {}'.format(type_id))
 
     def get_xmp_value(self, tag, see_also_count=2):
         # XMP has a nested structure of arbitrary depth. Exiv2 converts
@@ -716,19 +708,13 @@ class MetadataHandler(object):
         elif type_id == exiv2.TypeId.comment:
             # only comment value Photini writes is GPS processing method
             # which is certain to be ASCII
-            value = 'charset=Ascii ' + value
             value = exiv2.CommentValue(value)
         elif type_id == exiv2.TypeId.unsignedShort:
             value = exiv2.UShortValue(value)
         elif type_id == exiv2.TypeId.unsignedLong:
             value = exiv2.ULongValue(value)
         elif type_id == exiv2.TypeId.unsignedRational:
-            if isinstance(value, (list, tuple)):
-                value = exiv2.URationalValue(
-                    [(x.numerator, x.denominator) for x in value])
-            else:
-                value = exiv2.URationalValue(
-                    [(value.numerator, value.denominator)])
+            value = exiv2.URationalValue(value)
         else:
             # unhandled type, use the string representation
             logger.warning('%s: %s: writing %s type as string',
@@ -750,12 +736,8 @@ class MetadataHandler(object):
         result = []
         for mode, tag in cls._tag_list[name]:
             if mode == 'WA' and tag.split('.')[0] == 'Iptc':
-                if tag in cls._multi_tags:
-                    for sub_tag in cls._multi_tags[tag]:
-                        if sub_tag:
-                            result.append(cls.iptc_max_len(sub_tag))
-                else:
-                    result.append(cls.iptc_max_len(tag))
+                assert(tag not in cls._match_tags)
+                result.append(cls.iptc_max_len(tag))
         result = [x for x in result if x]
         if result:
             return min(result)
@@ -824,7 +806,8 @@ class MetadataHandler(object):
             self._xmpData[tag] = exiv2.XmpTextValue(str(value))
         elif not isinstance(value[0], dict):
             # simple array value
-            assert(type_id != exiv2.TypeId.xmpText)
+            if exiv2.__version_tuple__ < (0, 19, 1):
+                assert(type_id != exiv2.TypeId.xmpText)
             self._xmpData[tag] = exiv2.XmpArrayValue(value, type_id)
         else:
             # clear any existing array elements
@@ -947,17 +930,14 @@ class MetadataHandler(object):
             image.setMetadata(image_md._image)
             image.writeMetadata()
 
-    def merge_sc(self, other):
-        # open other image and read its metadata
-        image = exiv2.ImageFactory.open(other._path)
-        image.readMetadata()
+    def merge_sc(self, handler):
         # copy Exif data inferred by libexiv2
-        for o_datum in image.exifData():
+        for o_datum in handler._exifData:
             tag = o_datum.key()
             s_datum = self._exifData[tag]
             s_datum.setValue(o_datum.value())
         # copy Xmp data, except inferred Exif data
-        for o_datum in image.xmpData():
+        for o_datum in handler._xmpData:
             tag = o_datum.key()
             if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue

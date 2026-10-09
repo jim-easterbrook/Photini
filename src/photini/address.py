@@ -70,23 +70,23 @@ class OpenCage(GeocoderBase):
 
     # Map OpenCage address components to IPTC address hierarchy. There
     # are many possible components (user generated data) so any
-    # unrecognised ones are put in 'Iptc4xmpExt:Sublocation'. See
+    # unrecognised ones are put in 'Sublocation'. See
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
     address_map = {
-        'Iptc4xmpExt:WorldRegion': ('continent',),
-        'Iptc4xmpExt:CountryCode': (
+        'WorldRegion': ('continent',),
+        'CountryCode': (
             'ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2', 'country_code'),
-        'Iptc4xmpExt:CountryName': ('country', 'country_name'),
-        'Iptc4xmpExt:ProvinceState': (
+        'CountryName': ('country', 'country_name'),
+        'ProvinceState': (
             'county', 'county_code', 'local_administrative_area',
             'state_district', 'state', 'state_code', 'province',
             'region', 'island'),
-        'Iptc4xmpExt:City': (
+        'City': (
             'neighbourhood', 'city_block', 'quarter', 'suburb', 'district',
             'borough', 'city_district', 'commercial', 'industrial', 'houses',
             'subdivision', 'village', 'town', 'municipality', 'city',
             'postal_city', 'partial_postcode', 'postcode'),
-        'Iptc4xmpExt:Sublocation': (
+        'Sublocation': (
             'house_number', 'street_number', 'house', 'public_building',
             'building', 'residential', 'water', 'road', 'pedestrian', 'path',
             'street_name', 'street', 'cycleway', 'footway', 'place', 'square',
@@ -138,7 +138,7 @@ class OpenCage(GeocoderBase):
                         del address[key_1]
                         break
         # attempt to format postcode correctly
-        for key in self.address_map['Iptc4xmpExt:City'][-3::-1]:
+        for key in self.address_map['City'][-3::-1]:
             if 'postcode' in address and key in address:
                 for fmt in '{0} {1}', '{0}, {1}', '{1} {0}', '{1}, {0}':
                     guess = fmt.format(address['postcode'], address[key])
@@ -187,8 +187,7 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
         form.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
         self.widgets = {}
-        self.widgets['LocationName'] = LangAltWidget(
-            'Iptc4xmpExt:LocationName', height=1)
+        self.widgets['LocationName'] = LangAltWidget('LocationName', height=1)
         self.widgets['LocationName'].setToolTip(translate(
             'AddressTab', 'Enter a full name of the location.'))
         for (key, tool_tip) in (
@@ -205,13 +204,12 @@ class LocationInfo(QtWidgets.QScrollArea, ContextMenuMixin, CompoundWidgetMixin)
                     ' code of the country.')),
                 ('WorldRegion', translate(
                     'AddressTab', 'Enter the name of the world region.'))):
-            self.widgets[key] = TextEdit(
-                'Iptc4xmpExt:' + key, height=1, length_check={
-                    'length': ImageMetadata.iptc_max_len(
-                        'Iptc.Application2.' + key)})
+            self.widgets[key] = TextEdit(key, height=1, length_check={
+                'length': ImageMetadata.iptc_max_len(
+                    'Iptc.Application2.' + key)})
             self.widgets[key].setToolTip(tool_tip)
         self.widgets['LocationId'] = MultiTextEdit(
-            'Iptc4xmpExt:LocationId', height=1, length_check={
+            'LocationId', height=1, length_check={
                 'length': ImageMetadata.iptc_max_len(
                     'Iptc.Application2.LocationId')})
         self.widgets['LocationId'].setToolTip(translate(

@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from collections import deque
 from datetime import datetime
 import io
 import logging
@@ -92,7 +93,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
         self.app.image_list.emit_selection()
 
     def transform(self, pixmap, orientation):
-        transform = orientation and orientation.get_transform()
+        transform = orientation.get_transform()
         if not transform:
             return pixmap
         return pixmap.transformed(transform)
@@ -122,16 +123,11 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
 
     def make_thumb_ffmpeg(self):
         # get input dimensions
-        dims = self.metadata.dimensions
-        if not dims:
-            return None
-        width = dims['width']
-        height = dims['height']
         duration = self.metadata.video_duration or 0
         skip = int(min(duration / 2, 10.0))
         # target dimensions
         w, h = 160, 120
-        if width < height:
+        if self.metadata.dimensions.portrait_format():
             w, h = h, w
         # use ffmpeg to make scaled, padded, single frame JPEG
         quality = 1
@@ -283,7 +279,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if self.metadata.gps_info['exif:GPSLatitude']:
+        if self.metadata.gps_info['GPSLatitude']:
             status += chr(0x2690)
         # set 'unsaved' status
         if changed:
@@ -311,7 +307,7 @@ QLabel {background: palette(highlight); color: palette(highlighted-text)}''')
 
     def load_thumbnail(self, label=None):
         label = label or self.image
-        image = self.metadata.thumbnail and self.metadata.thumbnail['image']
+        image = self.metadata.thumbnail.image
         if not image:
             label.setText(wrap_text(
                 label, translate('ImageList', 'No thumbnail in file'), lines=4))
@@ -557,6 +553,16 @@ class ImageList(QtWidgets.QWidget):
             width_for_text(self.size_slider, 'x' * 20))
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         bottom_bar.addWidget(self.size_slider)
+        # Update config. Not version qualified, as previously only
+        # updated when settings were edited.
+        if self.app.config_store.get('files', 'force_iptc'):
+            self.app.config_store.set('files', 'iptc_iim', 'create')
+        self.app.config_store.delete('files', 'force_iptc')
+        keep_time = self.app.config_store.get('files', 'preserve_timestamps')
+        if isinstance(keep_time, bool):
+            # old config format
+            keep_time = ('now', 'keep')[keep_time]
+            self.app.config_store.set('files', 'preserve_timestamps', keep_time)
 
     def set_drag_to_map(self, icon):
         self.drag_icon = icon
@@ -601,25 +607,36 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot(list)
     @catch_all()
     def open_file_list(self, path_list, select=True):
-        dir_list = []
-        opened_images = []
-        with Busy():
-            opened_images = self._open_file_list(path_list, dir_list)
-        if opened_images:
-            self.done_opening(opened_images[-1].path)
-            if select:
-                self.select_images(opened_images)
+        with self.app.busy() as progress:
+            # get list of files to open
+            path_list = self._get_file_list(path_list)
+            # open files
+            target = len(path_list)
+            progress(value=0, target=target)
+            opened_images = []
+            for path in path_list:
+                image = self.open_file(path)
+                if image:
+                    opened_images.append(image)
+                else:
+                    target -= 1
+                    progress(target=target)
+                progress(value=len(opened_images))
+            if opened_images:
+                self.done_opening(opened_images[-1].path)
+                if select:
+                    self.select_images(opened_images)
 
-    def _open_file_list(self, path_list, dir_list, types=None):
-        opened_images = []
+    def _get_file_list(self, path_list, dir_list=[], types=None):
+        result = []
         for path in path_list:
             if os.path.basename(path).startswith('.'):
                 # don't open .directory or .thumbs
                 continue
+            path = os.path.realpath(path)
             if os.path.isdir(path):
                 types = types or ['.' + x for x in
                                   (image_types_lower() + video_types_lower())]
-                path = os.path.realpath(path)
                 if path in dir_list:
                     # don't open directories we've already opened
                     continue
@@ -627,13 +644,10 @@ class ImageList(QtWidgets.QWidget):
                 files = [os.path.join(path, x) for x in os.listdir(path)]
                 files = [x for x in files if os.path.isdir(x) or
                          os.path.splitext(x)[1].lower() in types]
-                opened_images += self._open_file_list(
-                    files, dir_list, types=types)
-            else:
-                image = self.open_file(path)
-                if image:
-                    opened_images.append(image)
-        return opened_images
+                result += self._get_file_list(files, dir_list, types)
+            elif os.path.isfile(path):
+                result.append(path)
+        return result
 
     def open_file(self, path):
         path = os.path.realpath(path)
@@ -669,7 +683,7 @@ class ImageList(QtWidgets.QWidget):
         result = (image.metadata.date_taken or image.metadata.date_digitised
                   or image.metadata.date_modified)
         if result:
-            result = result['datetime']
+            result = result.datetime
         else:
             # use file date as last resort
             result = datetime.fromtimestamp(os.path.getmtime(image.path))
@@ -751,9 +765,14 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot()
     @catch_all()
     def reload_selected_metadata(self):
-        with Busy():
-            for image in self.get_selected_images():
+        with self.app.busy() as progress:
+            images = self.get_selected_images()
+            progress(value=0, target=len(images))
+            count = 0
+            for image in images:
                 image.reload_metadata()
+                count += 1
+                progress(value=count)
 
     @QtSlot()
     @catch_all()
@@ -849,22 +868,29 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot()
     @catch_all()
     def regenerate_selected_thumbnails(self):
-        with Busy():
-            for image in self.get_selected_images():
+        with self.app.busy() as progress:
+            images = self.get_selected_images()
+            progress(value=0, target=len(images))
+            count = 0
+            for image in images:
                 if image.regenerate_thumbnail():
                     image.load_thumbnail()
-                    self.app.processEvents()
+                    count += 1
+                    progress(value=count)
 
     @QtSlot()
     @catch_all()
     def fix_missing_thumbs(self):
-        with Busy():
-            for image in self.get_images():
-                thumb = image.metadata.thumbnail
-                if not thumb or not thumb['image']:
-                    if image.regenerate_thumbnail():
-                        image.load_thumbnail()
-                        self.app.processEvents()
+        with self.app.busy() as progress:
+            images = self.get_images()
+            images = [x for x in images if not x.metadata.thumbnail]
+            progress(value=0, target=len(images))
+            count = 0
+            for image in images:
+                if image.regenerate_thumbnail():
+                    image.load_thumbnail()
+                count += 1
+                progress(value=count)
         self.image_list_changed.emit()
 
     @QtSlot()
@@ -911,31 +937,40 @@ class ImageList(QtWidgets.QWidget):
         iptc_mode = self.app.config_store.get('files', 'iptc_iim', 'preserve')
         keep_time = self.app.config_store.get(
             'files', 'preserve_timestamps', 'now')
-        if isinstance(keep_time, bool):
-            # old config format
-            keep_time = ('now', 'keep')[keep_time]
         if not images:
             images = self.images
-        with Busy():
-            for image in images:
-                if keep_time == 'taken' and image.metadata.date_taken:
-                    date_taken = image.metadata.date_taken['datetime']
-                    try:
-                        date_taken = date_taken.timestamp()
-                    except Exception:
-                        # probably a negative value on Windows
-                        epoch = time.gmtime(0)
-                        epoch = datetime(
-                            epoch.tm_year, epoch.tm_mon, epoch.tm_mday)
-                        date_taken = (date_taken - epoch).total_seconds()
-                    file_times = image.file_times[0], date_taken
-                elif keep_time == 'keep':
-                    file_times = image.file_times
-                else:
-                    file_times = None
-                image.metadata.save(
-                    if_mode=if_mode, sc_mode=sc_mode,
-                    iptc_mode=iptc_mode, file_times=file_times)
+        # make list of images and parameters
+        params = {'if_mode': if_mode, 'sc_mode': sc_mode,
+                  'iptc_mode': iptc_mode, 'file_times': None}
+        in_queue = deque()
+        for image in images:
+            if not image.metadata.changed():
+                continue
+            save_params = dict(params)
+            if keep_time == 'taken' and image.metadata.date_taken:
+                date_taken = image.metadata.date_taken.datetime
+                try:
+                    date_taken = date_taken.timestamp()
+                except Exception:
+                    # probably a negative value on Windows
+                    epoch = time.gmtime(0)
+                    epoch = datetime(
+                        epoch.tm_year, epoch.tm_mon, epoch.tm_mday)
+                    date_taken = (date_taken - epoch).total_seconds()
+                save_params['file_times'] = image.file_times[0], date_taken
+            elif keep_time == 'keep':
+                save_params['file_times'] = image.file_times
+            in_queue.append((image, save_params))
+        if not in_queue:
+            return
+        with self.app.busy() as progress:
+            progress(value=0, target=len(in_queue))
+            count = 0
+            while in_queue:
+                image, save_params = in_queue.popleft()
+                image.metadata.save(**save_params)
+                count += 1
+                progress(value=count)
         unsaved = any([image.metadata.changed() for image in self.images])
         self.new_metadata.emit(unsaved)
 

@@ -45,44 +45,38 @@ class FolderSource(object):
 
     def __init__(self, root):
         self.root = root
+        self.cfg_section = 'importer folder ' + root
 
     def get_file_data(self):
         if not os.path.isdir(self.root):
-            return None
-        file_list = []
+            yield None
         for root, dirs, files in os.walk(self.root):
             # ignore special directories such as .thumbs
             dirs[:] = [x for x in dirs if x[0] != '.']
             for name in files:
                 base, ext = os.path.splitext(name)
-                if ext.lower() in self.image_types:
-                    file_list.append(os.path.join(root, name))
-        file_data = {}
-        for path in file_list:
-            metadata = Metadata(path)
-            timestamp = metadata.date_taken
-            if not timestamp:
-                timestamp = metadata.date_digitised
-            if not timestamp:
-                timestamp = metadata.date_modified
-            if not timestamp:
-                # use file date as last resort
-                timestamp = datetime.fromtimestamp(os.path.getmtime(path))
-            else:
-                timestamp = timestamp['datetime']
-            sc_path = metadata.find_sidecar()
-            name = os.path.basename(path)
-            camera = metadata.camera_model
-            if camera:
-                camera = camera['model']
-            file_data[name] = {
-                'camera'    : camera,
-                'path'      : path,
-                'sc_path'   : sc_path,
-                'name'      : name,
-                'timestamp' : timestamp,
-                }
-        return file_data
+                if ext.lower() not in self.image_types:
+                    continue
+                path = os.path.join(root, name)
+                metadata = Metadata(path)
+                timestamp = (metadata.date_taken or
+                             metadata.date_digitised or
+                             metadata.date_modified)
+                if timestamp:
+                    timestamp = timestamp.datetime
+                else:
+                    # use file date as last resort
+                    timestamp = datetime.fromtimestamp(os.path.getmtime(path))
+                sc_path = metadata.find_sidecar()
+                camera = metadata.camera_model
+                if camera:
+                    camera = camera['model']
+                yield {'camera'    : camera,
+                       'path'      : path,
+                       'sc_path'   : sc_path,
+                       'name'      : name,
+                       'timestamp' : timestamp}
+
 
     def copy_files(self, info_list, move):
         for info in info_list:
@@ -108,6 +102,7 @@ class CameraSource(object):
     def __init__(self, model, port_name):
         self.model = model
         self.port_name = port_name
+        self.cfg_section = 'importer ' + model
 
     @contextmanager
     def session(self):
@@ -127,49 +122,33 @@ class CameraSource(object):
         finally:
             camera.exit()
 
-    def _list_files(self, camera, path='/'):
+    def _list_files(self, camera, folder='/'):
         # get files
-        if gp_version_info >= (2, 4):
-            result = [os.path.join(path, x)
-                      for x in camera.folder_list_files(path).keys()
-                      if os.path.splitext(x)[1].lower() in self.image_types]
-        else:
-            result = [os.path.join(path, x)
-                      for x, y in camera.folder_list_files(path)
-                      if os.path.splitext(x)[1].lower() in self.image_types]
-        # get folders
-        if gp_version_info >= (2, 4):
-            folders = list(camera.folder_list_folders(path).keys())
-        else:
-            folders = [x for x, y in camera.folder_list_folders(path)]
+        for name in camera.folder_list_files(folder).keys():
+            if os.path.splitext(name)[1].lower() not in self.image_types:
+                continue
+            try:
+                info = camera.file_get_info(folder, name)
+            except gp.GPhoto2Error:
+                yield None
+            timestamp = datetime.utcfromtimestamp(info.file.mtime)
+            yield {'camera'    : self.model,
+                   'path'      : os.path.join(folder, name),
+                   'folder'    : folder,
+                   'name'      : name,
+                   'size'      : info.file.size,
+                   'timestamp' : timestamp}
         # recurse over subfolders
-        for name in folders:
-            result.extend(self._list_files(camera, os.path.join(path, name)))
-        return result
+        for name in camera.folder_list_folders(folder).keys():
+            yield from self._list_files(camera, os.path.join(folder, name))
 
     def get_file_data(self):
         with self.session() as camera:
             try:
-                file_list = self._list_files(camera)
+                yield from self._list_files(camera)
             except gp.GPhoto2Error:
                 # camera is no longer visible
-                return None
-            file_data = {}
-            for path in file_list:
-                folder, name = os.path.split(path)
-                try:
-                    info = camera.file_get_info(str(folder), str(name))
-                except gp.GPhoto2Error:
-                    return None
-                timestamp = datetime.utcfromtimestamp(info.file.mtime)
-                file_data[name] = {
-                    'camera'    : self.model,
-                    'folder'    : folder,
-                    'name'      : name,
-                    'size'      : info.file.size,
-                    'timestamp' : timestamp,
-                    }
-        return file_data
+                yield None
 
     def copy_files(self, info_list, move):
         with self.session() as camera:
@@ -202,24 +181,19 @@ class FileCopier(QtCore.QObject):
         self.copy_list = copy_list
         self.move = move
         self.copier_result = copier_result
-        self.running = True
 
     @QtSlot()
     @catch_all()
     def start(self):
-        status = 'ok'
         try:
             for info in self.source.copy_files(self.copy_list, self.move):
-                self.copier_result.append((info, status))
-                # wait for image display to show previous image(s)
-                while self.running and len(self.copier_result) > 1:
-                    QtCore.QThread.yieldCurrentThread()
-                if not self.running:
+                self.copier_result.append(info)
+                if self.thread().isInterruptionRequested():
                     break
         except Exception as ex:
-            status = str(ex)
-            logger.error(status)
-        self.copier_result.append(({}, status))
+            logger.error(str(ex))
+            self.copier_result.append(None)
+        self.thread().quit()
 
 
 def get_camera_list():
@@ -232,14 +206,29 @@ def get_camera_list():
     return camera_list
 
 
-class NameMangler(QtCore.QObject):
-    number_parser = re.compile(r'(\d+)')
-    new_example = QtSignal(str)
+class PathFormatValidator(QtGui.QValidator):
+    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
+    def validate(self, inp, pos):
+        if os.path.abspath(inp) == inp:
+            return self.State.Acceptable, inp, pos
+        return self.State.Intermediate, inp, pos
 
-    def __init__(self, parent=None):
-        super(NameMangler, self).__init__(parent)
+    @catch_all(exc_return='')
+    def fixup(self, inp):
+        return os.path.abspath(inp)
+
+
+class NameMangler(QtWidgets.QLineEdit):
+    number_parser = re.compile(r'(\d+)')
+
+    def __init__(self, *arg, **kw):
+        super(NameMangler, self).__init__(*arg, **kw)
         self.example = None
         self.format_string = None
+        self.setValidator(PathFormatValidator())
+        self.textChanged.connect(self.new_format)
+        # widget to display example result
+        self.path_example = QtWidgets.QLabel()
 
     @QtSlot(str)
     @catch_all()
@@ -253,7 +242,7 @@ class NameMangler(QtCore.QObject):
 
     def refresh_example(self):
         if self.format_string and self.example:
-            self.new_example.emit(self.transform(self.example))
+            self.path_example.setText(self.transform(self.example))
 
     def transform(self, file_data):
         name = file_data['name']
@@ -275,18 +264,6 @@ class NameMangler(QtCore.QObject):
         return file_data['timestamp'].strftime(result)
 
 
-class PathFormatValidator(QtGui.QValidator):
-    @catch_all(exc_return=(QtGui.QValidator.State.Invalid, '', 0))
-    def validate(self, inp, pos):
-        if os.path.abspath(inp) == inp:
-            return self.State.Acceptable, inp, pos
-        return self.State.Intermediate, inp, pos
-
-    @catch_all(exc_return='')
-    def fixup(self, inp):
-        return os.path.abspath(inp)
-
-
 class SourceSelector(ComboBox):
     def __init__(self, importer_tab, *arg, **kw):
         super(SourceSelector, self).__init__(*arg, **kw)
@@ -296,6 +273,44 @@ class SourceSelector(ComboBox):
         # refresh list of cameras
         self.importer_tab.refresh()
         super(SourceSelector, self).showPopup()
+
+
+class ListItem(QtWidgets.QListWidgetItem):
+    text_fmt = '{name} -> {dest_path}'
+
+    def __init__(self, importer, file_data, *arg, **kw):
+        super(ListItem, self).__init__(*arg, **kw)
+        self.importer = importer
+        self.set_file_data(file_data)
+
+    def set_file_data(self, file_data):
+        self.setData(Qt.ItemDataRole.UserRole, file_data)
+        self.setText(self.text_fmt.format(**file_data))
+        if os.path.exists(file_data['dest_path']):
+            self.setFlags(Qt.ItemFlag.NoItemFlags)
+        else:
+            self.setFlags(Qt.ItemFlag.ItemIsSelectable |
+                          Qt.ItemFlag.ItemIsEnabled)
+
+    def __ge__(self, other):
+        return not self.__lt__(other)
+
+    def __lt__(self, other):
+        self_data = self.data(Qt.ItemDataRole.UserRole)
+        other_data = other.data(Qt.ItemDataRole.UserRole)
+        if self.importer._sort_date:
+            return self_data['timestamp'] < other_data['timestamp']
+        return self_data['name'] < other_data['name']
+
+
+class FileListWidget(QtWidgets.QListWidget):
+    def find_item(self, file_data):
+        text = ListItem.text_fmt.format(**file_data)
+        for item in self.findItems(text, Qt.MatchFlag.MatchFixedString):
+            data = item.data(Qt.ItemDataRole.UserRole)
+            if data['path'] == file_data['path']:
+                return item
+        return None
 
 
 class ImporterTab(QtWidgets.QWidget):
@@ -318,11 +333,8 @@ class ImporterTab(QtWidgets.QWidget):
         self.config_store = self.app.config_store
         self.setLayout(QtWidgets.QGridLayout())
         form = FormLayout()
-        self.nm = NameMangler()
-        self.file_data = {}
-        self.file_list = []
         self.source = None
-        self.file_copier = None
+        self.copier_thread = None
         self.updating = QtCore.QMutex()
         # source selector
         box = QtWidgets.QHBoxLayout()
@@ -341,32 +353,29 @@ class ImporterTab(QtWidgets.QWidget):
         box.setStretch(0, 1)
         form.addRow(translate('ImporterTab', 'Source'), box)
         # update config
-        self.config_store.delete('importer', 'folders')
-        for section in self.config_store.config.sections():
-            if not section.startswith('importer'):
-                continue
-            path_format = self.config_store.get(section, 'path_format')
-            if not (path_format and '(' in path_format):
-                continue
-            path_format = path_format.replace('(', '{').replace(')', '}')
-            self.config_store.set(section, 'path_format', path_format)
+        if self.config_store.version < (2021, 4, 0):
+            self.config_store.delete('importer', 'folders')
+            for section in self.config_store.config.sections():
+                if not section.startswith('importer'):
+                    continue
+                path_format = self.config_store.get(section, 'path_format')
+                if not (path_format and '(' in path_format):
+                    continue
+                path_format = path_format.replace('(', '{').replace(')', '}')
+                self.config_store.set(section, 'path_format', path_format)
         # path format
-        self.path_format = QtWidgets.QLineEdit()
-        self.path_format.setValidator(PathFormatValidator())
-        self.path_format.textChanged.connect(self.nm.new_format)
+        self.path_format = NameMangler()
         self.path_format.editingFinished.connect(self.path_format_finished)
         form.addRow(translate('ImporterTab', 'Target format'), self.path_format)
         # path example
-        self.path_example = QtWidgets.QLabel()
-        self.nm.new_example.connect(self.path_example.setText)
-        form.addRow('=>', self.path_example)
+        form.addRow('=>', self.path_format.path_example)
         self.layout().addLayout(form, 0, 0)
         # file list
-        self.file_list_widget = QtWidgets.QListWidget()
-        self.file_list_widget.setSelectionMode(
-            self.file_list_widget.SelectionMode.ExtendedSelection)
-        self.file_list_widget.itemSelectionChanged.connect(self.selection_changed)
-        self.layout().addWidget(self.file_list_widget, 1, 0)
+        self.file_list = FileListWidget()
+        self.file_list.setSelectionMode(
+            self.file_list.SelectionMode.ExtendedSelection)
+        self.file_list.itemSelectionChanged.connect(self.selection_changed)
+        self.layout().addWidget(self.file_list, 1, 0)
         # selection buttons
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
@@ -397,8 +406,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.app.image_list.sort_order_changed.connect(self.sort_file_list)
         path = QtCore.QStandardPaths.writableLocation(
             QtCore.QStandardPaths.StandardLocation.PicturesLocation)
-        self.path_format.setText(
-            os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
+        self.path_format.setText(os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
 
     @QtSlot(int)
     @catch_all()
@@ -412,12 +420,13 @@ class ImporterTab(QtWidgets.QWidget):
             (item_data)()
             return
         # select new source
-        self.source, self.config_section = item_data
+        klass, args = item_data
+        self.source = klass(*args)
         path_format = self.path_format.text()
         path_format = self.config_store.get(
-            self.config_section, 'path_format', path_format)
+            self.source.cfg_section, 'path_format', path_format)
         self.path_format.setText(path_format)
-        self.file_list_widget.clear()
+        self.file_list.clear()
         # allow 100ms for display to update before getting file list
         QtCore.QTimer.singleShot(100, self.list_files)
 
@@ -469,8 +478,7 @@ class ImporterTab(QtWidgets.QWidget):
             section, 'last_transfer', datetime.min.isoformat(' '))
         self.source_selector.addItem(
             translate('ImporterTab', 'folder: {folder_name}'
-                      ).format(folder_name=root),
-            (FolderSource(root), section))
+                      ).format(folder_name=root), (FolderSource, (root,)))
         idx = self.source_selector.count() - 1
         self.source_selector.setCurrentIndex(idx)
         self.refresh()
@@ -479,9 +487,16 @@ class ImporterTab(QtWidgets.QWidget):
     @catch_all()
     def path_format_finished(self):
         if self.source:
-            self.config_store.set(
-                self.config_section, 'path_format', self.nm.format_string)
-        self.show_file_list()
+            self.config_store.set(self.source.cfg_section, 'path_format',
+                                  self.path_format.format_string)
+        for idx in range(self.file_list.count()):
+            item = self.file_list.item(idx)
+            file_data = item.data(Qt.ItemDataRole.UserRole)
+            dest_path = self.path_format.transform(file_data)
+            file_data['dest_path'] = dest_path
+            item.set_file_data(file_data)
+        self._scroll_list()
+        self._update_example()
 
     @QtSlot()
     @catch_all()
@@ -493,15 +508,16 @@ class ImporterTab(QtWidgets.QWidget):
             old_item_text = self.source_selector.itemText(idx)
         else:
             old_item_text = None
-        # rebuild list
+        # rebuild source list
         self.source_selector.clear()
         self.source_selector.addItem(
-            translate('ImporterTab', '<select source>'), self._new_file_list)
+            translate('ImporterTab', '<select source>'),
+            self.file_list.clear)
         for model, port_name in get_camera_list():
             self.source_selector.addItem(
                 translate('ImporterTab', 'camera: {camera_name}'
                           ).format(camera_name=model),
-                (CameraSource(model, port_name), 'importer ' + model))
+                (CameraSource, (model, port_name)))
         roots = []
         for section in self.config_store.config.sections():
             if not section.startswith('importer folder '):
@@ -514,7 +530,7 @@ class ImporterTab(QtWidgets.QWidget):
                 self.source_selector.addItem(
                     translate('ImporterTab', 'folder: {folder_name}'
                               ).format(folder_name=root),
-                    (FolderSource(root), 'importer folder ' + root))
+                    (FolderSource, (root,)))
         self.source_selector.addItem(
             translate('ImporterTab', '<add a folder>'), self.add_folder)
         # restore saved selection
@@ -531,7 +547,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.new_source(0)
 
     def do_not_close(self):
-        if not self.file_copier:
+        if not self.copier_thread:
             return False
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
@@ -555,69 +571,57 @@ class ImporterTab(QtWidgets.QWidget):
     @QtSlot()
     @catch_all()
     def list_files(self):
-        file_data = {}
-        if self.source:
-            with Busy():
-                file_data = self.source.get_file_data()
-                if file_data is None:
+        self.file_list.clear()
+        if not self.source:
+            return
+        with Busy():
+            for file_data in self.source.get_file_data():
+                if not file_data:
                     self._fail()
-                    return
-        self._new_file_list(file_data)
+                file_data['dest_path'] = self.path_format.transform(file_data)
+                self.file_list.addItem(ListItem(self, file_data))
+            self.sort_file_list()
 
     def _fail(self):
         self.source_selector.setCurrentIndex(0)
+        self.source = None
         self.refresh()
-
-    def _new_file_list(self, file_data={}):
-        self.file_list = list(file_data.keys())
-        self.file_data = file_data
-        self.sort_file_list()
 
     @QtSlot()
     @catch_all()
     def sort_file_list(self):
-        if self.config_store.get('controls', 'sort_date', False):
-            self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])
-        else:
-            self.file_list.sort()
-        self.show_file_list()
-        if self.file_list:
-            example = self.file_data[self.file_list[-1]]
+        self._sort_date = self.config_store.get('controls', 'sort_date', False)
+        self.file_list.sortItems()
+        self._scroll_list()
+        self._update_example()
+
+    def _scroll_list(self):
+        count = self.file_list.count()
+        if count:
+            for idx in range(count):
+                item = self.file_list.item(idx)
+                if item.flags():
+                    break
+            self.file_list.scrollToItem(
+                item, self.file_list.ScrollHint.PositionAtTop)
+
+    def _update_example(self):
+        count = self.file_list.count()
+        if count:
+            item = self.file_list.item(count - 1)
+            example = item.data(Qt.ItemDataRole.UserRole)
         else:
             example = {
                 'camera'    : None,
                 'name'      : 'IMG_9999.JPG',
                 'timestamp' : datetime.now(),
                 }
-        self.nm.set_example(example)
-
-    def show_file_list(self):
-        self.file_list_widget.clear()
-        first_active = None
-        item = None
-        for name in self.file_list:
-            file_data = self.file_data[name]
-            dest_path = self.nm.transform(file_data)
-            file_data['dest_path'] = dest_path
-            item = QtWidgets.QListWidgetItem(name + ' -> ' + dest_path)
-            item.setData(Qt.ItemDataRole.UserRole, name)
-            if os.path.exists(dest_path):
-                item.setFlags(Qt.ItemFlag.NoItemFlags)
-            else:
-                if not first_active:
-                    first_active = item
-                item.setFlags(
-                    Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
-            self.file_list_widget.addItem(item)
-        if not first_active:
-            first_active = item
-        self.file_list_widget.scrollToItem(
-            first_active, self.file_list_widget.ScrollHint.PositionAtTop)
+        self.path_format.set_example(example)
 
     @QtSlot()
     @catch_all()
     def selection_changed(self):
-        count = len(self.file_list_widget.selectedItems())
+        count = len(self.file_list.selectedItems())
         if qt_version_info >= (6, 0):
             # pyside6-lupdate doesn't recognise plurals with 'translate'
             string = ImporterTab.tr('%n file(s) selected', '', count)
@@ -625,7 +629,7 @@ class ImporterTab(QtWidgets.QWidget):
             # Qt5 doesn't handle ClassName.tr correctly
             string = translate('ImporterTab', '%n file(s) selected', '', count)
         self.selected_count.setText(wrap_text(self.selected_count, string, 2))
-        if not self.file_copier:
+        if not self.copier_thread:
             self.move_button.setEnabled(count > 0)
             self.copy_button.setEnabled(count > 0)
 
@@ -640,7 +644,7 @@ class ImporterTab(QtWidgets.QWidget):
         since = datetime.min
         if self.source:
             since = self.config_store.get(
-                self.config_section, 'last_transfer', since.isoformat(' '))
+                self.source.cfg_section, 'last_transfer', since.isoformat(' '))
             if len(since) > 19:
                 since = datetime.strptime(since, '%Y-%m-%d %H:%M:%S.%f')
             else:
@@ -648,25 +652,25 @@ class ImporterTab(QtWidgets.QWidget):
         self.select_files(since)
 
     def select_files(self, since):
-        count = self.file_list_widget.count()
+        count = self.file_list.count()
         if not count:
             return
-        self.file_list_widget.clearSelection()
+        self.file_list.clearSelection()
         first_active = None
-        for row in range(count):
-            item = self.file_list_widget.item(row)
-            if not (item.flags() & Qt.ItemFlag.ItemIsSelectable):
-                continue
-            name = item.data(Qt.ItemDataRole.UserRole)
-            timestamp = self.file_data[name]['timestamp']
-            if timestamp > since:
-                if not first_active:
-                    first_active = item
-                item.setSelected(True)
-        if not first_active:
-            first_active = item
-        self.file_list_widget.scrollToItem(
-            first_active, self.file_list_widget.ScrollHint.PositionAtTop)
+        with Busy():
+            for row in range(count):
+                item = self.file_list.item(row)
+                if not (item.flags() & Qt.ItemFlag.ItemIsSelectable):
+                    continue
+                file_data = item.data(Qt.ItemDataRole.UserRole)
+                if file_data['timestamp'] > since:
+                    if not first_active:
+                        first_active = item
+                    item.setSelected(True)
+            if not first_active:
+                first_active = item
+            self.file_list.scrollToItem(
+                first_active, self.file_list.ScrollHint.PositionAtTop)
 
     @QtSlot()
     @catch_all()
@@ -678,11 +682,9 @@ class ImporterTab(QtWidgets.QWidget):
     def copy_selected(self, move=False):
         with Busy():
             copy_list = []
-            for item in self.file_list_widget.selectedItems():
-                name = item.data(Qt.ItemDataRole.UserRole)
-                info = self.file_data[name]
-                if (move and 'path' in info and
-                        self.app.image_list.get_image(info['path'])):
+            for item in self.file_list.selectedItems():
+                info = item.data(Qt.ItemDataRole.UserRole)
+                if move and self.app.image_list.get_image(info['path']):
                     # don't rename an open file
                     logger.warning(
                         'Please close image %s before moving it', info['name'])
@@ -690,6 +692,8 @@ class ImporterTab(QtWidgets.QWidget):
                     copy_list.append(info)
             if not copy_list:
                 return
+        with self.app.busy() as progress:
+            progress(value=0, target=len(copy_list))
             if move:
                 self.move_button.set_checked(True)
                 self.copy_button.setEnabled(False)
@@ -699,56 +703,54 @@ class ImporterTab(QtWidgets.QWidget):
             last_file_copied = None, datetime.min
             copier_result = deque()
             # start file copier in a separate thread
-            self.file_copier = FileCopier(
+            file_copier = FileCopier(
                 self.source, copy_list, move, copier_result)
-            copier_thread = QtCore.QThread(self)
-            self.file_copier.moveToThread(copier_thread)
-            copier_thread.started.connect(self.file_copier.start)
-            copier_thread.start()
+            self.copier_thread = QtCore.QThread(self)
+            file_copier.moveToThread(self.copier_thread)
+            self.copier_thread.started.connect(file_copier.start)
+            self.copier_thread.start()
             # show files as they're copied
-            while self.file_copier.running:
+            count = 0
+            while self.copier_thread.isRunning():
                 if copier_result:
-                    info, status = copier_result.popleft()
+                    info = copier_result.popleft()
                     if not info:
-                        # copier thread has finished
-                        break
-                    if status != 'ok':
+                        # copy failed
                         self._fail()
                         break
+                    count += 1
+                    progress(value=count)
                     if last_file_copied[1] < info['timestamp']:
                         last_file_copied = info['dest_path'], info['timestamp']
-                    for n in range(self.file_list_widget.count()):
-                        item = self.file_list_widget.item(n)
-                        if item.data(Qt.ItemDataRole.UserRole) == info['name']:
-                            item.setFlags(Qt.ItemFlag.NoItemFlags)
-                            self.file_list_widget.scrollToItem(
-                                item,
-                                self.file_list_widget.ScrollHint.PositionAtTop)
-                            self.selection_changed()
-                            break
+                    item = self.file_list.find_item(info)
+                    if item:
+                        item.setFlags(Qt.ItemFlag.NoItemFlags)
+                        item.setSelected(False)
+                        self.file_list.scrollToItem(
+                            item, self.file_list.ScrollHint.PositionAtTop)
                     self.app.image_list.open_file(info['dest_path'])
                 else:
                     # wait for copier result
                     self.app.processEvents()
             self.move_button.set_checked(False)
             self.copy_button.set_checked(False)
-            self.file_copier = None
-            copier_thread.quit()
-            copier_thread.wait()
+            self.copier_thread.quit()
+            self.copier_thread.wait()
+            self.copier_thread = None
         if last_file_copied[0]:
-            self.config_store.set(self.config_section, 'last_transfer',
-                                  last_file_copied[1].isoformat(' '))
+            if self.source:
+                self.config_store.set(self.source.cfg_section, 'last_transfer',
+                                      last_file_copied[1].isoformat(' '))
             self.app.image_list.done_opening(last_file_copied[0])
-        self.list_files()
 
     @QtSlot()
     @catch_all()
     def stop_copy(self):
-        if self.file_copier:
-            self.file_copier.running = False
-            self.move_button.setEnabled(False)
-            self.copy_button.setEnabled(False)
-            self.app.processEvents()
+        if self.copier_thread:
+            self.copier_thread.requestInterruption()
+            while self.copier_thread.isRunning():
+                self.app.processEvents()
+            self.copier_thread.wait()
 
 
 class TabWidget(ImporterTab):

@@ -19,6 +19,7 @@
 
 import logging
 
+from photini.types import MD_GPSinfo
 from photini.pyqt import *
 from photini.widgets import (
     ChoicesContextMenu, CompoundWidgetMixin, Label, WidgetMixin)
@@ -148,7 +149,7 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         return self.placeholderText() == ''
 
     def set_multiple(self, choices=[]):
-        self.choices = [x for x in choices if x is not None]
+        self.choices = [x for x in choices if x]
         self.setPlaceholderText(self._multiple_values)
         self.clear()
 
@@ -161,7 +162,7 @@ class NumericalWidget(QtWidgets.QLineEdit, ChoicesContextMenu, WidgetMixin):
         return None
 
     def set_value(self, value, faint=False):
-        if value is None:
+        if not value:
             self.setPlaceholderText('')
             self.clear()
             return
@@ -230,12 +231,12 @@ class LatLongValidator(QtGui.QValidator):
 
     def value_to_text(self, value):
         return ' '.join(self.locale().toString(float(x), 'f', 6)
-                        for x in value if x is not None)
+                        for x in value if x)
 
 
 class LatLongDisplay(NumericalWidget):
-    lat_key = 'exif:GPSLatitude'
-    lng_key = 'exif:GPSLongitude'
+    lat_key = 'GPSLatitude'
+    lng_key = 'GPSLongitude'
 
     def __init__(self, *arg, **kw):
         validator = LatLongValidator()
@@ -258,9 +259,8 @@ class LatLongDisplay(NumericalWidget):
         value = value or {}
         self.set_value(self.dict_to_value(value))
 
-    @classmethod
-    def dict_to_value(cls, value):
-        return (value.get(cls.lat_key), value.get(cls.lng_key))
+    def dict_to_value(self, value):
+        return (value.get(self.lat_key), value.get(self.lng_key))
 
     def _load_data(self, md_list):
         md_list = [self.dict_to_value(md) for md in md_list]
@@ -286,7 +286,7 @@ class AltitudeDisplay(NumericalWidget):
         validator = DoubleValidator(
             suffix=translate('AltitudeDisplay', ' m', 'metres altitude'))
         super(AltitudeDisplay, self).__init__(
-            'exif:GPSAltitude', validator, *args, **kwds)
+            'GPSAltitude', validator, *args, **kwds)
         self.setToolTip('<p>{}</p>'.format(translate(
             'AltitudeDisplay', 'Altitude of the location in metres.')))
         self.label = Label(translate('AltitudeDisplay', 'Altitude'))
@@ -305,3 +305,8 @@ class GPSInfoWidgets(QtCore.QObject, CompoundWidgetMixin):
 
     def sub_widgets(self):
         return (self.latlon, self.alt)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            metadata[self._key] = MD_GPSinfo(self.get_value())
+        return False

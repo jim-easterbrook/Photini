@@ -575,7 +575,7 @@ class PhotiniMap(
         for image in self.app.image_list.get_images():
             location = self.widgets['latlon'].dict_to_value(
                 image.metadata.gps_info)
-            if None in location:
+            if not all(location):
                 continue
             location = [float(x) for x in location]
             if location[0] < -85.0 or location[0] > 85.0:
