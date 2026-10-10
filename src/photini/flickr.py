@@ -201,11 +201,12 @@ class FlickrSession(UploaderSession):
                 return 'Failed to remove from album'
         return ''
 
-    def get_notes(self, photo_id, photo=[]):
+    def get_notes(self, photo_id, photo=None):
         if not photo:
             rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
-            if rsp:
-                photo = rsp['photo']
+            if not rsp:
+                return
+            photo = rsp['photo']
         if 'notes' in photo:
             for note in photo['notes']['note']:
                 note['content'] = note['_content']
