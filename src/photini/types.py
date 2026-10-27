@@ -484,6 +484,8 @@ class MD_DateTime(MD_Value):
         return self.replace(tzinfo=timezone.utc)
 
     def merge(self, info, tag, other):
+        if not isinstance(other, MD_DateTime):
+            other = MD_DateTime(other)
         if other == self or not other:
             return self
         verbose = (other.to_utc() != self.truncate_datetime(
@@ -995,6 +997,8 @@ class MD_LangAlt(MD_Value, dict):
         return result
 
     def merge(self, info, tag, other):
+        if not isinstance(other, MD_LangAlt):
+            other = MD_LangAlt(other)
         if self == other:
             return self
         result, self_default = self.strip_default(self)

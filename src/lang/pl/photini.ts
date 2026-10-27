@@ -1307,15 +1307,11 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>Adres(y) e-mail</translation>
-    </message>
-    <message>
-        <source>Web URL(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Adres(y) e-mail</translation>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation>Numer(y) telefonu</translation>
+        <translation type="vanished">Numer(y) telefonu</translation>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
@@ -1416,6 +1412,18 @@
     <message>
         <source>Apply template</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>Adres e-mail</translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation>Adres URL</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Numer telefonu</translation>
     </message>
 </context>
 <context>

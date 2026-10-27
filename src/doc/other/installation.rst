@@ -121,7 +121,7 @@ Using a virtual environment has other advantages, such as easy uninstallation, s
 Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager.
 For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_.
 All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 / PySide2 / PyQt6 / PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins, and so that you get the same GUI style as other Qt based applications.
-(Don't forget to install the QtWebEngine stuff as well if it's in a seaprate package.)
+(Don't forget to install the QtWebEngine stuff as well if it's in a separate package.)
 
 Virtual environment
 ^^^^^^^^^^^^^^^^^^^
@@ -151,6 +151,14 @@ I use the name ``photini`` and create it in my home directory:
             Successfully installed pip-24.2
 
         The option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PyQt6) available within the virtual environment.
+
+        Now is a good time to check you have the QtWebEngine stuff installed:
+
+        ::
+
+            (photini) jim@mint22:~$ python -c "from PyQt6 import QtWebEngineWidgets"
+
+        Replace ``PyQt6`` with ``PyQt5``, ``PySide6``, or ``PySide2`` according to which Qt package you are using.
 
     .. group-tab:: Windows
 
@@ -363,6 +371,9 @@ Missing system packages
 On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run if you've installed a Qt package with pip_ instead of the system's package manager.
 In this case it may be worth doing a web search for the error messages you get.
 For example, failing to load a Qt plugin (on Debian) can be cured by installing just one system package (``libxcb-xinerama0``) but the error message doesn't tell you that!
+
+Another problem can occur if you use the system package manager's Qt package but haven't installed the QtWebEngine stuff.
+Installing Photini may add QtWebEngine to your virtual environment, but it won't get used by Qt from the system packages.
 
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^

@@ -1404,7 +1404,7 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>E-Mail(s)</translation>
+        <translation type="vanished">E-Mail(s)</translation>
     </message>
     <message>
         <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
@@ -1412,7 +1412,7 @@
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation>Web-URL(s)</translation>
+        <translation type="vanished">Web-URL(s)</translation>
     </message>
     <message>
         <source>Enter the work phone number(s) for the person that created this image, using the international format, such as +1 (123) 456789.</source>
@@ -1420,7 +1420,7 @@
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation>Telefon(e)</translation>
+        <translation type="vanished">Telefon(e)</translation>
     </message>
     <message>
         <source>Enter address for the person that created this image.</source>
@@ -1595,6 +1595,18 @@
     <message>
         <source>Creator Contact Information</source>
         <translation type="vanished">Kontaktinformationen des Urhebers</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>E-Mail</translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation>Web-URL</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Telefon</translation>
     </message>
 </context>
 <context>
