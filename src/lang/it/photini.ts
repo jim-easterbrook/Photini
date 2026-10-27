@@ -1370,15 +1370,15 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>E-mail</translation>
+        <translation type="vanished">E-mail</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation>URL Web</translation>
+        <translation type="vanished">URL Web</translation>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation>Telefono(i)</translation>
+        <translation type="vanished">Telefono(i)</translation>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
@@ -1515,6 +1515,18 @@
     <message>
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation>Inserisci un avviso sull&apos;attuale proprietario del copyright per questa immagine, ad esempio &quot;©2008 Jane Doe&quot;.</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>E-mail</translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation>URL Web</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Telefono</translation>
     </message>
 </context>
 <context>

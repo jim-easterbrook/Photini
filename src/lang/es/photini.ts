@@ -1395,15 +1395,15 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>Correo(s) electrónico(s)</translation>
+        <translation type="vanished">Correo(s) electrónico(s)</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation>Dirección(es) web</translation>
+        <translation type="vanished">Dirección(es) web</translation>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation>Teléfono(s)</translation>
+        <translation type="vanished">Teléfono(s)</translation>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
@@ -1514,6 +1514,18 @@
     <message>
         <source>Apply template</source>
         <translation>Aplicar plantilla</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>Correo electrónico</translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation>Dirección web</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Teléfono</translation>
     </message>
 </context>
 <context>

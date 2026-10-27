@@ -1433,18 +1433,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Email(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Web URL(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Phone(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enter the city for the address of the person that created this image.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1552,6 +1540,18 @@
     </message>
     <message>
         <source>Apply template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phone</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

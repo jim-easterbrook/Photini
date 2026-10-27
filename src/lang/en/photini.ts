@@ -1387,15 +1387,15 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>Email(s)</translation>
+        <translation type="vanished">Email(s)</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation>Web URL(s)</translation>
+        <translation type="vanished">Web URL(s)</translation>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation>Phone(s)</translation>
+        <translation type="vanished">Phone(s)</translation>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
@@ -1506,6 +1506,18 @@
     <message>
         <source>Apply template</source>
         <translation>Apply template</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>Email</translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation>Web URL</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation>Phone</translation>
     </message>
 </context>
 <context>

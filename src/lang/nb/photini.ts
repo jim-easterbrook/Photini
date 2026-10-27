@@ -1327,15 +1327,11 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>E-post(er)</translation>
+        <translation type="vanished">E-post(er)</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation>Nettadresse(r)</translation>
-    </message>
-    <message>
-        <source>Phone(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Nettadresse(r)</translation>
     </message>
     <message>
         <source>Address</source>
@@ -1484,6 +1480,18 @@
     <message>
         <source>Apply template</source>
         <translation>Bruk mal</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation>E-post</translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation>Nettadresse</translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
