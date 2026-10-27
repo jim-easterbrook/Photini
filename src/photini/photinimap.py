@@ -46,15 +46,9 @@ translate = QtCore.QCoreApplication.translate
 
 
 def fetch_key(section):
-    result = None
-    if keyring:
-        try:
-            result = keyring.get_password('photini', section)
-        except Exception as ex:
-            logger.warning('Cannot read keyring entry "%s": %s', section, ex)
-    if not result:
-        result = key_store.get(section, 'api_key')
     app = QtWidgets.QApplication.instance()
+    result = app.user_keys.get_password(section)
+    result = result or key_store.get(section, 'api_key')
     app.loggerwindow.hide_word(result)
     return result
 
@@ -581,7 +575,7 @@ class PhotiniMap(
         for image in self.app.image_list.get_images():
             location = self.widgets['latlon'].dict_to_value(
                 image.metadata.gps_info)
-            if None in location:
+            if not all(location):
                 continue
             location = [float(x) for x in location]
             if location[0] < -85.0 or location[0] > 85.0:

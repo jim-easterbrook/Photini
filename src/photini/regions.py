@@ -619,8 +619,7 @@ class ImageDisplayWidget(QtWidgets.QGraphicsView, WidgetMixin):
             else:
                 rect = self.contentsRect()
                 md = image.metadata
-                orientation = md.orientation
-                transform = orientation and orientation.get_transform()
+                transform = md.orientation.get_transform()
                 if transform:
                     rect = transform.mapRect(rect)
                 else:

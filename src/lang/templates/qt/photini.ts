@@ -1208,23 +1208,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Email(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enter the work Web URL for the person that created this image, such as http://www.domain.com/.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Web URL(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enter the work phone number for the person that created this image, using the international format, such as +1 (123) 456789.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Phone(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1351,6 +1339,18 @@
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phone</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

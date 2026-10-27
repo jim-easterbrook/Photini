@@ -26,7 +26,7 @@ import re
 import time
 import urllib
 
-import keyring
+import keyring # not called directly, but needed for uploader to be usable
 import PIL.Image as PIL
 import requests
 
@@ -221,6 +221,7 @@ class UploaderUser(QtWidgets.QGridLayout):
 
     def __init__(self, *arg, **kw):
         super(UploaderUser, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
         self.setContentsMargins(0, 0, 0, 0)
         # dictionary of unavailable widgets (e.g. server version too low)
         self.unavailable = {}
@@ -284,9 +285,9 @@ class UploaderUser(QtWidgets.QGridLayout):
     @QtSlot()
     @catch_all()
     def log_out(self):
-        if keyring.get_password('photini', self.config_section):
+        if self.app.user_keys.get_password(self.config_section):
             self.unauthorise()
-            keyring.delete_password('photini', self.config_section)
+            self.app.user_keys.delete_password(self.config_section)
         self.user_data = {}
         self.connection_changed.emit(False)
 
@@ -364,10 +365,10 @@ class UploaderUser(QtWidgets.QGridLayout):
         return None, True
 
     def get_password(self):
-        return keyring.get_password('photini', self.config_section)
+        return self.app.user_keys.get_password(self.config_section)
 
     def set_password(self, password):
-        keyring.set_password('photini', self.config_section, password)
+        self.app.user_keys.set_password(self.config_section, password)
 
 
 class AlbumList(QtWidgets.QWidget):
@@ -432,7 +433,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.app.aboutToQuit.connect(self.shutdown)
-        self.logger.debug('using %s', keyring.get_keyring().__module__)
         self.setLayout(QtWidgets.QGridLayout())
         self.upload_worker = None
         # dictionary of all widgets with parameter settings
@@ -715,7 +715,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         mime_type = image.file_type
         if mime_type.startswith('video'):
             dims = image.metadata.dimensions
-            if dims and dims['width'] and dims['height']:
+            if dims['width'] and dims['height']:
                 convert.update(self.ask_resize_image(
                     image, state, pixels=dims['width'] * dims['height']))
             if not any(convert.values()):
@@ -980,9 +980,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         return dict(self.upload_prefs), dict(self.replace_prefs), photo_id
 
     def date_range(self, image):
-        precision = min(image.metadata.date_taken['precision'], 6)
+        precision = min(image.metadata.date_taken.precision, 6)
         min_taken_date = image.metadata.date_taken.truncate_datetime(
-            image.metadata.date_taken['datetime'], precision)
+            image.metadata.date_taken.datetime, precision)
         if precision >= 6:
             max_taken_date = min_taken_date + timedelta(seconds=1)
         elif precision >= 5:

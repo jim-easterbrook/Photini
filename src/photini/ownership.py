@@ -19,11 +19,14 @@
 from datetime import datetime
 import logging
 
+import exiv2
+
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
+from photini.types import MD_ContactInfoRecord, MD_Rights
 from photini.widgets import (
     CompoundWidgetMixin, ContextMenuMixin, DropDownSelector, Label,
-    PushButton, TopLevelWidgetMixin)
+    ListWidgetMixin, PushButton, TopLevelWidgetMixin)
 from photini.widgets.text import *
 
 logger = logging.getLogger(__name__)
@@ -107,10 +110,14 @@ class RightsDropDown(DropDownSelector):
 
 
 class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
+    dynamic = True
+
     def __init__(self, key, *arg, **kw):
         super(RightsGroup, self).__init__(*arg, **kw)
         self._key = key
-        self.setLayout(FormLayout())
+        layout = FormLayout()
+        self.setLayout(layout)
+        layout.setSizeConstraint(layout.SizeConstraint.SetMinimumSize)
         self.widgets = {}
         # usage terms
         self.widgets['UsageTerms'] = LangAltWidget(
@@ -118,40 +125,55 @@ class RightsGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
         self.widgets['UsageTerms'].setToolTip(translate(
             'OwnerTab', 'Enter instructions on how this image can legally'
             ' be used.'))
-        self.layout().addRow(translate('OwnerTab', 'Usage Terms'),
-                             self.widgets['UsageTerms'])
+        layout.addRow(translate('OwnerTab', 'Usage Terms'),
+                      self.widgets['UsageTerms'])
         # web statement of rights
         self.widgets['WebStatement'] = RightsDropDown('WebStatement')
-        self.layout().addRow(translate('OwnerTab', 'Web Statement'),
-                             self.widgets['WebStatement'])
+        layout.addRow(translate('OwnerTab', 'Web Statement'),
+                      self.widgets['WebStatement'])
         self.setFixedHeight(self.sizeHint().height())
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
+
+    def set_subwidgets(self, value):
+        for key in value:
+            if key not in self.widgets:
+                self.widgets[key] = TextEdit(key, height=1)
+                info = exiv2.XmpProperties.propertyInfo(MD_Rights.xmp_key(key))
+                if info:
+                    label = info.title
+                    self.widgets[key].setToolTip(info.desc)
+                else:
+                    label = key
+                self.layout().addRow(label, self.widgets[key])
+                self.widgets[key].new_value.connect(self.sw_new_value)
 
     def sub_widgets(self):
         return self.widgets.values()
 
 
 class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
+    dynamic = True
+
     def __init__(self, key, *arg, **kw):
         super(ContactInfoGroup, self).__init__(*arg, **kw)
         self._key = key
-        self.setLayout(FormLayout())
+        layout = FormLayout()
+        self.setLayout(layout)
+        layout.setSizeConstraint(layout.SizeConstraint.SetMinimumSize)
         self.widgets = {}
         # email addresses
         self.widgets['Email'] = TextEdit('plus:LicensorEmail', height=1)
         self.widgets['Email'].setToolTip(translate(
             'OwnerTab', 'Enter the work email address for the person that'
             ' created this image, such as name@domain.com.'))
-        self.layout().addRow(translate('OwnerTab', 'Email(s)'),
-                             self.widgets['Email'])
+        layout.addRow(translate('OwnerTab', 'Email'), self.widgets['Email'])
         # URLs
         self.widgets['URL'] = TextEdit('plus:LicensorURL', height=1)
         self.widgets['URL'].setToolTip(translate(
             'OwnerTab', 'Enter the work Web URL for the person that created'
             ' this image, such as http://www.domain.com/.'))
-        self.layout().addRow(translate('OwnerTab', 'Web URL(s)'),
-                             self.widgets['URL'])
+        layout.addRow(translate('OwnerTab', 'Web URL'), self.widgets['URL'])
         # phone numbers
         self.widgets['Telephone1'] = TextEdit(
             'plus:LicensorTelephone1', height=1)
@@ -159,61 +181,98 @@ class ContactInfoGroup(QtWidgets.QGroupBox, CompoundWidgetMixin):
             'OwnerTab', 'Enter the work phone number for the person that'
             ' created this image, using the international format, such as'
             ' +1 (123) 456789.'))
-        self.layout().addRow(translate('OwnerTab', 'Phone(s)'),
-                             self.widgets['Telephone1'])
+        layout.addRow(translate('OwnerTab', 'Phone'),
+                      self.widgets['Telephone1'])
         # extended address
         self.widgets['ExtendedAddress'] = TextEdit(
             'plus:LicensorExtendedAddress', height=1, spell_check=True)
         self.widgets['ExtendedAddress'].setToolTip(translate(
             'OwnerTab', 'Enter address detail (e.g. flat number or room'
             ' number) for the person that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Detail Address'),
-                             self.widgets['ExtendedAddress'])
+        layout.addRow(translate('OwnerTab', 'Detail Address'),
+                      self.widgets['ExtendedAddress'])
         # address
         self.widgets['StreetAddress'] = TextEdit(
             'plus:LicensorStreetAddress', spell_check=True)
         self.widgets['StreetAddress'].setToolTip(translate(
             'OwnerTab',
             'Enter street address for the person that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Street Address'),
-                             self.widgets['StreetAddress'])
+        layout.addRow(translate('OwnerTab', 'Street Address'),
+                      self.widgets['StreetAddress'])
         # city
         self.widgets['City'] = TextEdit(
             'plus:LicensorCity', height=1, spell_check=True)
         self.widgets['City'].setToolTip(translate(
             'OwnerTab', 'Enter the city for the address of the person that'
             ' created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'City'),
-                             self.widgets['City'])
+        layout.addRow(translate('OwnerTab', 'City'), self.widgets['City'])
         # postcode
         self.widgets['PostalCode'] = TextEdit(
             'plus:LicensorPostalCode', height=1)
         self.widgets['PostalCode'].setToolTip(translate(
             'OwnerTab', 'Enter the postal code for the address of the person'
             ' that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Postal Code'),
-                             self.widgets['PostalCode'])
+        layout.addRow(translate('OwnerTab', 'Postal Code'),
+                      self.widgets['PostalCode'])
         # region
         self.widgets['Region'] = TextEdit(
             'plus:LicensorRegion', height=1, spell_check=True)
         self.widgets['Region'].setToolTip(translate(
             'OwnerTab', 'Enter the state for the address of the person that'
             ' created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'State/Province'),
-                             self.widgets['Region'])
+        layout.addRow(translate('OwnerTab', 'State/Province'),
+                      self.widgets['Region'])
         # country
         self.widgets['Country'] = TextEdit(
             'plus:LicensorCountry', height=1, spell_check=True)
         self.widgets['Country'].setToolTip(translate(
             'OwnerTab', 'Enter the country name for the address of the person'
             ' that created this image.'))
-        self.layout().addRow(translate('OwnerTab', 'Country'),
-                             self.widgets['Country'])
+        layout.addRow(translate('OwnerTab', 'Country'), self.widgets['Country'])
         for widget in self.sub_widgets():
             widget.new_value.connect(self.sw_new_value)
 
+    def set_subwidgets(self, value):
+        for key in value:
+            name = key.replace('plus:Licensor', '')
+            if name not in self.widgets:
+                self.widgets[name] = TextEdit(key, height=1)
+                info = exiv2.XmpProperties.propertyInfo(
+                    MD_ContactInfoRecord.xmp_key(key))
+                if info:
+                    label = info.title
+                    self.widgets[name].setToolTip(info.desc)
+                else:
+                    label = name
+                self.layout().addRow(label, self.widgets[name])
+                self.widgets[name].new_value.connect(self.sw_new_value)
+
     def sub_widgets(self):
         return self.widgets.values()
+
+
+class ContactInfoList(QtCore.QObject, ListWidgetMixin):
+    item_type = MD_ContactInfoRecord
+
+    def __init__(self, key, *arg, **kw):
+        super(ContactInfoList, self).__init__(*arg, **kw)
+        self._key = key
+        self.widget = ContactInfoGroup(0)
+        self.widget.new_value.connect(self.sw_new_value)
+
+    def sub_widgets(self):
+        return (self.widget,)
+
+    def _save_data(self, metadata, value):
+        if self._key in value:
+            # delete all but the first contact
+            md = list(metadata[self._key])
+            if len(md) > 1:
+                logger.warning(
+                    '%s: %d set(s) of licensor details will be deleted when'
+                    ' file is saved', self._key, len(md) - 1)
+                metadata[self._key] = md[:1]
+        return super(ContactInfoList, self)._save_data(metadata, value)
 
 
 class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
@@ -278,10 +337,10 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         form.addRow(translate('OwnerTab', 'Instructions'),
                     self.widgets['instructions'])
         ## creator contact information
-        self.widgets['contact_info'] = ContactInfoGroup('contact_info')
+        self.widgets['contact_info'] = ContactInfoList('contact_info')
         form.addRow(Label(
             translate('OwnerTab', 'Creator / Licensor Contact Information'),
-            lines=3, layout=form), self.widgets['contact_info'])
+            lines=3, layout=form), self.widgets['contact_info'].widget)
         if active:
             for widget in self.sub_widgets():
                 widget.new_value.connect(self.save_data)
@@ -333,31 +392,31 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         buttons.addWidget(apply_template)
         self.layout().addLayout(buttons)
         # update config
-        for (k1, k2) in (('CiAdrExtadr', 'StreetAddress'),
-                         ('CiAdrCity',   'City'),
-                         ('CiAdrCtry',   'Country'),
-                         ('CiEmailWork', 'Email'),
-                         ('CiTelWork',   'Telephone1'),
-                         ('CiAdrPcode',  'PostalCode'),
-                         ('CiAdrRegion', 'Region'),
-                         ('CiUrlWork',   'URL')):
-            value = self.config_store.get('ownership', 'contact_info/' + k1)
+        config = self.config_store
+        if config.version < (2026, 3, 0):
+            for (k1, k2) in (('CiAdrExtadr', 'StreetAddress'),
+                             ('CiAdrCity',   'City'),
+                             ('CiAdrCtry',   'Country'),
+                             ('CiEmailWork', 'Email'),
+                             ('CiTelWork',   'Telephone1'),
+                             ('CiAdrPcode',  'PostalCode'),
+                             ('CiAdrRegion', 'Region'),
+                             ('CiUrlWork',   'URL')):
+                if config.version < (2023, 4, 0):
+                    k1 = 'contact_info/' + k1
+                else:
+                    k1 = 'contact_info/' + k2
+                k2 = 'contact_info/Licensor' + k2
+                value = config.get('ownership', k1)
+                if value:
+                    config.set('ownership', k2, value)
+                    config.delete('ownership', k1)
+        if config.version < (2023, 4, 0):
+            value = config.get('ownership', 'rights/licensorurl')
             if value:
-                self.config_store.set(
-                    'ownership', 'contact_info/Licensor' + k2, value)
-                self.config_store.delete('ownership', 'contact_info/' + k1)
-            value = self.config_store.get('ownership', 'contact_info/' + k2)
-            if value:
-                self.config_store.set(
-                    'ownership', 'contact_info/Licensor' + k2, value)
-                self.config_store.delete('ownership', 'contact_info/' + k2)
-        value = self.config_store.get('ownership', 'rights/licensorurl')
-        if value:
-            if not self.config_store.get(
-                    'ownership', 'contact_info/LicensorURL'):
-                self.config_store.set(
-                    'ownership', 'contact_info/LicensorURL', value)
-            self.config_store.delete('ownership', 'rights/licensorurl')
+                if not config.get('ownership', 'contact_info/LicensorURL'):
+                    config.set('ownership', 'contact_info/LicensorURL', value)
+                config.delete('ownership', 'rights/licensorurl')
 
     @catch_all()
     def contextMenuEvent(self, event):
@@ -377,7 +436,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             md = image.metadata
             date_taken = md.date_taken
             if date_taken:
-                date_taken = date_taken['datetime']
+                date_taken = date_taken.datetime
             else:
                 date_taken = datetime.now()
             year = str(date_taken.year)
@@ -404,6 +463,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         template = {}
         for key, widget in self.widgets.items():
             if key in ('rights', 'contact_info'):
+                if key == 'contact_info':
+                    widget = widget.widget
                 value = {}
                 for w in widget.sub_widgets():
                     sub_key = w._key
@@ -412,6 +473,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
                             key, sub_key.split(':')[-1]))
                     if sub_value:
                         value[sub_key] = sub_value
+                if key == 'contact_info':
+                    value = {0: value}
             else:
                 value = self.config_store.get('ownership', key)
             if value:
@@ -455,6 +518,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
         template = self.remove_empty(template)
         for key, value in template.items():
             if key in ('rights', 'contact_info'):
+                if key == 'contact_info':
+                    value = value[0]
                 for k, v in value.items():
                     if v:
                         compound_key = '{}/{}'.format(
@@ -481,7 +546,7 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             md = image.metadata
             date_taken = md.date_taken
             if date_taken:
-                date_taken = date_taken['datetime']
+                date_taken = date_taken.datetime
             else:
                 date_taken = datetime.now()
             value = self.process_template(template, date_taken)
@@ -495,6 +560,8 @@ class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
             value = template[key]
             if key in ('rights', 'contact_info'):
                 result[key] = self.process_template(value, date_taken)
+                if key == 'contact_info':
+                    result[key] = result[key].values()
             elif isinstance(value, dict):
                 result[key] = dict((k, date_taken.strftime(v))
                                    for (k, v) in value.items())

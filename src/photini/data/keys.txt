@@ -25,43 +25,39 @@ client_secret = (32, 16)
 api_key = (48, 32)
 api_secret = (80, 16)
 
-[googlephotos]
-client_id = (96, 72)
-client_secret = (168, 24)
-
 [googlemap]
-api_key = (192, 39)
+api_key = (96, 39)
 
 [azuremap]
-api_key = (231, 84)
+api_key = (135, 84)
 
 [opencage]
-api_key = (315, 32)
+api_key = (219, 32)
 
 [mapboxmap]
-api_key = (347, 100)
+api_key = (251, 100)
 
 [pixelfed pixelfed.de]
-client_id = (447, 5)
-client_secret = (452, 40)
+client_id = (351, 5)
+client_secret = (356, 40)
 
 [pixelfed pxlmo.com]
-client_id = (492, 4)
-client_secret = (496, 40)
+client_id = (396, 4)
+client_secret = (400, 40)
 
 [pixelfed metapixl.com]
-client_id = (536, 4)
-client_secret = (540, 40)
+client_id = (440, 4)
+client_secret = (444, 40)
 
 [pixelfed pixelfed.tokyo]
-client_id = (580, 4)
-client_secret = (584, 40)
+client_id = (484, 4)
+client_secret = (488, 40)
 
 [pixelfed pixey.org]
-client_id = (624, 4)
-client_secret = (628, 40)
+client_id = (528, 4)
+client_secret = (532, 40)
 
 [data]
-data = c8gExL6__Modbnj0gUsOucpl06gZ2VdvIMEI2807F5m3EavIdeQm47K6SG0.045369Iio1ePib_8gkWLf0t0Y6Q434kC762Bwr84iC3.3YImJHcPG5cTHU95a7HEKEy8HQY.8A4bj30VYTU9a8bOrYx_-gUuHyPh.pJq_ypi8eedcI1AEthnhcejvgC1hm618iY32ewEg21tm46.d_xfIWUArj25ZPXYKmnGdzP_TgmGee5.CYphR8Fud-Jbjlip6ftdabA278oLpa589w_ISb02AqoQRYt4yfNPja1tApsLgexhka11aKpK9v169ow88C3-1kw47O5ofrQNPWmPPhg5htefHDyiNWc3xivg6G32gyRsCEN0Syjg3i5nNRx_AAjacCidHPhwHTj5kecbeR9echKvUI616fWWG6nRF5ta6M6K.NM41A0wIOfu639fBsAF.a.C7463eV236huw07Ra4_dgOiX19-9S141cIQCxrX560pUZyfNc3QQV27Y00YJ7orE3iAJmXqy0a_ITs_X2-o9NDvnjkmfxDtR1k192WVWfEwz3aGPe4oaeXIeH1pSK9AN8oI3teZm5nyaFW5K4EVRaoQ0wuW7Tb_0YY8OeZ3px.i10xbe8ID6zJaD7C4l0SU7df40ebDm8JQdovq8GeQH4H69D11uDdOMheeoCnVvina_7d94c5R7Qy0zZdVASd0FlEo9y22317OYq0eB6bLofB0FxuypKN5aQdeQhee5c11f5ffprH6Rx9LKX19RqLw1FdgN6824YAFZlmcBL-cMaCtqrHKz9fBDZ7n6pKMydG8zMbNzHyDtdRZVfl1uBmdJk9oKeY5K3m_VGImxrkRWb3K35dn0LWwfZU_K69WBy1g77mXi3ewAuEmy7VnrQT0HiOCEie6aywfmhWFaegnT8xJm2B2onn5fJ0Pb6Orzy0aAJ07aI9bJutpqpgxATbui12TyZQ71Mu69caz_N9a0JEf2wPWf8W6K4WC9fzooQznAMo51c9vcCgceN
-date = 2026-03-17
+data = ahyeJ_CpPbfPUCQ4.fUW2SZpWTm8Oe3a4nXp1taAlKkcvJpzHtlq9jg3z65WQgy1ad5yp_iE65n6azAObDYLu1kop1V18Iek9ocOpCn0V194Yc6.mn09yZlCNbTHqAkjgbbZFw9H3esejX67I3feqai1et0m-wyrj5KfAd99t463b00vh03grKO.fvV6oWFIKLw61hfpLP4uEEJ7ARBi9gIM3XLxYSt0nfQhx0ilEmbNQbQf72DZb9-Brn42PaMmZnynQ4038_E1T2b6d7n4ZtrASi0KVZxiT0Hw5u7e26zIwgowh3lF8XN72eAwSUhT_D4dvR6Af6j4173c5CoodRyAfZ_6RJRtuKkM52ekRx5yjAI80dtgn6_4LceZ39idudjqd05VoKTSJ5dRDEREus68z8yKXTvt-0k7gInDpNPu0OeyLo9AAAKD9oZYBOD7qM3amAKNt1AB3-2O0J5dNDfnfNa723GaRBFjXAMIdcdyV15QCTZfBZOYAbEakU7ydjN3duQUtq2MlN2Vni9bikSye4Gy6R.L5R4z5PewB3dIayxqz90J08Ky1dx2361rU0Hwkk2le1gxQXdu5vcGlEc4l9sEAQ52OQJ4J5P6NDux0m015ad07rY6LJOs2.4onvujNyz1LfC71eHpihjWiBiZfCwOilEb6KMK0T0QKrsKt4RsU-2MmBRb0iaxcw97IV2aFOs5ctfxHn2PdnE6q9o17FJDek7j8ZV2FG55VfINm7Lmf_J7S2fI4JAMsV4CfHwNzCT9faO4CgcIpFO9gKJaC8amG4KYH2h2YJGfPKSLenf5ZgO7ENBY60ppxqLHqiY1NQCc13Wb0HV6q0-e1e2aO3APS8vuoQmshy8QNY5mD57koi8076g2F6Ux7tLr1x6QKdYybRa6TToI6BxU2M1mBj59vw6MC2hIQXnf.aAO5N6g.HVYGAkedcH6J2JZ9b7ed9WFAtALLB7QcMx1ecUBv9z83V5Rh450T5cOmK-0Ia0A5cAZW4T-aV6qE2fF
+date = 2026-10-27
 

@@ -18,11 +18,6 @@
 
 import logging
 
-try:
-    import keyring
-except ImportError:
-    keyring = None
-
 from photini.pyqt import (
     available_packages, catch_all, execute, FormLayout, qt_lib, QtCore, QtGui,
     QtSlot, QtWidgets, width_for_text)
@@ -55,9 +50,6 @@ class EditSettings(QtWidgets.QDialog):
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
         # IPTC data
-        if self.config_store.get('files', 'force_iptc'):
-            self.config_store.set('files', 'iptc_iim', 'create')
-        self.config_store.delete('files', 'force_iptc')
         iptc_mode = self.config_store.get('files', 'iptc_iim', 'preserve')
         button_group = QtWidgets.QButtonGroup(parent=self)
         self.iptc_always = QtWidgets.QRadioButton(
@@ -117,9 +109,6 @@ class EditSettings(QtWidgets.QDialog):
             translate('EditSettings', 'Write to image file'), self.write_if)
         # preserve file timestamps
         keep_time = self.config_store.get('files', 'preserve_timestamps', 'now')
-        if isinstance(keep_time, bool):
-            # old config format
-            keep_time = ('now', 'keep')[keep_time]
         button_group = QtWidgets.QButtonGroup(parent=self)
         self.keep_time = QtWidgets.QRadioButton(
             translate('EditSettings', 'Keep original'))
@@ -338,7 +327,7 @@ class EditMapKeys(QtWidgets.QDialog):
             self.widgets[section].setMinimumWidth(
                 width_for_text(self.widgets[section], 'x' * 60))
             self.widgets[section].set_value(
-                keyring.get_password('photini', section))
+                self.app.user_keys.get_password(section))
             panel.layout().addRow(
                 Label(title, lines=lines), self.widgets[section])
         # apply & cancel buttons
@@ -360,7 +349,7 @@ class EditMapKeys(QtWidgets.QDialog):
         for section, widget in self.widgets.items():
             value = widget.get_value()
             if value:
-                keyring.set_password('photini', section, value)
-            elif keyring.get_password('photini', section):
-                keyring.delete_password('photini', section)
+                self.app.user_keys.set_password(section, value)
+            elif self.app.user_keys.get_password(section):
+                self.app.user_keys.delete_password(section)
         return self.accept()

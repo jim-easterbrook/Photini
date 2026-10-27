@@ -1309,15 +1309,15 @@
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>மின்னஞ்சல் (கள்)</translation>
+        <translation type="vanished">மின்னஞ்சல் (கள்)</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation>வலை முகவரி (கள்)</translation>
+        <translation type="vanished">வலை முகவரி (கள்)</translation>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation>தொலைபேசி (கள்)</translation>
+        <translation type="vanished">தொலைபேசி (கள்)</translation>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
@@ -1454,6 +1454,18 @@
     <message>
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation>&quot;© 2008 சேன் டோ&quot; போன்ற இந்த படத்திற்கான பதிப்புரிமை தற்போதைய உரிமையாளருக்கு அறிவிப்பை உள்ளிடவும்.</translation>
+    </message>
+    <message>
+        <source>Email</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Web URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phone</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
