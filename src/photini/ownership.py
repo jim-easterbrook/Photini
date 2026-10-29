@@ -344,9 +344,20 @@ class DataForm(QtWidgets.QScrollArea, TopLevelWidgetMixin,
         if active:
             for widget in self.sub_widgets():
                 widget.new_value.connect(self.save_data)
+        else:
+            for widget in self.sub_widgets():
+                widget.new_value.connect(self.update_data)
 
     def sub_widgets(self):
         return self.widgets.values()
+
+    @QtSlot(dict)
+    @catch_all()
+    def update_data(self, value, images=None):
+        md = self.get_value()
+        for widget in self.sub_widgets():
+            if widget._save_data(md, value):
+                widget._load_data([md])
 
 
 class TabWidget(QtWidgets.QWidget, ContextMenuMixin, CompoundWidgetMixin):
