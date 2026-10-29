@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2026.10.0:
+  1/ Fix problem reading Windows Exif tags.
+  2/ Added progress bar for long operations, such as writing many files.
+  3/ Restructured internal metadata handling.
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2026.8.0:
   1/ Allow list item separator (e.g. ';') to be changed in settings.
   2/ Fix problem with Ipernity uploader since their API change.
