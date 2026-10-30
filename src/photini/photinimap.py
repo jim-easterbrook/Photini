@@ -413,6 +413,7 @@ class PhotiniMap(
     <style type="text/css">
       html, body {{ height: 100%; margin: 0; padding: 0 }}
       #mapDiv {{ position: relative; width: 100%; height: 100% }}
+      gmp-map {{ height: 100%; }}
     </style>
     <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">

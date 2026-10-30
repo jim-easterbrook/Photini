@@ -29,18 +29,16 @@ const maxZoom = 20;
 
 async function loadMap(lat, lng, zoom, options) {
     var mapOptions = {
-        center: new google.maps.LatLng(lat, lng),
+        clickableIcons: options.chrome_version >= 94,
         controlSize: 30,
         disableDoubleClickZoom: true,
         fullscreenControl: false,
         scaleControl: true,
         streetViewControl: false,
         tilt: 0,
-        zoom: zoom,
         maxZoom: maxZoom,
         minZoom: 1,
         isFractionalZoomEnabled: true,
-        mapId: "ce7cafb5b0de6e31",
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: true,
         mapTypeControlOptions: {
@@ -52,9 +50,10 @@ async function loadMap(lat, lng, zoom, options) {
             position: google.maps.ControlPosition.INLINE_END_BLOCK_START,
         },
     };
-    const div = document.getElementById("mapDiv");
     const { Map } = await google.maps.importLibrary("maps");
-    map = new google.maps.Map(div, mapOptions);
+    const mapElement = document.querySelector('gmp-map');
+    map = mapElement.innerMap;
+    map.setOptions(mapOptions);
     const mapCapabilities = map.getMapCapabilities();
     if (options.chrome_version >= 86
             && mapCapabilities.isAdvancedMarkersAvailable) {
@@ -200,9 +199,8 @@ function setIconData(pin, active, url, size) {
         padding.right = padding.left;
         padding.bottom = 5;
         padding.top = padding.bottom + size[1];
-        const div = document.getElementById("mapDiv");
         // Ensure selected markers aren't hidden by type control
-        if (getComputedStyle(div).direction == 'ltr')
+        if (document.dir == 'ltr')
             padding.right += 130;
         else
             padding.left += 130;
@@ -242,8 +240,9 @@ function addMarker(id, lat, lng, active) {
         google.maps.event.addListener(marker, 'click', markerClick);
         google.maps.event.addListener(marker, 'dblclick', markerClick);
         google.maps.event.addListener(marker, 'dragstart', markerClick);
-        google.maps.event.addListener(marker, 'drag', markerDrag);
-        google.maps.event.addListener(marker, 'dragend', markerDragEnd);
+        google.maps.event.addListener(marker, 'drag', legacyMarkerDrag);
+        google.maps.event.addListener(marker, 'dragend',
+                                      legacyMarkerDragEnd);
     }
     else {
         var icon = document.createElement("img");
@@ -253,13 +252,14 @@ function addMarker(id, lat, lng, active) {
             content: icon,
             position: new google.maps.LatLng(lat, lng),
             map: map,
+            gmpClickable: true,
             gmpDraggable: true,
             zIndex: active ? 1 : 0,
         });
-        marker.addListener('click', markerClick);
-        marker.addListener('dragstart', markerClick);
-        marker.addListener('drag', markerDrag);
-        marker.addListener('dragend', markerDragEnd);
+        marker.addEventListener('gmp-click', markerClick);
+        marker.addEventListener('gmp-dragstart', markerClick);
+        marker.addEventListener('gmp-drag', markerDrag);
+        marker.addEventListener('gmp-dragend', markerDragEnd);
     }
     marker.id = id;
     markers[id] = marker;
@@ -269,12 +269,21 @@ function markerClick(event) {
     python.marker_click(this.id);
 }
 
-function markerDrag(event) {
+function legacyMarkerDrag(event) {
     python.marker_drag(event.latLng.lat(), event.latLng.lng());
 }
 
-function markerDragEnd(event) {
+function legacyMarkerDragEnd(event) {
     python.marker_drag_end(event.latLng.lat(), event.latLng.lng(), this.id);
+}
+
+function markerDrag(event) {
+    python.marker_drag(event.target.position.lat, event.target.position.lng);
+}
+
+function markerDragEnd(event) {
+    python.marker_drag_end(event.target.position.lat,
+                           event.target.position.lng, this.id);
 }
 
 function markerDrop(x, y) {
