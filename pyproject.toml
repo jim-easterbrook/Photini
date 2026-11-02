@@ -38,7 +38,7 @@ classifiers = [
 ]
 dependencies = [
   "cachetools >= 3.0",
-  "chardet >= 3.0",
+  "chardet >= 3.0, < 7.0",
   "exiv2 >= 0.16.2",
   "filetype >= 1.0",
   "Pillow >= 5.3",
