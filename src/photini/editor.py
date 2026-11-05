@@ -724,6 +724,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(
         description=translate('CLIHelp', 'Photini photo metadata editor'))
     parser.add_argument(
+        '-c', '--charset', action='store', metavar='C',
+        help=translate('CLIHelp', 'use charset C to decode metadata text'))
+    parser.add_argument(
         '-r', '--restore', action='store_true',
         help=translate('CLIHelp', 'restore config from a backup'))
     parser.add_argument(

@@ -124,11 +124,17 @@ class MetadataHandler(object):
             del self._exifData[tag]
         # transcode any non utf-8 strings (Xmp is always utf-8)
         encodings = []
+        app = QtCore.QCoreApplication.instance()
+        if app.options.charset:
+            encodings.append(codecs.lookup(app.options.charset).name)
         iptc_charset = self.get_iptc_encoding()
-        if iptc_charset not in ('utf-8', 'ascii', None):
+        if iptc_charset is not None:
             iptc_charset = codecs.lookup(iptc_charset).name
             logger.info('%s: IPTC character set %s', self._name, iptc_charset)
             encodings.append(iptc_charset)
+        # always try utf-8, which is a superset of ascii
+        if 'utf-8' not in encodings:
+            encodings.append('utf-8')
         for data, set_value in ((self._exifData, self.set_exif_value),
                                 (self._iptcData, self.set_iptc_value)):
             new_data = defaultdict(list)
@@ -143,9 +149,6 @@ class MetadataHandler(object):
                     # unknown key type
                     continue
                 raw_value = datum.value().data()
-                if self.decode_string(key, raw_value, 'utf-8') is not None:
-                    # no need to do anything
-                    continue
                 for encoding in encodings:
                     value = self.decode_string(key, raw_value, encoding)
                     if value is not None:
@@ -206,7 +209,6 @@ class MetadataHandler(object):
         return exiv2.TypeId.xmpText
 
     def decode_string(self, tag, raw_value, encoding):
-        encoding = codecs.lookup(encoding).name
         if encoding in ('utf-32-be', 'utf-32-le', 'utf-32'):
             null = b'\x00\x00\x00\x00'
         elif encoding in ('utf-16-be', 'utf-16-le', 'utf-16'):
