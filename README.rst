@@ -129,8 +129,6 @@ Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and `Goo
 
 Use of the Azure map tab is subject to the `Microsoft Product Terms For Online Services`_ and `Microsoft Privacy & Security Terms`_.
 
-Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_ and `Microsoft Privacy Statement`_.
-
 Use of the Mapbox map tab is subject to the `Mapbox terms of service`_ and `Mapbox privacy policy`_.
 
 The Flickr upload tab uses the Flickr API but is not endorsed or certified by Flickr.
@@ -171,8 +169,6 @@ A copy of the license is included in the documentation section entitled "GNU Fre
       https://www.mapbox.com/tos/
 .. _Mapbox privacy policy:
       https://www.mapbox.com/privacy/
-.. _Microsoft Bing Maps Terms of Use:
-      http://www.microsoft.com/maps/assets/docs/terms.aspx
 .. _Microsoft Privacy & Security Terms:
       https://www.microsoft.com/licensing/terms/product/PrivacyandSecurityTerms/all
 .. _Microsoft Privacy Statement:
