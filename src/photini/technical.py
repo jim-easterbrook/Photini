@@ -87,6 +87,7 @@ class CameraList(DropdownEdit):
             name = camera.get_name()
             if name != section[7:]:
                 config.remove_section(section)
+                self.store_camera(camera)
             values.append((name, camera))
         self.set_values(values)
 
@@ -98,6 +99,9 @@ class CameraList(DropdownEdit):
         camera = MD_CameraModel(dialog.get_value())
         if not camera:
             return None, None
+        return self.store_camera(camera)
+
+    def store_camera(self, camera):
         name = camera.get_name()
         section = 'camera ' + name
         for key, value in camera.items():
@@ -142,6 +146,7 @@ class LensList(DropdownEdit):
             name = lens_model.get_name()
             if name != section[5:]:
                 config.remove_section(section)
+                self.store_lens(lens_model)
             values.append((name, lens_model))
         self.set_values(values)
 
@@ -153,6 +158,9 @@ class LensList(DropdownEdit):
         lens_model = dialog.get_value()
         if not lens_model:
             return None, None
+        return self.store_lens(lens_model)
+
+    def store_lens(self, lens_model):
         name = lens_model.get_name()
         section = 'lens ' + name
         for key, value in lens_model.items():
@@ -411,6 +419,9 @@ class NewCameraDialog(NewItemDialog):
             for key in self.model_widgets:
                 if camera[key]:
                     self.model_widgets[key].setText(camera[key])
+
+    def extend_data(self):
+        pass
 
 
 class NewLensDialog(NewItemDialog):

@@ -150,11 +150,15 @@
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation>Ús: %prog [opcions] [nom_fitxer, ...]</translation>
+        <translation type="vanished">Ús: %prog [opcions] [nom_fitxer, ...]</translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
         <translation>Photini editor de metadades de foto</translation>
+    </message>
+    <message>
+        <source>use charset C to decode metadata text</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>test new features or API versions</source>
@@ -163,6 +167,14 @@
     <message>
         <source>increase number of logging messages</source>
         <translation>Augmentar la quantitat de missatges de registre</translation>
+    </message>
+    <message>
+        <source>show Photini version information and exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>files or directories to open</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>restore config from a backup</source>

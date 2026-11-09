@@ -22,7 +22,6 @@ import logging
 import os
 import re
 
-import chardet
 import exiv2
 
 from photini.pyqt import qbuffer_needs_bytes, QtCore, QtGui, qt_version_info
@@ -125,11 +124,17 @@ class MetadataHandler(object):
             del self._exifData[tag]
         # transcode any non utf-8 strings (Xmp is always utf-8)
         encodings = []
+        app = QtCore.QCoreApplication.instance()
+        if app.options.charset:
+            encodings.append(codecs.lookup(app.options.charset).name)
         iptc_charset = self.get_iptc_encoding()
-        if iptc_charset not in ('utf-8', 'ascii', None):
+        if iptc_charset is not None:
             iptc_charset = codecs.lookup(iptc_charset).name
             logger.info('%s: IPTC character set %s', self._name, iptc_charset)
             encodings.append(iptc_charset)
+        # always try utf-8, which is a superset of ascii
+        if 'utf-8' not in encodings:
+            encodings.append('utf-8')
         for data, set_value in ((self._exifData, self.set_exif_value),
                                 (self._iptcData, self.set_iptc_value)):
             new_data = defaultdict(list)
@@ -144,33 +149,19 @@ class MetadataHandler(object):
                     # unknown key type
                     continue
                 raw_value = datum.value().data()
-                if self.decode_string(key, raw_value, 'utf-8') is not None:
-                    # no need to do anything
-                    continue
                 for encoding in encodings:
                     value = self.decode_string(key, raw_value, encoding)
                     if value is not None:
                         break
                 else:
-                    encoding = chardet.detect(bytearray(raw_value))['encoding']
-                    if encoding:
-                        try:
-                            encoding = codecs.lookup(encoding).name
-                        except LookupError:
-                            encoding = None
-                    if encoding:
-                        logger.info("%s: detected character set '%s'",
-                                    self._name, encoding)
-                        value = self.decode_string(key, raw_value, encoding)
-                    else:
-                        value = None
-                    if value is not None:
-                        encodings.append(encoding)
-                    else:
-                        logger.warning('%s: failed to transcode %s',
-                                       self._name, key)
-                        value = bytes(raw_value).decode(
-                            'utf-8', errors='replace')
+                    b, e = self._decode_fail
+                    value = bytes(raw_value)
+                    error_chars = value[b:e]
+                    error_string = value[max(b-10, 0):
+                                         min(e+10, len(raw_value))]
+                    logger.warning('%s: %s: failed to decode %s in %s',
+                                   self._name, key, error_chars, error_string)
+                    value = value.decode('utf-8', errors='replace')
                 new_data[key].append(value)
             for key, value in new_data.items():
                 if len(value) == 1:
@@ -218,10 +209,9 @@ class MetadataHandler(object):
         return exiv2.TypeId.xmpText
 
     def decode_string(self, tag, raw_value, encoding):
-        encoding = codecs.lookup(encoding).name
-        if encoding == 'utf-32-be':
+        if encoding in ('utf-32-be', 'utf-32-le', 'utf-32'):
             null = b'\x00\x00\x00\x00'
-        elif encoding in ('utf-16-be', 'utf-16-le'):
+        elif encoding in ('utf-16-be', 'utf-16-le', 'utf-16'):
             null = b'\x00\x00'
         else:
             null = b'\x00'
@@ -231,7 +221,8 @@ class MetadataHandler(object):
             raw_value = raw_value[:idx]
         try:
             result = raw_value.decode(encoding=encoding)
-        except UnicodeDecodeError:
+        except UnicodeDecodeError as ex:
+            self._decode_fail = ex.start, ex.end
             return None
         if encoding != 'utf-8':
             logger.info(
@@ -345,22 +336,26 @@ class MetadataHandler(object):
         elif charset == exiv2.CommentValue.CharsetId.unicode:
             # Exif refers to 1991 unicode, which predates UTF-8.
             # Check for BOM.
-            if raw_value[:3] == b'\xef\xbb\xbf':
+            if raw_value[:3] == codecs.BOM_UTF8:
                 raw_value = raw_value[3:]
                 encodings = ('utf-8',)
-            elif raw_value[:2] == b'\xff\xfe':
+            elif raw_value[:2] == codecs.BOM_LE:
                 raw_value = raw_value[2:]
                 encodings = ('utf-16-le',)
-            elif raw_value[:2] == b'\xfe\xff':
+            elif raw_value[:2] == codecs.BOM_BE:
                 raw_value = raw_value[2:]
                 encodings = ('utf-16-be',)
             else:
                 # If no BOM, utf-16 should be bigendian so try that first.
                 encodings = ('utf-16-be', 'utf-16-le', 'utf-8')
+        elif not any(data[:8]):
+            # empty charset, assume ascii
+            encodings = ('ascii',)
         else:
             encodings = ()
             if charset != exiv2.CommentValue.CharsetId.undefined:
-                logger.warning('%s: %s: unknown charset', self._name, tag)
+                logger.warning('%s: %s: unknown charset %s',
+                               self._name, tag, repr(raw_value[:8]))
                 raw_value = data
         if not raw_value:
             # no data to decode
@@ -370,16 +365,6 @@ class MetadataHandler(object):
             result = self.decode_string(tag, raw_value, encoding)
             if result is not None:
                 break
-        else:
-            detector = chardet.universaldetector.UniversalDetector()
-            for i in range(0, len(raw_value), 100):
-                detector.feed(raw_value[i:i+100])
-                if detector.done:
-                    break
-            detector.close()
-            encoding = detector.result['encoding']
-            if encoding:
-                result = self.decode_string(tag, raw_value, encoding)
         if result and '\0' in result:
             # terminating NULLs are allowed
             result = result.strip('\0')
@@ -390,7 +375,6 @@ class MetadataHandler(object):
             logger.error(
                 '%s: %s: %d bytes binary data will be deleted when metadata'
                 ' is saved', self._name, tag, value.size())
-            return None
         return result
 
     def get_exif_value(self, tag):

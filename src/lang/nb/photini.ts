@@ -150,10 +150,14 @@
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation>Bruk: %prog [alternativer] [fil_navn, ...]</translation>
+        <translation type="vanished">Bruk: %prog [alternativer] [fil_navn, ...]</translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>use charset C to decode metadata text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -163,6 +167,14 @@
     <message>
         <source>increase number of logging messages</source>
         <translation>økning av antall loggingsmeldinger</translation>
+    </message>
+    <message>
+        <source>show Photini version information and exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>files or directories to open</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>restore config from a backup</source>

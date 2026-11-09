@@ -119,6 +119,14 @@ class TabWidget(PhotiniMap):
     <script type="text/javascript" src="googlemap.js"></script>'''.format(
         url=url)
 
+    def get_body(self, text_dir):
+        lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
+        zoom = float(self.app.config_store.get('map', 'zoom', 11))
+        return f'''  <body ondragstart="return false">
+    <gmp-map center="{lat},{lng}" zoom="{zoom}" map-id="ce7cafb5b0de6e31">
+    </gmp-map>
+  </body>'''
+
     def get_options(self):
         user_agent = self.widgets['map'].page().profile().httpUserAgent()
         match = re.search(r'\sChrome/(\d+)\.', user_agent)

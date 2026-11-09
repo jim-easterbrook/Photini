@@ -70,7 +70,7 @@ class FolderSource(object):
                 sc_path = metadata.find_sidecar()
                 camera = metadata.camera_model
                 if camera:
-                    camera = camera['model']
+                    camera = camera['Model']
                 yield {'camera'    : camera,
                        'path'      : path,
                        'sc_path'   : sc_path,

@@ -16,12 +16,12 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import argparse
 import codecs
 from contextlib import contextmanager
 import importlib
 import locale
 import logging
-from optparse import OptionParser
 import os
 import re
 import sys
@@ -721,39 +721,49 @@ def main(argv=None):
         translator.setParent(app)
         app.installTranslator(translator)
     # parse remaining arguments
-    version = full_version_info()
-    parser = OptionParser(
-        usage=translate('CLIHelp', 'Usage: %prog [options] [file_name, ...]'),
-        version=version,
+    parser = argparse.ArgumentParser(
         description=translate('CLIHelp', 'Photini photo metadata editor'))
-    parser.add_option(
+    parser.add_argument(
+        '-c', '--charset', action='store', metavar='C',
+        help=translate('CLIHelp', 'use charset C to decode metadata text'))
+    parser.add_argument(
         '-r', '--restore', action='store_true',
         help=translate('CLIHelp', 'restore config from a backup'))
-    parser.add_option(
+    parser.add_argument(
         '-t', '--test', action='store_true',
         help=translate('CLIHelp', 'test new features or API versions'))
-    parser.add_option(
+    parser.add_argument(
         '-v', '--verbose', action='count', default=0,
         help=translate('CLIHelp', 'increase number of logging messages'))
-    options, args = parser.parse_args()
+    parser.add_argument(
+        '--version', action='store_true',
+        help=translate('CLIHelp', 'show Photini version information and exit'))
+    parser.add_argument(
+        'file', nargs='*',
+        help=translate('CLIHelp', 'files or directories to open'))
+    options = parser.parse_args()
+    if options.version:
+        print(full_version_info())
+        return 0
+    file_list = options.file
     if sys.platform == 'win32':
         # args might not be utf-8 encoded
         lang, encoding = locale.getdefaultlocale()
         if encoding.lower() not in ('utf-8', 'utf_8', 'utf8'):
-            args = [x.encode(encoding).decode('utf-8') for x in args]
+            file_list = [x.encode(encoding).decode('utf-8') for x in file_list]
     # restore config?
     if options.restore:
         ConfigFileHandler('editor.ini').restore()
         ConfigFileHandler('keywords.json').restore()
     # if an instance of Photini is already running, send it the list of
     # files to open
-    if SendToInstance(args):
+    if SendToInstance(file_list):
         return 0
     # ensure warnings are visible in test mode
     if options.test:
         warnings.simplefilter('default')
     # create GUI and run application event loop
-    main = MainWindow(options, args)
+    main = MainWindow(options, file_list)
     main.show()
     result = execute(app)
     InstanceConfig.delete()
