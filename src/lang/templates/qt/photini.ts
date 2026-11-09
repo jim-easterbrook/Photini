@@ -129,11 +129,11 @@
 <context>
     <name>CLIHelp</name>
     <message>
-        <source>Usage: %prog [options] [file_name, ...]</source>
+        <source>Photini photo metadata editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Photini photo metadata editor</source>
+        <source>use charset C to decode metadata text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -146,6 +146,14 @@
     </message>
     <message>
         <source>increase number of logging messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>show Photini version information and exit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>files or directories to open</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
