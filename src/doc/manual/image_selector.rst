@@ -87,6 +87,36 @@ If you want to discard any of these changes then select the appropriate ``undo``
 
 The same menu items also appear in a sub-menu of the main ``File`` menu.
 
+Text decoding errors
+--------------------
+
+.. versionadded:: 2026.11.0
+
+According to the Exif standard, most text values can only use ASCII characters, which doesn't allow the accented characters used in many languages.
+Nowadays it is normal to use UTF-8 encoding to store non-ASCII text in Exif, but older image files may contain other encodings, e.g. iso-8859-1 (also known as latin-1).
+If you open such files with Photini you should get error messages like these::
+
+    10:18:38: WARNING: photini.exiv2: A1100_IMG_1532.JPG: Exif.Image.ImageDescription: failed to decode b'\xe2' in b'Ch\xe2teau-Gonti'
+    10:18:38: WARNING: photini.exiv2: A1100_IMG_1532.JPG: Exif.Image.Copyright: failed to decode b'\xa9' in b'Copyright \xa92012 Jim E'
+    10:18:38: WARNING: photini.exiv2: A1100_IMG_1532.JPG: Iptc.Application2.Copyright: failed to decode b'\xa9' in b'Copyright \xa92012 Jim E'
+
+These messages show the first unrecognised character in a string, and a short extract from the string to show context.
+
+You may also see ``�`` characters in Photini's text values::
+
+    Ch�teau-Gontier, France
+    Copyright �2012 Jim Easterbrook
+
+Previous version of Photini would try to guess the encoding used for Exif and IPTC-IIM metadata, but this is not reliable for the small amount of available data.
+Since version 2026.11.0 you need to tell Photini what encoding to use.
+(The available encodings are listed in the `Python documentation`_.)
+
+In this case I know that the hexadecimal values ``e2`` and ``a9`` are ``â`` and ``©`` in the latin-1 encoding, so I can tell Photini to use this encoding when loading the file::
+
+    photini A1100_IMG_1532.JPG --charset latin-1
+
+When Photini saves a file it converts all the metadata to UTF-8 encoding, so there is no need to tell it what charset to use when reopening the file.
+
 Using Photini with other programs
 ---------------------------------
 
@@ -98,3 +128,6 @@ If you make changes in another program you should use the context menu described
 You may also want to experiment with how other programs display the metadata you create in Photini and *vice versa*.
 Be aware that other programs might not store their metadata in the picture files, but use a database or separate files (other than XMP sidecars).
 Such programs are not compatible with Photini, unless they can be configured to use metadata standards.
+
+.. _Python documentation:
+    https://docs.python.org/3/library/codecs.html#standard-encodings
