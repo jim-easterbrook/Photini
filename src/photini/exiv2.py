@@ -686,7 +686,7 @@ class MetadataHandler(object):
         type_id = key.defaultTypeId()
         if type_id == exiv2.TypeId.unsignedByte:
             if tag.startswith('Exif.Image.XP'):
-                value = value.encode('utf-16-le')
+                value = value.encode('utf-16-le') + b'\x00\x00'
             value = exiv2.DataValue(
                 value, exiv2.ByteOrder.invalidByteOrder, type_id)
         elif type_id == exiv2.TypeId.asciiString:
