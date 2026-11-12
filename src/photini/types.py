@@ -1200,6 +1200,7 @@ class MD_LensModel(MD_Structure):
         'Exif.Pentax.Lens': {'Model': 'LensType'},
         'Exif.Sony.Lens': {'Specification': 'LensSpec'},
         'Xmp.aux.Lens': {'Model': 'Lens'},
+        'Xmp.MicrosoftPhoto.Lens': {'Make': 'Manufacturer'},
         }
 
     @classmethod

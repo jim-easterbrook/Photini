@@ -391,6 +391,10 @@ class ImageMetadata(MetadataHandler):
         'Xmp.IPTCLegacy.Location': (
             re.compile(r'Xmp\.(iptc.Location|photoshop.City|photoshop.State'
                        '|photoshop.Country|iptc.CountryCode)'), 'Xmp.{}'),
+        'Xmp.MicrosoftPhoto.Camera': (
+            re.compile(r'Xmp\.MicrosoftPhoto\.Camera(SerialNumber)'),),
+        'Xmp.MicrosoftPhoto.Lens': (
+            re.compile(r'Xmp\.MicrosoftPhoto\.Lens(.*)'),),
         'Xmp.PixelXYDimension': (
             re.compile(r'Xmp\.exif\.(Pixel(X|Y)Dimension)'),),
         'Xmp.xmpRights': (
@@ -424,6 +428,7 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Sigma.Camera'),
                             ('WN', 'Exif.Sony.Camera'),
                             ('WN', 'Xmp.aux.Camera'),
+                            ('WN', 'Xmp.MicrosoftPhoto.Camera'),
                             ('W0', 'Xmp.video.Camera')),
         'contact_info'   : (('WA', 'Xmp.plus.Licensor'),
                             ('W0', 'Xmp.iptc.CreatorContactInfo')),
@@ -504,6 +509,7 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Olympus.Lens'),
                             ('WN', 'Exif.Pentax.Lens'),
                             ('WN', 'Exif.Sony.Lens'),
+                            ('WN', 'Xmp.MicrosoftPhoto.Lens'),
                             ('W0', 'Xmp.aux.Lens')),
         'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
