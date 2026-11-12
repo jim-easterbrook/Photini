@@ -1293,6 +1293,14 @@ class MD_Keywords(MD_MultiString):
             file_value = file_value.split(';')
         return cls(file_value)
 
+    def to_exiv2(self, tag):
+        if self and tag == 'Exif.Image.XPKeywords':
+            if any(';' in x for x in self):
+                logger.warning('%s: keyword contains ";" character', tag)
+                return None
+            return ';'.join(self)
+        return tuple(self)
+
     def human_tags(self):
         return [x for x in self if not self._machine_tag.match(x)]
 

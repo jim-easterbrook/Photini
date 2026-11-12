@@ -496,7 +496,7 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.SpecialInstructions')),
         'keywords'       : (('WA', 'Xmp.dc.subject'),
                             ('WA', 'Iptc.Application2.Keywords'),
-                            ('W0', 'Exif.Image.XPKeywords')),
+                            ('WA', 'Exif.Image.XPKeywords')),
         'lens_model'     : (('WA', 'Exif.Photo.Lens'),
                             ('WX', 'Xmp.exifEX.Lens'),
                             ('W0', 'Exif.Image.Lens'),
