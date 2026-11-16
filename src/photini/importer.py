@@ -63,7 +63,7 @@ class FolderSource(object):
                              metadata.date_digitised or
                              metadata.date_modified)
                 if timestamp:
-                    timestamp = timestamp.datetime
+                    timestamp = timestamp.datetime.replace(tzinfo=None)
                 else:
                     # use file date as last resort
                     timestamp = datetime.fromtimestamp(os.path.getmtime(path))
