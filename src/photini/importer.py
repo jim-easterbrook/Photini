@@ -464,9 +464,9 @@ class ImporterTab(QtWidgets.QWidget):
             item_data = self.source_selector.itemData(idx)
             if callable(item_data):
                 continue
-            source, section = item_data
-            if section.startswith('importer folder '):
-                directory = section[16:]
+            source, args = item_data
+            if source == FolderSource:
+                directory = args[0]
                 break
         root = QtWidgets.QFileDialog.getExistingDirectory(
             self, translate('ImporterTab', "Select root folder"), directory)
