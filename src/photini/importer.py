@@ -68,7 +68,7 @@ class FolderSource(object):
                     # use file date as last resort
                     timestamp = datetime.fromtimestamp(os.path.getmtime(path))
                 sc_path = metadata.find_sidecar()
-                camera = metadata.camera_model
+                camera = metadata.camera_model or None
                 if camera:
                     camera = camera['Model']
                 yield {'camera'    : camera,
@@ -711,7 +711,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.copier_thread.start()
             # show files as they're copied
             count = 0
-            while self.copier_thread.isRunning():
+            while copier_result or self.copier_thread.isRunning():
                 if copier_result:
                     info = copier_result.popleft()
                     if not info:
@@ -737,6 +737,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.copier_thread.quit()
             self.copier_thread.wait()
             self.copier_thread = None
+            self.selection_changed()
         if last_file_copied[0]:
             if self.source:
                 self.config_store.set(self.source.cfg_section, 'last_transfer',
