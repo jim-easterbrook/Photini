@@ -166,6 +166,7 @@ class CameraSource(object):
                                 gp.GP_FILE_TYPE_NORMAL, offset, buf)
                             of.write(buf[:count])
                             offset += count
+                            yield offset
                 except Exception:
                     os.unlink(info['dest_path'])
                     raise
@@ -716,10 +717,13 @@ class ImporterTab(QtWidgets.QWidget):
             while copier_result or self.copier_thread.isRunning():
                 if copier_result:
                     info = copier_result.popleft()
-                    if not info:
+                    if info is None:
                         # copy failed
                         self._fail()
                         break
+                    if isinstance(info, int):
+                        progress(value=copied_size + info)
+                        continue
                     copied_size += info['size']
                     progress(value=copied_size)
                     if last_file_copied[1] < info['timestamp']:
