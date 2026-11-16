@@ -75,8 +75,8 @@ class FolderSource(object):
                        'path'      : path,
                        'sc_path'   : sc_path,
                        'name'      : name,
+                       'size'      : os.path.getsize(path),
                        'timestamp' : timestamp}
-
 
     def copy_files(self, info_list, move):
         for info in info_list:
@@ -682,6 +682,7 @@ class ImporterTab(QtWidgets.QWidget):
     def copy_selected(self, move=False):
         with Busy():
             copy_list = []
+            total_size = 0
             for item in self.file_list.selectedItems():
                 info = item.data(Qt.ItemDataRole.UserRole)
                 if move and self.app.image_list.get_image(info['path']):
@@ -690,10 +691,11 @@ class ImporterTab(QtWidgets.QWidget):
                         'Please close image %s before moving it', info['name'])
                 else:
                     copy_list.append(info)
+                    total_size += info['size']
             if not copy_list:
                 return
         with self.app.busy() as progress:
-            progress(value=0, target=len(copy_list))
+            progress(value=0, target=total_size)
             if move:
                 self.move_button.set_checked(True)
                 self.copy_button.setEnabled(False)
@@ -710,7 +712,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.copier_thread.started.connect(file_copier.start)
             self.copier_thread.start()
             # show files as they're copied
-            count = 0
+            copied_size = 0
             while copier_result or self.copier_thread.isRunning():
                 if copier_result:
                     info = copier_result.popleft()
@@ -718,8 +720,8 @@ class ImporterTab(QtWidgets.QWidget):
                         # copy failed
                         self._fail()
                         break
-                    count += 1
-                    progress(value=count)
+                    copied_size += info['size']
+                    progress(value=copied_size)
                     if last_file_copied[1] < info['timestamp']:
                         last_file_copied = info['dest_path'], info['timestamp']
                     item = self.file_list.find_item(info)
