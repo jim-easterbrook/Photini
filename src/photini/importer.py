@@ -63,20 +63,20 @@ class FolderSource(object):
                              metadata.date_digitised or
                              metadata.date_modified)
                 if timestamp:
-                    timestamp = timestamp.datetime
+                    timestamp = timestamp.datetime.replace(tzinfo=None)
                 else:
                     # use file date as last resort
                     timestamp = datetime.fromtimestamp(os.path.getmtime(path))
                 sc_path = metadata.find_sidecar()
-                camera = metadata.camera_model
+                camera = metadata.camera_model or None
                 if camera:
                     camera = camera['Model']
                 yield {'camera'    : camera,
                        'path'      : path,
                        'sc_path'   : sc_path,
                        'name'      : name,
+                       'size'      : os.path.getsize(path),
                        'timestamp' : timestamp}
-
 
     def copy_files(self, info_list, move):
         for info in info_list:
@@ -166,6 +166,7 @@ class CameraSource(object):
                                 gp.GP_FILE_TYPE_NORMAL, offset, buf)
                             of.write(buf[:count])
                             offset += count
+                            yield offset
                 except Exception:
                     os.unlink(info['dest_path'])
                     raise
@@ -464,9 +465,9 @@ class ImporterTab(QtWidgets.QWidget):
             item_data = self.source_selector.itemData(idx)
             if callable(item_data):
                 continue
-            source, section = item_data
-            if section.startswith('importer folder '):
-                directory = section[16:]
+            source, args = item_data
+            if source == FolderSource:
+                directory = args[0]
                 break
         root = QtWidgets.QFileDialog.getExistingDirectory(
             self, translate('ImporterTab', "Select root folder"), directory)
@@ -682,6 +683,7 @@ class ImporterTab(QtWidgets.QWidget):
     def copy_selected(self, move=False):
         with Busy():
             copy_list = []
+            total_size = 0
             for item in self.file_list.selectedItems():
                 info = item.data(Qt.ItemDataRole.UserRole)
                 if move and self.app.image_list.get_image(info['path']):
@@ -690,10 +692,11 @@ class ImporterTab(QtWidgets.QWidget):
                         'Please close image %s before moving it', info['name'])
                 else:
                     copy_list.append(info)
+                    total_size += info['size']
             if not copy_list:
                 return
         with self.app.busy() as progress:
-            progress(value=0, target=len(copy_list))
+            progress(value=0, target=total_size)
             if move:
                 self.move_button.set_checked(True)
                 self.copy_button.setEnabled(False)
@@ -710,16 +713,19 @@ class ImporterTab(QtWidgets.QWidget):
             self.copier_thread.started.connect(file_copier.start)
             self.copier_thread.start()
             # show files as they're copied
-            count = 0
-            while self.copier_thread.isRunning():
+            copied_size = 0
+            while copier_result or self.copier_thread.isRunning():
                 if copier_result:
                     info = copier_result.popleft()
-                    if not info:
+                    if info is None:
                         # copy failed
                         self._fail()
                         break
-                    count += 1
-                    progress(value=count)
+                    if isinstance(info, int):
+                        progress(value=copied_size + info)
+                        continue
+                    copied_size += info['size']
+                    progress(value=copied_size)
                     if last_file_copied[1] < info['timestamp']:
                         last_file_copied = info['dest_path'], info['timestamp']
                     item = self.file_list.find_item(info)
@@ -737,6 +743,7 @@ class ImporterTab(QtWidgets.QWidget):
             self.copier_thread.quit()
             self.copier_thread.wait()
             self.copier_thread = None
+            self.selection_changed()
         if last_file_copied[0]:
             if self.source:
                 self.config_store.set(self.source.cfg_section, 'last_transfer',

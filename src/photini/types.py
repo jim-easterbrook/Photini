@@ -1200,6 +1200,7 @@ class MD_LensModel(MD_Structure):
         'Exif.Pentax.Lens': {'Model': 'LensType'},
         'Exif.Sony.Lens': {'Specification': 'LensSpec'},
         'Xmp.aux.Lens': {'Model': 'Lens'},
+        'Xmp.MicrosoftPhoto.Lens': {'Make': 'Manufacturer'},
         }
 
     @classmethod
@@ -1291,6 +1292,14 @@ class MD_Keywords(MD_MultiString):
         if file_value and tag == 'Exif.Image.XPKeywords':
             file_value = file_value.split(';')
         return cls(file_value)
+
+    def to_exiv2(self, tag):
+        if self and tag == 'Exif.Image.XPKeywords':
+            if any(';' in x for x in self):
+                logger.warning('%s: keyword contains ";" character', tag)
+                return None
+            return ';'.join(self)
+        return tuple(self)
 
     def human_tags(self):
         return [x for x in self if not self._machine_tag.match(x)]
