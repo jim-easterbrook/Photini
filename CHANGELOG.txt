@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2026.11.0:
+  1/ Add option to set charset of non UTF-8 metadata.
+  2/ Fix bugs in folder importer.
+  3/ Importer progress bar works for large files (e.g. video).
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2026.10.1:
   1/ Fix problem in file importer.
 
