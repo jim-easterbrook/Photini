@@ -433,6 +433,7 @@ class BusyProgress(QtWidgets.QProgressBar):
         self.setFixedHeight(self.sizeHint().height())
         self.setVisible(False)
         self.setMinimum(0)
+        self.scale = 1
         # timer to prevent quick actions from showing progress bar
         self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
@@ -458,9 +459,10 @@ class BusyProgress(QtWidgets.QProgressBar):
 
     def progress(self, value=None, target=None):
         if target:
-            self.setMaximum(target)
+            self.scale = 1 + (target // ((2**31) - 1))
+            self.setMaximum(target // self.scale)
         if value:
-            self.setValue(value)
+            self.setValue(value // self.scale)
         self.app.processEvents()
 
 
