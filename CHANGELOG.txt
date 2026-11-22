@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2026.11.1:
+  1/ Fix importer progress bar with files larger than 2^31 bytes.
+
 Changes in v2026.11.0:
   1/ Add option to set charset of non UTF-8 metadata.
   2/ Fix bugs in folder importer.
